@@ -18,7 +18,15 @@ int main (int argc, char* argv[])
 	std::cout << "============================"<< std::endl;
 	try
 	{
-		I2C *i2c = new I2C();
+		I2C i2c;
+
+		i2c.writeByteSync(0x10, 0x80);
+		std::vector<uint8_t> data;
+		data.push_back(0x02);
+		data.push_back(0x03);
+		data.push_back(0x04);
+
+		i2c.writeDataSync(0x11, data);
 	}
 	catch (std::string* caught)
 	{
