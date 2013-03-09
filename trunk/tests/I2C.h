@@ -15,7 +15,7 @@ public:
 	I2C();
 	virtual ~I2C();
 
-	bool syncWriteData(uint8_t address, std::vector<uint8_t> data);
+	bool writeDataSync(uint8_t address, std::vector<uint8_t> data);
 private:
 	int mI2CFile;
 };

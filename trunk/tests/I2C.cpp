@@ -29,7 +29,7 @@ I2C::~I2C() {
 	close(mI2CFile);
 }
 
-bool I2C::syncWriteData(uint8_t address, std::vector<uint8_t> data)
+bool I2C::writeDataSync(uint8_t address, std::vector<uint8_t> data)
 {
 	// Set the port options and set the address of the device we wish to speak to
 	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
