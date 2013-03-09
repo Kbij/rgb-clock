@@ -13,29 +13,80 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <string>
-
+#include <iomanip>
 
 const std::string i2cFileName("/dev/i2c-0");
 
 I2C::I2C() {
+
+#ifndef HOSTBUILD
 	// Open port for reading and writing
 	if ((mI2CFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
 	{
 		throw new std::string("Failed to open I2C port.");
 	}
+#endif
+
 }
 
 I2C::~I2C() {
 	close(mI2CFile);
 }
 
-bool I2C::writeDataSync(uint8_t address, std::vector<uint8_t> data)
+bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 {
+	LOG(INFO) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data: 0x" << (int) byte << ";";
+
+#ifndef HOSTBUILD
 	// Set the port options and set the address of the device we wish to speak to
 	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
 	{
 		LOG(ERROR) << "Unable to get bus access to talk to slave";
 		return false;
 	}
+	if ((write(mI2CFile, &byte, 1)) != 1)
+	{
+		LOG(ERROR) << "Error writing to i2c slave";
+		return false;
+	}
 	return true;
+#else
+	return true;
+#endif
+}
+
+bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
+{
+	std::ostringstream logStream;
+	logStream << std::hex << std::setfill('0') << std::setw(2);
+	bool first = true;
+	for (auto byte: data)
+	{
+		if (!first)
+		{
+			logStream << ", ";
+		}
+		first = false;
+
+		logStream << " 0x" << (int) byte;
+
+	}
+	LOG(INFO) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data:" << logStream.str() << ";";
+
+#ifndef HOSTBUILD
+	// Set the port options and set the address of the device we wish to speak to
+	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
+	{
+		LOG(ERROR) << "Unable to get bus access to talk to slave";
+		return false;
+	}
+	if ((write(mI2CFile, data.data(), 1)) != 1)
+	{
+		LOG(ERROR) << "Error writing to i2c slave";
+		return false;
+	}
+	return true;
+#else
+	return true;
+#endif
 }
