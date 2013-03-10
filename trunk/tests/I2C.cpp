@@ -17,8 +17,9 @@
 
 const std::string i2cFileName("/dev/i2c-0");
 
-I2C::I2C() {
-
+I2C::I2C() :
+	mI2CFile(0)
+{
 #ifndef HOSTBUILD
 	// Open port for reading and writing
 	if ((mI2CFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
@@ -26,7 +27,6 @@ I2C::I2C() {
 		throw new std::string("Failed to open I2C port.");
 	}
 #endif
-
 }
 
 I2C::~I2C() {
