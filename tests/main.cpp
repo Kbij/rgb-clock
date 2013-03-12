@@ -5,6 +5,8 @@
  *      Author: koen
  */
 #include "I2C.h"
+#include "RgbLed.h"
+
 #include <string>
 #include <glog/logging.h>
 
@@ -19,7 +21,8 @@ int main (int argc, char* argv[])
 	try
 	{
 		I2C i2c;
-
+		RgbLed rgbLed(i2c, 0b10000000 );
+/*
 		i2c.writeByteSync(0x10, 0x80);
 		std::vector<uint8_t> data;
 		data.push_back(0x02);
@@ -27,6 +30,7 @@ int main (int argc, char* argv[])
 		data.push_back(0x04);
 
 		i2c.writeDataSync(0x11, data);
+		*/
 	}
 	catch (std::string* caught)
 	{
