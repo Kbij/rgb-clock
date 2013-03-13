@@ -11,6 +11,11 @@
 #include <glog/logging.h>
 
 #include <iostream>
+#include <stdio.h>
+#include <cstdlib>
+
+const uint8_t PCA9685_ADDRESS = 0b10000000;
+
 int main (int argc, char* argv[])
 {
 	google::InitGoogleLogging("I2C Test");
@@ -21,7 +26,23 @@ int main (int argc, char* argv[])
 	try
 	{
 		I2C i2c;
-		RgbLed rgbLed(i2c, 0b10000000 );
+		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
+		std::string inputValue;
+
+		do
+		{
+			std::cout << "Please enter On Ratio ('x' to quit): ";
+			std::cin >> inputValue;
+			int intValue = atoi(inputValue.c_str());
+			if ((intValue >=0 ) && (intValue <= 100))
+			{
+				std::cout << intValue << std::endl;
+				rgbLed.intensity(intValue);
+				rgbLed.write();
+
+			}
+		} while ( inputValue != "x");
+
 /*
 		i2c.writeByteSync(0x10, 0x80);
 		std::vector<uint8_t> data;

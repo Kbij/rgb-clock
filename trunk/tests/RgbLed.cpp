@@ -7,12 +7,13 @@
 
 #include "RgbLed.h"
 #include <vector>
-
+#include <glog/logging.h>
 
 RgbLed::RgbLed(I2C &i2c, uint8_t writeAddress) :
 			mI2C(i2c),
 			mWriteAddress(writeAddress),
-			mReadAddress(writeAddress | 0x01)
+			mReadAddress(writeAddress | 0x01),
+			mIntensity(0)
 {
 // Reset PCA9685
 	mI2C.writeByteSync(0x00, 0x06); // General Call Adress, Send SWRST data byte 1):
@@ -60,3 +61,23 @@ bool RgbLed::pwrOff()
 {
 	return true;
 }
+void RgbLed::intensity(uint8_t value)
+{
+	mIntensity = value;
+}
+
+void RgbLed::write()
+{
+	int32_t offTime = (4095 / 100) * mIntensity;
+	LOG(INFO) << "Calculcated offTime = " << offTime;
+	std::vector<uint8_t> buffer;
+	buffer.push_back(0xFA); // All LedOn, byte0 = start Register
+	buffer.push_back(0x00); // LedOn, byte 0 value
+	buffer.push_back(0x00); // LedOn, byte 1 value
+	buffer.push_back(offTime & 0xFF); // LedOff, byte 0 value
+
+	buffer.push_back((offTime) & 0x0F); // LedOff, byte 1 value
+
+	mI2C.writeDataSync(mWriteAddress, buffer);
+}
+
