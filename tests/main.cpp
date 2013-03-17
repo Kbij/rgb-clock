@@ -13,8 +13,11 @@
 #include <iostream>
 #include <stdio.h>
 #include <cstdlib>
+#include <chrono>
+#include <thread>
 
-const uint8_t PCA9685_ADDRESS = 0b10000000;
+
+const uint8_t PCA9685_ADDRESS = 0b01000000;
 
 int main (int argc, char* argv[])
 {
@@ -43,15 +46,24 @@ int main (int argc, char* argv[])
 			}
 		} while ( inputValue != "x");
 
-/*
-		i2c.writeByteSync(0x10, 0x80);
-		std::vector<uint8_t> data;
-		data.push_back(0x02);
-		data.push_back(0x03);
-		data.push_back(0x04);
-
-		i2c.writeDataSync(0x11, data);
-		*/
+		/*
+		do{
+		for (int i = 0; i < 100; ++i)
+		{
+		    std::chrono::milliseconds dura( 50 );
+		    std::this_thread::sleep_for( dura );
+			rgbLed.intensity(i);
+			rgbLed.write();
+		}
+		for (int i = 100; i > 0; --i)
+		{
+		    std::chrono::milliseconds dura( 50 );
+		    std::this_thread::sleep_for( dura );
+			rgbLed.intensity(i);
+			rgbLed.write();
+		}
+		} while (1);
+*/
 	}
 	catch (std::string* caught)
 	{

@@ -15,7 +15,7 @@
 #include <string>
 #include <iomanip>
 
-const std::string i2cFileName("/dev/i2c-0");
+const std::string i2cFileName("/dev/i2c-1");
 
 I2C::I2C() :
 	mI2CFile(0)
@@ -24,7 +24,13 @@ I2C::I2C() :
 	// Open port for reading and writing
 	if ((mI2CFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
 	{
-		throw new std::string("Failed to open I2C port.");
+		std::string  ex("Failed to open bus");
+		ex += strerror(errno);
+		throw ex;
+	}
+	else
+	{
+		LOG(INFO) << "Bus open for write" ;
 	}
 #endif
 }
@@ -41,12 +47,12 @@ bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 	// Set the port options and set the address of the device we wish to speak to
 	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
 	{
-		LOG(ERROR) << "Unable to get bus access to talk to slave";
+		LOG(ERROR) << strerror(errno);
 		return false;
 	}
 	if ((write(mI2CFile, &byte, 1)) != 1)
 	{
-		LOG(ERROR) << "Error writing to i2c slave";
+		LOG(ERROR) << strerror(errno);
 		return false;
 	}
 	return true;
@@ -77,12 +83,12 @@ bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
 	// Set the port options and set the address of the device we wish to speak to
 	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
 	{
-		LOG(ERROR) << "Unable to get bus access to talk to slave";
+		LOG(ERROR) << "Failed setting address: " << strerror(errno);
 		return false;
 	}
-	if ((write(mI2CFile, data.data(), 1)) != 1)
+	if ((write(mI2CFile, data.data(), data.size())) != 1)
 	{
-		LOG(ERROR) << "Error writing to i2c slave";
+		LOG(ERROR) << "Failed writing data: " << strerror(errno);
 		return false;
 	}
 	return true;
