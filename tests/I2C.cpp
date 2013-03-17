@@ -86,7 +86,7 @@ bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
 		LOG(ERROR) << "Failed setting address: " << strerror(errno);
 		return false;
 	}
-	if ((write(mI2CFile, data.data(), data.size())) != 1)
+	if ((write(mI2CFile, data.data(), data.size())) < 0)
 	{
 		LOG(ERROR) << "Failed writing data: " << strerror(errno);
 		return false;

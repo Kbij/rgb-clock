@@ -20,12 +20,18 @@ public:
 	bool pwrOff();
 
 	void intensity(uint8_t value);
+	void red(uint8_t value);
+	void green(uint8_t value);
+	void blue(uint8_t value);
 	void write();
 private:
 	I2C &mI2C;
 	const uint8_t mWriteAddress;
 	const uint8_t mReadAddress;
 	uint8_t mIntensity;
+	uint8_t mRed;
+	uint8_t mGreen;
+	uint8_t mBlue;
 };
 
 #endif /* RGBLED_H_ */

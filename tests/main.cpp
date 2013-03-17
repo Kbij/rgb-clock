@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <chrono>
 #include <thread>
+#include <algorithm>
 
 
 const uint8_t PCA9685_ADDRESS = 0b01000000;
@@ -36,13 +37,26 @@ int main (int argc, char* argv[])
 		{
 			std::cout << "Please enter On Ratio ('x' to quit): ";
 			std::cin >> inputValue;
-			int intValue = atoi(inputValue.c_str());
-			if ((intValue >=0 ) && (intValue <= 100))
+			std::transform(inputValue.begin(), inputValue.end(), inputValue.begin(), ::tolower);
+			if (inputValue.size() >= 2)
 			{
-				std::cout << intValue << std::endl;
-				rgbLed.intensity(intValue);
-				rgbLed.write();
+				std::string value = inputValue.substr(1, inputValue.size() - 1);
+				std::cout << "Value:" << value << std::endl;
+				int intValue = atoi(value.c_str());
+				if ((intValue >=0 ) && (intValue <= 100))
+				{
 
+					switch (inputValue[0])
+					{
+						case 'r': 	rgbLed.red(intValue);
+									break;
+						case 'g':	rgbLed.green(intValue);
+									break;
+						case 'b': 	rgbLed.blue(intValue);
+									break;
+					}
+					rgbLed.write();
+				}
 			}
 		} while ( inputValue != "x");
 
