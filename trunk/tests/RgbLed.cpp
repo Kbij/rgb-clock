@@ -16,13 +16,11 @@ RgbLed::RgbLed(I2C &i2c, uint8_t writeAddress) :
 			mIntensity(0)
 {
 // Reset PCA9685
-	mI2C.writeByteSync(0x00, 0x06); // General Call Adress, Send SWRST data byte 1):
-
-	std::vector<uint8_t> initBuffer;
+	mI2C.writeByteSync(0x00, 0x06); // General Call Address, Send SWRST data byte 1):
 
 // Set the prescaler
+	std::vector<uint8_t> initBuffer;
 	initBuffer.push_back(0xFE); // PreScaler register
-
 	/*
 	 * Prescaler value = (25Mhz/(4096 * OutputFreq)) - 1
 	 * OutputFreq = 200Hz
@@ -46,6 +44,23 @@ RgbLed::RgbLed(I2C &i2c, uint8_t writeAddress) :
 	 */
 	initBuffer.push_back(0b00100000); //MODE1 register Value
 	mI2C.writeDataSync(mWriteAddress, initBuffer);
+
+	// Set Mode2
+		initBuffer.clear();
+		initBuffer.push_back(0x01); //MODE2 Register
+		/*
+		 * Bits:
+		 * 7:0: Reserved
+		 * 6:0: Reserved
+		 * 5:0: Reserved
+		 * 4:0: Inv
+		 * 3:0: OCH
+		 * 2:0: OutDrv
+		 * 1:0: OutNe1
+		 * 0:0: OutNe0
+		 */
+		initBuffer.push_back(0b00000000); //MODE2 register Value
+		mI2C.writeDataSync(mWriteAddress, initBuffer);
 }
 
 RgbLed::~RgbLed() {
@@ -69,6 +84,11 @@ void RgbLed::intensity(uint8_t value)
 void RgbLed::write()
 {
 	int32_t offTime = (4095 / 100) * mIntensity;
+	if (mIntensity == 100)
+	{
+		offTime = 4095;
+	}
+
 	LOG(INFO) << "Calculcated offTime = " << offTime;
 	std::vector<uint8_t> buffer;
 	buffer.push_back(0xFA); // All LedOn, byte0 = start Register
@@ -76,7 +96,7 @@ void RgbLed::write()
 	buffer.push_back(0x00); // LedOn, byte 1 value
 	buffer.push_back(offTime & 0xFF); // LedOff, byte 0 value
 
-	buffer.push_back((offTime) & 0x0F); // LedOff, byte 1 value
+	buffer.push_back((offTime >> 8) & 0x0F); // LedOff, byte 1 value
 
 	mI2C.writeDataSync(mWriteAddress, buffer);
 }
