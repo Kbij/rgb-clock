@@ -16,7 +16,10 @@ RgbLed::RgbLed(I2C &i2c, uint8_t writeAddress) :
 			mIntensity(0),
 			mRed(0),
 			mGreen(0),
-			mBlue(0)
+			mBlue(0),
+			mHue(0),
+			mSat(0),
+			mLum(0)
 {
 // Reset PCA9685
 	mI2C.writeByteSync(0x00, 0x06); // General Call Address, Send SWRST data byte 1):
@@ -97,6 +100,24 @@ void RgbLed::blue(uint8_t value)
 {
 	mBlue = value;
 }
+void RgbLed::hue(uint8_t value)
+{
+	mHue = value;
+	hslToRgb();
+}
+
+void RgbLed::saturation(uint8_t value)
+{
+	mSat = value;
+	hslToRgb();
+}
+
+void RgbLed::luminance(uint8_t value)
+{
+	mLum = value;
+	hslToRgb();
+}
+
 
 void RgbLed::write()
 {
@@ -117,18 +138,18 @@ void RgbLed::write()
 	buffer.push_back((offTime >> 8) & 0x0F); // LedOff, byte 1 value
 */
 
-	int16_t redOffTime = (4095 / 100) * mRed;
-	if (mRed == 100)
+	int16_t redOffTime = (4095 / 1000) * mRed;
+	if (mRed == 1000)
 	{
 		redOffTime = 4095;
 	}
-	int16_t greenOffTime = (4095 / 100) * mGreen;
-	if (mGreen == 100)
+	int16_t greenOffTime = (4095 / 1000) * mGreen;
+	if (mGreen == 1000)
 	{
 		greenOffTime = 4095;
 	}
-	int16_t blueOffTime = (4095 / 100) * mBlue;
-	if (mBlue == 100)
+	int16_t blueOffTime = (4095 / 1000) * mBlue;
+	if (mBlue == 1000)
 	{
 		blueOffTime = 4095;
 	}
@@ -155,3 +176,69 @@ void RgbLed::write()
 	mI2C.writeDataSync(mWriteAddress, buffer);
 }
 
+/**
+ * Converts an HSL color value to RGB. Conversion formula
+ * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+ * Assumes h, s, and l are contained in the set [0, 255] and
+ * returns r, g, and b in the set [0, 255].
+ *
+ */
+void RgbLed::hslToRgb()
+{
+	double h = (double) mHue / 1000;
+	double l = (double) mLum / 1000;
+	double s = (double) mSat / 1000;
+
+	if(mSat == 0) // achromatic
+    {
+    	mRed = l * 1000;
+    	mGreen = l * 1000;
+        mBlue = l * 1000;
+    }
+    else
+    {
+
+
+        double q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        double p = 2 * l - q;
+        double r = hue2rgb(p, q, double(h + (0.33333)));
+        double g = hue2rgb(p, q, h);
+        double b = hue2rgb(p, q, double(h - (0.33333)));
+
+        mRed = r * 1000;
+        mGreen = g * 1000;
+        mBlue = b * 1000;
+    }
+	LOG(INFO) << "HSL Converted to Red:" << (int) mRed << ", Green:"<< (int) mGreen << ", Blue:" << (int)mBlue;
+
+}
+
+double RgbLed::hue2rgb(double p, double q, double t)
+{
+    if (t < 0)
+    {
+    	t += 1;
+    }
+
+    if (t > 1)
+    {
+    	t -= 1;
+    }
+
+    if (t < 0.16666)
+    {
+    	return p + (q - p) * 6 * t;
+    }
+
+    if (t < 0.5)
+    {
+    	return q;
+    }
+
+    if (t < 0.66666)
+    {
+    	return p + (q - p) * ((0.66666) - t) * 6;
+    }
+
+    return p;
+}

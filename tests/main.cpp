@@ -32,7 +32,7 @@ int main (int argc, char* argv[])
 		I2C i2c;
 		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
 		std::string inputValue;
-
+/*
 		do
 		{
 			std::cout << "Please enter On Ratio ('x' to quit): ";
@@ -54,30 +54,39 @@ int main (int argc, char* argv[])
 									break;
 						case 'b': 	rgbLed.blue(intValue);
 									break;
+						case 'h': 	rgbLed.hue(intValue);
+									break;
+						case 's': 	rgbLed.saturation(intValue);
+									break;
+						case 'l': 	rgbLed.luminance(intValue);
+									break;
+
 					}
 					rgbLed.write();
 				}
 			}
 		} while ( inputValue != "x");
+*/
+		rgbLed.luminance(400);
+		rgbLed.saturation(1000);
 
-		/*
 		do{
-		for (int i = 0; i < 100; ++i)
+		for (int i = 0; i < 1000; ++i)
 		{
 		    std::chrono::milliseconds dura( 50 );
 		    std::this_thread::sleep_for( dura );
-			rgbLed.intensity(i);
+			rgbLed.hue(i);
 			rgbLed.write();
 		}
-		for (int i = 100; i > 0; --i)
+		for (int i = 1000; i > 0; --i)
 		{
 		    std::chrono::milliseconds dura( 50 );
 		    std::this_thread::sleep_for( dura );
-			rgbLed.intensity(i);
+			rgbLed.hue(i);
 			rgbLed.write();
 		}
 		} while (1);
-*/
+
 	}
 	catch (std::string* caught)
 	{
