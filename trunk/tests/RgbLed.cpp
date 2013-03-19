@@ -8,6 +8,7 @@
 #include "RgbLed.h"
 #include <vector>
 #include <glog/logging.h>
+#include <iostream>
 
 RgbLed::RgbLed(I2C &i2c, uint8_t writeAddress) :
 			mI2C(i2c),
@@ -82,37 +83,37 @@ bool RgbLed::pwrOff()
 {
 	return true;
 }
-void RgbLed::intensity(uint8_t value)
+void RgbLed::intensity(uint16_t value)
 {
 	mIntensity = value;
 }
-void RgbLed::red(uint8_t value)
+void RgbLed::red(uint16_t value)
 {
 	mRed = value;
 }
 
-void RgbLed::green(uint8_t value)
+void RgbLed::green(uint16_t value)
 {
 	mGreen = value;
 }
 
-void RgbLed::blue(uint8_t value)
+void RgbLed::blue(uint16_t value)
 {
 	mBlue = value;
 }
-void RgbLed::hue(uint8_t value)
+void RgbLed::hue(uint16_t value)
 {
 	mHue = value;
 	hslToRgb();
 }
 
-void RgbLed::saturation(uint8_t value)
+void RgbLed::saturation(uint16_t value)
 {
 	mSat = value;
 	hslToRgb();
 }
 
-void RgbLed::luminance(uint8_t value)
+void RgbLed::luminance(uint16_t value)
 {
 	mLum = value;
 	hslToRgb();
@@ -138,18 +139,18 @@ void RgbLed::write()
 	buffer.push_back((offTime >> 8) & 0x0F); // LedOff, byte 1 value
 */
 
-	int16_t redOffTime = (4095 / 1000) * mRed;
-	if (mRed == 1000)
+	int16_t redOffTime = (4095 / 4000) * mRed;
+	if (mRed == 4000)
 	{
 		redOffTime = 4095;
 	}
-	int16_t greenOffTime = (4095 / 1000) * mGreen;
-	if (mGreen == 1000)
+	int16_t greenOffTime = (4095 / 4000) * mGreen;
+	if (mGreen == 4000)
 	{
 		greenOffTime = 4095;
 	}
-	int16_t blueOffTime = (4095 / 1000) * mBlue;
-	if (mBlue == 1000)
+	int16_t blueOffTime = (4095 / 4000) * mBlue;
+	if (mBlue == 4000)
 	{
 		blueOffTime = 4095;
 	}
@@ -185,15 +186,19 @@ void RgbLed::write()
  */
 void RgbLed::hslToRgb()
 {
-	double h = (double) mHue / 1000;
-	double l = (double) mLum / 1000;
-	double s = (double) mSat / 1000;
+	uint16_t oldRed = mRed;
+	uint16_t oldGreen = mGreen;
+	uint16_t oldBlue = mBlue;
+
+	double h = (double) mHue / 4000;
+	double l = (double) mLum / 4000;
+	double s = (double) mSat / 4000;
 
 	if(mSat == 0) // achromatic
     {
-    	mRed = l * 1000;
-    	mGreen = l * 1000;
-        mBlue = l * 1000;
+    	mRed = l * 4000;
+    	mGreen = l * 4000;
+        mBlue = l * 4000;
     }
     else
     {
@@ -201,16 +206,27 @@ void RgbLed::hslToRgb()
 
         double q = l < 0.5 ? l * (1 + s) : l + s - l * s;
         double p = 2 * l - q;
-        double r = hue2rgb(p, q, double(h + (0.33333)));
+        double r = hue2rgb(p, q, double(h + 1.0/3.0));
         double g = hue2rgb(p, q, h);
-        double b = hue2rgb(p, q, double(h - (0.33333)));
+        double b = hue2rgb(p, q, double(h - 1.0/3.0));
 
-        mRed = r * 1000;
-        mGreen = g * 1000;
-        mBlue = b * 1000;
+        mRed = r * 4000;
+        mGreen = g * 4000;
+        mBlue = b * 4000;
     }
+	//double newSum = mRed + mGreen + mBlue;
+	//newSum++;
+	//oldSum++;
+	/*
+	std::cout <<  mLum << std::endl;
+//	if (abs(oldRed - mRed) > 20)
+		LOG(ERROR) << "Big shift, Lum" << mLum << ", Old Red:"<< oldRed << ", NewRed:" << mRed;
+//	if (abs(oldGreen - mGreen) > 20)
+		LOG(ERROR) << "Big shift, Lum" << mLum << ", Old Green:"<< oldGreen << ", NewGreen:" << mGreen;
+//	if (abs(oldBlue - mBlue) > 20)
+		LOG(ERROR) << "Big shift, Lum" << mLum << ", Old Blue:"<< oldBlue << ", NewBlue:" << mBlue;
+*/
 	LOG(INFO) << "HSL Converted to Red:" << (int) mRed << ", Green:"<< (int) mGreen << ", Blue:" << (int)mBlue;
-
 }
 
 double RgbLed::hue2rgb(double p, double q, double t)
@@ -225,7 +241,7 @@ double RgbLed::hue2rgb(double p, double q, double t)
     	t -= 1;
     }
 
-    if (t < 0.16666)
+    if (t < 1.0/6.0)
     {
     	return p + (q - p) * 6 * t;
     }
@@ -235,9 +251,9 @@ double RgbLed::hue2rgb(double p, double q, double t)
     	return q;
     }
 
-    if (t < 0.66666)
+    if (t < 2.0/3.0)
     {
-    	return p + (q - p) * ((0.66666) - t) * 6;
+    	return p + (q - p) * ((2.0/3.0) - t) * 6;
     }
 
     return p;

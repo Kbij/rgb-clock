@@ -19,14 +19,14 @@ public:
 	bool pwrOn();
 	bool pwrOff();
 
-	void intensity(uint8_t value);
-	void red(uint8_t value);
-	void green(uint8_t value);
-	void blue(uint8_t value);
+	void intensity(uint16_t value);
+	void red(uint16_t value);
+	void green(uint16_t value);
+	void blue(uint16_t value);
 
-	void hue(uint8_t value);
-	void saturation(uint8_t value);
-	void luminance(uint8_t value);
+	void hue(uint16_t value);
+	void saturation(uint16_t value);
+	void luminance(uint16_t value);
 
 	void write();
 private:
@@ -36,14 +36,14 @@ private:
 	I2C &mI2C;
 	const uint8_t mWriteAddress;
 	const uint8_t mReadAddress;
-	uint8_t mIntensity;
-	uint8_t mRed;
-	uint8_t mGreen;
-	uint8_t mBlue;
+	uint16_t mIntensity;
+	uint16_t mRed;
+	uint16_t mGreen;
+	uint16_t mBlue;
 
-	uint8_t mHue;
-	uint8_t mSat;
-	uint8_t mLum;
+	uint16_t mHue;
+	uint16_t mSat;
+	uint16_t mLum;
 };
 
 #endif /* RGBLED_H_ */
