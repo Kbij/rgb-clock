@@ -24,6 +24,7 @@ int main (int argc, char* argv[])
 {
 	google::InitGoogleLogging("I2C Test");
 	FLAGS_logtostderr = 1;
+	FLAGS_minloglevel = 1;
 
 	std::cout << "Test application for I2C Bus"<< std::endl;
 	std::cout << "============================"<< std::endl;
@@ -67,22 +68,23 @@ int main (int argc, char* argv[])
 			}
 		} while ( inputValue != "x");
 */
-		rgbLed.luminance(400);
-		rgbLed.saturation(1000);
+		rgbLed.hue(200);
+		rgbLed.saturation(4000);
+		//rgbLed.luminance(500);
 
 		do{
-		for (int i = 0; i < 1000; ++i)
+		for (int i = 0; i < 4000; ++i)
 		{
-		    std::chrono::milliseconds dura( 50 );
+		    std::chrono::milliseconds dura( 2 );
 		    std::this_thread::sleep_for( dura );
-			rgbLed.hue(i);
+			rgbLed.luminance(i);
 			rgbLed.write();
 		}
-		for (int i = 1000; i > 0; --i)
+		for (int i = 4000; i > 0; --i)
 		{
-		    std::chrono::milliseconds dura( 50 );
+		    std::chrono::milliseconds dura( 2 );
 		    std::this_thread::sleep_for( dura );
-			rgbLed.hue(i);
+			rgbLed.luminance(i);
 			rgbLed.write();
 		}
 		} while (1);
