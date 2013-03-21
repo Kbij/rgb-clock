@@ -13,7 +13,7 @@
 
 class RgbLed {
 public:
-	RgbLed(I2C &i2c, uint8_t writeAddress);
+	RgbLed(I2C &i2c, uint8_t address);
 	virtual ~RgbLed();
 
 	bool pwrOn();
@@ -30,12 +30,12 @@ public:
 
 	void write();
 private:
+	bool init();
 	void hslToRgb();
 	double hue2rgb(double p, double q, double t);
 
 	I2C &mI2C;
-	const uint8_t mWriteAddress;
-	const uint8_t mReadAddress;
+	const uint8_t mAddress;
 	uint16_t mIntensity;
 	uint16_t mRed;
 	uint16_t mGreen;

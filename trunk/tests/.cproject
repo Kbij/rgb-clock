@@ -38,7 +38,11 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1520460481" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1692022181" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
 								<option id="gnu.cpp.link.option.libs.1002616392" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="glog"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="gflags"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glog"/>
+								</option>
+								<option id="gnu.cpp.link.option.paths.2093063140" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="/usr/local/lib"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.548139303" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -83,9 +87,10 @@
 									<listOptionValue builtIn="false" value="/home/koen/raspberrypi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.7.2/include"/>
 									<listOptionValue builtIn="false" value="/home/koen/raspberrypi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.7.2/finclude"/>
 									<listOptionValue builtIn="false" value="/home/koen/workspace/rgb-clock/libraries/glog/raspberrypi"/>
+									<listOptionValue builtIn="false" value="/home/koen/workspace/rgb-clock/libraries/gflags/raspberrypi"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.956264795" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -std=c++11" valueType="string"/>
-								<option id="gnu.cpp.compiler.option.preprocessor.def.566957848" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+								<option id="gnu.cpp.compiler.option.preprocessor.def.566957848" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="_GLIBCXX_USE_NANOSLEEP"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2109768677" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -105,10 +110,12 @@
 									<listOptionValue builtIn="false" value="/home/koen/raspberrypi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/lib/gcc/arm-linux-gnueabihf/4.7.2"/>
 									<listOptionValue builtIn="false" value="/home/koen/raspberrypi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/libexec/gcc/arm-linux-gnueabihf/4.7.2"/>
 									<listOptionValue builtIn="false" value="/home/koen/workspace/rgb-clock/libraries/glog/raspberrypi"/>
+									<listOptionValue builtIn="false" value="/home/koen/workspace/rgb-clock/libraries/gflags/raspberrypi"/>
 								</option>
 								<option id="gnu.cpp.link.option.libs.1824193350" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="glog"/>
 									<listOptionValue builtIn="false" value="pthread"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="gflags"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.211005036" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -133,6 +140,8 @@
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/I2CTest"/>
 		</configuration>
+		<configuration configurationName="Debug Hostbuild"/>
+		<configuration configurationName="Debug Raspberry"/>
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/I2CTest"/>
 		</configuration>
