@@ -47,12 +47,12 @@ bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 	// Set the port options and set the address of the device we wish to speak to
 	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
 	{
-		LOG(ERROR) << strerror(errno);
+		LOG(ERROR) << "Failed setting address: " << strerror(errno);
 		return false;
 	}
 	if ((write(mI2CFile, &byte, 1)) != 1)
 	{
-		LOG(ERROR) << strerror(errno);
+		LOG(ERROR) << "Failed writing data: " << strerror(errno);
 		return false;
 	}
 	return true;
@@ -63,6 +63,11 @@ bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 
 bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
 {
+	if (data.size() == 0)
+	{
+		LOG(ERROR) << "Writing data with 0 size";
+		return false;
+	}
 	std::ostringstream logStream;
 	logStream << std::hex << std::setfill('0') << std::setw(2);
 	bool first = true;
@@ -75,7 +80,6 @@ bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
 		first = false;
 
 		logStream << " 0x" << (int) byte;
-
 	}
 	LOG(INFO) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data:" << logStream.str() << ";";
 
@@ -86,7 +90,7 @@ bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
 		LOG(ERROR) << "Failed setting address: " << strerror(errno);
 		return false;
 	}
-	if ((write(mI2CFile, data.data(), data.size())) < 0)
+	if ((write(mI2CFile, data.data(), data.size())) != static_cast<int>(data.size()) )
 	{
 		LOG(ERROR) << "Failed writing data: " << strerror(errno);
 		return false;
