@@ -218,7 +218,7 @@ void RgbLed::hslToRgb()
         mGreen = g * MAX_RESOLUTION;
         mBlue = b * MAX_RESOLUTION;
     }
-	LOG(INFO) << "HSL Converted to Red:" << (int) mRed << ", Green:"<< (int) mGreen << ", Blue:" << (int)mBlue;
+	VLOG(1) << "HSL Converted to Red:" << (int) mRed << ", Green:"<< (int) mGreen << ", Blue:" << (int)mBlue;
 }
 
 double RgbLed::hue2rgb(double p, double q, double t)
