@@ -19,6 +19,8 @@ public:
 	bool writeDataSync(uint8_t address, const std::vector<uint8_t>& data);
 private:
 	int mI2CFile;
+
+	bool mI2CWriteError;
 };
 
 #endif /* I2C_H_ */

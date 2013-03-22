@@ -103,7 +103,7 @@ void daemonize()
 
     /* Child continues */
 
-  //  umask(027); /* Set file permissions 750 */
+    umask(027); /* Set file permissions 750 */
 
     /* Get a new process group */
     sid = setsid();
@@ -160,7 +160,7 @@ void daemonize()
 int main (int argc, char* argv[])
 {
 	google::InitGoogleLogging("RGBClock");
-	FLAGS_minloglevel = 1;
+	//FLAGS_minloglevel = 1;
 
 	std::string usage("This program implements a alarm clock. Sample usage:\n");
 	usage += argv[0];
@@ -172,8 +172,8 @@ int main (int argc, char* argv[])
 		daemonize();
 	}
 
-	LOG(WARNING) << "Test application for I2C Bus";
-	LOG(WARNING) << "============================";
+	LOG(INFO) << "Test application for I2C Bus";
+	LOG(INFO) << "============================";
 	try
 	{
 		I2C i2c;
@@ -222,6 +222,7 @@ int main (int argc, char* argv[])
 		do{
 
 			rgbLed.pwrOn();
+/*
 			for (int i = 0; i < 4000; ++i)
 			{
 				std::chrono::milliseconds dura( 2 );
@@ -237,6 +238,9 @@ int main (int argc, char* argv[])
 				rgbLed.luminance(i);
 				rgbLed.write();
 			}
+*/
+			std::chrono::milliseconds dura( 1000 );
+			std::this_thread::sleep_for( dura );
 
 		} while (runMain);
 

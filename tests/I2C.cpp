@@ -18,7 +18,8 @@
 const std::string i2cFileName("/dev/i2c-1");
 
 I2C::I2C() :
-	mI2CFile(0)
+	mI2CFile(0),
+	mI2CWriteError(false)
 {
 #ifndef HOSTBUILD
 	// Open port for reading and writing
@@ -30,7 +31,7 @@ I2C::I2C() :
 	}
 	else
 	{
-		LOG(INFO) << "Bus open for write" ;
+		LOG(INFO) << "I2C bus open for write" ;
 	}
 #endif
 }
@@ -41,20 +42,32 @@ I2C::~I2C() {
 
 bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 {
-	LOG(INFO) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data: 0x" << (int) byte << ";";
+	VLOG(1) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data: 0x" << (int) byte << ";";
 
 #ifndef HOSTBUILD
 	// Set the port options and set the address of the device we wish to speak to
 	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
 	{
-		LOG(ERROR) << "Failed setting address: " << strerror(errno);
+		if (!mI2CWriteError) // If first occurrence
+		{
+			LOG(ERROR) << "Failed setting address: " << strerror(errno);
+		}
+		mI2CWriteError = true;
+
 		return false;
 	}
 	if ((write(mI2CFile, &byte, 1)) != 1)
 	{
-		LOG(ERROR) << "Failed writing data: " << strerror(errno);
+		if (!mI2CWriteError) // If first occurrence
+		{
+			LOG(ERROR) << "Failed writing data: " << strerror(errno);
+		}
+		mI2CWriteError = true;
+
 		return false;
 	}
+	mI2CWriteError = false;
+
 	return true;
 #else
 	return true;
@@ -81,20 +94,32 @@ bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
 
 		logStream << " 0x" << (int) byte;
 	}
-	LOG(INFO) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data:" << logStream.str() << ";";
+	VLOG(1) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data:" << logStream.str() << ";";
 
 #ifndef HOSTBUILD
 	// Set the port options and set the address of the device we wish to speak to
 	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
 	{
-		LOG(ERROR) << "Failed setting address: " << strerror(errno);
+		if (!mI2CWriteError) // If first occurrence
+		{
+			LOG(ERROR) << "Failed setting address: " << strerror(errno);
+		}
+		mI2CWriteError = true;
+
 		return false;
 	}
 	if ((write(mI2CFile, data.data(), data.size())) != static_cast<int>(data.size()) )
 	{
-		LOG(ERROR) << "Failed writing data: " << strerror(errno);
+		if (!mI2CWriteError) // If first occurrence
+		{
+			LOG(ERROR) << "Failed writing data: " << strerror(errno);
+		}
+		mI2CWriteError = true;
+
 		return false;
 	}
+	mI2CWriteError = false;
+
 	return true;
 #else
 	return true;
