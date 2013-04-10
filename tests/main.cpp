@@ -251,6 +251,7 @@ int main (int argc, char* argv[])
 		IOExpander ioExpander(i2c, 0x20);
 		do{
 			ioExpander.writeA(counter++);
+
 			std::chrono::milliseconds dura( 100 );
 			std::this_thread::sleep_for( dura );
 

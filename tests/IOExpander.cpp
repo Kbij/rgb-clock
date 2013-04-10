@@ -19,8 +19,6 @@ IOExpander::~IOExpander() {
 }
 bool IOExpander::writeA(uint8_t byte)
 {
-	bool result = true;
-
 	std::vector<uint8_t> buffer;
 	buffer.push_back(0x12); // Register: GPIOA (BANK = 0)
 	buffer.push_back(byte);
@@ -30,8 +28,6 @@ bool IOExpander::writeA(uint8_t byte)
 
 bool IOExpander::writeB(uint8_t byte)
 {
-	bool result = true;
-
 	std::vector<uint8_t> buffer;
 	buffer.push_back(0x13); // Register: GPIOB (BANK = 0)
 	buffer.push_back(byte);
@@ -42,7 +38,6 @@ bool IOExpander::writeB(uint8_t byte)
 bool IOExpander::init()
 {
 	bool result = true;
-
 	std::vector<uint8_t> initBuffer;
 	initBuffer.push_back(0x0A); // Register: IOCON (After POR BANK = 0)
 	/*
@@ -60,5 +55,15 @@ bool IOExpander::init()
 
 	result = result && mI2C.writeDataSync(mAddress, initBuffer);
 
+	initBuffer.clear();
+	initBuffer.push_back(0x00); // Register DirA
+	initBuffer.push_back(0x00); // All Output
+	result = result && mI2C.writeDataSync(mAddress, initBuffer);
 
+	initBuffer.clear();
+	initBuffer.push_back(0x01); // Register DirB
+	initBuffer.push_back(0x00); // All Output
+	result = result && mI2C.writeDataSync(mAddress, initBuffer);
+
+	return result;
 }
