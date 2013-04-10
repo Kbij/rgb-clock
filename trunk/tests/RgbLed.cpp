@@ -142,7 +142,7 @@ bool RgbLed::init()
 {
 	bool result = true;
 
-// Set the prescaler
+	// Set the prescaler
 	std::vector<uint8_t> initBuffer;
 	initBuffer.push_back(0xFE); // PreScaler register
 	/*
@@ -151,6 +151,8 @@ bool RgbLed::init()
      *  Value = (25000000/(4096*200)) - 1 = 30
 	 */
 	initBuffer.push_back(30); // Value of Prescaler
+
+	result = result && mI2C.writeDataSync(mAddress, initBuffer);
 
 	// Set Mode1
 	initBuffer.clear();

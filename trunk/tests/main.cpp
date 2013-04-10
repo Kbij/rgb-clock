@@ -6,6 +6,7 @@
  */
 #include "I2C.h"
 #include "RgbLed.h"
+#include "IOExpander.h"
 
 #include <string>
 #include <glog/logging.h>
@@ -101,9 +102,6 @@ void daemonize()
         exit(EXIT_SUCCESS);
     }
 
-    /* Child continues */
-
-    umask(027); /* Set file permissions 750 */
 
     /* Get a new process group */
     sid = setsid();
@@ -159,6 +157,7 @@ void daemonize()
 
 int main (int argc, char* argv[])
 {
+    umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //User: r/w, Group: r, Other: r
 	google::InitGoogleLogging("RGBClock");
 	//FLAGS_minloglevel = 1;
 
@@ -177,7 +176,7 @@ int main (int argc, char* argv[])
 	try
 	{
 		I2C i2c;
-		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
+//		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
 
 /*
 		std::string inputValue;
@@ -215,20 +214,21 @@ int main (int argc, char* argv[])
 			}
 		} while ( inputValue != "x");
 */
-
+/*
 		rgbLed.hue(200);
 		rgbLed.saturation(4000);
 
 		do{
 
 			rgbLed.pwrOn();
-/*
+
 			for (int i = 0; i < 4000; ++i)
 			{
 				std::chrono::milliseconds dura( 2 );
 				std::this_thread::sleep_for( dura );
 				rgbLed.luminance(i);
 				rgbLed.write();
+				if (!runMain) break;
 			}
 
 			for (int i = 4000; i > 0; --i)
@@ -237,14 +237,26 @@ int main (int argc, char* argv[])
 				std::this_thread::sleep_for( dura );
 				rgbLed.luminance(i);
 				rgbLed.write();
+				if (!runMain) break;
 			}
-*/
-			std::chrono::milliseconds dura( 1000 );
-			std::this_thread::sleep_for( dura );
+
+//			std::chrono::milliseconds dura( 1000 );
+//			std::this_thread::sleep_for( dura );
 
 		} while (runMain);
 
 		rgbLed.pwrOff();
+		*/
+		uint8_t counter = 0;
+		IOExpander ioExpander(i2c, 0x20);
+		do{
+			ioExpander.writeA(counter++);
+			std::chrono::milliseconds dura( 100 );
+			std::this_thread::sleep_for( dura );
+
+		} while (runMain);
+
+
 	}
 	catch (std::string* caught)
 	{
