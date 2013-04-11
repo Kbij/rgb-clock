@@ -7,6 +7,7 @@
 #include "I2C.h"
 #include "RgbLed.h"
 #include "IOExpander.h"
+#include "LCDisplay.h"
 
 #include <string>
 #include <glog/logging.h>
@@ -248,10 +249,12 @@ int main (int argc, char* argv[])
 		rgbLed.pwrOff();
 		*/
 		uint8_t counter = 0;
-		IOExpander ioExpander(i2c, 0x20);
-		do{
-			ioExpander.writeA(counter++);
+		//IOExpander ioExpander(i2c, 0x20);
+		LCDisplay display(i2c, 0x20);
 
+		do{
+			//ioExpander.writeA(counter++);
+			display.toggleBit();
 			std::chrono::milliseconds dura( 100 );
 			std::this_thread::sleep_for( dura );
 
