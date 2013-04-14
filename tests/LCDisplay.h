@@ -16,15 +16,22 @@ class LCDisplay {
 public:
 	LCDisplay(I2C &i2c, uint8_t address);
 	virtual ~LCDisplay();
+	void clearDisplay();
 
 	void toggleBit();
 
 private:
 	void init();
+
+	void setDDRamAddress(uint8_t addr);
 	void writeData(uint8_t byte);
 	void writeControl(uint8_t byte);
+	uint8_t readControl();
 	IOExpander mIO;
+	uint8_t mPortA;
 	std::bitset<8> mControlBus;
+	bool test;
+
 
 };
 
