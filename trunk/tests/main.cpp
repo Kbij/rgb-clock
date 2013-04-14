@@ -248,14 +248,14 @@ int main (int argc, char* argv[])
 
 		rgbLed.pwrOff();
 		*/
-		uint8_t counter = 0;
+		//uint8_t counter = 0;
 		//IOExpander ioExpander(i2c, 0x20);
 		LCDisplay display(i2c, 0x20);
 
 		do{
 			//ioExpander.writeA(counter++);
 			display.toggleBit();
-			std::chrono::milliseconds dura( 100 );
+			std::chrono::milliseconds dura( 2 );
 			std::this_thread::sleep_for( dura );
 
 		} while (runMain);
