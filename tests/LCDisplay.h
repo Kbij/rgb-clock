@@ -18,15 +18,19 @@ public:
 	virtual ~LCDisplay();
 	void clearDisplay();
 
+	void checkControlBus();
+
 	void toggleBit();
 
-private:
 	void init();
+
+private:
 
 	void setDDRamAddress(uint8_t addr);
 	void writeData(uint8_t byte);
 	void writeControl(uint8_t byte);
 	uint8_t readControl();
+	uint8_t readData();
 	IOExpander mIO;
 	uint8_t mPortA;
 	std::bitset<8> mControlBus;
