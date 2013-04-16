@@ -125,3 +125,58 @@ bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
 	return true;
 #endif
 }
+
+bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
+{
+	VLOG(1) << "Reading I2C; Addr: 0x" << std::hex << (int) address << "; Register:" << (int) reg << ";";
+
+#ifndef HOSTBUILD
+	// Set the port options and set the address of the device we wish to speak to
+	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
+	{
+		if (!mI2CWriteError) // If first occurrence
+		{
+			LOG(ERROR) << "Failed setting address: " << strerror(errno);
+		}
+		mI2CWriteError = true;
+
+		return false;
+	}
+
+	uint8_t data[2];
+	data[0] = reg;
+	if (write(mI2CFile, data, 1) != 1)
+	{
+		if (!mI2CWriteError) // If first occurrence
+		{
+			LOG(ERROR) << "Failed setting register address: " << strerror(errno);
+		}
+		mI2CWriteError = true;
+
+		return false;
+	}
+	if (read(mI2CFile, data, 1) != 1) {
+		perror("pca9555ReadRegisterPair read value");
+	}
+	byte = data[0];
+
+	return true;
+
+#else
+	return true;
+#endif
+
+/*
+ Original Code
+	uint8_t data[2];
+	data[0] = reg;
+	if (write(g_i2cFile, data, 1) != 1) {
+		perror("pca9555ReadRegisterPair set register");
+	}
+	if (read(g_i2cFile, data, 2) != 2) {
+		perror("pca9555ReadRegisterPair read value");
+	}
+	return data[0] | (data[1] << 8);
+ */
+
+}

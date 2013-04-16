@@ -254,10 +254,10 @@ int main (int argc, char* argv[])
 
 		do{
 			//ioExpander.writeA(counter++);
-			display.toggleBit();
-			std::chrono::milliseconds dura( 2 );
+			//display.toggleBit();
+			std::chrono::milliseconds dura( 1000 );
 			std::this_thread::sleep_for( dura );
-
+			display.init();
 		} while (runMain);
 
 
