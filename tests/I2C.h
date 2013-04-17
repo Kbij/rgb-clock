@@ -9,6 +9,7 @@
 #define I2C_H_
 #include <stdint.h>
 #include <vector>
+#include <mutex>
 
 class I2C {
 public:
@@ -22,6 +23,7 @@ private:
 	int mI2CFile;
 
 	bool mI2CWriteError;
+	std::mutex mBusMutex;
 };
 
 #endif /* I2C_H_ */

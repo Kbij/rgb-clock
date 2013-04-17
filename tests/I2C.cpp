@@ -19,7 +19,8 @@ const std::string i2cFileName("/dev/i2c-1");
 
 I2C::I2C() :
 	mI2CFile(0),
-	mI2CWriteError(false)
+	mI2CWriteError(false),
+	mBusMutex()
 {
 #ifndef HOSTBUILD
 	// Open port for reading and writing
@@ -42,6 +43,8 @@ I2C::~I2C() {
 
 bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 {
+    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+
 	VLOG(1) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data: 0x" << (int) byte << ";";
 
 #ifndef HOSTBUILD
@@ -76,6 +79,8 @@ bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 
 bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
 {
+    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+
 	if (data.size() == 0)
 	{
 		LOG(ERROR) << "Writing data with 0 size";
@@ -128,6 +133,8 @@ bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
 
 bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 {
+    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+
 	VLOG(1) << "Reading I2C; Addr: 0x" << std::hex << (int) address << "; Register:" << (int) reg << ";";
 
 #ifndef HOSTBUILD

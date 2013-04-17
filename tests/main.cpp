@@ -8,6 +8,7 @@
 #include "RgbLed.h"
 #include "IOExpander.h"
 #include "LCDisplay.h"
+#include "LightSensor.h"
 
 #include <string>
 #include <glog/logging.h>
@@ -250,14 +251,15 @@ int main (int argc, char* argv[])
 		*/
 		//uint8_t counter = 0;
 		//IOExpander ioExpander(i2c, 0x20);
-		LCDisplay display(i2c, 0x20);
+		//LCDisplay display(i2c, 0x20);
+		LightSensor lightSensor(i2c, 0x00);
 
 		do{
 			//ioExpander.writeA(counter++);
 			//display.toggleBit();
 			std::chrono::milliseconds dura( 1000 );
 			std::this_thread::sleep_for( dura );
-			display.init();
+
 		} while (runMain);
 
 
