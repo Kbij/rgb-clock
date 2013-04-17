@@ -178,7 +178,7 @@ int main (int argc, char* argv[])
 	try
 	{
 		I2C i2c;
-//		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
+		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
 
 /*
 		std::string inputValue;
@@ -252,13 +252,19 @@ int main (int argc, char* argv[])
 		//uint8_t counter = 0;
 		//IOExpander ioExpander(i2c, 0x20);
 		//LCDisplay display(i2c, 0x20);
-		LightSensor lightSensor(i2c, 0x00);
+		LightSensor lightSensor(i2c, 0x29);
+		rgbLed.hue(200);
+		rgbLed.saturation(4000);
+		rgbLed.pwrOn();
+
 
 		do{
 			//ioExpander.writeA(counter++);
 			//display.toggleBit();
 			std::chrono::milliseconds dura( 1000 );
 			std::this_thread::sleep_for( dura );
+			rgbLed.luminance(lightSensor.lux() );
+			rgbLed.write();
 
 		} while (runMain);
 
