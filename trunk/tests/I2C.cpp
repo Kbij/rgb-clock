@@ -135,7 +135,7 @@ bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 {
     std::lock_guard<std::mutex> lk_guard(mBusMutex);
 
-	VLOG(1) << "Reading I2C; Addr: 0x" << std::hex << (int) address << "; Register:" << (int) reg << ";";
+	VLOG(1) << "Read byte I2C; Addr: 0x" << std::hex << (int) address << "; Register:" << (int) reg << ";";
 
 #ifndef HOSTBUILD
 	// Set the port options and set the address of the device we wish to speak to
@@ -163,7 +163,7 @@ bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 		return false;
 	}
 	if (read(mI2CFile, data, 1) != 1) {
-		perror("pca9555ReadRegisterPair read value");
+		LOG(ERROR) << "Failed reading byte: " << strerror(errno);
 	}
 	byte = data[0];
 
@@ -185,5 +185,47 @@ bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 	}
 	return data[0] | (data[1] << 8);
  */
+}
+bool I2C::readWordSync(uint8_t address, uint8_t reg, uint16_t& word)
+{
+    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+
+	VLOG(1) << "Read word I2C; Addr: 0x" << std::hex << (int) address << "; Register:" << (int) reg << ";";
+
+#ifndef HOSTBUILD
+	// Set the port options and set the address of the device we wish to speak to
+	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
+	{
+		if (!mI2CWriteError) // If first occurrence
+		{
+			LOG(ERROR) << "Failed setting address: " << strerror(errno);
+		}
+		mI2CWriteError = true;
+
+		return false;
+	}
+
+	uint8_t data[3];
+	data[0] = reg;
+	if (write(mI2CFile, data, 1) != 1)
+	{
+		if (!mI2CWriteError) // If first occurrence
+		{
+			LOG(ERROR) << "Failed setting register address: " << strerror(errno);
+		}
+		mI2CWriteError = true;
+
+		return false;
+	}
+	if (read(mI2CFile, data, 2) != 2) {
+		LOG(ERROR) << "Failed reading word: " << strerror(errno);
+	}
+	word = data[0] | (data[1] << 8);
+
+	return true;
+
+#else
+	return true;
+#endif
 
 }
