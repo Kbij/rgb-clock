@@ -25,7 +25,7 @@ LightSensor::~LightSensor()
 	stopReadThread();
 }
 
-uint16_t LightSensor::lux()
+double LightSensor::lux()
 {
     std::lock_guard<std::mutex> lk_guard(mIntensityMutex);
 	return mLux;
@@ -117,7 +117,6 @@ void LightSensor::calculateLux(uint16_t channel0, uint16_t channel1)
 
     std::lock_guard<std::mutex> lk_guard(mIntensityMutex);
 
-    // Multiply by 10
-	mLux = lux*10;
+    mLux = lux;
 }
 

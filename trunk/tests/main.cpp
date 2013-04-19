@@ -26,6 +26,8 @@
 //#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sstream>
+
 
 DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
 DEFINE_string(pidfile,"","Pid file when running as Daemon");
@@ -251,8 +253,21 @@ int main (int argc, char* argv[])
 		*/
 		//uint8_t counter = 0;
 		//IOExpander ioExpander(i2c, 0x20);
-		//LCDisplay display(i2c, 0x20);
+/*
+		LCDisplay display(i2c, 0x20);
+		display.clearDisplay();
+		display.writeText(0,"Test");
+
+		do
+		{
+			std::chrono::milliseconds dura( 1000 );
+			std::this_thread::sleep_for( dura );
+
+		} while (runMain);
+*/
+		LCDisplay display(i2c, 0x20);
 		LightSensor lightSensor(i2c, 0x29);
+
 		rgbLed.hue(200);
 		rgbLed.saturation(4000);
 		rgbLed.pwrOn();
@@ -263,8 +278,13 @@ int main (int argc, char* argv[])
 			//display.toggleBit();
 			std::chrono::milliseconds dura( 1000 );
 			std::this_thread::sleep_for( dura );
-			rgbLed.luminance(lightSensor.lux() );
+			double lux = lightSensor.lux();
+			rgbLed.luminance(lux * 10);
 			rgbLed.write();
+			display.clearDisplay();
+			std::stringstream stream;
+			stream << "Measured Lux: " << lux;
+			display.writeText(0, stream.str());
 
 		} while (runMain);
 

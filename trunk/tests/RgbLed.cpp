@@ -95,7 +95,14 @@ void RgbLed::saturation(uint16_t value)
 
 void RgbLed::luminance(uint16_t value)
 {
-	mLum = value;
+	if (value > MAX_RESOLUTION)
+	{
+		mLum = MAX_RESOLUTION;
+	}
+	else
+	{
+		mLum = value;
+	}
 	hslToRgb();
 }
 

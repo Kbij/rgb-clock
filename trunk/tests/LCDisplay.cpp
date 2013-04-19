@@ -33,9 +33,20 @@ void LCDisplay::clearDisplay()
 	writeControl(0b00000001); // Display Clear
 
 	// Wait 2ms after clear display
-	std::chrono::milliseconds dura( 100 );
+	std::chrono::milliseconds dura( 2 );
 	std::this_thread::sleep_for( dura );
 }
+
+void LCDisplay::writeText(uint8_t pos, std::string text)
+{
+	writeControl(0b00000110);
+	setDDRamAddress(pos); //Fist Char position
+	for (int i = 0; i < text.length(); ++i)
+	{
+		writeData(text[i]);
+	}
+}
+
 void LCDisplay::checkControlBus()
 {
 	uint8_t byte;
@@ -45,117 +56,75 @@ void LCDisplay::checkControlBus()
 	LOG(INFO) << "ConstrolBus: 0x" << std::hex << (int) byte;
 }
 
-void LCDisplay::toggleBit()
-{
-	return;
-//	mPortA == 0 ? mPortA = 0xFF: mPortA = 0;
-//	writeData(mPortA);
-	if (test)
-	{
-		mControlBus[E] = 0;
-		test = false;
-	}
-	else
-	{
-		mControlBus[E] = 1;
-		test = true;
-	}
-	//mIO.writeB(mControlBus.to_ulong());
-	mIO.writeA(mPortA++);
-}
-
 void LCDisplay::init()
 {
 	LOG(INFO) << "Init Display";
 
 	// Wait 40ms at startup
-	std::chrono::milliseconds dura( 100 );
+	std::chrono::milliseconds dura( 40 );
 	std::this_thread::sleep_for( dura );
 
 	// 8 bit interface
 	writeControl(0b00110000);
-	std::this_thread::sleep_for( dura );
+//	std::this_thread::sleep_for( dura );
 	writeControl(0b00110000);
-	std::this_thread::sleep_for( dura );
+//	std::this_thread::sleep_for( dura );
 
 	// display on
 	writeControl(0b00001100);
-	std::this_thread::sleep_for( dura );
+//	std::this_thread::sleep_for( dura );
 
 	// home
 	writeControl(0b00000010);
-	std::this_thread::sleep_for( dura );
+//	std::this_thread::sleep_for( dura );
 
 	clearDisplay();
 
 	// display control
 	writeControl(0b00000110);
-	std::this_thread::sleep_for( dura );
+//	std::this_thread::sleep_for( dura );
 
 	// SEt CGRAM Address counter
 	//writeControl(0x38);
-	setDDRamAddress(0x80); //Fist Char position
+	setDDRamAddress(0); //Fist Char position
 
-	//readControl();
-//	readData();
-	writeData(0xA2);
-	writeData(0xD0);
-	readData();
-	//readControl();
-	writeData(0xA2);
+	writeData('H');
 	writeData('e');
-	readControl();
-	writeData(0x0);
-//	writeData('l');
-	//readControl();
-	writeData(0x0);
 	writeData('l');
-//	readControl();
-	writeData(0x0);
-	writeData('0');
-	writeData(0x0);
-	writeData(' ');
-	writeData(0x0);
-	writeData('W');
-	writeData(0x0);
+	writeData('l');
 	writeData('o');
-	writeData(0x0);
+	writeData(' ');
+	writeData('W');
+	writeData('o');
 	writeData('r');
-	writeData(0x0);
 	writeData('l');
-	writeData(0x0);
 	writeData('d');
+	writeData('!');
+	writeData('!');
 
 }
 
 void LCDisplay::setDDRamAddress(uint8_t addr)
 {
-	writeControl(addr);
-}
-
-unsigned char reverse(unsigned char b) {
-   b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
-   b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
-   b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
-   return b;
+	writeControl(0x80 | addr);
 }
 
 void LCDisplay::writeData(uint8_t byte)
 {
 	//byte = reverse(byte);
 	mControlBus[RS] = 1; // Write Data
-	mControlBus[E] = 0;
+	mControlBus[E] = 1;
 	mControlBus[RW] = 0;
 	//E/RW/RS
 	// Set the control Bus to the initial state
 	mIO.writeB(mControlBus.to_ulong());
 	mIO.writeA(byte);
 
-	mControlBus[E] = 1;
-	mIO.writeB(mControlBus.to_ulong());
+//	mControlBus[E] = 1;
+//	mIO.writeB(mControlBus.to_ulong());
 
-	std::chrono::milliseconds dura( 10 );
-	std::this_thread::sleep_for( dura );
+//	std::chrono::milliseconds dura( 10 );
+//	std::this_thread::sleep_for( dura );
 
 
 	// Write data to display
@@ -163,7 +132,7 @@ void LCDisplay::writeData(uint8_t byte)
 	mIO.writeB(mControlBus.to_ulong());
 
 //	mControlBus[E] = 1;
-	std::this_thread::sleep_for( dura );
+//	std::this_thread::sleep_for( dura );
 //	mIO.writeB(mControlBus.to_ulong());
 //	mIO.writeB(0b00000101);
 
@@ -171,10 +140,8 @@ void LCDisplay::writeData(uint8_t byte)
 
 void LCDisplay::writeControl(uint8_t byte)
 {
-//	byte = reverse(byte);
-
 	mControlBus[RS] = 0; // Write Control
-	mControlBus[E] = 0;
+	mControlBus[E] = 1;
 	mControlBus[RW] = 0;
 
 	// Set the control Bus to the initial state
@@ -182,18 +149,15 @@ void LCDisplay::writeControl(uint8_t byte)
 
 	mIO.writeA(byte);
 
-	mControlBus[E] = 1;
-	mIO.writeB(mControlBus.to_ulong());
-
-	std::chrono::milliseconds dura( 10 );
-	std::this_thread::sleep_for( dura );
+//	mControlBus[E] = 1;
+//	mIO.writeB(mControlBus.to_ulong());
 
 	// Write data to display
 	mControlBus[E] = 0;
 	mIO.writeB(mControlBus.to_ulong());
 
 //	mControlBus[E] = 1;
-	std::this_thread::sleep_for( dura );
+//	std::this_thread::sleep_for( dura );
 //	mIO.writeB(mControlBus.to_ulong());
 }
 

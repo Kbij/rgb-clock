@@ -18,7 +18,7 @@ public:
 	LightSensor(I2C &i2c, uint8_t address);
 	virtual ~LightSensor();
 
-	uint16_t lux();
+	double lux();
 
 private:
 	bool init();
@@ -29,7 +29,7 @@ private:
 	I2C &mI2C;
 	const uint8_t mAddress;
 
-	uint16_t mLux;
+	double mLux;
 	std::mutex mIntensityMutex;
     std::thread* mReadThread;
     std::atomic_bool mReadThreadRunning;
