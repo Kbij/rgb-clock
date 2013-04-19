@@ -279,7 +279,7 @@ int main (int argc, char* argv[])
 			std::chrono::milliseconds dura( 1000 );
 			std::this_thread::sleep_for( dura );
 			double lux = lightSensor.lux();
-			rgbLed.luminance(lux * 10);
+			rgbLed.luminance((lux * 10)+30);
 			rgbLed.write();
 			display.clearDisplay();
 			std::stringstream stream;
