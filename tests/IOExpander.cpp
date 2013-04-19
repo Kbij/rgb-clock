@@ -7,7 +7,7 @@
 
 #include "IOExpander.h"
 const uint8_t DIRA  = 0x00;
-const uint8_t DIRB  = 0x00;
+const uint8_t DIRB  = 0x01;
 
 const uint8_t GPIOA = 0x12;
 const uint8_t GPIOB = 0x13;

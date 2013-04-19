@@ -11,20 +11,18 @@
 #include "IOExpander.h"
 #include <stdint.h>
 #include <bitset>
+#include <string>
 
 class LCDisplay {
 public:
 	LCDisplay(I2C &i2c, uint8_t address);
 	virtual ~LCDisplay();
 	void clearDisplay();
-
-	void checkControlBus();
-
-	void toggleBit();
-
-	void init();
+	void writeText(uint8_t pos, std::string text);
 
 private:
+	void init();
+	void checkControlBus();
 
 	void setDDRamAddress(uint8_t addr);
 	void writeData(uint8_t byte);
