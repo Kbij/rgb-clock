@@ -180,7 +180,7 @@ int main (int argc, char* argv[])
 	try
 	{
 		I2C i2c;
-		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
+	//	RgbLed rgbLed(i2c, PCA9685_ADDRESS);
 
 /*
 		std::string inputValue;
@@ -265,6 +265,7 @@ int main (int argc, char* argv[])
 
 		} while (runMain);
 */
+/*
 		LCDisplay display(i2c, 0x20);
 		LightSensor lightSensor(i2c, 0x29);
 
@@ -287,7 +288,9 @@ int main (int argc, char* argv[])
 			display.writeText(0, stream.str());
 
 		} while (runMain);
-
+*/
+		LCDisplay display(i2c, 0x20);
+		display.testGraphic();
 
 	}
 	catch (std::string* caught)
