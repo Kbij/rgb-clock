@@ -10,6 +10,7 @@
 #include <thread>
 #include <glog/logging.h>
 #include <stdlib.h>
+#include "Fonts.h"
 
 
 const uint8_t RS = 0;
@@ -21,23 +22,32 @@ LCDisplay::LCDisplay(I2C &i2c, uint8_t address):
 	mIO(i2c, address),
 	mPortA(0),
 	mControlBus(0),
-	//mGraphicRam(nullptr),
-	mGraphicRam2(nullptr)
+	mGraphicRam(nullptr),
+	mFontMap()
 
 {
-	//std::array<std::array<uint16_t,100>,100>* mGraphicRam;
-   // mGraphicRam = new std::array<std::array<uint32_t,100>,100>;
-    mGraphicRam2 = new std::array<std::array<MyGraphicWord,10>,32>;
+    mGraphicRam = new std::array<std::array<MyGraphicWord,10>,32>;
+    mFontMap[FontType::Verdana20].mWidth = 32;
+    mFontMap[FontType::Verdana20].mHeight = 27;
+    mFontMap[FontType::Verdana20].mPointer = &VerdanaBold32x27;
 
 	init();
 }
 
-LCDisplay::~LCDisplay() {
+LCDisplay::~LCDisplay()
+{
+	delete mGraphicRam;
+	mGraphicRam = nullptr;
+}
+
+void LCDisplay::initStandard()
+{
 
 }
-void LCDisplay::clearDisplay()
+
+void LCDisplay::clearStandardDisplay()
 {
-	LOG(INFO) << "Clear Display";
+	LOG(INFO) << "Clear Standard Display";
 
 	writeControl(0b00000001); // Display Clear
 
@@ -45,6 +55,16 @@ void LCDisplay::clearDisplay()
 	std::chrono::milliseconds dura( 2 );
 	std::this_thread::sleep_for( dura );
 }
+
+void LCDisplay::initGraphic()
+{
+	// Set Extended
+	writeControl(0b00110100);
+
+	// Set graphic display on
+	writeControl(0b00110110);
+}
+
 void LCDisplay::clearGraphicDisplay()
 {
 	LOG(INFO) << "Clear Graphic Display";
@@ -53,8 +73,8 @@ void LCDisplay::clearGraphicDisplay()
 	{
 		for (int horz = 0; horz < 10; ++horz )
 		{
-			(*mGraphicRam2)[vert][horz].mBits.reset();
-			(*mGraphicRam2)[vert][horz].mChanged = true;
+			(*mGraphicRam)[vert][horz].mBits.reset();
+			(*mGraphicRam)[vert][horz].mChanged = true;
 		}
 	}
 	refreshDisplay();
@@ -69,71 +89,115 @@ void LCDisplay::writeText(uint8_t pos, std::string text)
 		writeData(text[i]);
 	}
 }
+void LCDisplay::writegGraphicChar(uint8_t x, uint8_t y, uint8_t character)
+{
+	LOG(INFO) << "Write Char, x:" << (int)x << ", y: " << (int)y << ", char:" << character;
+	uint16_t arrayOffset = ((character - (int)' ') * (1 + 32 * 4)) + 1;
+
+	LOG(INFO) << "Position in Array:" << (int)arrayOffset;
+	div_t divresultW = div(mFontMap[FontType::Verdana20].mWidth, 8);
+	uint8_t bytesPerCharLine = divresultW.quot;
+	if (divresultW.rem > 0)
+	{
+		++bytesPerCharLine;
+	}
+	div_t divresultH = div(mFontMap[FontType::Verdana20].mHeight, 8);
+	uint8_t lineBlocks = divresultH.quot;
+	if (divresultH.rem > 0)
+	{
+		++lineBlocks;
+	}
+
+	LOG(INFO) << "bytesPerCharLine: " << (int)bytesPerCharLine;
+	LOG(INFO) << "lineBlocks: " << (int)lineBlocks;
+
+	for (uint8_t arrayY = 0; arrayY < lineBlocks; ++arrayY)
+	{
+		for (uint8_t blockLine = 0; blockLine < 8; blockLine++)
+		{
+			for (uint8_t arrayX = 0; arrayX < bytesPerCharLine; ++arrayX)
+			{
+				LOG(INFO) << "arrayY: " << (int)arrayY << ", arrayX: " << (int)arrayX;
+
+				uint16_t arrayPos = arrayOffset;
+
+				arrayPos += ((arrayY+1) * 8) - blockLine;
+
+				arrayPos += arrayX;
+
+				LOG(INFO) << "arrayPos: " << (int)arrayPos;
+
+	//			arrayPos = 0;
+				uint8_t byte = (*(mFontMap[FontType::Verdana20].mPointer))[arrayPos];
+				//LOG(INFO) << "byte: " << (int)byte;
+
+
+				uint8_t bitMask = 0x80;
+				// for each bit
+				for (uint8_t i = 0; i < 8; ++i)
+				{
+					uint8_t pointX = x + (arrayX * 8) +  i;
+					uint8_t pointY = y + (arrayY * 8) + blockLine;
+					LOG(INFO) << "point x: " << (int) pointX <<  "point y:" << (int)pointY ;
+					if (byte & bitMask)
+					{
+						rawPoint(pointY, pointX, true);
+//						rawPoint(y + arrayY, x + (arrayX * 8) +  i,  true);
+
+					}
+					else
+					{
+						rawPoint(pointY, pointX, false);
+	//					rawPoint(y + arrayY, x + (arrayX * 8) +  i,  false);
+					}
+					bitMask = bitMask >> 1;
+				}
+		}
+
+		}
+		//uint8_t arrayPos = 0;
+		//const uint8_t byte = (*(mFontMap[FontType::Verdana20].mPointer))[arrayPos];
+
+	}
+	refreshDisplay();
+
+}
 
 void LCDisplay::point(uint8_t x, uint8_t y, bool set)
 {
-	div_t divresult;
-	divresult = div(x, 16);
-	uint myX= 0;
-	LOG(INFO) << "Write Point: Quotient: " << divresult.quot << " Remainder: " << divresult.rem;
-	myX = 15 - divresult.rem;
-	LOG(INFO) << "myX: " << myX;
-	(*mGraphicRam2)[x][divresult.quot].mBits.set(myX, set);
-	(*mGraphicRam2)[x][divresult.quot].mChanged = true;
-//	refreshDisplay();
+	rawPoint(x, y, set);
+	refreshDisplay();
 }
 
-void LCDisplay::HLine(uint8_t x1, uint8_t x2, uint8_t y, bool set)
+void LCDisplay::hLine(uint8_t x1, uint8_t x2, uint8_t y, bool set)
 {
-	for (int i = x1; i <=x2; ++i)
+	rawHLine(x1, x2, y, set);
+	refreshDisplay();
+}
+
+void LCDisplay::vLine(uint8_t x, uint8_t y1, uint8_t y2, bool set)
+{
+	rawVLine(x, y1, y2, set);
+	refreshDisplay();
+}
+
+void LCDisplay::rectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool set, bool fill)
+{
+	if (fill)
 	{
-		point(i,y,set);
+		for (int i = y1; i <= y2; ++i)
+		{
+			rawHLine(x1, x2, i, set);
+		}
 	}
-
-	refreshDisplay();
-}
-
-void LCDisplay::VLine(uint8_t y1, uint8_t y2, uint8_t x, bool set)
-{
-	for (int i = y1; i <=y2; ++i)
+	else
 	{
-		point(x,i,set);
+		rawHLine(x1, x2, y1, set);
+		rawHLine(x1, x2, y2, set);
+		rawVLine(x1, y1, y2, set);
+		rawVLine(x2, y1, y2, set);
 	}
-
 	refreshDisplay();
-}
-
-void LCDisplay::testGraphic()
-{
-	std::this_thread::sleep_for( std::chrono::milliseconds ( 40) );
-
-	// Set extended instruction
-	writeControl(0b00110100);
-	std::this_thread::sleep_for( std::chrono::milliseconds ( 40) );
-
-	// Set graphic display on
-	writeControl(0b00110110);
-	clearGraphicDisplay();
-
-	(*mGraphicRam2)[0][0].mBits.set();
-	(*mGraphicRam2)[0][0].mChanged = true;
-	(*mGraphicRam2)[31][9].mBits.set();
-	(*mGraphicRam2)[31][9].mChanged = true;
-	refreshDisplay();
-
-	HLine(0,159,0, true);
-	HLine(0,159,15, true);
-
-
-}
-
-void LCDisplay::checkControlBus()
-{
-	uint8_t byte;
-	mIO.directionB(IOExpander::DataDirection::dirIn);
-
-	mIO.readB(byte);
-	LOG(INFO) << "ConstrolBus: 0x" << std::hex << (int) byte;
 }
 
 void LCDisplay::init()
@@ -153,16 +217,47 @@ void LCDisplay::init()
 	// home
 	writeControl(0b00000010);
 
-	clearDisplay();
+	clearStandardDisplay();
 
 	// display control
 	writeControl(0b00000110);
+}
+
+void LCDisplay::rawPoint(uint8_t x, uint8_t y, bool set)
+{
+	if ((x > 159) || (y > 31))
+	{
+		return;
+	}
+	div_t divresult;
+	divresult = div(x, 16);
+	uint myX= 0;
+	myX = 15 - divresult.rem;
+	(*mGraphicRam)[y][divresult.quot].mBits.set(myX, set);
+	(*mGraphicRam)[y][divresult.quot].mChanged = true;
+}
+
+void LCDisplay::rawHLine(uint8_t x1, uint8_t x2, uint8_t y, bool set)
+{
+	for (int i = x1; i <=x2; ++i)
+	{
+		rawPoint(i,y,set);
+	}
+}
+
+void LCDisplay::rawVLine(uint8_t x, uint8_t y1, uint8_t y2, bool set)
+{
+	for (int i = y1; i <=y2; ++i)
+	{
+		rawPoint(x,i,set);
+	}
 }
 
 void LCDisplay::setDDRamAddress(uint8_t addr)
 {
 	writeControl(0x80 | addr);
 }
+
 void LCDisplay::setGAddress(uint8_t vertical, uint8_t horizontal)
 {
 
@@ -177,16 +272,22 @@ void LCDisplay::refreshDisplay()
 
 	for (int vert = 0; vert < 32; ++vert)
 	{
+		int8_t prevHorz = -2;
+
 		for (int horz = 0; horz < 10; ++horz )
 		{
-			if ((*mGraphicRam2)[vert][horz].mChanged)
+			if ((*mGraphicRam)[vert][horz].mChanged)
 			{
-				setGAddress(vert, horz);
-				writeData(((*mGraphicRam2)[vert][horz].mBits.to_ulong() >> 8) & 0xFF);
-				writeData((*mGraphicRam2)[vert][horz].mBits.to_ulong() & 0xFF);
+				if (!(prevHorz == (horz -1)))
+				{
+					setGAddress(vert, horz);
+				}
+				writeData(((*mGraphicRam)[vert][horz].mBits.to_ulong() >> 8) & 0xFF);
+				writeData((*mGraphicRam)[vert][horz].mBits.to_ulong() & 0xFF);
 
 				// Clear Changed Bit
-				(*mGraphicRam2)[vert][horz].mChanged = false;
+				(*mGraphicRam)[vert][horz].mChanged = false;
+				prevHorz = horz;
 			}
 		}
 	}
@@ -198,27 +299,15 @@ void LCDisplay::writeData(uint8_t byte)
 	mControlBus[RS] = 1; // Write Data
 	mControlBus[E] = 1;
 	mControlBus[RW] = 0;
-	//E/RW/RS
+
 	// Set the control Bus to the initial state
 	mIO.writeB(mControlBus.to_ulong());
+	// Write databus
 	mIO.writeA(byte);
-
-//	mControlBus[E] = 1;
-//	mIO.writeB(mControlBus.to_ulong());
-
-//	std::chrono::milliseconds dura( 10 );
-//	std::this_thread::sleep_for( dura );
-
 
 	// Write data to display
 	mControlBus[E] = 0;
 	mIO.writeB(mControlBus.to_ulong());
-
-//	mControlBus[E] = 1;
-//	std::this_thread::sleep_for( dura );
-//	mIO.writeB(mControlBus.to_ulong());
-//	mIO.writeB(0b00000101);
-
 }
 
 void LCDisplay::writeControl(uint8_t byte)
@@ -229,19 +318,12 @@ void LCDisplay::writeControl(uint8_t byte)
 
 	// Set the control Bus to the initial state
 	mIO.writeB(mControlBus.to_ulong());
-
+	// Write databus
 	mIO.writeA(byte);
-
-//	mControlBus[E] = 1;
-//	mIO.writeB(mControlBus.to_ulong());
 
 	// Write data to display
 	mControlBus[E] = 0;
 	mIO.writeB(mControlBus.to_ulong());
-
-//	mControlBus[E] = 1;
-//	std::this_thread::sleep_for( dura );
-//	mIO.writeB(mControlBus.to_ulong());
 }
 
 uint8_t LCDisplay::readControl()

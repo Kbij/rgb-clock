@@ -290,8 +290,17 @@ int main (int argc, char* argv[])
 		} while (runMain);
 */
 		LCDisplay display(i2c, 0x20);
-		display.testGraphic();
+		display.initGraphic();
+    	display.clearGraphicDisplay();
+/*
+		display.hLine(0,159,0, true);
+		display.hLine(0,159,31, true);
+		display.vLine(0,0,31, true);
+		display.vLine(159,0,31, true);
+*/
+		display.rectangle(0, 0, 159, 31, true, false);
 
+		display.writegGraphicChar(2, 2, ' ');
 	}
 	catch (std::string* caught)
 	{
