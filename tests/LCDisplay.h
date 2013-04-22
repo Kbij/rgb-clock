@@ -13,26 +13,51 @@
 #include <bitset>
 #include <string>
 #include <array>
+#include <map>
+
+
 struct MyGraphicWord
 {
 	std::bitset<16> mBits;
 	bool mChanged;
+};
+enum class FontType
+{
+	Verdana20,
+	AndereFont
+};
+
+struct FontInfo
+{
+	uint8_t mWidth;
+	uint8_t mHeight;
+	const std::vector<uint8_t>* mPointer;
 };
 
 class LCDisplay {
 public:
 	LCDisplay(I2C &i2c, uint8_t address);
 	virtual ~LCDisplay();
-	void clearDisplay();
+	void initStandard();
+	void clearStandardDisplay();
+
+	void initGraphic();
 	void clearGraphicDisplay();
+
 	void writeText(uint8_t pos, std::string text);
+	void writegGraphicChar(uint8_t x, uint8_t y, uint8_t character);
+
 	void point(uint8_t x, uint8_t y, bool set);
-	void HLine(uint8_t x1, uint8_t x2, uint8_t y, bool set);
-	void VLine(uint8_t y1, uint8_t y2, uint8_t x, bool set);
-	void testGraphic();
+	void hLine(uint8_t y1, uint8_t y2, uint8_t x, bool set);
+	void vLine(uint8_t x1, uint8_t x2, uint8_t y, bool set);
+	void rectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool set, bool fill);
+
 private:
 	void init();
-	void checkControlBus();
+
+	void rawPoint(uint8_t x, uint8_t y, bool set);
+	void rawHLine(uint8_t y1, uint8_t y2, uint8_t x, bool set);
+	void rawVLine(uint8_t x1, uint8_t x2, uint8_t y, bool set);
 
 	void setDDRamAddress(uint8_t addr);
 	void setGAddress(uint8_t horizontal, uint8_t vertical);
@@ -45,10 +70,8 @@ private:
 	IOExpander mIO;
 	uint8_t mPortA;
 	std::bitset<8> mControlBus;
-//	std::array<std::array<uint32_t,10>,32> mGraphicRam;
-	//std::array<std::array<uint32_t,100>,100>* mGraphicRam;
-	std::array<std::array<MyGraphicWord,10>,32>* mGraphicRam2;
-
+	std::array<std::array<MyGraphicWord,10>,32>* mGraphicRam;
+	std::map<FontType, FontInfo> mFontMap;
 };
 
 #endif /* LCDISPLAY_H_ */
