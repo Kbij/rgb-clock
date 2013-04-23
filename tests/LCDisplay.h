@@ -24,7 +24,7 @@ struct MyGraphicWord
 enum class FontType
 {
 	Verdana20,
-	AndereFont
+	Courier15
 };
 
 struct FontInfo
@@ -45,7 +45,7 @@ public:
 	void clearGraphicDisplay();
 
 	void writeText(uint8_t pos, std::string text);
-	void writegGraphicChar(uint8_t x, uint8_t y, uint8_t character);
+	void writeGraphicText(uint8_t col, uint8_t row, std::string text, FontType font);
 
 	void point(uint8_t x, uint8_t y, bool set);
 	void hLine(uint8_t y1, uint8_t y2, uint8_t x, bool set);
@@ -55,9 +55,11 @@ public:
 private:
 	void init();
 
-	void rawPoint(uint8_t x, uint8_t y, bool set);
-	void rawHLine(uint8_t y1, uint8_t y2, uint8_t x, bool set);
-	void rawVLine(uint8_t x1, uint8_t x2, uint8_t y, bool set);
+	void rawPoint(uint8_t col, uint8_t row, bool set);
+	void rawVertByte(uint8_t col, uint8_t& row, uint8_t byte);
+	void rawHLine(uint8_t col1, uint8_t col2, uint8_t row, bool set);
+	void rawVLine(uint8_t col, uint8_t row1, uint8_t row2, bool set);
+	void rawGraphicChar(uint8_t col, uint8_t row, uint8_t character, FontType font);
 
 	void setDDRamAddress(uint8_t addr);
 	void setGAddress(uint8_t horizontal, uint8_t vertical);

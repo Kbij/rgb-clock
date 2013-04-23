@@ -179,7 +179,7 @@ int main (int argc, char* argv[])
 	LOG(INFO) << "============================";
 	try
 	{
-		I2C i2c;
+//		I2C i2c;
 	//	RgbLed rgbLed(i2c, PCA9685_ADDRESS);
 
 /*
@@ -265,9 +265,14 @@ int main (int argc, char* argv[])
 
 		} while (runMain);
 */
-/*
+		I2C i2c;
+		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
+
 		LCDisplay display(i2c, 0x20);
-		LightSensor lightSensor(i2c, 0x29);
+		display.initGraphic();
+    	display.clearGraphicDisplay();
+
+    	LightSensor lightSensor(i2c, 0x29);
 
 		rgbLed.hue(200);
 		rgbLed.saturation(4000);
@@ -277,30 +282,25 @@ int main (int argc, char* argv[])
 		do{
 			//ioExpander.writeA(counter++);
 			//display.toggleBit();
-			std::chrono::milliseconds dura( 1000 );
+			std::chrono::milliseconds dura( 2000 );
 			std::this_thread::sleep_for( dura );
 			double lux = lightSensor.lux();
 			rgbLed.luminance((lux * 10)+30);
 			rgbLed.write();
-			display.clearDisplay();
 			std::stringstream stream;
-			stream << "Measured Lux: " << lux;
-			display.writeText(0, stream.str());
+			stream << lux;
+//			display.writeText(0, stream.str());
+			display.writeGraphicText(1, 1, stream.str(), FontType::Verdana20);
 
 		} while (runMain);
-*/
+
+/*
 		LCDisplay display(i2c, 0x20);
 		display.initGraphic();
     	display.clearGraphicDisplay();
-/*
-		display.hLine(0,159,0, true);
-		display.hLine(0,159,31, true);
-		display.vLine(0,0,31, true);
-		display.vLine(159,0,31, true);
-*/
-		display.rectangle(0, 0, 159, 31, true, false);
 
-		display.writegGraphicChar(2, 2, ' ');
+		display.writeGraphicText(1, 1, "Hello World", FontType::Courier15);
+*/
 	}
 	catch (std::string* caught)
 	{
