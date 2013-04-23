@@ -31,6 +31,10 @@ LCDisplay::LCDisplay(I2C &i2c, uint8_t address):
     mFontMap[FontType::Verdana20].mHeight = 27;
     mFontMap[FontType::Verdana20].mPointer = &VerdanaBold32x27;
 
+    mFontMap[FontType::Courier15].mWidth = 12;
+    mFontMap[FontType::Courier15].mHeight = 17;
+    mFontMap[FontType::Courier15].mPointer = &Courier12x17;
+
 	init();
 }
 
@@ -89,78 +93,16 @@ void LCDisplay::writeText(uint8_t pos, std::string text)
 		writeData(text[i]);
 	}
 }
-void LCDisplay::writegGraphicChar(uint8_t x, uint8_t y, uint8_t character)
+
+void LCDisplay::writeGraphicText(uint8_t col, uint8_t row, std::string text, FontType font)
 {
-	LOG(INFO) << "Write Char, x:" << (int)x << ", y: " << (int)y << ", char:" << character;
-	uint16_t arrayOffset = ((character - (int)' ') * (1 + 32 * 4)) + 1;
-
-	LOG(INFO) << "Position in Array:" << (int)arrayOffset;
-	div_t divresultW = div(mFontMap[FontType::Verdana20].mWidth, 8);
-	uint8_t bytesPerCharLine = divresultW.quot;
-	if (divresultW.rem > 0)
+	uint8_t myCol = col;
+	for (auto myChar: text)
 	{
-		++bytesPerCharLine;
-	}
-	div_t divresultH = div(mFontMap[FontType::Verdana20].mHeight, 8);
-	uint8_t lineBlocks = divresultH.quot;
-	if (divresultH.rem > 0)
-	{
-		++lineBlocks;
-	}
-
-	LOG(INFO) << "bytesPerCharLine: " << (int)bytesPerCharLine;
-	LOG(INFO) << "lineBlocks: " << (int)lineBlocks;
-
-	for (uint8_t arrayY = 0; arrayY < lineBlocks; ++arrayY)
-	{
-		for (uint8_t blockLine = 0; blockLine < 8; blockLine++)
-		{
-			for (uint8_t arrayX = 0; arrayX < bytesPerCharLine; ++arrayX)
-			{
-				LOG(INFO) << "arrayY: " << (int)arrayY << ", arrayX: " << (int)arrayX;
-
-				uint16_t arrayPos = arrayOffset;
-
-				arrayPos += ((arrayY+1) * 8) - blockLine;
-
-				arrayPos += arrayX;
-
-				LOG(INFO) << "arrayPos: " << (int)arrayPos;
-
-	//			arrayPos = 0;
-				uint8_t byte = (*(mFontMap[FontType::Verdana20].mPointer))[arrayPos];
-				//LOG(INFO) << "byte: " << (int)byte;
-
-
-				uint8_t bitMask = 0x80;
-				// for each bit
-				for (uint8_t i = 0; i < 8; ++i)
-				{
-					uint8_t pointX = x + (arrayX * 8) +  i;
-					uint8_t pointY = y + (arrayY * 8) + blockLine;
-					LOG(INFO) << "point x: " << (int) pointX <<  "point y:" << (int)pointY ;
-					if (byte & bitMask)
-					{
-						rawPoint(pointY, pointX, true);
-//						rawPoint(y + arrayY, x + (arrayX * 8) +  i,  true);
-
-					}
-					else
-					{
-						rawPoint(pointY, pointX, false);
-	//					rawPoint(y + arrayY, x + (arrayX * 8) +  i,  false);
-					}
-					bitMask = bitMask >> 1;
-				}
-		}
-
-		}
-		//uint8_t arrayPos = 0;
-		//const uint8_t byte = (*(mFontMap[FontType::Verdana20].mPointer))[arrayPos];
-
+		rawGraphicChar(myCol, row, myChar, font);
+		myCol += mFontMap[font].mWidth - 5;
 	}
 	refreshDisplay();
-
 }
 
 void LCDisplay::point(uint8_t x, uint8_t y, bool set)
@@ -223,33 +165,78 @@ void LCDisplay::init()
 	writeControl(0b00000110);
 }
 
-void LCDisplay::rawPoint(uint8_t x, uint8_t y, bool set)
+void LCDisplay::rawPoint(uint8_t col, uint8_t row, bool set)
 {
-	if ((x > 159) || (y > 31))
+	if ((col > 159) || (row > 31))
 	{
 		return;
 	}
 	div_t divresult;
-	divresult = div(x, 16);
-	uint myX= 0;
-	myX = 15 - divresult.rem;
-	(*mGraphicRam)[y][divresult.quot].mBits.set(myX, set);
-	(*mGraphicRam)[y][divresult.quot].mChanged = true;
+	divresult = div(col, 16);
+	uint myCol= 0;
+	myCol = 15 - divresult.rem;
+	(*mGraphicRam)[row][divresult.quot].mBits.set(myCol, set);
+	(*mGraphicRam)[row][divresult.quot].mChanged = true;
 }
 
-void LCDisplay::rawHLine(uint8_t x1, uint8_t x2, uint8_t y, bool set)
+void LCDisplay::rawVertByte(uint8_t col, uint8_t& row, uint8_t byte)
 {
-	for (int i = x1; i <=x2; ++i)
+	uint8_t bitMask = 0x01;
+	// for each bit
+	for (uint8_t i = 0; i < 8; ++i)
 	{
-		rawPoint(i,y,set);
+		rawPoint(col, row, byte & bitMask);
+		bitMask = bitMask << 1;
+		row++;
 	}
 }
 
-void LCDisplay::rawVLine(uint8_t x, uint8_t y1, uint8_t y2, bool set)
+void LCDisplay::rawHLine(uint8_t col1, uint8_t col2, uint8_t row, bool set)
 {
-	for (int i = y1; i <=y2; ++i)
+	for (int i = col1; i <=col2; ++i)
 	{
-		rawPoint(x,i,set);
+		rawPoint(i,row,set);
+	}
+}
+
+void LCDisplay::rawVLine(uint8_t col, uint8_t row1, uint8_t row2, bool set)
+{
+	for (int i = row1; i <= row2; ++i)
+	{
+		rawPoint(col,i,set);
+	}
+}
+void LCDisplay::rawGraphicChar(uint8_t col, uint8_t row, uint8_t character, FontType font)
+{
+	// (1 +32 *4) = number of bytes per char
+	// +1 : fist byte
+
+	div_t divresultW = div(mFontMap[font].mHeight, 8);
+	int bytesPerCharCol = divresultW.quot;
+	if (divresultW.rem > 0)
+	{
+		++bytesPerCharCol;
+	}
+	int characterNumber = character - (int)' ';
+	int arrayOffset = ((mFontMap[font].mWidth * bytesPerCharCol) + 1) * characterNumber;
+	arrayOffset++; // Ignore first byte
+
+
+	for (uint8_t charCol = 0; charCol < mFontMap[font].mWidth; ++charCol)
+	{
+		uint8_t myRow = row;
+
+		for (uint8_t byteNr = 0; byteNr < bytesPerCharCol; ++byteNr)
+		{
+			uint8_t myCol = col + charCol;
+			uint16_t arrayPos = arrayOffset;
+			arrayPos += (charCol * bytesPerCharCol) + byteNr;
+
+			uint8_t byte = (*(mFontMap[font].mPointer))[arrayPos];
+
+			rawVertByte(myCol, myRow, byte);
+		}
+
 	}
 }
 
