@@ -1,20 +1,23 @@
-#!/bin/sh
+#! /bin/sh
+# /etc/init.d/rgbclock
 
 ### BEGIN INIT INFO
 # Provides:        rgbclock
-# Required-Start:  $network
-# Required-Stop:
-# Default-Start:   2 3 4 5
-# Default-Stop:    0 1 6 
+# Required-Start:  $remote_fs $syslog
+# Required-Stop:   $remote_fs $syslog
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6 
 # Short-Descripti on: Start RGB Clock daemon
 ### END INIT INFO
+
+
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 . /lib/lsb/init-functions
 
 DAEMON=/usr/bin/rgbclock/rgbclock
-PIDFILE=/tmp/rgbclock.pid
+PIDFILE=/var/run/rgbclock.pid
 LOGDIR=/var/log/rgbclock
 
 test -x $DAEMON || exit 5
