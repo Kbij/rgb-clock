@@ -1,0 +1,12 @@
+[Unit]
+Description=RGB Clock
+
+[Service]
+Type=simple
+PIDFile=/var/run/rgbclock.pid
+ExecStart=/usr/sbin/rgbclock -daemon true -pidfile /var/run/rgbclock.pid  -log_dir /var/log/rgbclock
+User=root
+
+[Install]
+WantedBy=multi-user.target
+
