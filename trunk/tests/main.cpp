@@ -33,6 +33,8 @@ DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
 DEFINE_string(pidfile,"","Pid file when running as Daemon");
 
 const uint8_t PCA9685_ADDRESS = 0b01000000;
+const uint8_t DISPLAY_ADDRESS = 0x20;
+
 
 void signal_handler(int sig);
 void daemonize();
@@ -265,10 +267,11 @@ int main (int argc, char* argv[])
 
 		} while (runMain);
 */
+
 		I2C i2c;
 		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
 
-		LCDisplay display(i2c, 0x20);
+		LCDisplay display(i2c, DISPLAY_ADDRESS);
 		display.initGraphic();
     	display.clearGraphicDisplay();
 
@@ -280,8 +283,6 @@ int main (int argc, char* argv[])
 
 
 		do{
-			//ioExpander.writeA(counter++);
-			//display.toggleBit();
 			std::chrono::milliseconds dura( 2000 );
 			std::this_thread::sleep_for( dura );
 			double lux = lightSensor.lux();
@@ -302,7 +303,7 @@ int main (int argc, char* argv[])
 		display.writeGraphicText(1, 1, "Hello World", FontType::Courier15);
 */
 	}
-	catch (std::string* caught)
+	catch (std::string caught)
 	{
 		LOG(ERROR) << "Failed to open I2C port:" << caught;
 	}
