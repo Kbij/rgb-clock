@@ -24,13 +24,17 @@ struct MyGraphicWord
 enum class FontType
 {
 	Verdana20,
-	Courier15
+	Courier15,
+	Large9,
+	Volter,
+	Terminal8
 };
 
 struct FontInfo
 {
 	uint8_t mWidth;
 	uint8_t mHeight;
+	uint8_t mSpacing;
 	const std::vector<uint8_t>* mPointer;
 };
 
@@ -74,6 +78,7 @@ private:
 	std::bitset<8> mControlBus;
 	std::array<std::array<MyGraphicWord,10>,32>* mGraphicRam;
 	std::map<FontType, FontInfo> mFontMap;
+	std::mutex mDisplayMutex;
 };
 
 #endif /* LCDISPLAY_H_ */

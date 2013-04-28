@@ -23,17 +23,34 @@ LCDisplay::LCDisplay(I2C &i2c, uint8_t address):
 	mPortA(0),
 	mControlBus(0),
 	mGraphicRam(nullptr),
-	mFontMap()
-
+	mFontMap(),
+	mDisplayMutex()
 {
     mGraphicRam = new std::array<std::array<MyGraphicWord,10>,32>;
     mFontMap[FontType::Verdana20].mWidth = 32;
+    mFontMap[FontType::Verdana20].mSpacing = 22;
     mFontMap[FontType::Verdana20].mHeight = 27;
     mFontMap[FontType::Verdana20].mPointer = &VerdanaBold32x27;
 
     mFontMap[FontType::Courier15].mWidth = 12;
+    mFontMap[FontType::Courier15].mSpacing = 12;
     mFontMap[FontType::Courier15].mHeight = 17;
     mFontMap[FontType::Courier15].mPointer = &Courier12x17;
+
+    mFontMap[FontType::Large9].mWidth = 27;
+    mFontMap[FontType::Large9].mSpacing = 27;
+    mFontMap[FontType::Large9].mHeight = 27;
+    mFontMap[FontType::Large9].mPointer = &Large9_27x27;
+
+    mFontMap[FontType::Volter].mWidth = 9;
+    mFontMap[FontType::Volter].mSpacing = 9;
+    mFontMap[FontType::Volter].mHeight = 12;
+    mFontMap[FontType::Volter].mPointer = &Volter_9x12;
+
+    mFontMap[FontType::Terminal8].mWidth = 6;
+    mFontMap[FontType::Terminal8].mSpacing = 6;
+    mFontMap[FontType::Terminal8].mHeight = 8;
+    mFontMap[FontType::Terminal8].mPointer = &Terminal6x8;
 
 	init();
 }
@@ -46,12 +63,13 @@ LCDisplay::~LCDisplay()
 
 void LCDisplay::initStandard()
 {
-
+    std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
 }
 
 void LCDisplay::clearStandardDisplay()
 {
 	LOG(INFO) << "Clear Standard Display";
+    std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
 
 	writeControl(0b00000001); // Display Clear
 
@@ -62,6 +80,8 @@ void LCDisplay::clearStandardDisplay()
 
 void LCDisplay::initGraphic()
 {
+    std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
+
 	// Set Extended
 	writeControl(0b00110100);
 
@@ -72,6 +92,7 @@ void LCDisplay::initGraphic()
 void LCDisplay::clearGraphicDisplay()
 {
 	LOG(INFO) << "Clear Graphic Display";
+    std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
 
 	for (int vert = 0; vert < 32; ++vert)
 	{
@@ -86,6 +107,8 @@ void LCDisplay::clearGraphicDisplay()
 
 void LCDisplay::writeText(uint8_t pos, std::string text)
 {
+    std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
+
 	writeControl(0b00000110);
 	setDDRamAddress(pos); //Fist Char position
 	for (unsigned int i = 0; i < text.length(); ++i)
@@ -96,35 +119,45 @@ void LCDisplay::writeText(uint8_t pos, std::string text)
 
 void LCDisplay::writeGraphicText(uint8_t col, uint8_t row, std::string text, FontType font)
 {
+    std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
+
 	uint8_t myCol = col;
 	for (auto myChar: text)
 	{
 		rawGraphicChar(myCol, row, myChar, font);
-		myCol += mFontMap[font].mWidth - 5;
+		myCol += mFontMap[font].mSpacing;
 	}
 	refreshDisplay();
 }
 
 void LCDisplay::point(uint8_t x, uint8_t y, bool set)
 {
+    std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
+
 	rawPoint(x, y, set);
 	refreshDisplay();
 }
 
 void LCDisplay::hLine(uint8_t x1, uint8_t x2, uint8_t y, bool set)
 {
+    std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
+
 	rawHLine(x1, x2, y, set);
 	refreshDisplay();
 }
 
 void LCDisplay::vLine(uint8_t x, uint8_t y1, uint8_t y2, bool set)
 {
+    std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
+
 	rawVLine(x, y1, y2, set);
 	refreshDisplay();
 }
 
 void LCDisplay::rectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool set, bool fill)
 {
+    std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
+
 	if (fill)
 	{
 		for (int i = y1; i <= y2; ++i)
@@ -210,7 +243,6 @@ void LCDisplay::rawGraphicChar(uint8_t col, uint8_t row, uint8_t character, Font
 {
 	// (1 +32 *4) = number of bytes per char
 	// +1 : fist byte
-
 	div_t divresultW = div(mFontMap[font].mHeight, 8);
 	int bytesPerCharCol = divresultW.quot;
 	if (divresultW.rem > 0)
@@ -221,17 +253,16 @@ void LCDisplay::rawGraphicChar(uint8_t col, uint8_t row, uint8_t character, Font
 	int arrayOffset = ((mFontMap[font].mWidth * bytesPerCharCol) + 1) * characterNumber;
 	arrayOffset++; // Ignore first byte
 
-
 	for (uint8_t charCol = 0; charCol < mFontMap[font].mWidth; ++charCol)
 	{
 		uint8_t myRow = row;
 
 		for (uint8_t byteNr = 0; byteNr < bytesPerCharCol; ++byteNr)
 		{
+
 			uint8_t myCol = col + charCol;
 			uint16_t arrayPos = arrayOffset;
 			arrayPos += (charCol * bytesPerCharCol) + byteNr;
-
 			uint8_t byte = (*(mFontMap[font].mPointer))[arrayPos];
 
 			rawVertByte(myCol, myRow, byte);

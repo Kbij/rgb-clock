@@ -67,7 +67,7 @@ void LightSensor::readThread()
     while (mReadThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         LOG(INFO) << "Measuring light intensity";
         uint16_t channel0;
         uint16_t channel1;
