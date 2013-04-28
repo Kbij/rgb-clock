@@ -9,6 +9,7 @@
 #include "IOExpander.h"
 #include "LCDisplay.h"
 #include "LightSensor.h"
+#include "ClockDisplay.h"
 
 #include <string>
 #include <glog/logging.h>
@@ -34,7 +35,7 @@ DEFINE_string(pidfile,"","Pid file when running as Daemon");
 
 const uint8_t PCA9685_ADDRESS = 0b01000000;
 const uint8_t DISPLAY_ADDRESS = 0x20;
-
+const uint8_t LIGHTSENSOR_ADDRESS = 0x29;
 
 void signal_handler(int sig);
 void daemonize();
@@ -267,7 +268,7 @@ int main (int argc, char* argv[])
 
 		} while (runMain);
 */
-
+/*
 		I2C i2c;
 		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
 
@@ -281,7 +282,6 @@ int main (int argc, char* argv[])
 		rgbLed.saturation(4000);
 		rgbLed.pwrOn();
 
-
 		do{
 			std::chrono::milliseconds dura( 2000 );
 			std::this_thread::sleep_for( dura );
@@ -290,18 +290,26 @@ int main (int argc, char* argv[])
 			rgbLed.write();
 			std::stringstream stream;
 			stream << lux;
-//			display.writeText(0, stream.str());
-			display.writeGraphicText(1, 1, stream.str(), FontType::Verdana20);
+			display.writeGraphicText(0, 0, stream.str(), FontType::Courier15);
+
+		} while (runMain);
+*/
+		I2C i2c;
+		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
+
+		ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS);
+		clockDisplay.showClock();
+
+		rgbLed.hue(200);
+		rgbLed.saturation(4000);
+		rgbLed.pwrOn();
+
+		do{
+			std::chrono::milliseconds dura( 2000 );
+			std::this_thread::sleep_for( dura );
 
 		} while (runMain);
 
-/*
-		LCDisplay display(i2c, 0x20);
-		display.initGraphic();
-    	display.clearGraphicDisplay();
-
-		display.writeGraphicText(1, 1, "Hello World", FontType::Courier15);
-*/
 	}
 	catch (std::string caught)
 	{
