@@ -52,8 +52,8 @@ public:
 	void writeGraphicText(uint8_t col, uint8_t row, std::string text, FontType font);
 
 	void point(uint8_t x, uint8_t y, bool set);
-	void hLine(uint8_t y1, uint8_t y2, uint8_t x, bool set);
-	void vLine(uint8_t x1, uint8_t x2, uint8_t y, bool set);
+	void hLine(uint8_t col1, uint8_t col2, uint8_t row, bool set);
+	void vLine(uint8_t col, uint8_t row1, uint8_t row2, bool set);
 	void rectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool set, bool fill);
 
 private:

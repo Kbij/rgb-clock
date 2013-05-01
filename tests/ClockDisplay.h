@@ -10,6 +10,7 @@
 #include "LCDisplay.h"
 #include "LightSensor.h"
 #include <string>
+#include <time.h>
 
 class ClockDisplay {
 public:
@@ -22,12 +23,14 @@ public:
 	void showVolume(uint8_t vol);
 	void hideVolume();
 
-	void showSignal(uint8_t vol);
+	void showSignal(uint8_t signal);
 	void hideSignal();
 
 	void showRDSInfo(std::string rdsInfo);
 	void hideRDSInfo();
 
+	void showNextAlarm(const struct tm& nextAlarm);
+	void hideNextAlarm();
 private:
 	void startRefreshThread();
 	void stopRefreshThread();

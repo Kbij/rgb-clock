@@ -138,19 +138,19 @@ void LCDisplay::point(uint8_t x, uint8_t y, bool set)
 	refreshDisplay();
 }
 
-void LCDisplay::hLine(uint8_t x1, uint8_t x2, uint8_t y, bool set)
+void LCDisplay::hLine(uint8_t col1, uint8_t col2, uint8_t row, bool set)
 {
     std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
 
-	rawHLine(x1, x2, y, set);
+	rawHLine(col1, col2, row, set);
 	refreshDisplay();
 }
 
-void LCDisplay::vLine(uint8_t x, uint8_t y1, uint8_t y2, bool set)
+void LCDisplay::vLine(uint8_t col, uint8_t row1, uint8_t row2, bool set)
 {
     std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
 
-	rawVLine(x, y1, y2, set);
+	rawVLine(col, row1, row2, set);
 	refreshDisplay();
 }
 

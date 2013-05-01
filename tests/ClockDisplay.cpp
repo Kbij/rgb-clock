@@ -7,8 +7,8 @@
 
 #include "ClockDisplay.h"
 #include "I2C.h"
-#include <time.h>
 #include <sstream>
+#include <glog/logging.h>
 
 ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress) :
 	mLCDisplay(i2c, lcdAddress),
@@ -39,6 +39,21 @@ void ClockDisplay::hideClock()
 
 void ClockDisplay::showVolume(uint8_t vol)
 {
+	if (vol > 100)
+	{
+		vol = 100;
+	}
+	const uint8_t top = 10;
+	const uint8_t bottom = 31;
+
+	const double step = ((double)bottom - (double)top) / 100.0;
+
+	uint8_t length = vol * step;
+
+	// top part: clear
+	mLCDisplay.rectangle(158, top, 159, 31-length - 1, false, false);
+	// bottom part: set
+	mLCDisplay.rectangle(158, 31-length, 159, 31, true, false);
 
 }
 
@@ -47,9 +62,42 @@ void ClockDisplay::hideVolume()
 
 }
 
-void ClockDisplay::showSignal(uint8_t vol)
+void ClockDisplay::showSignal(uint8_t signal)
 {
+	if (signal >= 75)
+	{
+		mLCDisplay.hLine(159-3, 159, 0, true);
+	}
+	else
+	{
+		mLCDisplay.hLine(159-3, 159, 0, false);
+	}
 
+	if (signal >= 50)
+	{
+		mLCDisplay.hLine(159-2, 159, 1, true);
+	}
+	else
+	{
+		mLCDisplay.hLine(159-2, 159, 1, false);
+	}
+	if (signal >= 25)
+	{
+		mLCDisplay.hLine(159-1, 159, 2, true);
+	}
+	else
+	{
+		mLCDisplay.hLine(159-1, 159, 2, false);
+	}
+
+	if (signal >= 0)
+	{
+		mLCDisplay.point(159, 3, true);
+	}
+	else
+	{
+		mLCDisplay.point(159, 3, false);
+	}
 }
 
 void ClockDisplay::hideSignal()
@@ -59,13 +107,44 @@ void ClockDisplay::hideSignal()
 
 void ClockDisplay::showRDSInfo(std::string rdsInfo)
 {
-
+	// Max 26 chars
+	if (rdsInfo.size() > 26)
+	{
+		mLCDisplay.writeGraphicText(0, 24, rdsInfo.substr(0, 26), FontType::Terminal8);
+	}
+	else
+	{
+		rdsInfo.append(26 - rdsInfo.size(), ' ');
+	}
+	mLCDisplay.writeGraphicText(0, 24, rdsInfo, FontType::Terminal8);
 }
 
 void ClockDisplay::hideRDSInfo()
 {
 
 }
+
+void ClockDisplay::showNextAlarm(const struct tm& nextAlarm)
+{
+	std::stringstream hourStream;
+	hourStream.width(2);
+	hourStream.fill('0');
+	hourStream << nextAlarm.tm_hour;
+	mLCDisplay.writeGraphicText(0,0, hourStream.str(), FontType::Terminal8);
+	mLCDisplay.writeGraphicText(13,0, ":", FontType::Terminal8);
+
+	std::stringstream minStream;
+	minStream.width(2);
+	minStream.fill('0');
+	minStream << nextAlarm.tm_min;
+	mLCDisplay.writeGraphicText(18,0, minStream.str(), FontType::Terminal8);
+}
+
+void ClockDisplay::hideNextAlarm()
+{
+
+}
+
 void ClockDisplay::startRefreshThread()
 {
 	mRefreshThreadRunning = true;
@@ -106,14 +185,14 @@ void ClockDisplay::refreshThread()
 			hourStream.width(2);
 			hourStream.fill('0');
 			hourStream << timeInfo->tm_hour;
-			mLCDisplay.writeGraphicText(10,0, hourStream.str(), FontType::Verdana20);
-			mLCDisplay.writeGraphicText(55,0, ":", FontType::Verdana20);
+			mLCDisplay.writeGraphicText(40, 0, hourStream.str(), FontType::Verdana20);
+			mLCDisplay.writeGraphicText(86, 0, ":", FontType::Verdana20);
 
 			std::stringstream minStream;
 			minStream.width(2);
 			minStream.fill('0');
 			minStream << timeInfo->tm_min;
-			mLCDisplay.writeGraphicText(70,0, minStream.str(), FontType::Verdana20);
+			mLCDisplay.writeGraphicText(100,0, minStream.str(), FontType::Verdana20);
 
 		}
 
@@ -121,7 +200,8 @@ void ClockDisplay::refreshThread()
 
 		double lux = mLightSensor.lux();
 		std::stringstream stream;
+
 		stream << "Measured Lux: " << lux;
-		mLCDisplay.writeGraphicText(0, 24, stream.str(), FontType::Terminal8);
+		showRDSInfo(stream.str());
     }
 }
