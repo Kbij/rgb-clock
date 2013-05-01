@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sstream>
+#include <time.h>
 
 
 DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
@@ -303,11 +304,23 @@ int main (int argc, char* argv[])
 		rgbLed.hue(200);
 		rgbLed.saturation(4000);
 		rgbLed.pwrOn();
-
+		struct tm nextAlarm;
+		nextAlarm.tm_hour = 6;
+		nextAlarm.tm_min = 59;
+		uint8_t counter = 0;
+		clockDisplay.showSignal(100);
 		do{
-			std::chrono::milliseconds dura( 2000 );
+			std::chrono::milliseconds dura( 200 );
 			std::this_thread::sleep_for( dura );
+			clockDisplay.showNextAlarm(nextAlarm);
+			clockDisplay.showVolume(counter);
+			clockDisplay.showSignal(counter);
 
+			counter++;
+			if (counter > 100)
+			{
+				counter = 0;
+			}
 		} while (runMain);
 
 	}
