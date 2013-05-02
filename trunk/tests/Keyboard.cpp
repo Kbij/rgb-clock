@@ -77,6 +77,7 @@ void Keyboard::init()
 	mI2C.writeDataSync(mAddress, buffer);
 	buffer.clear();
 
+
 	buffer.push_back(AUTOCONF_CONTROL0); // Set AUTOCONF_CONTROL0
 	/*
 	 * FFI7..6: The FFI bits are the same as the FFI bits in register 0x5C for correct auto-configuration and reconfiguration operations.
@@ -134,6 +135,15 @@ void Keyboard::readThread()
     {
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        uint8_t byte0;
+        uint8_t byte1;
 
+        mI2C.readByteSync(mAddress, TOUCH_STATUS0, byte0);
+        mI2C.readByteSync(mAddress, TOUCH_STATUS1, byte1);
+
+        std::lock_guard<std::mutex> lk_guard(mKeysMutex);
+        mKeys = byte1;
+        mKeys = mKeys << 8;
+        mKeys = mKeys | byte0;
     }
 }
