@@ -10,6 +10,7 @@
 #include "LCDisplay.h"
 #include "LightSensor.h"
 #include "ClockDisplay.h"
+#include "Keyboard.h"
 
 #include <string>
 #include <glog/logging.h>
@@ -299,6 +300,7 @@ int main (int argc, char* argv[])
 		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
 
 		ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS);
+		Keyboard keyboard(i2c, 0x00);
 		clockDisplay.showClock();
 
 		rgbLed.hue(200);
@@ -310,11 +312,13 @@ int main (int argc, char* argv[])
 		uint8_t counter = 0;
 		clockDisplay.showSignal(100);
 		do{
-			std::chrono::milliseconds dura( 200 );
+			std::chrono::milliseconds dura( 1000 );
 			std::this_thread::sleep_for( dura );
 			clockDisplay.showNextAlarm(nextAlarm);
 			clockDisplay.showVolume(counter);
 			clockDisplay.showSignal(counter);
+
+			LOG(INFO) << "Keyboard value: " << (int) keyboard.readKeys();
 
 			counter++;
 			if (counter > 100)
