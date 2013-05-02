@@ -14,6 +14,7 @@ LightSensor::LightSensor(I2C &i2c, uint8_t address) :
 		mI2C(i2c),
 		mAddress(address),
 		mLux(),
+		mIntensityMutex(),
 		mReadThread(nullptr),
 		mReadThreadRunning(false)
 {
@@ -40,6 +41,7 @@ bool LightSensor::init()
 	startReadThread();
 	return true;
 }
+
 void LightSensor::startReadThread()
 {
 	mReadThreadRunning = true;
