@@ -297,10 +297,13 @@ int main (int argc, char* argv[])
 		} while (runMain);
 */
 		I2C i2c;
+	/*
 		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
 
 		ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS);
-		Keyboard keyboard(i2c, 0x00);
+*/
+		Keyboard keyboard(i2c, 0x5A);
+	/*
 		clockDisplay.showClock();
 
 		rgbLed.hue(200);
@@ -311,20 +314,23 @@ int main (int argc, char* argv[])
 		nextAlarm.tm_min = 59;
 		uint8_t counter = 0;
 		clockDisplay.showSignal(100);
+		*/
 		do{
-			std::chrono::milliseconds dura( 1000 );
+			std::chrono::milliseconds dura( 2000 );
 			std::this_thread::sleep_for( dura );
+/*
 			clockDisplay.showNextAlarm(nextAlarm);
 			clockDisplay.showVolume(counter);
 			clockDisplay.showSignal(counter);
-
-			LOG(INFO) << "Keyboard value: " << (int) keyboard.readKeys();
-
+*/
+			LOG(INFO) << "Keyboard value: " << std::hex << (int) keyboard.readKeys() << std::dec;
+/*
 			counter++;
 			if (counter > 100)
 			{
 				counter = 0;
 			}
+			*/
 		} while (runMain);
 
 	}
