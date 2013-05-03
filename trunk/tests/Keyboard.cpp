@@ -7,16 +7,17 @@
 
 #include "Keyboard.h"
 #include <glog/logging.h>
-const uint8_t TOUCH_STATUS0 = 0x00;
-const uint8_t TOUCH_STATUS1 = 0x01;
+const uint8_t TOUCH_STATUS0     = 0x00;
+const uint8_t TOUCH_STATUS1     = 0x01;
 const uint8_t AUTOCONF_CONTROL0 = 0x7B;
 const uint8_t AUTOCONF_CONTROL1 = 0x7C;
-const uint8_t USL_REG = 0x7D;
-const uint8_t LSL_REG = 0x7E;
-const uint8_t TL_REG = 0x7F;
-const uint8_t SOFT_RESET_REG = 0x80;
-const uint8_t ECR_REG = 0x5E;
-
+const uint8_t USL_REG           = 0x7D;
+const uint8_t LSL_REG           = 0x7E;
+const uint8_t TL_REG            = 0x7F;
+const uint8_t SOFT_RESET_REG    = 0x80;
+const uint8_t ECR_REG           = 0x5E;
+const uint8_t OOR0_REG          = 0x02;
+const uint8_t OOR1_REG          = 0x03;
 
 Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 	mI2C(i2c),
@@ -61,6 +62,13 @@ void Keyboard::init()
 	buffer.push_back(0x63);
 	mI2C.writeDataSync(mAddress, buffer);
 	buffer.clear();
+	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+/*
+ *         byte1 = AB;
+ *
+ */
+
 
 	buffer.push_back(USL_REG); // Set VSL
 	buffer.push_back(202);
@@ -89,7 +97,7 @@ void Keyboard::init()
      * of the transition from Stop Mode to Run Mode. This includes search and update of the CDCx and CDTx for each enabled channel
      * (if SCTS = 0).
 	 */
-	buffer.push_back(0b00001011);
+	buffer.push_back(0b00111011);
 	mI2C.writeDataSync(mAddress, buffer);
 	buffer.clear();
 
@@ -100,10 +108,13 @@ void Keyboard::init()
 	 * ELEPROX_EN1: 0
 	 * ELEPROX_EN0: 0 Proximity disabled
 	 * ELE_EN: 1111: Electrode 0 .. Electrode 11 enabled
+	 * Debug: ELE_EN: 0010: Electrode 0 .. Electrode 1 enabled
 	 */
-	buffer.push_back(0b10001111);
+	buffer.push_back(0b10000010);
 	mI2C.writeDataSync(mAddress, buffer);
 	buffer.clear();
+
+
 
 }
 
@@ -134,14 +145,23 @@ void Keyboard::readThread()
     while (mReadThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         uint8_t byte0;
         uint8_t byte1;
+        uint8_t oor0;
+        uint8_t oor1;
 
         mI2C.readByteSync(mAddress, TOUCH_STATUS0, byte0);
         mI2C.readByteSync(mAddress, TOUCH_STATUS1, byte1);
 
+        mI2C.readByteSync(mAddress, OOR0_REG, oor0);
+        mI2C.readByteSync(mAddress, OOR1_REG, oor1);
+
+        LOG(INFO) << "OOR0: " << std::hex << (int) oor0;
+        LOG(INFO) << "OOR1: " << std::hex << (int) oor1 << std::dec;
+
         std::lock_guard<std::mutex> lk_guard(mKeysMutex);
+
         mKeys = byte1;
         mKeys = mKeys << 8;
         mKeys = mKeys | byte0;
