@@ -12,7 +12,7 @@
 
 ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress) :
 	mLCDisplay(i2c, lcdAddress),
-	mLightSensor(i2c, lsAddress),
+	//mLightSensor(i2c, lsAddress),
 	mRefreshThread(nullptr),
 	mRefreshThreadRunning(false),
 	mPrevMin(-1)
@@ -197,11 +197,12 @@ void ClockDisplay::refreshThread()
 		}
 
 		mPrevMin = timeInfo->tm_min;
-
+/*
 		double lux = mLightSensor.lux();
 		std::stringstream stream;
 
 		stream << "Measured Lux: " << lux;
 		showRDSInfo(stream.str());
+		*/
     }
 }
