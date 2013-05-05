@@ -50,9 +50,16 @@ void Keyboard::init()
 	  // that users read AN3891 before changing the values.
 	  // In most cases these default values will work.
       mI2C.writeRegByteSync(mAddress, MHD_RISING, 0x01);
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
       mI2C.writeRegByteSync(mAddress, NHD_AMOUNT_RISING, 0x01);
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
       mI2C.writeRegByteSync(mAddress, NCL_RISING, 0x00);
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
       mI2C.writeRegByteSync(mAddress, FDL_RISING, 0x00);
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 	  // Section B
 	  // Description:
@@ -191,6 +198,7 @@ void Keyboard::readThread()
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         uint8_t byte0;
         uint8_t byte1;
+        uint8_t test;
         uint8_t oor0;
         uint8_t oor1;
 
@@ -202,6 +210,12 @@ void Keyboard::readThread()
 
         LOG(INFO) << "OOR0: " << std::hex << (int) oor0;
         LOG(INFO) << "OOR1: " << std::hex << (int) oor1 << std::dec;
+
+        mI2C.readByteSync(mAddress, FILTER_CONFIG, test);
+        if (test != 0x04)
+        {
+        	LOG(ERROR) << "Wrong info !!!!";
+        }
 
         std::lock_guard<std::mutex> lk_guard(mKeysMutex);
 

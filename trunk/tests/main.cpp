@@ -11,6 +11,7 @@
 #include "LightSensor.h"
 #include "ClockDisplay.h"
 #include "Keyboard.h"
+#include "MPR121.h"
 
 #include <string>
 #include <glog/logging.h>
@@ -48,10 +49,7 @@ std::string binary(uint16_t number, uint8_t width)
 {
 	std::bitset<16> bitset(number);
 	std::string result = bitset.to_string();
-//	if (result.size() < width)
-//	{
-//		result = std::string(width -result.size(), '0') + result;
-//	}
+
 	return result;
 }
 
@@ -311,7 +309,7 @@ int main (int argc, char* argv[])
 		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
 */
 	//	ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS);
-		Keyboard keyboard(i2c, 0x5A);
+		//Keyboard keyboard(i2c, 0x5A);
 	//	clockDisplay.showClock();
 /*
 		rgbLed.hue(200);
@@ -324,19 +322,28 @@ int main (int argc, char* argv[])
 		clockDisplay.showSignal(100);
 		*/
 		do{
-			std::chrono::milliseconds dura( 10000 );
+			std::chrono::milliseconds dura( 50 );
 			std::this_thread::sleep_for( dura );
+			uint8_t test;
+	        i2c.readByteSync(0x5A, FILTER_CONFIG, test);
+	        if (test != 0x04)
+	        {
+	        	LOG(ERROR) << "Wrong info !!!:!" << (int) test;
+	        }
 /*
 			clockDisplay.showNextAlarm(nextAlarm);
 			clockDisplay.showVolume(counter);
 			clockDisplay.showSignal(counter);
 */
+/*
 			uint16_t keyboardValue = keyboard.readKeys();
 			std::stringstream keyboardString;
 
 			LOG(INFO) << "Keyboard value: " << binary(keyboardValue, 16);
 			keyboardString << "Kb: " << binary(keyboardValue, 16) ;
 	//		clockDisplay.showRDSInfo(keyboardString.str());
+
+*/
 /*
 			counter++;
 			if (counter > 100)
