@@ -17,6 +17,7 @@ public:
 	virtual ~I2C();
 
 	bool writeByteSync(uint8_t address, uint8_t byte);
+	bool writeRegByteSync(uint8_t address, uint8_t regAddr, uint8_t byte);
 	bool writeDataSync(uint8_t address, const std::vector<uint8_t>& data);
 	bool readByteSync(uint8_t address, uint8_t reg, uint8_t& byte);
 	bool readWordSync(uint8_t address, uint8_t reg, uint16_t& word);
