@@ -77,6 +77,11 @@ bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 #endif
 }
 
+bool I2C::writeRegByteSync(uint8_t address, uint8_t regAddr, uint8_t byte)
+{
+	return writeDataSync(address,std::vector<uint8_t>({regAddr,byte}));
+}
+
 bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
 {
     std::lock_guard<std::mutex> lk_guard(mBusMutex);
