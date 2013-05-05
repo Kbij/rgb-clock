@@ -156,7 +156,7 @@ bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
-			LOG(ERROR) << "Failed setting register address: " << strerror(errno);
+			LOG(ERROR) << "Failed setting register address ("<< std::hex << (int) reg << "): " << strerror(errno) << std::dec;
 		}
 		mI2CWriteError = true;
 
@@ -172,19 +172,6 @@ bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 #else
 	return true;
 #endif
-
-/*
- Original Code
-	uint8_t data[2];
-	data[0] = reg;
-	if (write(g_i2cFile, data, 1) != 1) {
-		perror("pca9555ReadRegisterPair set register");
-	}
-	if (read(g_i2cFile, data, 2) != 2) {
-		perror("pca9555ReadRegisterPair read value");
-	}
-	return data[0] | (data[1] << 8);
- */
 }
 bool I2C::readWordSync(uint8_t address, uint8_t reg, uint16_t& word)
 {

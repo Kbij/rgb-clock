@@ -18,19 +18,18 @@
 
 #include <iostream>
 #include <stdio.h>
-//#include <cstdlib>
 #include <chrono>
 #include <thread>
 #include <algorithm>
 #include <unistd.h>
 #include <signal.h>
 #include <fcntl.h>
-//#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sstream>
 #include <time.h>
-
+#include <sstream>
+#include <bitset>
 
 DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
 DEFINE_string(pidfile,"","Pid file when running as Daemon");
@@ -44,6 +43,17 @@ void daemonize();
 bool runMain = true;
 
 int pidFilehandle;
+
+std::string binary(uint16_t number, uint8_t width)
+{
+	std::bitset<16> bitset(number);
+	std::string result = bitset.to_string();
+//	if (result.size() < width)
+//	{
+//		result = std::string(width -result.size(), '0') + result;
+//	}
+	return result;
+}
 
 void signal_handler(int sig)
 {
@@ -299,13 +309,11 @@ int main (int argc, char* argv[])
 		I2C i2c;
 	/*
 		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
-
-		ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS);
 */
+	//	ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS);
 		Keyboard keyboard(i2c, 0x5A);
-	/*
-		clockDisplay.showClock();
-
+	//	clockDisplay.showClock();
+/*
 		rgbLed.hue(200);
 		rgbLed.saturation(4000);
 		rgbLed.pwrOn();
@@ -316,14 +324,19 @@ int main (int argc, char* argv[])
 		clockDisplay.showSignal(100);
 		*/
 		do{
-			std::chrono::milliseconds dura( 2000 );
+			std::chrono::milliseconds dura( 10000 );
 			std::this_thread::sleep_for( dura );
 /*
 			clockDisplay.showNextAlarm(nextAlarm);
 			clockDisplay.showVolume(counter);
 			clockDisplay.showSignal(counter);
 */
-			LOG(INFO) << "Keyboard value: " << std::hex << (int) keyboard.readKeys() << std::dec;
+			uint16_t keyboardValue = keyboard.readKeys();
+			std::stringstream keyboardString;
+
+			LOG(INFO) << "Keyboard value: " << binary(keyboardValue, 16);
+			keyboardString << "Kb: " << binary(keyboardValue, 16) ;
+	//		clockDisplay.showRDSInfo(keyboardString.str());
 /*
 			counter++;
 			if (counter > 100)

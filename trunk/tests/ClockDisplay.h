@@ -38,7 +38,7 @@ private:
 	void refreshThread();
 
 	LCDisplay mLCDisplay;
-	LightSensor mLightSensor;
+	//LightSensor mLightSensor;
     std::thread* mRefreshThread;
     std::atomic_bool mRefreshThreadRunning;
     uint8_t mPrevMin;
