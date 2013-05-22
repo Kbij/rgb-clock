@@ -11,7 +11,8 @@
 #include "LightSensor.h"
 #include "ClockDisplay.h"
 #include "Keyboard.h"
-#include "MPR121.h"
+//#include "MPR121.h"
+#include "FMReceiver.h"
 
 #include <string>
 #include <glog/logging.h>
@@ -321,7 +322,10 @@ int main (int argc, char* argv[])
 		uint8_t counter = 0;
 		clockDisplay.showSignal(100);
 		*/
+		FMReceiver receiver(i2c, 0x63);
+
 		do{
+			/*
 			std::chrono::milliseconds dura( 50 );
 			std::this_thread::sleep_for( dura );
 			uint8_t test;
@@ -330,6 +334,7 @@ int main (int argc, char* argv[])
 	        {
 	        	LOG(ERROR) << "Wrong info !!!:!" << (int) test;
 	        }
+	        */
 /*
 			clockDisplay.showNextAlarm(nextAlarm);
 			clockDisplay.showVolume(counter);
