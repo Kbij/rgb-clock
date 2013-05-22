@@ -84,56 +84,9 @@ bool I2C::writeRegByteSync(uint8_t address, uint8_t regAddr, uint8_t byte)
 
 bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
 {
-    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+	std::vector<uint8_t> readData;
 
-	if (data.size() == 0)
-	{
-		LOG(ERROR) << "Writing data with 0 size";
-		return false;
-	}
-	std::ostringstream logStream;
-	logStream << std::hex << std::setfill('0') << std::setw(2);
-	bool first = true;
-	for (auto byte: data)
-	{
-		if (!first)
-		{
-			logStream << ", ";
-		}
-		first = false;
-
-		logStream << " 0x" << (int) byte;
-	}
-	VLOG(1) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data:" << logStream.str() << ";";
-
-#ifndef HOSTBUILD
-	// Set the port options and set the address of the device we wish to speak to
-	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
-	{
-		if (!mI2CWriteError) // If first occurrence
-		{
-			LOG(ERROR) << "Failed setting address: " << strerror(errno);
-		}
-		mI2CWriteError = true;
-
-		return false;
-	}
-	if ((write(mI2CFile, data.data(), data.size())) != static_cast<int>(data.size()) )
-	{
-		if (!mI2CWriteError) // If first occurrence
-		{
-			LOG(ERROR) << "Failed writing data: " << strerror(errno);
-		}
-		mI2CWriteError = true;
-
-		return false;
-	}
-	mI2CWriteError = false;
-
-	return true;
-#else
-	return true;
-#endif
+	return writeReadDataSync(address, data, readData);
 }
 
 bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
@@ -220,4 +173,82 @@ bool I2C::readWordSync(uint8_t address, uint8_t reg, uint16_t& word)
 	return true;
 #endif
 
+}
+
+bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeData, std::vector<uint8_t>& readData)
+{
+    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+
+	if (writeData.size() == 0)
+	{
+		LOG(ERROR) << "Writing data with 0 size";
+		return false;
+	}
+	std::ostringstream writeLogStream;
+	writeLogStream << std::hex << std::setfill('0') << std::setw(2);
+	bool writeFirst = true;
+	for (auto byte: writeData)
+	{
+		if (!writeFirst)
+		{
+			writeLogStream << ", ";
+		}
+		writeFirst = false;
+
+		writeLogStream << " 0x" << (int) byte;
+	}
+	VLOG(1) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data:" << writeLogStream.str() << ";";
+
+#ifndef HOSTBUILD
+	// Set the port options and set the address of the device we wish to speak to
+	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
+	{
+		if (!mI2CWriteError) // If first occurrence
+		{
+			LOG(ERROR) << "Failed setting address: " << strerror(errno);
+		}
+		mI2CWriteError = true;
+
+		return false;
+	}
+	if ((write(mI2CFile, writeData.data(), writeData.size())) != static_cast<int>(writeData.size()) )
+	{
+		if (!mI2CWriteError) // If first occurrence
+		{
+			LOG(ERROR) << "Failed writing data: " << strerror(errno);
+		}
+		mI2CWriteError = true;
+
+		return false;
+	}
+	mI2CWriteError = false;
+
+	if (readData.size() > 0)
+	{
+		if (read(mI2CFile, readData.data(), readData.size()) != static_cast<int>(readData.size()))
+		{
+			LOG(ERROR) << "Failed reading data: " << strerror(errno);
+			return false;
+		}
+
+		std::ostringstream writeLogStream;
+		writeLogStream << std::hex << std::setfill('0') << std::setw(2);
+
+		bool readFirst = true;
+		for (auto byte: readData)
+		{
+			if (!readFirst)
+			{
+				writeLogStream << ", ";
+			}
+			readFirst = false;
+
+			writeLogStream << " 0x" << (int) byte;
+		}
+		VLOG(1) << "Data read:" << writeLogStream.str() << ";";
+	}
+	return true;
+#else
+	return true;
+#endif
 }
