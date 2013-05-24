@@ -154,7 +154,18 @@ bool FMReceiver::powerOn()
 	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_UP, POWER_UP_ARG1_XOSCEN, POWER_UP_AUDIO_OUT_ANALOG}), powerupResponse);
 	LOG(INFO) << "POWER_UP Status: " << std::hex << "0x" << (int) powerupResponse[0];
 
-
+    //if(revision.chip=='D' && revision.firmwareMajor=='6' && revision.firmwareMinor=='0'){
+       setProperty(0xFF00, 0);
+    //}
+       setProperty(PROP_FM_RDS_CONFIG, (FM_RDS_CONFIG_ARG_ENABLE |
+         FM_RDS_CONFIG_ARG_BLOCK_A_UNCORRECTABLE |
+         FM_RDS_CONFIG_ARG_BLOCK_B_5_BIT_ERRORS |
+         FM_RDS_CONFIG_ARG_BLOCK_C_5_BIT_ERRORS |
+         FM_RDS_CONFIG_ARG_BLOCK_D_5_BIT_ERRORS) );
+        //Enable RDS interrupt sources
+        //Generate interrupt when new data arrives and when RDS sync is gained or lost.
+        setProperty(PROP_FM_RDS_INT_SOURCE, (RDS_RECEIVED_MASK |
+         RDS_SYNC_FOUND_MASK | RDS_SYNC_LOST_MASK) );
 
 	return true;
 }
@@ -203,6 +214,23 @@ bool FMReceiver::tuneFrequency(double frequency)
 	debugTuningStatus();
 	return true;
 }
+bool FMReceiver::setProperty(int property, int value)
+{
+	std::vector<uint8_t> setPropertyResponse(1);
+	uint8_t propH = property >> 8;
+	uint8_t propL = property & 0xFF;
+	uint8_t valueH = value >> 8;
+	uint8_t valueL = value & 0xFF;
+	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({SET_PROPERTY, 0x00, propH, propL, valueH, valueL}), setPropertyResponse);
+
+	return true;
+}
+
+bool FMReceiver::getProperty(int property, int& value)
+{
+	return true;
+}
+
 void FMReceiver::debugTuningStatus()
 {
 	if (!waitForCTS()) return;  // Wait for Clear To Send

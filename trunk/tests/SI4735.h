@@ -66,4 +66,61 @@ const uint8_t GPIO_ARG1_GPO1 = 0b0010;  //GPO1
 
 const uint8_t POWER_UP_AUDIO_OUT_ANALOG  = 0b00000101;  //Enable analog audio output only
 
+// Properties
+const uint16_t PROP_GPO_IEN                             =0x0001;
+const uint16_t PROP_DIGITAL_OUTPUT_FORMAT               =0x0102;
+const uint16_t PROP_DIGITAL_OUTPUT_SAMPLE_RATE          =0x0104;
+const uint16_t PROP_REFCLK_FREQ                         =0x0201;
+const uint16_t PROP_REFCLK_PRESCALE                     =0x0202;
+const uint16_t PROP_RX_VOLUME                           =0x4000;
+const uint16_t PROP_RX_HARD_MUTE                        =0x4001;
+//FM mode
+const uint16_t PROP_FM_DEEMPHASIS                       =0x1100;
+const uint16_t PROP_FM_CHANNEL_FILTER                   =0x1102;
+const uint16_t PROP_FM_BLEND_STEREO_THRESHOLD           =0x1105;
+const uint16_t PROP_FM_BLEND_MONO_THRESHOLD             =0x1106;
+const uint16_t PROP_FM_MAX_TUNE_ERROR                   =0x1108;
+const uint16_t PROP_FM_RSQ_INT_SOURCE                   =0x1200;
+const uint16_t PROP_FM_RSQ_SNR_HI_THRESHOLD             =0x1201;
+const uint16_t PROP_FM_RSQ_SNR_LO_THRESHOLD             =0x1202;
+const uint16_t PROP_FM_RSQ_RSSI_HI_THRESHOLD            =0x1203;
+const uint16_t PROP_FM_RSQ_RSSI_LO_THRESHOLD            =0x1204;
+const uint16_t PROP_FM_RSQ_MULTIPATH_HI_THRESHOLD       =0x1205;
+const uint16_t PROP_FM_RSQ_MULTIPATH_LO_THRESHOLD       =0x1206;
+const uint16_t PROP_FM_RSQ_BLEND_THRESHOLD              =0x1207;
+const uint16_t PROP_FM_SOFT_MUTE_RATE                   =0x1300;
+const uint16_t PROP_FM_SOFT_MUTE_SLOPE                  =0x1301;
+const uint16_t PROP_FM_SOFT_MUTE_MAX_ATTENUATION        =0x1302;
+const uint16_t PROP_FM_SOFT_MUTE_SNR_THRESHOLD          =0x1303;
+const uint16_t PROP_FM_SOFT_MUTE_RELEASE_RATE           =0x1304;
+const uint16_t PROP_FM_SOFT_MUTE_ATTACK_RATE            =0x1305;
+const uint16_t PROP_FM_SEEK_BAND_BOTTOM                 =0x1400;
+const uint16_t PROP_FM_SEEK_BAND_TOP                    =0x1401;
+const uint16_t PROP_FM_SEEK_FREQ_SPACING                =0x1402;
+const uint16_t PROP_FM_SEEK_TUNE_SNR_THRESHOLD          =0x1403;
+const uint16_t PROP_FM_SEEK_TUNE_RSSI_THRESHOLD         =0x1404;
+const uint16_t PROP_FM_RDS_INT_SOURCE                   =0x1500;
+const uint16_t PROP_FM_RDS_INT_FIFO_COUNT               =0x1501;
+const uint16_t PROP_FM_RDS_CONFIG                       =0x1502;
+const uint16_t PROP_FM_RDS_CONFIDENCE                   =0x1503;
+const uint16_t PROP_FM_BLEND_RSSI_STEREO_THRESHOLD      =0x1800;
+const uint16_t PROP_FM_BLEND_RSSI_MONO_THRESHOLD        =0x1801;
+const uint16_t PROP_FM_BLEND_RSSI_ATTACK_RATE           =0x1802;
+const uint16_t PROP_FM_BLEND_RSSI_RELEASE_RATE          =0x1803;
+const uint16_t PROP_FM_BLEND_SNR_STEREO_THRESHOLD       =0x1804;
+const uint16_t PROP_FM_BLEND_SNR_MONO_THRESHOLD         =0x1805;
+const uint16_t PROP_FM_BLEND_SNR_ATTACK_RATE            =0x1806;
+const uint16_t PROP_FM_BLEND_SNR_RELEASE_RATE           =0x1807;
+const uint16_t PROP_FM_BLEND_MULTIPATH_STEREO_THRESHOLD =0x1808;
+const uint16_t PROP_FM_BLEND_MULTIPATH_MONO_THRESHOLD   =0x1809;
+const uint16_t PROP_FM_BLEND_MULTIPATH_ATTACK_RATE      =0x180A;
+const uint16_t PROP_FM_BLEND_MULTIPATH_RELEASE_RATE     =0x180B;
+const uint16_t PROP_FM_HICUT_SNR_HIGH_THRESHOLD         =0x1A00;
+const uint16_t PROP_FM_HICUT_SNR_LOW_THRESHOLD          =0x1A01;
+const uint16_t PROP_FM_HICUT_ATTACK_RATE                =0x1A02;
+const uint16_t PROP_FM_HICUT_RELEASE_RATE               =0x1A03;
+const uint16_t PROP_FM_HICUT_MULTIPATH_TRIGGER_THRESHOLD=0x1A04;
+const uint16_t PROP_FM_HICUT_MULTIPATH_END_THRESHOLD    =0x1A05;
+const uint16_t PROP_FM_HICUT_CUTOFF_FREQUENCY           =0x1A06;
+
 #endif /* SI4735_H_ */
