@@ -29,7 +29,8 @@ public:
 	bool tuneFrequency(double frequency);
 private:
 	bool init();
-
+	bool setProperty(int property, int value);
+	bool getProperty(int property, int& value);
 	void debugTuningStatus();
 	bool waitForCTS();
 	bool waitForSTC();
