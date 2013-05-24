@@ -18,13 +18,14 @@
 const std::string i2cFileName("/dev/i2c-1");
 
 I2C::I2C() :
-	mI2CFile(0),
+//	mI2CFile(0),
 	mI2CWriteError(false),
 	mBusMutex()
 {
 #ifndef HOSTBUILD
+	int i2cFile;
 	// Open port for reading and writing
-	if ((mI2CFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
+	if ((i2cFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
 	{
 		std::string  ex("Failed to open bus");
 		ex += strerror(errno);
@@ -32,13 +33,14 @@ I2C::I2C() :
 	}
 	else
 	{
-		LOG(INFO) << "I2C bus open for write" ;
+		LOG(INFO) << "I2C operational" ;
 	}
+	close(i2cFile);
 #endif
 }
 
 I2C::~I2C() {
-	close(mI2CFile);
+//	close(mI2CFile);
 }
 
 bool I2C::writeByteSync(uint8_t address, uint8_t byte)
@@ -48,8 +50,16 @@ bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 	VLOG(1) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data: 0x" << (int) byte << ";";
 
 #ifndef HOSTBUILD
+	int i2cFile;
+	if ((i2cFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
+	{
+		std::string  ex("Failed to open bus");
+		ex += strerror(errno);
+		throw ex;
+	}
+
 	// Set the port options and set the address of the device we wish to speak to
-	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
+	if (ioctl(i2cFile, I2C_SLAVE, address) < 0)
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
@@ -59,7 +69,7 @@ bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 
 		return false;
 	}
-	if ((write(mI2CFile, &byte, 1)) != 1)
+	if ((write(i2cFile, &byte, 1)) != 1)
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
@@ -71,6 +81,7 @@ bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 	}
 	mI2CWriteError = false;
 
+	close(i2cFile);
 	return true;
 #else
 	return true;
@@ -96,8 +107,16 @@ bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 	VLOG(1) << "Read byte I2C; Addr: 0x" << std::hex << (int) address << "; Register:" << (int) reg << ";";
 
 #ifndef HOSTBUILD
+	int i2cFile;
+	if ((i2cFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
+	{
+		std::string  ex("Failed to open bus");
+		ex += strerror(errno);
+		throw ex;
+	}
+
 	// Set the port options and set the address of the device we wish to speak to
-	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
+	if (ioctl(i2cFile, I2C_SLAVE, address) < 0)
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
@@ -105,12 +124,13 @@ bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 		}
 		mI2CWriteError = true;
 
+		close(i2cFile);
 		return false;
 	}
 
 	uint8_t data[2];
 	data[0] = reg;
-	if (write(mI2CFile, data, 1) != 1)
+	if (write(i2cFile, data, 1) != 1)
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
@@ -118,13 +138,15 @@ bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 		}
 		mI2CWriteError = true;
 
+		close(i2cFile);
 		return false;
 	}
-	if (read(mI2CFile, data, 1) != 1) {
+	if (read(i2cFile, data, 1) != 1) {
 		LOG(ERROR) << "Failed reading byte: " << strerror(errno);
 	}
 	byte = data[0];
 
+	close(i2cFile);
 	return true;
 
 #else
@@ -138,8 +160,15 @@ bool I2C::readWordSync(uint8_t address, uint8_t reg, uint16_t& word)
 	VLOG(1) << "Read word I2C; Addr: 0x" << std::hex << (int) address << "; Register:" << (int) reg << ";";
 
 #ifndef HOSTBUILD
+	int i2cFile;
+	if ((i2cFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
+	{
+		std::string  ex("Failed to open bus");
+		ex += strerror(errno);
+		throw ex;
+	}
 	// Set the port options and set the address of the device we wish to speak to
-	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
+	if (ioctl(i2cFile, I2C_SLAVE, address) < 0)
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
@@ -152,7 +181,7 @@ bool I2C::readWordSync(uint8_t address, uint8_t reg, uint16_t& word)
 
 	uint8_t data[3];
 	data[0] = reg;
-	if (write(mI2CFile, data, 1) != 1)
+	if (write(i2cFile, data, 1) != 1)
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
@@ -160,13 +189,15 @@ bool I2C::readWordSync(uint8_t address, uint8_t reg, uint16_t& word)
 		}
 		mI2CWriteError = true;
 
+		close(i2cFile);
 		return false;
 	}
-	if (read(mI2CFile, data, 2) != 2) {
+	if (read(i2cFile, data, 2) != 2) {
 		LOG(ERROR) << "Failed reading word: " << strerror(errno);
 	}
 	word = data[0] | (data[1] << 8);
 
+	close(i2cFile);
 	return true;
 
 #else
@@ -200,8 +231,15 @@ bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeDa
 	VLOG(1) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data:" << writeLogStream.str() << ";";
 
 #ifndef HOSTBUILD
+	int i2cFile;
+	if ((i2cFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
+	{
+		std::string  ex("Failed to open bus");
+		ex += strerror(errno);
+		throw ex;
+	}
 	// Set the port options and set the address of the device we wish to speak to
-	if (ioctl(mI2CFile, I2C_SLAVE, address) < 0)
+	if (ioctl(i2cFile, I2C_SLAVE, address) < 0)
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
@@ -209,9 +247,10 @@ bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeDa
 		}
 		mI2CWriteError = true;
 
+		close(i2cFile);
 		return false;
 	}
-	if ((write(mI2CFile, writeData.data(), writeData.size())) != static_cast<int>(writeData.size()) )
+	if ((write(i2cFile, writeData.data(), writeData.size())) != static_cast<int>(writeData.size()) )
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
@@ -219,15 +258,18 @@ bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeDa
 		}
 		mI2CWriteError = true;
 
+		close(i2cFile);
 		return false;
 	}
 	mI2CWriteError = false;
 
 	if (readData.size() > 0)
 	{
-		if (read(mI2CFile, readData.data(), readData.size()) != static_cast<int>(readData.size()))
+		if (read(i2cFile, readData.data(), readData.size()) != static_cast<int>(readData.size()))
 		{
 			LOG(ERROR) << "Failed reading data: " << strerror(errno);
+
+			close(i2cFile);
 			return false;
 		}
 
@@ -247,6 +289,8 @@ bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeDa
 		}
 		VLOG(1) << "Data read:" << writeLogStream.str() << ";";
 	}
+
+	close(i2cFile);
 	return true;
 #else
 	return true;

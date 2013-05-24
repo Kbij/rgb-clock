@@ -16,7 +16,8 @@ public:
 	FMReceiver(I2C &i2c, uint8_t address);
 	virtual ~FMReceiver();
 private:
-	void init();
+	bool init();
+	bool waitForCTS();
 	bool readCTS();
 	bool readSTC();
 	I2C &mI2C;
