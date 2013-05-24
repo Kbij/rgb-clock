@@ -12,16 +12,20 @@
 #include <thread>
 #include <glog/logging.h>
 
+
+
 FMReceiver::FMReceiver(I2C &i2c, uint8_t address) :
 		mI2C(i2c),
-		mAddress(address)
+		mAddress(address),
+		mPowerState(PowerState::UNKNOWN)
 {
-	init();
+	powerOff();
+	//init();
 }
 
 FMReceiver::~FMReceiver()
 {
-
+	powerOff();
 }
 
 bool FMReceiver::init()
@@ -38,26 +42,26 @@ bool FMReceiver::init()
 	 * CTSIEN = 0
 	 * GPO2OEN = 0
 	 * PATCH = 0
-	 * XOSCEN = 0
+	 * XOSCEN = 1
 	 * FUNC = 0000 (FM Receive)
 	 *
 	 * ARG2:
 	 * OPMODE = 00000101 (0x05): Analog audio output
 	 */
 	std::vector<uint8_t> powerupResponse(1); // Vector with size 1
-	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_UP, 0x00, 0x05}), powerupResponse);
+	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_UP, POWER_UP_ARG1_XOSCEN, POWER_UP_AUDIO_OUT_ANALOG}), powerupResponse);
 	std::cout << "POWER_UP Status: " << std::hex << "0x" << (int) powerupResponse[0] << std::endl;
 	if (powerupResponse[0] == 0xc0)
 	{
-		std::this_thread::sleep_for( std::chrono::milliseconds(1000));
+//		std::this_thread::sleep_for( std::chrono::milliseconds(1000));
 		if (!waitForCTS()) return false;
 		std::vector<uint8_t> powerdownResponse(1); // Vector with size 1
 		mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_DOWN}), powerdownResponse);
 		std::cout << "Powerdown response: " << std::hex << "0x" << (int) powerdownResponse[0] << std::endl;
 
-		std::this_thread::sleep_for( std::chrono::milliseconds(2000));
+//		std::this_thread::sleep_for( std::chrono::milliseconds(2000));
 		if (!waitForCTS()) return false;
-		mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_UP, 0x00, 0x05}), powerupResponse);
+		mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_UP, POWER_UP_ARG1_XOSCEN, POWER_UP_AUDIO_OUT_ANALOG}), powerupResponse);
 		std::cout << "POWER_UP Status: " << std::hex << "0x" << (int) powerupResponse[0] << std::endl;
 	}
 
@@ -92,16 +96,17 @@ bool FMReceiver::init()
 		 * ARG3: Freq L: 0xEA
 		 * ARG4: AntCap = 0x0
 		 */
-/*
+
 	std::vector<uint8_t> tuneFreqResponse(1); // Vector with size 1
 	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_TUNE_FREQ, 0x00, 0x24, 0xEA}), tuneFreqResponse);
 	std::cout << "Tune Freq Status: " << std::hex << "0x" << (int) tuneFreqResponse[0] << std::endl;
 	std::cout << "CTS: " << readCTS() << std::endl;
-*/
+
+	/*
 	std::vector<uint8_t> seekResponse(1); // Vector with size 1
 	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_SEEK_START, 0x08}), seekResponse);
 	std::cout << "FM_SEEK_START Status: " << std::hex << "0x" << (int) seekResponse[0] << std::endl;
-
+*/
 	if (!waitForCTS()) return false;
 
 	std::vector<uint8_t> tuneStatusResponse(8); // Vector with size 8
@@ -118,6 +123,105 @@ bool FMReceiver::init()
 
 	return true;
 }
+
+bool FMReceiver::powerOff()
+{
+	LOG(INFO) << "PowerOff";
+	switch (mPowerState)
+	{
+		case PowerState::POWEROFF : return true;
+		case PowerState::POWERON :
+			if (!waitForCTS())
+			{
+				return false;
+			}; // No break is intended
+		default:
+			std::vector<uint8_t> powerdownResponse(1);
+			mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_DOWN}), powerdownResponse);
+			LOG(INFO) << "POWER_DOWN Status: " << std::hex << "0x" << (int) powerdownResponse[0];
+
+		break;
+	}
+	return true;
+}
+
+bool FMReceiver::powerOn()
+{
+	LOG(INFO) << "PowerOn";
+	if (!waitForCTS()) return false;
+
+	std::vector<uint8_t> powerupResponse(1); // Vector with size 1
+	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_UP, POWER_UP_ARG1_XOSCEN, POWER_UP_AUDIO_OUT_ANALOG}), powerupResponse);
+	LOG(INFO) << "POWER_UP Status: " << std::hex << "0x" << (int) powerupResponse[0];
+
+
+
+	return true;
+}
+
+bool FMReceiver::seekUp(int timeoutSeconds)
+{
+	LOG(INFO) << "SeekUp";
+	if (!waitForCTS()) return false;
+
+	std::vector<uint8_t> seekResponse(1);
+	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_SEEK_START, 0x08}), seekResponse);
+
+	if (timeoutSeconds == 0)
+	{
+		return true;
+	}
+	int waitTime = 0;
+	while (waitTime < timeoutSeconds)
+	{
+		if (readSTC())
+		{
+			debugTuningStatus();
+			return true;
+		}
+		else
+		{
+			std::this_thread::sleep_for( std::chrono::seconds(1));
+			++waitTime;
+		}
+	}
+
+	return false;
+}
+
+bool FMReceiver::tuneFrequency(double frequency)
+{
+	LOG(INFO) << "TuneFrequency: " << frequency << "Mhz";
+	if (!waitForCTS()) return false;
+
+	frequency = frequency * 100;
+	uint8_t high = static_cast<uint16_t>(frequency) >> 8;
+	uint8_t low = static_cast<uint16_t>(frequency) & 0xFF;
+	std::vector<uint8_t> tuneFreqResponse(1); // Vector with size 1
+	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_TUNE_FREQ, 0x00, high, low}), tuneFreqResponse);
+
+	debugTuningStatus();
+	return true;
+}
+void FMReceiver::debugTuningStatus()
+{
+	if (!waitForCTS()) return;  // Wait for Clear To Send
+	if (!waitForSTC()) return; // Wait for tuning complete
+
+	std::vector<uint8_t> tuneStatusResponse(8); // Vector with size 8
+	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_TUNE_STATUS, 0x00}), tuneStatusResponse);
+
+	uint16_t frequency;
+	frequency = (tuneStatusResponse[2] << 8) | tuneStatusResponse[3];
+
+	LOG(INFO) << "Tuning Report";
+	LOG(INFO) << "=============";
+	LOG(INFO) << "Freq: " << static_cast<double>(frequency) / 100 << "Mhz";
+	LOG(INFO) << "RSSI: " << (int) tuneStatusResponse[4] << "dBuV";
+	LOG(INFO) << "SNR: " << (int) tuneStatusResponse[5] << "dB";
+	LOG(INFO) << "MULT: " << (int) tuneStatusResponse[6];
+}
+
 bool FMReceiver::waitForCTS()
 {
 	const int MAX_RETRIES = 20;
@@ -138,7 +242,29 @@ bool FMReceiver::waitForCTS()
 	}
 	else
 	{
-		std::cout << "Retries: " << retries << std::endl;
+		return true;
+	}
+}
+
+bool FMReceiver::waitForSTC()
+{
+	const int MAX_RETRIES = 20;
+
+	int retries = 0;
+	bool stc = false;
+	while ((retries < MAX_RETRIES) && !stc)
+	{
+		std::this_thread::sleep_for( std::chrono::milliseconds(100));
+		stc = readSTC();
+		++retries;
+	}
+	if (retries >= MAX_RETRIES)
+	{
+		LOG(ERROR) << "Timeout waiting for STC";
+		return false;
+	}
+	else
+	{
 		return true;
 	}
 }
@@ -147,11 +273,12 @@ bool FMReceiver::readCTS()
 {
 	std::vector<uint8_t> readIntStatusResponse(1); // Vector with size 1
 	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({GET_INT_STATUS}), readIntStatusResponse);
-	//std::cout << "GET_INT_STATUS response: " << std::hex << "0x" << (int) readIntStatusResponse[0] << std::endl;
 	return readIntStatusResponse[0] && 0x80;
 }
 
 bool FMReceiver::readSTC()
 {
-	return false;
+	std::vector<uint8_t> readIntStatusResponse(1); // Vector with size 1
+	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({GET_INT_STATUS}), readIntStatusResponse);
+	return readIntStatusResponse[0] && 0x01;
 }

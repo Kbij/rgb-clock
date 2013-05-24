@@ -323,18 +323,22 @@ int main (int argc, char* argv[])
 		clockDisplay.showSignal(100);
 		*/
 		FMReceiver receiver(i2c, 0x63);
+		if (receiver.powerOn())
+		{
+			receiver.tuneFrequency(94.5);
+		}
 
 		do{
-			/*
-			std::chrono::milliseconds dura( 50 );
-			std::this_thread::sleep_for( dura );
+			std::this_thread::sleep_for( std::chrono::milliseconds(3000) );
+//			receiver.seekUp(5);
+/*
 			uint8_t test;
 	        i2c.readByteSync(0x5A, FILTER_CONFIG, test);
 	        if (test != 0x04)
 	        {
 	        	LOG(ERROR) << "Wrong info !!!:!" << (int) test;
 	        }
-	        */
+*/
 /*
 			clockDisplay.showNextAlarm(nextAlarm);
 			clockDisplay.showVolume(counter);
