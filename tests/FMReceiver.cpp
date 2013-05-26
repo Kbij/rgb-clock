@@ -17,10 +17,18 @@
 FMReceiver::FMReceiver(I2C &i2c, uint8_t address) :
 		mI2C(i2c),
 		mAddress(address),
-		mPowerState(PowerState::UNKNOWN)
+		mPowerState(PowerState::UNKNOWN),
+		mRDSInfo(),
+		mReceivingRDSInfo()
 {
 	powerOff();
-	//init();
+	mRDSInfo.mStationName.resize(9,' ');
+	mRDSInfo.mTextA.resize(65,' ');
+	mRDSInfo.mTextB.resize(65,' ');
+	mReceivingRDSInfo.mStationName.resize(9,' ');
+	mReceivingRDSInfo.mTextA.resize(65,' ');
+	mReceivingRDSInfo.mTextB.resize(65,' ');
+
 }
 
 FMReceiver::~FMReceiver()
@@ -158,14 +166,24 @@ bool FMReceiver::powerOn()
        setProperty(0xFF00, 0);
     //}
        setProperty(PROP_FM_RDS_CONFIG, (FM_RDS_CONFIG_ARG_ENABLE |
-         FM_RDS_CONFIG_ARG_BLOCK_A_UNCORRECTABLE |
-         FM_RDS_CONFIG_ARG_BLOCK_B_5_BIT_ERRORS |
-         FM_RDS_CONFIG_ARG_BLOCK_C_5_BIT_ERRORS |
-         FM_RDS_CONFIG_ARG_BLOCK_D_5_BIT_ERRORS) );
+         FM_RDS_CONFIG_ARG_BLOCK_A_NO_ERRORS |
+         FM_RDS_CONFIG_ARG_BLOCK_B_NO_ERRORS |
+         FM_RDS_CONFIG_ARG_BLOCK_C_NO_ERRORS |
+         FM_RDS_CONFIG_ARG_BLOCK_D_NO_ERRORS) );
         //Enable RDS interrupt sources
         //Generate interrupt when new data arrives and when RDS sync is gained or lost.
-        setProperty(PROP_FM_RDS_INT_SOURCE, (RDS_RECEIVED_MASK |
-         RDS_SYNC_FOUND_MASK | RDS_SYNC_LOST_MASK) );
+      //  setProperty(PROP_FM_RDS_INT_SOURCE, (RDS_RECEIVED_MASK |
+      //   RDS_SYNC_FOUND_MASK | RDS_SYNC_LOST_MASK) );
+         setProperty(PROP_FM_RDS_INT_SOURCE, (RDS_RECEIVED_MASK | RDS_SYNC_FOUND_MASK | RDS_SYNC_LOST_MASK));
+
+         //Setup FM band and spacing
+         setProperty(PROP_FM_SEEK_BAND_BOTTOM, 64);
+         setProperty(PROP_FM_SEEK_BAND_TOP, 108);
+         setProperty(PROP_FM_SEEK_FREQ_SPACING, 10); // 100 Khz
+
+         //North America and South Korea use default FM de-emphasis of 75 μs.
+         //All others use 50 μs.
+          setProperty(PROP_FM_DEEMPHASIS, FM_DEEMPHASIS_ARG_50);
 
 	return true;
 }
@@ -214,8 +232,124 @@ bool FMReceiver::tuneFrequency(double frequency)
 	debugTuningStatus();
 	return true;
 }
+
+bool FMReceiver::getRDSInfo()
+{
+	//LOG(INFO) << "getRDSInfo";
+
+	bool rdsAvailable = true;
+	if (!readRDSInt())
+	{
+		return false;
+	}
+	//LOG(INFO) << "RDS available";
+
+	while (rdsAvailable)
+	{
+		std::vector<uint8_t> rdsInfoResponse(13);
+		mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_RDS_STATUS, RDS_STATUS_ARG1_CLEAR_INT}), rdsInfoResponse);
+		//LOG(INFO) << "Status: " << std::hex << "0x" << (int)rdsInfoResponse[0];
+/*
+		LOG(INFO) << "RDS:" << static_cast<char>((rdsInfoResponse[4] >> 8)) << static_cast<char>((rdsInfoResponse[4] & 0xFF))
+		                    << static_cast<char>((rdsInfoResponse[5] >> 8)) << static_cast<char>((rdsInfoResponse[5] & 0xFF))
+   		                    << static_cast<char>((rdsInfoResponse[6] >> 8)) <<  static_cast<char>((rdsInfoResponse[6] & 0xFF))
+		                    << static_cast<char>((rdsInfoResponse[7] >> 8)) << static_cast<char>((rdsInfoResponse[7] & 0xFF))
+		                    << static_cast<char>((rdsInfoResponse[8] >> 8)) << static_cast<char>( (rdsInfoResponse[8] & 0xFF))
+		                    << static_cast<char>((rdsInfoResponse[9] >> 8)) << static_cast<char>( (rdsInfoResponse[9] & 0xFF))
+		                    << static_cast<char>((rdsInfoResponse[10] >> 8)) << static_cast<char>((rdsInfoResponse[10] & 0xFF))
+		                    << static_cast<char>((rdsInfoResponse[11] >> 8)) << static_cast<char>( (rdsInfoResponse[11] & 0xFF));
+*/
+//	    if((rdsInfoResponse[12] & FIELD_RDS_STATUS_RESP12_BLOCK_A) != RDS_STATUS_RESP12_BLOCK_A_UNCORRECTABLE){
+	         //Get PI code
+//	    	mRDSInfo.mProgramId = (rdsInfoResponse[PI_H] << 8) | rdsInfoResponse[PI_L] ;
+	      //  LOG(INFO) << "PI: " << mRDSInfo.mProgramId;
+//	    }
+
+	    if (rdsInfoResponse[12] != 0)
+	    {
+	    	return false;
+	    }
+    	mRDSInfo.mProgramId = (rdsInfoResponse[PI_H] << 8) | rdsInfoResponse[PI_L] ;
+
+	    uint8_t type =  rdsInfoResponse[Block_B_H]>>4U;
+	    bool version = rdsInfoResponse[Block_B_H] & 0b00001000;
+	    if (type == 0)
+	    {
+	         uint8_t segment =  rdsInfoResponse[Block_B_L] & 0b00000011;
+	         uint8_t pos = segment * 2;
+	         mReceivingRDSInfo.mStationName[pos] = rdsInfoResponse[Block_D_H];
+	         mReceivingRDSInfo.mStationName[pos + 1] = rdsInfoResponse[Block_D_L];
+
+	         if (mReceivingRDSInfo.mStationName !=mRDSInfo.mStationName)
+	         {
+	        	 mRDSInfo.mStationName = mReceivingRDSInfo.mStationName;
+	        	 LOG(INFO) << "Station: " << mRDSInfo.mStationName;
+	         }
+	    }
+	    if (type == 2)
+	    {
+	    	bool new_ab = bool(rdsInfoResponse[Block_B_L] & 0b00010000);
+	        uint8_t segment = rdsInfoResponse[Block_B_L] & 0x0F;
+
+	        uint8_t startPos = 0;
+	        uint8_t count = 0;
+	        if (!version)
+	        {
+	        	count = 4;
+	        	startPos = Block_C_H;
+	        }
+	        else
+	        {
+	        	count = 2;
+	        	startPos = Block_D_H;
+	        }
+
+	        if (new_ab)
+	        {
+		        for (uint8_t pos = 0; pos < count; ++pos)
+		        {
+		        	if (rdsInfoResponse[startPos + pos] == '\r')
+		        	{
+		   	        	 mRDSInfo.mTextA = mReceivingRDSInfo.mTextA;
+		   	        	 LOG(INFO) << "TextA: " << mRDSInfo.mTextA;
+		   	        	mReceivingRDSInfo.mTextA = "";
+		        	};
+		        	mReceivingRDSInfo.mTextA[(segment * count) + pos] = rdsInfoResponse[startPos + pos];
+		        }
+
+	        }
+	        else
+	        {
+		        for (uint8_t pos = 0; pos < count; ++pos)
+		        {
+		        	if (rdsInfoResponse[startPos + pos] == '\r')
+		        	{
+		   	        	 mRDSInfo.mTextB = mReceivingRDSInfo.mTextB;
+		   	        	 LOG(INFO) << "TextB: " << mRDSInfo.mTextB;
+		   	        	mReceivingRDSInfo.mTextB = "";
+		        	};
+		        	mReceivingRDSInfo.mTextB[(segment * count) + pos] = rdsInfoResponse[startPos + pos];
+		        }
+
+	        }
+	    	/*
+			LOG(INFO) << "RDS:" << static_cast<char>((rdsInfoResponse[8] >> 8)) << static_cast<char>( (rdsInfoResponse[8] & 0xFF))
+			                    << static_cast<char>((rdsInfoResponse[9] >> 8)) << static_cast<char>( (rdsInfoResponse[9] & 0xFF))
+			                    << static_cast<char>((rdsInfoResponse[10] >> 8)) << static_cast<char>((rdsInfoResponse[10] & 0xFF))
+			                    << static_cast<char>((rdsInfoResponse[11] >> 8)) << static_cast<char>( (rdsInfoResponse[11] & 0xFF));
+*/
+	    }
+		rdsAvailable = (rdsInfoResponse[3] > 0);
+	}
+
+	return true;
+
+}
+
 bool FMReceiver::setProperty(int property, int value)
 {
+	if (!waitForCTS()) return false;  // Wait for Clear To Send
+
 	std::vector<uint8_t> setPropertyResponse(1);
 	uint8_t propH = property >> 8;
 	uint8_t propL = property & 0xFF;
@@ -228,11 +362,15 @@ bool FMReceiver::setProperty(int property, int value)
 
 bool FMReceiver::getProperty(int property, int& value)
 {
+	if (!waitForCTS()) return false;  // Wait for Clear To Send
+
 	return true;
 }
 
 void FMReceiver::debugTuningStatus()
 {
+	//FM_RSQ_STATUS gebruiken ??
+
 	if (!waitForCTS()) return;  // Wait for Clear To Send
 	if (!waitForSTC()) return; // Wait for tuning complete
 
@@ -310,3 +448,11 @@ bool FMReceiver::readSTC()
 	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({GET_INT_STATUS}), readIntStatusResponse);
 	return readIntStatusResponse[0] && 0x01;
 }
+
+bool FMReceiver::readRDSInt()
+{
+	std::vector<uint8_t> readIntStatusResponse(1); // Vector with size 1
+	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({GET_INT_STATUS}), readIntStatusResponse);
+	return readIntStatusResponse[0] && 0b0100;
+}
+

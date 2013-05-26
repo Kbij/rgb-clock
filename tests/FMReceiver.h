@@ -17,6 +17,12 @@ enum class PowerState
 	POWEROFF,
 	UNKNOWN
 };
+struct RDSInfo {
+	uint16_t mProgramId;
+	std::string mStationName;
+	std::string mTextA;
+	std::string mTextB;
+};
 
 class FMReceiver {
 public:
@@ -27,6 +33,8 @@ public:
 	bool powerOff();
 	bool seekUp(int timeout);
 	bool tuneFrequency(double frequency);
+
+	bool getRDSInfo();
 private:
 	bool init();
 	bool setProperty(int property, int value);
@@ -36,10 +44,13 @@ private:
 	bool waitForSTC();
 	bool readCTS();
 	bool readSTC();
+	bool readRDSInt();
 
 	I2C &mI2C;
 	const uint8_t mAddress;
 	PowerState mPowerState;
+	RDSInfo mRDSInfo;
+	RDSInfo mReceivingRDSInfo;
 };
 
 #endif /* FMRECEIVER_H_ */

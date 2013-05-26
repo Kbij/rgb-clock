@@ -123,4 +123,98 @@ const uint16_t PROP_FM_HICUT_MULTIPATH_TRIGGER_THRESHOLD=0x1A04;
 const uint16_t PROP_FM_HICUT_MULTIPATH_END_THRESHOLD    =0x1A05;
 const uint16_t PROP_FM_HICUT_CUTOFF_FREQUENCY           =0x1A06;
 
+
+const uint16_t FIELD_FM_DEEMPHASIS_ARG=0b11;
+const uint16_t FM_DEEMPHASIS_ARG_75=0b10;  //75 μs (default)
+const uint16_t FM_DEEMPHASIS_ARG_50=0b01;  //50 μs
+//FM_RDS_INT_SOURCE
+/* See RDS interrupts above. */
+//FM_RDS_CONFIG
+const uint16_t FIELD_FM_RDS_CONFIG_ARG_BLOCK_A=0b11000000<<8;
+const uint16_t FIELD_FM_RDS_CONFIG_ARG_BLOCK_B=0b00110000<<8;
+const uint16_t FIELD_FM_RDS_CONFIG_ARG_BLOCK_C=0b00001100<<8;
+const uint16_t FIELD_FM_RDS_CONFIG_ARG_BLOCK_D=0b00000011<<8;
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_A_NO_ERRORS    =0U<<14;  //Block must have no errors
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_A_2_BIT_ERRORS =1U<<14;  //Block may have up to 2 bit errors
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_A_5_BIT_ERRORS =2U<<14;  //Block may have up to 5 bit errors
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_A_UNCORRECTABLE=3U<<14;  //Block may be uncorrectable
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_B_NO_ERRORS    =0U<<12;
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_B_2_BIT_ERRORS =1U<<12;
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_B_5_BIT_ERRORS =2U<<12;
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_B_UNCORRECTABLE=3U<<12;
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_C_NO_ERRORS    =0U<<10;
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_C_2_BIT_ERRORS =1U<<10;
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_C_5_BIT_ERRORS =2U<<10;
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_C_UNCORRECTABLE=3U<<10;
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_D_NO_ERRORS    =0U<<8;
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_D_2_BIT_ERRORS =1U<<8;
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_D_5_BIT_ERRORS =2U<<8;
+const uint16_t FM_RDS_CONFIG_ARG_BLOCK_D_UNCORRECTABLE=3U<<8;
+const uint16_t FM_RDS_CONFIG_ARG_ENABLE=0b1;  //Enable RDS
+
+// Bit masks for RDS interrupts. Use with FM_RDS_INT_SOURCE property and RESP1 of FM_RDS_STATUS command.
+const uint16_t RDS_NEW_B_BLOCK_MASK=0b00100000;  //New B block (Si4735-D50 or later)
+const uint16_t RDS_NEW_A_BLOCK_MASK=0b00010000;  //New A block (Si4735-D50 or later)
+const uint16_t RDS_SYNC_FOUND_MASK =0b00000100;  //RDS sync found
+const uint16_t RDS_SYNC_LOST_MASK  =0b00000010;  //RDS sync lost
+const uint16_t RDS_RECEIVED_MASK   =0b00000001;   //FM_RDS_INT_FIFO_COUNT or more packets received
+
+// Command responses
+// Names that begin with FIELD are argument masks.  Others are argument constants.
+
+//FM_TUNE_STATUS, AM_TUNE_STATUS, WB_TUNE_STATUS
+const uint16_t FIELD_TUNE_STATUS_RESP1_SEEK_LIMIT=0b10000000;  //Seek hit search limit - not WB
+const uint16_t FIELD_TUNE_STATUS_RESP1_AFC_RAILED=0b10;  //AFC railed
+const uint16_t FIELD_TUNE_STATUS_RESP1_SEEKABLE  =0b01;  //Station could currently be found by seek,
+const uint16_t FIELD_TUNE_STATUS_RESP1_VALID     =0b01;  //that is, the station is valid
+//FM_RSQ_STATUS, AM_RSQ_STATUS, WB_RSQ_STATUS
+/* See RSQ interrupts above for RESP1. */
+const uint16_t FIELD_RSQ_STATUS_RESP2_SOFT_MUTE =0b1000;  //Soft mute active - not WB
+const uint16_t FIELD_RSQ_STATUS_RESP2_AFC_RAILED=0b0010;  //AFC railed
+const uint16_t FIELD_RSQ_STATUS_RESP2_SEEKABLE  =0b0001;  //Station could currently be found by seek,
+const uint16_t FIELD_RSQ_STATUS_RESP2_VALID     =0b0001;  //that is, the station is valid
+const uint16_t FIELD_RSQ_STATUS_RESP3_STEREO=0b10000000;  //Stereo pilot found - FM only
+const uint16_t FIELD_RSQ_STATUS_RESP3_STEREO_BLEND=0b01111111;  //Stereo blend in % (100 = full stereo, 0 = full mono) - FM only
+//FM_RDS_STATUS
+/* See RDS interrupts above for RESP1. */
+const uint16_t FIELD_RDS_STATUS_RESP2_FIFO_OVERFLOW=0b00000100;  //FIFO overflowed
+const uint16_t FIELD_RDS_STATUS_RESP2_SYNC         =0b00000001;  //RDS currently synchronized
+const uint16_t FIELD_RDS_STATUS_RESP12_BLOCK_A=0b11000000;
+const uint16_t FIELD_RDS_STATUS_RESP12_BLOCK_B=0b00110000;
+const uint16_t FIELD_RDS_STATUS_RESP12_BLOCK_C=0b00001100;
+const uint16_t FIELD_RDS_STATUS_RESP12_BLOCK_D=0b00000011;
+const uint16_t RDS_STATUS_RESP12_BLOCK_A_NO_ERRORS    =0U<<6;  //Block had no errors
+const uint16_t RDS_STATUS_RESP12_BLOCK_A_2_BIT_ERRORS =1U<<6;  //Block had 1-2 bit errors
+const uint16_t RDS_STATUS_RESP12_BLOCK_A_5_BIT_ERRORS =2U<<6;  //Block had 3-5 bit errors
+const uint16_t RDS_STATUS_RESP12_BLOCK_A_UNCORRECTABLE=3U<<6;  //Block was uncorrectable
+const uint16_t RDS_STATUS_RESP12_BLOCK_B_NO_ERRORS    =0U<<4;
+const uint16_t RDS_STATUS_RESP12_BLOCK_B_2_BIT_ERRORS =1U<<4;
+const uint16_t RDS_STATUS_RESP12_BLOCK_B_5_BIT_ERRORS =2U<<4;
+const uint16_t RDS_STATUS_RESP12_BLOCK_B_UNCORRECTABLE=3U<<4;
+const uint16_t RDS_STATUS_RESP12_BLOCK_C_NO_ERRORS    =0U<<2;
+const uint16_t RDS_STATUS_RESP12_BLOCK_C_2_BIT_ERRORS =1U<<2;
+const uint16_t RDS_STATUS_RESP12_BLOCK_C_5_BIT_ERRORS =2U<<2;
+const uint16_t RDS_STATUS_RESP12_BLOCK_C_UNCORRECTABLE=3U<<2;
+const uint16_t RDS_STATUS_RESP12_BLOCK_D_NO_ERRORS    =0U<<0;
+const uint16_t RDS_STATUS_RESP12_BLOCK_D_2_BIT_ERRORS =1U<<0;
+const uint16_t RDS_STATUS_RESP12_BLOCK_D_5_BIT_ERRORS =2U<<0;
+const uint16_t RDS_STATUS_RESP12_BLOCK_D_UNCORRECTABLE=3U<<0;
+//WB_SAME_STATUS - TODO
+
+//AUX_ASQ_STATUS, WB_ASQ_STATUS
+/* See ASQ interrupts above for RESP1. */
+const uint16_t FIELD_AUX_ASQ_STATUS_RESP2_OVERLOAD=0b1;  //Audio input is currently overloading ADC
+const uint16_t FIELD_WB_ASQ_STATUS_RESP2_ALERT    =0b1;  //Alert tone is present
+//FM_AGC_STATUS, AM_AGC_STATUS, WB_AGC_STATUS
+const uint16_t FIELD_AGC_STATUS_RESP1_DISABLE_AGC=0b1;  //True if AGC disabled
+
+//RDS Response bytes
+const uint8_t PI_H = 4;  //Also "Block A"
+const uint8_t PI_L = 5;
+const uint8_t Block_B_H = 6;
+const uint8_t Block_B_L = 7;
+const uint8_t Block_C_H = 8;
+const uint8_t Block_C_L = 9;
+const uint8_t Block_D_H = 10;
+const uint8_t Block_D_L = 11;
 #endif /* SI4735_H_ */

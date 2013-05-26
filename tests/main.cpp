@@ -330,7 +330,9 @@ int main (int argc, char* argv[])
 
 		do{
 			std::this_thread::sleep_for( std::chrono::milliseconds(3000) );
-//			receiver.seekUp(5);
+//  		    receiver.seekUp(5);
+			receiver.getRDSInfo();
+
 /*
 			uint8_t test;
 	        i2c.readByteSync(0x5A, FILTER_CONFIG, test);
