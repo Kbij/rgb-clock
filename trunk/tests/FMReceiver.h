@@ -10,18 +10,51 @@
 
 #include "I2C.h"
 #include <stdint.h>
+#include <mutex>
+#include <atomic>
+#include <thread>
 
 enum class PowerState
 {
-	POWERON,
-	POWEROFF,
-	UNKNOWN
+	Unknown,
+	PowerOn,
+	PowerOff,
+
+};
+enum class TextType
+{
+	Unknown,
+	TypeA,
+	TypeB
 };
 struct RDSInfo {
 	uint16_t mProgramId;
 	std::string mStationName;
-	std::string mTextA;
-	std::string mTextB;
+	std::string mText;
+	TextType mTextType;
+	RDSInfo()
+	{
+		mProgramId = 0;
+		mStationName.resize(9,' ');
+		mText.resize(65,' ');
+		mTextType = TextType::Unknown;
+	}
+	void clearAll()
+	{
+		clearStationName();
+		clearText();
+	}
+	void clearStationName()
+	{
+		mStationName = "";
+		mStationName.resize(9,' ');
+	}
+
+	void clearText()
+	{
+		mText = "";
+		mText.resize(65,' ');
+	}
 };
 
 class FMReceiver {
@@ -46,11 +79,18 @@ private:
 	bool readSTC();
 	bool readRDSInt();
 
+	void startReadThread();
+	void stopReadThread();
+	void readThread();
+
 	I2C &mI2C;
 	const uint8_t mAddress;
 	PowerState mPowerState;
 	RDSInfo mRDSInfo;
 	RDSInfo mReceivingRDSInfo;
+	std::mutex mRdsInfoMutex;
+    std::thread* mReadThread;
+    std::atomic_bool mReadThreadRunning;
 };
 
 #endif /* FMRECEIVER_H_ */
