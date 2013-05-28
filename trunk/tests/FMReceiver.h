@@ -9,10 +9,12 @@
 #define FMRECEIVER_H_
 
 #include "I2C.h"
+#include "RadioObserverIf.h"
 #include <stdint.h>
 #include <mutex>
 #include <atomic>
 #include <thread>
+#include <set>
 
 enum class PowerState
 {
@@ -27,6 +29,8 @@ enum class TextType
 	TypeA,
 	TypeB
 };
+const char EMPTY_CHAR = '~';
+
 struct RDSInfo {
 	uint16_t mProgramId;
 	std::string mStationName;
@@ -35,8 +39,7 @@ struct RDSInfo {
 	RDSInfo()
 	{
 		mProgramId = 0;
-		mStationName.resize(9,' ');
-		mText.resize(65,' ');
+		clearAll();
 		mTextType = TextType::Unknown;
 	}
 	void clearAll()
@@ -53,7 +56,7 @@ struct RDSInfo {
 	void clearText()
 	{
 		mText = "";
-		mText.resize(65,' ');
+		mText.resize(65,EMPTY_CHAR);
 	}
 };
 
@@ -62,14 +65,16 @@ public:
 	FMReceiver(I2C &i2c, uint8_t address);
 	virtual ~FMReceiver();
 
-	bool powerOn();
+	void registerRadioObserver(RadioObserverIf *observer);
+    void unRegisterRadioObserver(RadioObserverIf *observer);
+
+    bool powerOn();
 	bool powerOff();
 	bool seekUp(int timeout);
 	bool tuneFrequency(double frequency);
-
-	bool getRDSInfo();
+	RDSInfo getRDSInfo();
 private:
-	bool init();
+	void readRDSInfo();
 	bool setProperty(int property, int value);
 	bool getProperty(int property, int& value);
 	void debugTuningStatus();
@@ -83,14 +88,19 @@ private:
 	void stopReadThread();
 	void readThread();
 
+	void notifyObservers(InfoType type);
+
 	I2C &mI2C;
 	const uint8_t mAddress;
 	PowerState mPowerState;
 	RDSInfo mRDSInfo;
 	RDSInfo mReceivingRDSInfo;
-	std::mutex mRdsInfoMutex;
+	std::recursive_mutex mReceiverMutex;
+	std::recursive_mutex mRdsInfoMutex;
     std::thread* mReadThread;
     std::atomic_bool mReadThreadRunning;
+    std::set<RadioObserverIf*> mRadioObservers;
+    std::recursive_mutex mRadioObserversMutex;
 };
 
 #endif /* FMRECEIVER_H_ */

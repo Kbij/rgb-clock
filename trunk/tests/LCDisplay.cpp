@@ -29,7 +29,7 @@ LCDisplay::LCDisplay(I2C &i2c, uint8_t address):
     mGraphicRam = new std::array<std::array<MyGraphicWord,10>,32>;
     mFontMap[FontType::Verdana20].mWidth = 32;
     mFontMap[FontType::Verdana20].mSpacing = 22;
-    mFontMap[FontType::Verdana20].mHeight = 27;
+    mFontMap[FontType::Verdana20].mHeight = 25;//27;
     mFontMap[FontType::Verdana20].mPointer = &VerdanaBold32x27;
 
     mFontMap[FontType::Courier15].mWidth = 12;
@@ -212,11 +212,11 @@ void LCDisplay::rawPoint(uint8_t col, uint8_t row, bool set)
 	(*mGraphicRam)[row][divresult.quot].mChanged = true;
 }
 
-void LCDisplay::rawVertByte(uint8_t col, uint8_t& row, uint8_t byte)
+void LCDisplay::rawVertByte(uint8_t col, uint8_t& row, uint8_t maxRemainingRows, uint8_t byte)
 {
 	uint8_t bitMask = 0x01;
 	// for each bit
-	for (uint8_t i = 0; i < 8; ++i)
+	for (uint8_t i = 0; (i < 8) && (i < maxRemainingRows); ++i)
 	{
 		rawPoint(col, row, byte & bitMask);
 		bitMask = bitMask << 1;
@@ -265,7 +265,8 @@ void LCDisplay::rawGraphicChar(uint8_t col, uint8_t row, uint8_t character, Font
 			arrayPos += (charCol * bytesPerCharCol) + byteNr;
 			uint8_t byte = (*(mFontMap[font].mPointer))[arrayPos];
 
-			rawVertByte(myCol, myRow, byte);
+			uint8_t maxRemainingRows = mFontMap[font].mHeight - (myRow - row) ;
+			rawVertByte(myCol, myRow, maxRemainingRows, byte);
 		}
 
 	}

@@ -309,7 +309,7 @@ int main (int argc, char* argv[])
 	/*
 		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
 */
-	//	ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS);
+//		ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS);
 		//Keyboard keyboard(i2c, 0x5A);
 	//	clockDisplay.showClock();
 /*
@@ -322,16 +322,22 @@ int main (int argc, char* argv[])
 		uint8_t counter = 0;
 		clockDisplay.showSignal(100);
 		*/
+		//Keyboard keyboard(i2c, 0x5A);
 		FMReceiver receiver(i2c, 0x63);
+
+		ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS, receiver);
+		receiver.registerRadioObserver(&clockDisplay);
+
+		clockDisplay.showClock();
 		if (receiver.powerOn())
 		{
 			receiver.tuneFrequency(94.5);
 		}
 
 		do{
-			std::this_thread::sleep_for( std::chrono::milliseconds(3000) );
-//  		    receiver.seekUp(5);
-			receiver.getRDSInfo();
+			std::this_thread::sleep_for( std::chrono::milliseconds(5000) );
+ // 		    receiver.seekUp(5);
+//			receiver.getRDSInfo();
 
 /*
 			uint8_t test;

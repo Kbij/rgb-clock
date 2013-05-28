@@ -10,9 +10,10 @@
 #include <sstream>
 #include <glog/logging.h>
 
-ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress) :
+ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress, FMReceiver& receiver) :
 	mLCDisplay(i2c, lcdAddress),
-	//mLightSensor(i2c, lsAddress),
+	mLightSensor(i2c, lsAddress),
+	mFMReceiver(receiver),
 	mRefreshThread(nullptr),
 	mRefreshThreadRunning(false),
 	mPrevMin(-1)
@@ -24,6 +25,7 @@ ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress) :
 
 ClockDisplay::~ClockDisplay()
 {
+	mFMReceiver.unRegisterRadioObserver(this);
 	stopRefreshThread();
 }
 
@@ -144,6 +146,13 @@ void ClockDisplay::hideNextAlarm()
 {
 
 }
+
+void ClockDisplay::infoAvailable(InfoType type)
+{
+	LOG(INFO) << "Received new info from receiver";
+	showRDSInfo(mFMReceiver.getRDSInfo().mText.substr(0,26));
+}
+
 
 void ClockDisplay::startRefreshThread()
 {
