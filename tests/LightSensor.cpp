@@ -70,7 +70,7 @@ void LightSensor::readThread()
     {
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        LOG(INFO) << "Measuring light intensity";
+        //LOG(INFO) << "Measuring light intensity";
         uint16_t channel0;
         uint16_t channel1;
 
@@ -115,7 +115,7 @@ void LightSensor::calculateLux(uint16_t channel0, uint16_t channel1)
 	{
 		lux = 0;
 	}
-    LOG(INFO) << "lux: " << lux;
+    //LOG(INFO) << "lux: " << lux;
 
     std::lock_guard<std::mutex> lk_guard(mIntensityMutex);
 

@@ -6,12 +6,13 @@
  */
 
 #include "FMReceiver.h"
+#include "RadioObserverIf.h"
 #include "SI4735.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
 #include <glog/logging.h>
-
+#include <algorithm>
 
 
 FMReceiver::FMReceiver(I2C &i2c, uint8_t address) :
@@ -20,9 +21,12 @@ FMReceiver::FMReceiver(I2C &i2c, uint8_t address) :
 		mPowerState(PowerState::Unknown),
 		mRDSInfo(),
 		mReceivingRDSInfo(),
+		mReceiverMutex(),
 		mRdsInfoMutex(),
 		mReadThread(nullptr),
-		mReadThreadRunning(false)
+		mReadThreadRunning(false),
+		mRadioObservers(),
+		mRadioObserversMutex()
 {
 	powerOff();
 }
@@ -32,107 +36,30 @@ FMReceiver::~FMReceiver()
 	powerOff();
 }
 
-bool FMReceiver::init()
+void FMReceiver::registerRadioObserver(RadioObserverIf *observer)
 {
-	/*
-	std::vector<uint8_t> powerdownResponse(1); // Vector with size 1
-	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_DOWN}), powerdownResponse);
-	std::cout << "Powerdown response: " << std::hex << "0x" << (int) powerdownResponse[0] << std::endl;
-	//std::cout << "CTS: " << readCTS() << std::endl;
-	if (!waitForCTS()) return false;
-*/
-	/*
-	 * ARG1
-	 * CTSIEN = 0
-	 * GPO2OEN = 0
-	 * PATCH = 0
-	 * XOSCEN = 1
-	 * FUNC = 0000 (FM Receive)
-	 *
-	 * ARG2:
-	 * OPMODE = 00000101 (0x05): Analog audio output
-	 */
-	std::vector<uint8_t> powerupResponse(1); // Vector with size 1
-	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_UP, POWER_UP_ARG1_XOSCEN, POWER_UP_AUDIO_OUT_ANALOG}), powerupResponse);
-	std::cout << "POWER_UP Status: " << std::hex << "0x" << (int) powerupResponse[0] << std::endl;
-	if (powerupResponse[0] == 0xc0)
-	{
-//		std::this_thread::sleep_for( std::chrono::milliseconds(1000));
-		if (!waitForCTS()) return false;
-		std::vector<uint8_t> powerdownResponse(1); // Vector with size 1
-		mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_DOWN}), powerdownResponse);
-		std::cout << "Powerdown response: " << std::hex << "0x" << (int) powerdownResponse[0] << std::endl;
+    if (observer)
+    {
+        std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
 
-//		std::this_thread::sleep_for( std::chrono::milliseconds(2000));
-		if (!waitForCTS()) return false;
-		mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_UP, POWER_UP_ARG1_XOSCEN, POWER_UP_AUDIO_OUT_ANALOG}), powerupResponse);
-		std::cout << "POWER_UP Status: " << std::hex << "0x" << (int) powerupResponse[0] << std::endl;
-	}
+        mRadioObservers.insert(observer);
+    }
+}
+void FMReceiver::unRegisterRadioObserver(RadioObserverIf *observer)
+{
+    if (observer)
+    {
+    	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
 
-	if (!waitForCTS()) return false;
-
-	std::vector<uint8_t> getRevResponse(9); // Vector with size 1
-	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({GET_REV}), getRevResponse);
-	std::cout << "GET_REV Status: " << std::hex << "0x" << (int) getRevResponse[0] << std::endl;
-	std::cout << "PN: " << std::dec << (int) getRevResponse[1];
-	std::string fw;
-	fw += getRevResponse[2];
-	fw += getRevResponse[3];
-	std::cout << ", FW: " << fw;
-	std::string patch;
-	patch += getRevResponse[4];
-	patch += getRevResponse[5];
-	std::cout << ", Patch : " << patch;
-	std::string cmp;
-	cmp += getRevResponse[6];
-	cmp += getRevResponse[7];
-	std::cout << ", CMP : " << cmp;
-	std::string chipRev;
-	chipRev += getRevResponse[8];
-	std::cout << ", Chip Rev: " << chipRev << std::endl;
-
-	if (!waitForCTS()) return false;
-
-		//Stubru: 94.5
-		/*
-		 * ARG1: 0x0
-		 * ARG2: Freq H: 0x24
-		 * ARG3: Freq L: 0xEA
-		 * ARG4: AntCap = 0x0
-		 */
-
-	std::vector<uint8_t> tuneFreqResponse(1); // Vector with size 1
-	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_TUNE_FREQ, 0x00, 0x24, 0xEA}), tuneFreqResponse);
-	std::cout << "Tune Freq Status: " << std::hex << "0x" << (int) tuneFreqResponse[0] << std::endl;
-	std::cout << "CTS: " << readCTS() << std::endl;
-
-	/*
-	std::vector<uint8_t> seekResponse(1); // Vector with size 1
-	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_SEEK_START, 0x08}), seekResponse);
-	std::cout << "FM_SEEK_START Status: " << std::hex << "0x" << (int) seekResponse[0] << std::endl;
-*/
-	if (!waitForCTS()) return false;
-
-	std::vector<uint8_t> tuneStatusResponse(8); // Vector with size 8
-	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_TUNE_STATUS, 0x00}), tuneStatusResponse);
-	std::cout << "FM_TUNE_STATUS Status: " << std::hex << "0x" << (int) tuneStatusResponse[0] << std::endl;
-	std::cout << "Resp1: " << std::hex << (int) tuneStatusResponse[1];
-	std::cout << std::dec;
-	std::cout << ", Resp2: " << (int) tuneStatusResponse[2];
-	std::cout << ", Resp3: " << (int) tuneStatusResponse[3];
-	std::cout << ", Resp4: " << (int) tuneStatusResponse[4];
-	std::cout << ", Resp5: " << (int) tuneStatusResponse[5];
-	std::cout << ", Resp6: " << (int) tuneStatusResponse[6];
-	std::cout << ", Resp7: " << (int) tuneStatusResponse[7] << std::endl;
-
-	return true;
+        mRadioObservers.erase(observer);
+    }
 }
 
 bool FMReceiver::powerOff()
 {
 	LOG(INFO) << "PowerOff";
 	stopReadThread();
-
+    std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
 	switch (mPowerState)
 	{
 		case PowerState::PowerOff : return true;
@@ -154,6 +81,8 @@ bool FMReceiver::powerOff()
 bool FMReceiver::powerOn()
 {
 	LOG(INFO) << "PowerOn";
+    std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
+
 	if (!waitForCTS()) return false;
 
 	std::vector<uint8_t> powerupResponse(1); // Vector with size 1
@@ -184,17 +113,21 @@ bool FMReceiver::powerOn()
 	setProperty(PROP_FM_DEEMPHASIS, FM_DEEMPHASIS_ARG_50);
     mRDSInfo.clearAll();
     mReceivingRDSInfo.clearAll();
-	//startReadThread();
+	startReadThread();
 	return true;
 }
 
 bool FMReceiver::seekUp(int timeoutSeconds)
 {
 	LOG(INFO) << "SeekUp";
+    std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
+
 	if (!waitForCTS()) return false;
 
 	std::vector<uint8_t> seekResponse(1);
 	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_SEEK_START, 0x08}), seekResponse);
+	mReceivingRDSInfo.clearAll();
+	mRDSInfo.clearAll();
 
 	if (timeoutSeconds == 0)
 	{
@@ -221,6 +154,8 @@ bool FMReceiver::seekUp(int timeoutSeconds)
 bool FMReceiver::tuneFrequency(double frequency)
 {
 	LOG(INFO) << "TuneFrequency: " << frequency << "Mhz";
+    std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
+
 	if (!waitForCTS()) return false;
 
 	frequency = frequency * 100;
@@ -231,54 +166,68 @@ bool FMReceiver::tuneFrequency(double frequency)
 
 	debugTuningStatus();
 
-	//startReadThread();
 	return true;
 }
+RDSInfo FMReceiver::getRDSInfo()
+{
+	std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
+    return mRDSInfo; // Schould be copy constructor
+}
+TextType ABToTextType(bool ab)
+{
+	return ab ? TextType::TypeA: TextType::TypeB;
+}
 
-bool FMReceiver::getRDSInfo()
+const std::string whiteSpaces( " \f\n\r\t\v" );
+
+std::string trimRight(const std::string& str,
+      const std::string& trimChars = whiteSpaces )
+{
+	std::string result = str;
+	std::string::size_type pos = result.find_last_not_of( trimChars );
+	result.erase( pos + 1 );
+	return result;
+}
+
+
+std::string trimLeft(const std::string& str,
+      const std::string& trimChars = whiteSpaces )
+{
+	std::string result = str;
+	std::string::size_type pos = result.find_first_not_of( trimChars );
+    result.erase( 0, pos );
+    return result;
+}
+
+
+std::string trim(const std::string& str, const std::string& trimChars = whiteSpaces )
+{
+	std::string result = trimRight( str, trimChars );
+	result = trimLeft( result, trimChars );
+	return result;
+}
+
+void FMReceiver::readRDSInfo()
 {
 	bool rdsAvailable = true;
+    std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
+
 	if (!readRDSInt())
 	{
-		return false;
+		return;
 	}
 
 	while (rdsAvailable)
 	{
 		std::vector<uint8_t> rdsInfoResponse(13);
 		mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_RDS_STATUS, RDS_STATUS_ARG1_CLEAR_INT}), rdsInfoResponse);
-		LOG(INFO) << "Status: " << std::hex << "0x" << (int)rdsInfoResponse[0];
-/*
-		LOG(INFO) << "RDS:" << static_cast<char>((rdsInfoResponse[4] >> 8)) << static_cast<char>((rdsInfoResponse[4] & 0xFF))
-		                    << static_cast<char>((rdsInfoResponse[5] >> 8)) << static_cast<char>((rdsInfoResponse[5] & 0xFF))
-   		                    << static_cast<char>((rdsInfoResponse[6] >> 8)) <<  static_cast<char>((rdsInfoResponse[6] & 0xFF))
-		                    << static_cast<char>((rdsInfoResponse[7] >> 8)) << static_cast<char>((rdsInfoResponse[7] & 0xFF))
-		                    << static_cast<char>((rdsInfoResponse[8] >> 8)) << static_cast<char>( (rdsInfoResponse[8] & 0xFF))
-		                    << static_cast<char>((rdsInfoResponse[9] >> 8)) << static_cast<char>( (rdsInfoResponse[9] & 0xFF))
-		                    << static_cast<char>((rdsInfoResponse[10] >> 8)) << static_cast<char>((rdsInfoResponse[10] & 0xFF))
-		                    << static_cast<char>((rdsInfoResponse[11] >> 8)) << static_cast<char>( (rdsInfoResponse[11] & 0xFF));
-*/
-		LOG(INFO) << "RDS:" << static_cast<int>((rdsInfoResponse[4] >> 8)) << static_cast<int>((rdsInfoResponse[4] & 0xFF))
-		                    << static_cast<int>((rdsInfoResponse[5] >> 8)) << static_cast<int>((rdsInfoResponse[5] & 0xFF))
-   		                    << static_cast<int>((rdsInfoResponse[6] >> 8)) <<  static_cast<int>((rdsInfoResponse[6] & 0xFF))
-		                    << static_cast<int>((rdsInfoResponse[7] >> 8)) << static_cast<int>((rdsInfoResponse[7] & 0xFF))
-		                    << static_cast<int>((rdsInfoResponse[8] >> 8)) << static_cast<int>( (rdsInfoResponse[8] & 0xFF))
-		                    << static_cast<int>((rdsInfoResponse[9] >> 8)) << static_cast<int>( (rdsInfoResponse[9] & 0xFF))
-		                    << static_cast<int>((rdsInfoResponse[10] >> 8)) << static_cast<int>((rdsInfoResponse[10] & 0xFF))
-		                    << static_cast<int>((rdsInfoResponse[11] >> 8)) << static_cast<int>( (rdsInfoResponse[11] & 0xFF));
-
-//	    if((rdsInfoResponse[12] & FIELD_RDS_STATUS_RESP12_BLOCK_A) != RDS_STATUS_RESP12_BLOCK_A_UNCORRECTABLE){
-	         //Get PI code
-//	    	mRDSInfo.mProgramId = (rdsInfoResponse[PI_H] << 8) | rdsInfoResponse[PI_L] ;
-	      //  LOG(INFO) << "PI: " << mRDSInfo.mProgramId;
-//	    }
 
 		// Only if no errors found
 	    if (rdsInfoResponse[12] != 0)
 	    {
-	    	return false;
+	    	return;
 	    }
-    	mRDSInfo.mProgramId = (rdsInfoResponse[PI_H] << 8) | rdsInfoResponse[PI_L] ;
+    	//mRDSInfo.mProgramId = (rdsInfoResponse[PI_H] << 8) | rdsInfoResponse[PI_L] ;
 
 	    uint8_t type =  rdsInfoResponse[Block_B_H]>>4U;
 	    bool version = rdsInfoResponse[Block_B_H] & 0b00001000;
@@ -288,12 +237,17 @@ bool FMReceiver::getRDSInfo()
 	         uint8_t pos = segment * 2;
 	         mReceivingRDSInfo.mStationName[pos] = rdsInfoResponse[Block_D_H];
 	         mReceivingRDSInfo.mStationName[pos + 1] = rdsInfoResponse[Block_D_L];
+	         std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
 
-	         if (mReceivingRDSInfo.mStationName !=mRDSInfo.mStationName)
-	         {
-	        	 mRDSInfo.mStationName = mReceivingRDSInfo.mStationName;
-	        	 LOG(INFO) << "Station: " << mRDSInfo.mStationName;
-	         }
+	         if ((std::count(mReceivingRDSInfo.mStationName.begin(), mReceivingRDSInfo.mStationName.end(), ' ') < std::count(mRDSInfo.mStationName.begin(), mRDSInfo.mStationName.end(), ' ') )
+	        	|| (trim(mReceivingRDSInfo.mStationName).size() > trim(mRDSInfo.mStationName).size()) )
+		      {
+		    	 mRDSInfo.mStationName = trim(mReceivingRDSInfo.mStationName);
+		         LOG(INFO) << "Station: " << mRDSInfo.mStationName;
+		         notifyObservers(InfoType::RdsInfo);
+		         mReceivingRDSInfo.clearStationName();
+		      }
+
 	    }
 	    if (type == 2)
 	    {
@@ -312,64 +266,48 @@ bool FMReceiver::getRDSInfo()
 	        	count = 2;
 	        	startPos = Block_D_H;
 	        }
-	        std::cout << "Receiving" << std::endl;
+	       // std::cout << "Receiving" << std::endl;
 
 	        for (uint8_t pos = 0; pos < count; ++pos)
 	        {
-	        	if (rdsInfoResponse[startPos + pos] == '\r')
+	        	if (mReceivingRDSInfo.mTextType != ABToTextType(new_ab))
 	        	{
-	   	        	if (mRDSInfo.mText != mReceivingRDSInfo.mText)
-	   	        	{
-	   	        		mRDSInfo.mText = mReceivingRDSInfo.mText;
-		   	        	mRDSInfo.mTextType = new_ab ? TextType::TypeA: TextType::TypeB;
-		   	        	LOG(INFO) << "Text: " << mRDSInfo.mText;
-		   	        	mReceivingRDSInfo.clearText();
-	   	        	}
-	   	        	mReceivingRDSInfo.clearText();
+	        		mReceivingRDSInfo.clearAll();
+	        		mReceivingRDSInfo.mTextType = ABToTextType(new_ab);
+	        	}
+	        	uint8_t textPos = (segment * count) + pos;
+	        	uint8_t recPos = startPos + pos;
+
+	        	if (rdsInfoResponse[recPos] == '\r')
+	        	{
+	        		mReceivingRDSInfo.mText = mReceivingRDSInfo.mText.substr(0, textPos);
+	        		// Replace remaining chars with space
+	        		//mReceivingRDSInfo.mText.replace(textPos,std::string::npos, std::string("-"));
+	        		if (mReceivingRDSInfo.mText.find(EMPTY_CHAR) == std::string::npos)
+	        		{
+	        			std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
+
+		   	        	if (mRDSInfo.mText != mReceivingRDSInfo.mText)
+		   	        	{
+		   	        		mRDSInfo.mText = mReceivingRDSInfo.mText;
+			   	        	mRDSInfo.mTextType = mReceivingRDSInfo.mTextType;
+			   	        	LOG(INFO) << "Clean Text: " << mRDSInfo.mText;
+ 				            notifyObservers(InfoType::RdsInfo);
+
+			   	        	mReceivingRDSInfo.clearText();
+		   	        	}
+	        		}
 	        	}
 	        	else
 	        	{
-	        		mReceivingRDSInfo.mText[(segment * count) + pos] = rdsInfoResponse[startPos + pos];
-	        		std::cout << mReceivingRDSInfo.mText << std::endl;
+	        		mReceivingRDSInfo.mText[textPos] = rdsInfoResponse[recPos];
 	        	}
 	        }
-	/*
-
-	        if (new_ab)
-	        {
-		        for (uint8_t pos = 0; pos < count; ++pos)
-		        {
-		        	if (rdsInfoResponse[startPos + pos] == '\r')
-		        	{
-		   	        	 mRDSInfo.mTextA = mReceivingRDSInfo.mTextA;
-		   	        	 LOG(INFO) << "TextA: " << mRDSInfo.mTextA;
-		   	        	mReceivingRDSInfo.mTextA = "";
-		        	};
-		        	mReceivingRDSInfo.mTextA[(segment * count) + pos] = rdsInfoResponse[startPos + pos];
-		        }
-
-	        }
-	        else
-	        {
-		        for (uint8_t pos = 0; pos < count; ++pos)
-		        {
-		        	if (rdsInfoResponse[startPos + pos] == '\r')
-		        	{
-		   	        	 mRDSInfo.mTextB = mReceivingRDSInfo.mTextB;
-		   	        	 LOG(INFO) << "TextB: " << mRDSInfo.mTextB;
-		   	        	mReceivingRDSInfo.mTextB = "";
-		        	};
-		        	mReceivingRDSInfo.mTextB[(segment * count) + pos] = rdsInfoResponse[startPos + pos];
-		        }
-
-	        }
-*/
 	    }
 		rdsAvailable = (rdsInfoResponse[3] > 0);
 	}
 
-	return true;
-
+	return;
 }
 
 bool FMReceiver::setProperty(int property, int value)
@@ -509,6 +447,16 @@ void FMReceiver::readThread()
     {
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-   //     getRDSInfo();
+        readRDSInfo();
     }
 }
+
+void FMReceiver::notifyObservers(InfoType type)
+{
+	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
+    for (auto observer : mRadioObservers)
+    {
+        observer->infoAvailable(type);
+    }
+}
+

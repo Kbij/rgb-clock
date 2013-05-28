@@ -60,7 +60,7 @@ private:
 	void init();
 
 	void rawPoint(uint8_t col, uint8_t row, bool set);
-	void rawVertByte(uint8_t col, uint8_t& row, uint8_t byte);
+	void rawVertByte(uint8_t col, uint8_t& row, uint8_t maxRemainingRows, uint8_t byte);
 	void rawHLine(uint8_t col1, uint8_t col2, uint8_t row, bool set);
 	void rawVLine(uint8_t col, uint8_t row1, uint8_t row2, bool set);
 	void rawGraphicChar(uint8_t col, uint8_t row, uint8_t character, FontType font);
