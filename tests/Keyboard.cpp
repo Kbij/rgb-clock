@@ -36,7 +36,7 @@ void Keyboard::init()
 {
 	  // These are the configuration values recommended by app note AN3944
 	  // along with the description in the app note.
-
+/*
 	  // Section A
 	  // Description:
 	  // This group of settings controls the filtering of the system
@@ -121,7 +121,7 @@ void Keyboard::init()
       mI2C.writeRegByteSync(mAddress, ELE10_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
       mI2C.writeRegByteSync(mAddress, ELE11_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
       mI2C.writeRegByteSync(mAddress, ELE11_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-
+*/
 	  // Section D
 	  // Description:
 	  // There are three settings embedded in this register so it is
@@ -162,10 +162,10 @@ void Keyboard::init()
 	  // Variation:
 	  // In most cases these values will never need to be changed, but if
 	  // a case arises, a full description is found in application note AN3889.
-	  //mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_CONTROL_0, 0x0B);
-	  //mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_USL, 0x9C);
-	  //mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_LSL, 0x65);
-	  //mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_TARGET_LEVEL, 0x8C);
+	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_CONTROL_0, 0x0B);
+	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_USL, 0x9C);
+	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_LSL, 0x65);
+	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_TARGET_LEVEL, 0x8C);
 }
 
 void Keyboard::startReadThread()
@@ -195,7 +195,7 @@ void Keyboard::readThread()
     while (mReadThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
         uint8_t byte0;
         uint8_t byte1;
         uint8_t test;
@@ -208,13 +208,13 @@ void Keyboard::readThread()
         mI2C.readByteSync(mAddress, ELE0_7_OOR_STATUS, oor0);
         mI2C.readByteSync(mAddress, ELE8_11_ELEPROX_OOR_STATUS, oor1);
 
-        LOG(INFO) << "OOR0: " << std::hex << (int) oor0;
-        LOG(INFO) << "OOR1: " << std::hex << (int) oor1 << std::dec;
+       // LOG(INFO) << "OOR0: " << std::hex << (int) oor0;
+      //  LOG(INFO) << "OOR1: " << std::hex << (int) oor1 << std::dec;
 
         mI2C.readByteSync(mAddress, FILTER_CONFIG, test);
         if (test != 0x04)
         {
-        	LOG(ERROR) << "Wrong info !!!!";
+        //	LOG(ERROR) << "Wrong info !!!!" << std::hex << (int) test;
         }
 
         std::lock_guard<std::mutex> lk_guard(mKeysMutex);
@@ -222,7 +222,7 @@ void Keyboard::readThread()
         mKeys = byte1;
         mKeys = mKeys << 8;
         mKeys = mKeys | byte0;
-        LOG(INFO) << "mKeys:" << std::hex << (int) mKeys;
+       // LOG(INFO) << "mKeys:" << std::hex << (int) mKeys;
 
     }
 }

@@ -322,7 +322,7 @@ int main (int argc, char* argv[])
 		uint8_t counter = 0;
 		clockDisplay.showSignal(100);
 		*/
-		//Keyboard keyboard(i2c, 0x5A);
+		Keyboard keyboard(i2c, 0x5A);
 		FMReceiver receiver(i2c, 0x63);
 
 		ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS, receiver);
@@ -333,9 +333,10 @@ int main (int argc, char* argv[])
 		{
 			receiver.tuneFrequency(94.5);
 		}
-
+		uint8_t volume = 0;
+		clockDisplay.showVolume(volume);
 		do{
-			std::this_thread::sleep_for( std::chrono::milliseconds(5000) );
+			std::this_thread::sleep_for( std::chrono::milliseconds(500) );
  // 		    receiver.seekUp(5);
 //			receiver.getRDSInfo();
 
@@ -352,15 +353,38 @@ int main (int argc, char* argv[])
 			clockDisplay.showVolume(counter);
 			clockDisplay.showSignal(counter);
 */
-/*
-			uint16_t keyboardValue = keyboard.readKeys();
-			std::stringstream keyboardString;
 
-			LOG(INFO) << "Keyboard value: " << binary(keyboardValue, 16);
-			keyboardString << "Kb: " << binary(keyboardValue, 16) ;
+			uint16_t keyboardValue = keyboard.readKeys();
+			if (keyboardValue & 0b0001)
+			{
+				if (volume >= 5)
+				{
+					volume -= 5;
+				}
+
+				clockDisplay.showVolume(volume);
+			}
+			if (keyboardValue & 0b0010)
+			{
+				if (volume <= 95)
+				{
+					volume += 5;
+				}
+
+				clockDisplay.showVolume(volume);
+			}
+			if (keyboardValue & 0b0100)
+			{
+				receiver.seekUp(5);
+			}
+
+			//std::stringstream keyboardString;
+
+			//LOG(INFO) << "Keyboard value: " << binary(keyboardValue, 16);
+			//keyboardString << "Kb: " << binary(keyboardValue, 16) ;
 	//		clockDisplay.showRDSInfo(keyboardString.str());
 
-*/
+
 /*
 			counter++;
 			if (counter > 100)
