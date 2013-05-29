@@ -287,7 +287,7 @@ void LCDisplay::setGAddress(uint8_t vertical, uint8_t horizontal)
 
 void LCDisplay::refreshDisplay()
 {
-	LOG(INFO) << "Refresh Graphic Display";
+	VLOG(2) << "Refresh Graphic Display";
 
 	for (int vert = 0; vert < 32; ++vert)
 	{
