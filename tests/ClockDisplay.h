@@ -13,6 +13,7 @@
 #include "FMReceiver.h"
 #include <string>
 #include <time.h>
+#include <mutex>
 
 class ClockDisplay : public RadioObserverIf {
 public:
@@ -28,7 +29,7 @@ public:
 	void showSignal(uint8_t signal);
 	void hideSignal();
 
-	void showRDSInfo(std::string rdsInfo);
+	void showRDSInfo();
 	void hideRDSInfo();
 
 	void showNextAlarm(const struct tm& nextAlarm);
@@ -47,6 +48,10 @@ private:
     std::thread* mRefreshThread;
     std::atomic_bool mRefreshThreadRunning;
     uint8_t mPrevMin;
+    std::recursive_mutex mRDSInfoMutex;
+    bool mRDSVisible;
+    std::string mRDSStationName;
+    std::string mRDSText;
 
 };
 

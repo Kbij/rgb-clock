@@ -16,7 +16,11 @@ ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress, FMRe
 	mFMReceiver(receiver),
 	mRefreshThread(nullptr),
 	mRefreshThreadRunning(false),
-	mPrevMin(-1)
+	mPrevMin(-1),
+	mRDSInfoMutex(),
+	mRDSVisible(false),
+	mRDSStationName(),
+	mRDSText()
 {
 	mLCDisplay.initGraphic();
 	mLCDisplay.clearGraphicDisplay();
@@ -107,23 +111,20 @@ void ClockDisplay::hideSignal()
 
 }
 
-void ClockDisplay::showRDSInfo(std::string rdsInfo)
+void ClockDisplay::showRDSInfo()
 {
-	// Max 26 chars
-	if (rdsInfo.size() > 26)
-	{
-		mLCDisplay.writeGraphicText(0, 24, rdsInfo.substr(0, 26), FontType::Terminal8);
-	}
-	else
-	{
-		rdsInfo.append(26 - rdsInfo.size(), ' ');
-	}
-	mLCDisplay.writeGraphicText(0, 24, rdsInfo, FontType::Terminal8);
+    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
+	mRDSVisible = true;
+    mRDSStationName = "";
+    mRDSText = "";
 }
 
 void ClockDisplay::hideRDSInfo()
 {
-
+    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
+	mRDSVisible = false;
+    mRDSStationName = "";
+    mRDSText = "";
 }
 
 void ClockDisplay::showNextAlarm(const struct tm& nextAlarm)
@@ -150,7 +151,15 @@ void ClockDisplay::hideNextAlarm()
 void ClockDisplay::infoAvailable(InfoType type)
 {
 	LOG(INFO) << "Received new info from receiver";
-	showRDSInfo(mFMReceiver.getRDSInfo().mText.substr(0,26));
+
+    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
+    mRDSStationName = mFMReceiver.getRDSInfo().mStationName;
+    mRDSStationName = mRDSStationName.substr(0, 7);
+	mRDSStationName.append(7 - mRDSStationName.size(), ' ');
+
+    mRDSText = mFMReceiver.getRDSInfo().mText;
+    mRDSText = mRDSText.substr(0, 26);
+    mRDSText.append(26 - mRDSText.size(), ' ');
 }
 
 
@@ -194,18 +203,26 @@ void ClockDisplay::refreshThread()
 			hourStream.width(2);
 			hourStream.fill('0');
 			hourStream << timeInfo->tm_hour;
-			mLCDisplay.writeGraphicText(40, 0, hourStream.str(), FontType::Verdana20);
-			mLCDisplay.writeGraphicText(86, 0, ":", FontType::Verdana20);
+			mLCDisplay.writeGraphicText(44, 0, hourStream.str(), FontType::Verdana20);
+			mLCDisplay.writeGraphicText(90, 0, ":", FontType::Verdana20);
 
 			std::stringstream minStream;
 			minStream.width(2);
 			minStream.fill('0');
 			minStream << timeInfo->tm_min;
-			mLCDisplay.writeGraphicText(100,0, minStream.str(), FontType::Verdana20);
+			mLCDisplay.writeGraphicText(104,0, minStream.str(), FontType::Verdana20);
 
 		}
 
 		mPrevMin = timeInfo->tm_min;
+
+	    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
+		if (mRDSVisible)
+		{
+			mLCDisplay.writeGraphicText(0, 14, mRDSStationName, FontType::Terminal8);
+			mLCDisplay.writeGraphicText(0, 24, mRDSText, FontType::Terminal8);
+		}
+
 /*
 		double lux = mLightSensor.lux();
 		std::stringstream stream;

@@ -33,11 +33,13 @@ const char EMPTY_CHAR = '~';
 
 struct RDSInfo {
 	uint16_t mProgramId;
+	bool mValidRds;
 	std::string mStationName;
 	std::string mText;
 	TextType mTextType;
 	RDSInfo()
 	{
+		mValidRds = false;
 		mProgramId = 0;
 		clearAll();
 		mTextType = TextType::Unknown;
