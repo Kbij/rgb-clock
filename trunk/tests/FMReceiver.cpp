@@ -123,12 +123,18 @@ bool FMReceiver::seekUp(int timeoutSeconds)
     std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
 
 	if (!waitForCTS()) return false;
+	if (!waitForSTC()) return false; // Previous seek not complete
 
+	std::cout << std::hex << "Seek start" << std::endl;
 	std::vector<uint8_t> seekResponse(1);
-	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_SEEK_START, 0x08}), seekResponse);
+	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_SEEK_START, 0x0C}), seekResponse); // seek up & wrap
+	std::cout << std::hex << "Seek response: 0x" << (int) seekResponse[0] << std::endl;
 	mReceivingRDSInfo.clearAll();
 	mRDSInfo.clearAll();
-
+	mRDSInfo.mValidRds = false;
+	mRDSInfo.mStationName = "Seek...";
+	notifyObservers(InfoType::RdsInfo);
+/*
 	if (timeoutSeconds == 0)
 	{
 		return true;
@@ -147,8 +153,9 @@ bool FMReceiver::seekUp(int timeoutSeconds)
 			++waitTime;
 		}
 	}
-
-	return false;
+	*/
+	return true;
+//	return false;
 }
 
 bool FMReceiver::tuneFrequency(double frequency)
@@ -164,14 +171,19 @@ bool FMReceiver::tuneFrequency(double frequency)
 	std::vector<uint8_t> tuneFreqResponse(1); // Vector with size 1
 	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_TUNE_FREQ, 0x00, high, low}), tuneFreqResponse);
 
-	debugTuningStatus();
+	mRDSInfo.clearAll();
+	mRDSInfo.mValidRds = false;
+	notifyObservers(InfoType::RdsInfo);
+
+//	debugTuningStatus();
 
 	return true;
 }
 RDSInfo FMReceiver::getRDSInfo()
 {
 	std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
-    return mRDSInfo; // Schould be copy constructor
+	std::replace(mRDSInfo.mText.begin(), mRDSInfo.mText.end(), EMPTY_CHAR,' ');
+    return mRDSInfo; // Should be copy constructor
 }
 TextType ABToTextType(bool ab)
 {
@@ -210,7 +222,7 @@ std::string trim(const std::string& str, const std::string& trimChars = whiteSpa
 void FMReceiver::readRDSInfo()
 {
 	bool rdsAvailable = true;
-    std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
+   // std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
 
 	if (!readRDSInt())
 	{
@@ -239,13 +251,15 @@ void FMReceiver::readRDSInfo()
 	         mReceivingRDSInfo.mStationName[pos + 1] = rdsInfoResponse[Block_D_L];
 	         std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
 
-	         if ((std::count(mReceivingRDSInfo.mStationName.begin(), mReceivingRDSInfo.mStationName.end(), ' ') < std::count(mRDSInfo.mStationName.begin(), mRDSInfo.mStationName.end(), ' ') )
-	        	|| (trim(mReceivingRDSInfo.mStationName).size() > trim(mRDSInfo.mStationName).size()) )
+	         if (std::count(mReceivingRDSInfo.mStationName.begin(), mReceivingRDSInfo.mStationName.end(), ' ') < std::count(mRDSInfo.mStationName.begin(), mRDSInfo.mStationName.end(), ' ')
+	        	|| (trim(mReceivingRDSInfo.mStationName).size() > trim(mRDSInfo.mStationName).size())
+	        	|| !mRDSInfo.mValidRds)
 		      {
-		    	 mRDSInfo.mStationName = trim(mReceivingRDSInfo.mStationName);
+		    	 mRDSInfo.mStationName = trimRight(mReceivingRDSInfo.mStationName);
+		    	 mRDSInfo.mValidRds = true;
 		         LOG(INFO) << "Station: " << mRDSInfo.mStationName;
 		         notifyObservers(InfoType::RdsInfo);
-		         mReceivingRDSInfo.clearStationName();
+		        // mReceivingRDSInfo.clearStationName();
 		      }
 
 	    }
@@ -336,7 +350,7 @@ void FMReceiver::debugTuningStatus()
 	//FM_RSQ_STATUS gebruiken ??
 
 	if (!waitForCTS()) return;  // Wait for Clear To Send
-	if (!waitForSTC()) return; // Wait for tuning complete
+	//if (!waitForSTC()) return; // Wait for tuning complete
 
 	std::vector<uint8_t> tuneStatusResponse(8); // Vector with size 8
 	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_TUNE_STATUS, 0x00}), tuneStatusResponse);
@@ -446,8 +460,36 @@ void FMReceiver::readThread()
     while (mReadThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-        readRDSInfo();
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+/*
+        std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
+
+    	if (!waitForCTS()) return;  // Wait for Clear To Send
+
+    	std::vector<uint8_t> tuneStatusResponse(8); // Vector with size 8
+    	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_TUNE_STATUS, 0x00}), tuneStatusResponse);
+
+    	if 	(tuneStatusResponse[0] && 0x01) // If STC
+    	{
+    		if (!mRDSInfo.mValidRds)
+    		{
+    	    	uint16_t frequency;
+    	    	frequency = (tuneStatusResponse[2] << 8) | tuneStatusResponse[3];
+    			std::stringstream freqStream;
+    			freqStream << static_cast<double>(frequency) / 100 << "Mhz";
+
+    	    	mRDSInfo.mStationName = freqStream.str();
+    	    	notifyObservers(InfoType::RdsInfo);
+    		}
+
+    		LOG(INFO) << "RSSI: " << (int) tuneStatusResponse[4] << "dBuV";
+        	LOG(INFO) << "SNR: " << (int) tuneStatusResponse[5] << "dB";
+        	LOG(INFO) << "MULT: " << (int) tuneStatusResponse[6];
+
+            //readRDSInfo();
+    	}
+*/
+
     }
 }
 

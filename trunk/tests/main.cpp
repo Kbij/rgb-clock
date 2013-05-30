@@ -333,8 +333,9 @@ int main (int argc, char* argv[])
 		{
 			receiver.tuneFrequency(94.5);
 		}
-		uint8_t volume = 0;
+		uint8_t volume = 50;
 		clockDisplay.showVolume(volume);
+		clockDisplay.showRDSInfo();
 		do{
 			std::this_thread::sleep_for( std::chrono::milliseconds(500) );
  // 		    receiver.seekUp(5);
