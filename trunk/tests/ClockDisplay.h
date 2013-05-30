@@ -52,6 +52,7 @@ private:
     bool mRDSVisible;
     std::string mRDSStationName;
     std::string mRDSText;
+    int mReceiveLevel;
 
 };
 
