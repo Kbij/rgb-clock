@@ -20,7 +20,8 @@ ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress, FMRe
 	mRDSInfoMutex(),
 	mRDSVisible(false),
 	mRDSStationName(),
-	mRDSText()
+	mRDSText(),
+	mReceiveLevel(0)
 {
 	mLCDisplay.initGraphic();
 	mLCDisplay.clearGraphicDisplay();
@@ -150,7 +151,7 @@ void ClockDisplay::hideNextAlarm()
 
 void ClockDisplay::infoAvailable(InfoType type)
 {
-	LOG(INFO) << "Received new info from receiver";
+	//LOG(INFO) << "Received new info from receiver";
 
     std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
     mRDSStationName = mFMReceiver.getRDSInfo().mStationName;
@@ -160,6 +161,9 @@ void ClockDisplay::infoAvailable(InfoType type)
     mRDSText = mFMReceiver.getRDSInfo().mText;
     mRDSText = mRDSText.substr(0, 26);
     mRDSText.append(26 - mRDSText.size(), ' ');
+    mReceiveLevel = 80;
+    mReceiveLevel = mFMReceiver.getRDSInfo().mReceiveLevel;
+    mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
 }
 
 
@@ -222,7 +226,7 @@ void ClockDisplay::refreshThread()
 			mLCDisplay.writeGraphicText(0, 14, mRDSStationName, FontType::Terminal8);
 			mLCDisplay.writeGraphicText(0, 24, mRDSText, FontType::Terminal8);
 		}
-
+		showSignal(mReceiveLevel);
 /*
 		double lux = mLightSensor.lux();
 		std::stringstream stream;

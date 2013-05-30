@@ -37,10 +37,12 @@ struct RDSInfo {
 	std::string mStationName;
 	std::string mText;
 	TextType mTextType;
+	uint8_t mReceiveLevel;
 	RDSInfo()
 	{
 		mValidRds = false;
 		mProgramId = 0;
+		mReceiveLevel = 0;
 		clearAll();
 		mTextType = TextType::Unknown;
 	}
@@ -79,7 +81,6 @@ private:
 	void readRDSInfo();
 	bool setProperty(int property, int value);
 	bool getProperty(int property, int& value);
-	void debugTuningStatus();
 	bool waitForCTS();
 	bool waitForSTC();
 	bool readCTS();

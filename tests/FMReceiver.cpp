@@ -92,6 +92,7 @@ bool FMReceiver::powerOn()
     //if(revision.chip=='D' && revision.firmwareMajor=='6' && revision.firmwareMinor=='0'){
 	setProperty(0xFF00, 0);
     //}
+
 	setProperty(PROP_FM_RDS_CONFIG, (FM_RDS_CONFIG_ARG_ENABLE |
                                      FM_RDS_CONFIG_ARG_BLOCK_A_2_BIT_ERRORS |
                                      FM_RDS_CONFIG_ARG_BLOCK_B_2_BIT_ERRORS |
@@ -100,17 +101,19 @@ bool FMReceiver::powerOn()
 	//Enable RDS interrupt sources
     //Generate interrupt when new data arrives and when RDS sync is gained or lost.
     //  setProperty(PROP_FM_RDS_INT_SOURCE, (RDS_RECEIVED_MASK |
-    //   RDS_SYNC_FOUND_MASK | RDS_SYNC_LOST_MASK) );
+      // RDS_SYNC_FOUND_MASK | RDS_SYNC_LOST_MASK) );
 	setProperty(PROP_FM_RDS_INT_SOURCE, (RDS_RECEIVED_MASK | RDS_SYNC_FOUND_MASK | RDS_SYNC_LOST_MASK));
 
+
 	//Setup FM band and spacing
-	setProperty(PROP_FM_SEEK_BAND_BOTTOM, 64);
-	setProperty(PROP_FM_SEEK_BAND_TOP, 108);
+	setProperty(PROP_FM_SEEK_BAND_BOTTOM, 6400);
+	setProperty(PROP_FM_SEEK_BAND_TOP, 10800);
 	setProperty(PROP_FM_SEEK_FREQ_SPACING, 10); // 100 Khz
 
 	//North America and South Korea use default FM de-emphasis of 75 μs.
 	//All others use 50 μs.
 	setProperty(PROP_FM_DEEMPHASIS, FM_DEEMPHASIS_ARG_50);
+
     mRDSInfo.clearAll();
     mReceivingRDSInfo.clearAll();
 	startReadThread();
@@ -125,10 +128,8 @@ bool FMReceiver::seekUp(int timeoutSeconds)
 	if (!waitForCTS()) return false;
 	if (!waitForSTC()) return false; // Previous seek not complete
 
-	std::cout << std::hex << "Seek start" << std::endl;
 	std::vector<uint8_t> seekResponse(1);
 	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_SEEK_START, 0x0C}), seekResponse); // seek up & wrap
-	std::cout << std::hex << "Seek response: 0x" << (int) seekResponse[0] << std::endl;
 	mReceivingRDSInfo.clearAll();
 	mRDSInfo.clearAll();
 	mRDSInfo.mValidRds = false;
@@ -345,27 +346,6 @@ bool FMReceiver::getProperty(int property, int& value)
 	return true;
 }
 
-void FMReceiver::debugTuningStatus()
-{
-	//FM_RSQ_STATUS gebruiken ??
-
-	if (!waitForCTS()) return;  // Wait for Clear To Send
-	//if (!waitForSTC()) return; // Wait for tuning complete
-
-	std::vector<uint8_t> tuneStatusResponse(8); // Vector with size 8
-	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_TUNE_STATUS, 0x00}), tuneStatusResponse);
-
-	uint16_t frequency;
-	frequency = (tuneStatusResponse[2] << 8) | tuneStatusResponse[3];
-
-	LOG(INFO) << "Tuning Report";
-	LOG(INFO) << "=============";
-	LOG(INFO) << "Freq: " << static_cast<double>(frequency) / 100 << "Mhz";
-	LOG(INFO) << "RSSI: " << (int) tuneStatusResponse[4] << "dBuV";
-	LOG(INFO) << "SNR: " << (int) tuneStatusResponse[5] << "dB";
-	LOG(INFO) << "MULT: " << (int) tuneStatusResponse[6];
-}
-
 bool FMReceiver::waitForCTS()
 {
 	const int MAX_RETRIES = 20;
@@ -461,13 +441,15 @@ void FMReceiver::readThread()
     {
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-/*
+
         std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
 
     	if (!waitForCTS()) return;  // Wait for Clear To Send
 
     	std::vector<uint8_t> tuneStatusResponse(8); // Vector with size 8
     	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_TUNE_STATUS, 0x00}), tuneStatusResponse);
+
+    	std::lock_guard<std::recursive_mutex> lk_rdsguard(mRdsInfoMutex);
 
     	if 	(tuneStatusResponse[0] && 0x01) // If STC
     	{
@@ -481,14 +463,15 @@ void FMReceiver::readThread()
     	    	mRDSInfo.mStationName = freqStream.str();
     	    	notifyObservers(InfoType::RdsInfo);
     		}
-
+    		mRDSInfo.mReceiveLevel = tuneStatusResponse[4];
+    		/*
     		LOG(INFO) << "RSSI: " << (int) tuneStatusResponse[4] << "dBuV";
         	LOG(INFO) << "SNR: " << (int) tuneStatusResponse[5] << "dB";
         	LOG(INFO) << "MULT: " << (int) tuneStatusResponse[6];
-
-            //readRDSInfo();
-    	}
 */
+            readRDSInfo();
+    	}
+
 
     }
 }
