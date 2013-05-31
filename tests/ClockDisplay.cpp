@@ -9,6 +9,7 @@
 #include "I2C.h"
 #include <sstream>
 #include <glog/logging.h>
+#include <iostream>
 
 ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress, FMReceiver& receiver) :
 	mLCDisplay(i2c, lcdAddress),
@@ -21,6 +22,7 @@ ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress, FMRe
 	mRDSVisible(false),
 	mRDSStationName(),
 	mRDSText(),
+	mRDSTextPos(0),
 	mReceiveLevel(0)
 {
 	mLCDisplay.initGraphic();
@@ -151,7 +153,7 @@ void ClockDisplay::hideNextAlarm()
 
 void ClockDisplay::infoAvailable(InfoType type)
 {
-	//LOG(INFO) << "Received new info from receiver";
+	LOG(INFO) << "Received new info from receiver";
 
     std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
     mRDSStationName = mFMReceiver.getRDSInfo().mStationName;
@@ -159,9 +161,9 @@ void ClockDisplay::infoAvailable(InfoType type)
 	mRDSStationName.append(7 - mRDSStationName.size(), ' ');
 
     mRDSText = mFMReceiver.getRDSInfo().mText;
-    mRDSText = mRDSText.substr(0, 26);
-    mRDSText.append(26 - mRDSText.size(), ' ');
-    mReceiveLevel = 80;
+//    mRDSText = mRDSText.substr(0, 26);
+//    mRDSText.append(26 - mRDSText.size(), ' ');
+    mRDSTextPos = 0;
     mReceiveLevel = mFMReceiver.getRDSInfo().mReceiveLevel;
     mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
 }
@@ -224,7 +226,34 @@ void ClockDisplay::refreshThread()
 		if (mRDSVisible)
 		{
 			mLCDisplay.writeGraphicText(0, 14, mRDSStationName, FontType::Terminal8);
-			mLCDisplay.writeGraphicText(0, 24, mRDSText, FontType::Terminal8);
+			std::string localRDSText = mRDSText.substr(mRDSTextPos, std::string::npos);
+//			std::cout << "=======" << std::endl;
+//			std::cout << "mRDSTextPos: " << mRDSTextPos << std::endl;
+//			std::cout << "localRDS: " << localRDSText << ", size:" << localRDSText.size() << std::endl;
+//			mRDSText = mRDSText.substr(mRDSTextPos, string::npos);
+
+			if (localRDSText.size()  > 26)
+			{
+				localRDSText = localRDSText.substr(0, 26);
+				++mRDSTextPos;
+//				std::cout << "to big localRDS: " << localRDSText << ", size:" << localRDSText.size() << std::endl;
+
+			}
+			else
+			{
+				localRDSText.append(26 - localRDSText.size(), ' ');
+				mRDSTextPos = 0;
+//				std::cout << "to small localRDS: " << localRDSText << ", size:" << localRDSText.size() << std::endl;
+			}
+
+//			std::cout << "Actual RDS:" << mRDSText << std::endl;
+//			std::cout << "Scroll RDS:" << localRDSText << std::endl;
+			mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
+
+			//    mRDSText = mRDSText.substr(0, 26);
+			//    mRDSText.append(26 - mRDSText.size(), ' ');
+			    //mRDSTextPos = 0;
+
 		}
 		showSignal(mReceiveLevel);
 /*
