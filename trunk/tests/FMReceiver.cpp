@@ -135,28 +135,7 @@ bool FMReceiver::seekUp(int timeoutSeconds)
 	mRDSInfo.mValidRds = false;
 	mRDSInfo.mStationName = "Seek...";
 	notifyObservers(InfoType::RdsInfo);
-/*
-	if (timeoutSeconds == 0)
-	{
-		return true;
-	}
-	int waitTime = 0;
-	while (waitTime < timeoutSeconds)
-	{
-		if (readSTC())
-		{
-			debugTuningStatus();
-			return true;
-		}
-		else
-		{
-			std::this_thread::sleep_for( std::chrono::seconds(1));
-			++waitTime;
-		}
-	}
-	*/
 	return true;
-//	return false;
 }
 
 bool FMReceiver::tuneFrequency(double frequency)
@@ -176,16 +155,16 @@ bool FMReceiver::tuneFrequency(double frequency)
 	mRDSInfo.mValidRds = false;
 	notifyObservers(InfoType::RdsInfo);
 
-//	debugTuningStatus();
-
 	return true;
 }
+
 RDSInfo FMReceiver::getRDSInfo()
 {
 	std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
 	std::replace(mRDSInfo.mText.begin(), mRDSInfo.mText.end(), EMPTY_CHAR,' ');
     return mRDSInfo; // Should be copy constructor
 }
+
 TextType ABToTextType(bool ab)
 {
 	return ab ? TextType::TypeA: TextType::TypeB;
@@ -223,7 +202,7 @@ std::string trim(const std::string& str, const std::string& trimChars = whiteSpa
 void FMReceiver::readRDSInfo()
 {
 	bool rdsAvailable = true;
-   // std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
+    std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
 
 	if (!readRDSInt())
 	{
@@ -241,6 +220,14 @@ void FMReceiver::readRDSInfo()
 	    	return;
 	    }
     	//mRDSInfo.mProgramId = (rdsInfoResponse[PI_H] << 8) | rdsInfoResponse[PI_L] ;
+        std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
+
+	    if (!rdsInfoResponse[Block_B_H] & 0x01) // If not RDSSync
+	    {
+       		mRDSInfo.mText = "";
+	        notifyObservers(InfoType::RdsInfo);
+	    	return;
+	    }
 
 	    uint8_t type =  rdsInfoResponse[Block_B_H]>>4U;
 	    bool version = rdsInfoResponse[Block_B_H] & 0b00001000;
@@ -250,7 +237,6 @@ void FMReceiver::readRDSInfo()
 	         uint8_t pos = segment * 2;
 	         mReceivingRDSInfo.mStationName[pos] = rdsInfoResponse[Block_D_H];
 	         mReceivingRDSInfo.mStationName[pos + 1] = rdsInfoResponse[Block_D_L];
-	         std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
 
 	         if (std::count(mReceivingRDSInfo.mStationName.begin(), mReceivingRDSInfo.mStationName.end(), ' ') < std::count(mRDSInfo.mStationName.begin(), mRDSInfo.mStationName.end(), ' ')
 	        	|| (trim(mReceivingRDSInfo.mStationName).size() > trim(mRDSInfo.mStationName).size())
@@ -260,7 +246,6 @@ void FMReceiver::readRDSInfo()
 		    	 mRDSInfo.mValidRds = true;
 		         LOG(INFO) << "Station: " << mRDSInfo.mStationName;
 		         notifyObservers(InfoType::RdsInfo);
-		        // mReceivingRDSInfo.clearStationName();
 		      }
 
 	    }
@@ -281,7 +266,6 @@ void FMReceiver::readRDSInfo()
 	        	count = 2;
 	        	startPos = Block_D_H;
 	        }
-	       // std::cout << "Receiving" << std::endl;
 
 	        for (uint8_t pos = 0; pos < count; ++pos)
 	        {
@@ -296,8 +280,6 @@ void FMReceiver::readRDSInfo()
 	        	if (rdsInfoResponse[recPos] == '\r')
 	        	{
 	        		mReceivingRDSInfo.mText = mReceivingRDSInfo.mText.substr(0, textPos);
-	        		// Replace remaining chars with space
-	        		//mReceivingRDSInfo.mText.replace(textPos,std::string::npos, std::string("-"));
 	        		if (mReceivingRDSInfo.mText.find(EMPTY_CHAR) == std::string::npos)
 	        		{
 	        			std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
@@ -441,7 +423,6 @@ void FMReceiver::readThread()
     {
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-
         std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
 
     	if (!waitForCTS()) return;  // Wait for Clear To Send
@@ -464,15 +445,8 @@ void FMReceiver::readThread()
     	    	notifyObservers(InfoType::RdsInfo);
     		}
     		mRDSInfo.mReceiveLevel = tuneStatusResponse[4];
-    		/*
-    		LOG(INFO) << "RSSI: " << (int) tuneStatusResponse[4] << "dBuV";
-        	LOG(INFO) << "SNR: " << (int) tuneStatusResponse[5] << "dB";
-        	LOG(INFO) << "MULT: " << (int) tuneStatusResponse[6];
-*/
             readRDSInfo();
     	}
-
-
     }
 }
 

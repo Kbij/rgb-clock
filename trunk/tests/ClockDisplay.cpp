@@ -156,15 +156,18 @@ void ClockDisplay::infoAvailable(InfoType type)
 	LOG(INFO) << "Received new info from receiver";
 
     std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
-    mRDSStationName = mFMReceiver.getRDSInfo().mStationName;
+  //  mRDSStationName = mFMReceiver.getRDSInfo().mStationName;
+    mRDSStationName = "Test";
+
     mRDSStationName = mRDSStationName.substr(0, 7);
 	mRDSStationName.append(7 - mRDSStationName.size(), ' ');
 
-    mRDSText = mFMReceiver.getRDSInfo().mText;
-//    mRDSText = mRDSText.substr(0, 26);
-//    mRDSText.append(26 - mRDSText.size(), ' ');
+  //  mRDSText = mFMReceiver.getRDSInfo().mText;
+	mRDSText = "My Textasdfasdasdaeasdddadfasewf";
     mRDSTextPos = 0;
-    mReceiveLevel = mFMReceiver.getRDSInfo().mReceiveLevel;
+
+ //   mReceiveLevel = mFMReceiver.getRDSInfo().mReceiveLevel;
+    mReceiveLevel = 80;
     mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
 }
 
@@ -221,41 +224,27 @@ void ClockDisplay::refreshThread()
 		}
 
 		mPrevMin = timeInfo->tm_min;
-
+/*
 	    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
 		if (mRDSVisible)
 		{
 			mLCDisplay.writeGraphicText(0, 14, mRDSStationName, FontType::Terminal8);
 			std::string localRDSText = mRDSText.substr(mRDSTextPos, std::string::npos);
-//			std::cout << "=======" << std::endl;
-//			std::cout << "mRDSTextPos: " << mRDSTextPos << std::endl;
-//			std::cout << "localRDS: " << localRDSText << ", size:" << localRDSText.size() << std::endl;
-//			mRDSText = mRDSText.substr(mRDSTextPos, string::npos);
-
 			if (localRDSText.size()  > 26)
 			{
 				localRDSText = localRDSText.substr(0, 26);
 				++mRDSTextPos;
-//				std::cout << "to big localRDS: " << localRDSText << ", size:" << localRDSText.size() << std::endl;
-
 			}
 			else
 			{
 				localRDSText.append(26 - localRDSText.size(), ' ');
 				mRDSTextPos = 0;
-//				std::cout << "to small localRDS: " << localRDSText << ", size:" << localRDSText.size() << std::endl;
 			}
 
-//			std::cout << "Actual RDS:" << mRDSText << std::endl;
-//			std::cout << "Scroll RDS:" << localRDSText << std::endl;
 			mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
-
-			//    mRDSText = mRDSText.substr(0, 26);
-			//    mRDSText.append(26 - mRDSText.size(), ' ');
-			    //mRDSTextPos = 0;
-
 		}
 		showSignal(mReceiveLevel);
+		*/
 /*
 		double lux = mLightSensor.lux();
 		std::stringstream stream;
