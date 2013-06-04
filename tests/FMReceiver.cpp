@@ -201,6 +201,20 @@ std::string trim(const std::string& str, const std::string& trimChars = whiteSpa
 
 void FMReceiver::readRDSInfo()
 {
+    std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
+	time_t rawTime;
+	struct tm* timeInfo;
+
+	time(&rawTime);
+	timeInfo = localtime(&rawTime);
+	if ((timeInfo->tm_sec == 0) || (timeInfo->tm_sec == 30))
+	{
+	   // mRDSInfo.mStationName = "Test";
+	    mRDSInfo.mText = "Lange test welke moet scrollen, zeker en vast";
+	    notifyObservers(InfoType::RdsInfo);
+	}
+
+/*
 	bool rdsAvailable = true;
     std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
 
@@ -305,6 +319,7 @@ void FMReceiver::readRDSInfo()
 	}
 
 	return;
+*/
 }
 
 bool FMReceiver::setProperty(int property, int value)
@@ -441,8 +456,12 @@ void FMReceiver::readThread()
     			std::stringstream freqStream;
     			freqStream << static_cast<double>(frequency) / 100 << "Mhz";
 
-    	    	mRDSInfo.mStationName = freqStream.str();
-    	    	notifyObservers(InfoType::RdsInfo);
+    	    	if (mRDSInfo.mStationName != freqStream.str())
+    	    	{
+    	    		mRDSInfo.mStationName = freqStream.str();
+        	    	notifyObservers(InfoType::RdsInfo);
+
+    	    	}
     		}
     		mRDSInfo.mReceiveLevel = tuneStatusResponse[4];
             readRDSInfo();
