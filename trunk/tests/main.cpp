@@ -378,7 +378,6 @@ int main (int argc, char* argv[])
 			{
 				receiver.seekUp(5);
 			}
-
 			//std::stringstream keyboardString;
 
 			//LOG(INFO) << "Keyboard value: " << binary(keyboardValue, 16);

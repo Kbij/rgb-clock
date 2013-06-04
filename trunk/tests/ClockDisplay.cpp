@@ -156,18 +156,18 @@ void ClockDisplay::infoAvailable(InfoType type)
 	LOG(INFO) << "Received new info from receiver";
 
     std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
-  //  mRDSStationName = mFMReceiver.getRDSInfo().mStationName;
-    mRDSStationName = "Test";
+    mRDSStationName = mFMReceiver.getRDSInfo().mStationName;
+    //mRDSStationName = "Test";
 
     mRDSStationName = mRDSStationName.substr(0, 7);
 	mRDSStationName.append(7 - mRDSStationName.size(), ' ');
 
-  //  mRDSText = mFMReceiver.getRDSInfo().mText;
-	mRDSText = "My Textasdfasdasdaeasdddadfasewf";
+    mRDSText = mFMReceiver.getRDSInfo().mText;
+	//mRDSText = "My Textasdfasdasdaeasdddadfasewf";
     mRDSTextPos = 0;
 
- //   mReceiveLevel = mFMReceiver.getRDSInfo().mReceiveLevel;
-    mReceiveLevel = 80;
+    mReceiveLevel = mFMReceiver.getRDSInfo().mReceiveLevel;
+ //   mReceiveLevel = 80;
     mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
 }
 
@@ -224,7 +224,7 @@ void ClockDisplay::refreshThread()
 		}
 
 		mPrevMin = timeInfo->tm_min;
-/*
+
 	    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
 		if (mRDSVisible)
 		{
@@ -244,7 +244,7 @@ void ClockDisplay::refreshThread()
 			mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
 		}
 		showSignal(mReceiveLevel);
-		*/
+
 /*
 		double lux = mLightSensor.lux();
 		std::stringstream stream;
