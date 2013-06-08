@@ -202,21 +202,9 @@ std::string trim(const std::string& str, const std::string& trimChars = whiteSpa
 void FMReceiver::readRDSInfo()
 {
     std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
-	time_t rawTime;
-	struct tm* timeInfo;
 
-	time(&rawTime);
-	timeInfo = localtime(&rawTime);
-	if ((timeInfo->tm_sec == 0) || (timeInfo->tm_sec == 30))
-	{
-	   // mRDSInfo.mStationName = "Test";
-	    mRDSInfo.mText = "Lange test welke moet scrollen, zeker en vast";
-	    notifyObservers(InfoType::RdsInfo);
-	}
 
-/*
 	bool rdsAvailable = true;
-    std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
 
 	if (!readRDSInt())
 	{
@@ -227,6 +215,8 @@ void FMReceiver::readRDSInfo()
 	{
 		std::vector<uint8_t> rdsInfoResponse(13);
 		mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_RDS_STATUS, RDS_STATUS_ARG1_CLEAR_INT}), rdsInfoResponse);
+
+		rdsAvailable = (rdsInfoResponse[3] > 0);
 
 		// Only if no errors found
 	    if (rdsInfoResponse[12] != 0)
@@ -263,6 +253,7 @@ void FMReceiver::readRDSInfo()
 		      }
 
 	    }
+
 	    if (type == 2)
 	    {
 	    	bool new_ab = bool(rdsInfoResponse[Block_B_L] & 0b00010000);
@@ -296,8 +287,6 @@ void FMReceiver::readRDSInfo()
 	        		mReceivingRDSInfo.mText = mReceivingRDSInfo.mText.substr(0, textPos);
 	        		if (mReceivingRDSInfo.mText.find(EMPTY_CHAR) == std::string::npos)
 	        		{
-	        			std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
-
 		   	        	if (mRDSInfo.mText != mReceivingRDSInfo.mText)
 		   	        	{
 		   	        		mRDSInfo.mText = mReceivingRDSInfo.mText;
@@ -315,11 +304,10 @@ void FMReceiver::readRDSInfo()
 	        	}
 	        }
 	    }
-		rdsAvailable = (rdsInfoResponse[3] > 0);
 	}
 
 	return;
-*/
+
 }
 
 bool FMReceiver::setProperty(int property, int value)
