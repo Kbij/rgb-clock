@@ -20,6 +20,7 @@ ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress, FMRe
 	mPrevMin(-1),
 	mRDSInfoMutex(),
 	mRDSVisible(false),
+	mNewRDSAvailable(false),
 	mRDSStationName(),
 	mRDSText(),
 	mRDSTextPos(0),
@@ -154,21 +155,20 @@ void ClockDisplay::hideNextAlarm()
 void ClockDisplay::infoAvailable(InfoType type)
 {
 	LOG(INFO) << "Received new info from receiver";
-
+	mNewRDSAvailable = true;
+/*
     std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
     mRDSStationName = mFMReceiver.getRDSInfo().mStationName;
-    //mRDSStationName = "Test";
 
     mRDSStationName = mRDSStationName.substr(0, 7);
 	mRDSStationName.append(7 - mRDSStationName.size(), ' ');
 
     mRDSText = mFMReceiver.getRDSInfo().mText;
-	//mRDSText = "My Textasdfasdasdaeasdddadfasewf";
     mRDSTextPos = 0;
 
     mReceiveLevel = mFMReceiver.getRDSInfo().mReceiveLevel;
- //   mReceiveLevel = 80;
     mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
+    */
 }
 
 
@@ -225,9 +225,24 @@ void ClockDisplay::refreshThread()
 
 		mPrevMin = timeInfo->tm_min;
 
-	    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
-		if (mRDSVisible)
+	    if (mRDSVisible)
 		{
+		    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
+			if (mNewRDSAvailable)
+			{
+			    mRDSStationName = mFMReceiver.getRDSInfo().mStationName;
+
+			    mRDSStationName = mRDSStationName.substr(0, 7);
+				mRDSStationName.append(7 - mRDSStationName.size(), ' ');
+
+			    mRDSText = mFMReceiver.getRDSInfo().mText;
+			    mRDSTextPos = 0;
+
+			    mReceiveLevel = mFMReceiver.getRDSInfo().mReceiveLevel;
+			    mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
+			    mNewRDSAvailable = false;
+			}
+
 			mLCDisplay.writeGraphicText(0, 14, mRDSStationName, FontType::Terminal8);
 			std::string localRDSText = mRDSText.substr(mRDSTextPos, std::string::npos);
 			if (localRDSText.size()  > 26)

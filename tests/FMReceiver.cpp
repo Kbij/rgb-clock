@@ -202,7 +202,9 @@ std::string trim(const std::string& str, const std::string& trimChars = whiteSpa
 void FMReceiver::readRDSInfo()
 {
     std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
-	time_t rawTime;
+    bool notify = false;
+/*
+    time_t rawTime;
 	struct tm* timeInfo;
 
 	time(&rawTime);
@@ -214,7 +216,7 @@ void FMReceiver::readRDSInfo()
 	    notifyObservers(InfoType::RdsInfo);
 	}
 
-
+*/
 	bool rdsAvailable = true;
 
 	if (!readRDSInt())
@@ -240,7 +242,7 @@ void FMReceiver::readRDSInfo()
 	    if (!rdsInfoResponse[Block_B_H] & 0x01) // If not RDSSync
 	    {
        		mRDSInfo.mText = "";
-	        notifyObservers(InfoType::RdsInfo);
+       		notify = true;
 	    	return;
 	    }
 
@@ -260,11 +262,10 @@ void FMReceiver::readRDSInfo()
 		    	 mRDSInfo.mStationName = trimRight(mReceivingRDSInfo.mStationName);
 		    	 mRDSInfo.mValidRds = true;
 		         LOG(INFO) << "Station: " << mRDSInfo.mStationName;
-		         notifyObservers(InfoType::RdsInfo);
+		         notify = true;
 		      }
 
 	    }
-
 	    if (type == 2)
 	    {
 	    	bool new_ab = bool(rdsInfoResponse[Block_B_L] & 0b00010000);
@@ -303,7 +304,7 @@ void FMReceiver::readRDSInfo()
 		   	        		mRDSInfo.mText = mReceivingRDSInfo.mText;
 			   	        	mRDSInfo.mTextType = mReceivingRDSInfo.mTextType;
 			   	        	LOG(INFO) << "Clean Text: " << mRDSInfo.mText;
- 				            notifyObservers(InfoType::RdsInfo);
+			   	        	notify = true;
 
 			   	        	mReceivingRDSInfo.clearText();
 		   	        	}
@@ -315,7 +316,12 @@ void FMReceiver::readRDSInfo()
 	        	}
 	        }
 	    }
+
 	}
+    if (notify)
+    {
+        notifyObservers(InfoType::RdsInfo);
+    }
 
 	return;
 
