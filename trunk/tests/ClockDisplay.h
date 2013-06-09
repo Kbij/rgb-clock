@@ -50,6 +50,7 @@ private:
     uint8_t mPrevMin;
     std::recursive_mutex mRDSInfoMutex;
     bool mRDSVisible;
+    std::atomic_bool mNewRDSAvailable;
     std::string mRDSStationName;
     std::string mRDSText;
     int mRDSTextPos;
