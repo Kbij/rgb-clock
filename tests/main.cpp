@@ -376,7 +376,7 @@ int main (int argc, char* argv[])
 			}
 			if (keyboardValue & 0b0100)
 			{
-				receiver.seekUp(5);
+				//receiver.seekUp(5);
 			}
 			//std::stringstream keyboardString;
 
