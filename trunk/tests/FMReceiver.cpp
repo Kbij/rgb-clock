@@ -175,12 +175,12 @@ const std::string whiteSpaces( " \f\n\r\t\v" );
 std::string trimRight(const std::string& str,
       const std::string& trimChars = whiteSpaces )
 {
-	LOG(INFO) << "trimright, line: " << __LINE__;
+//	LOG(INFO) << "trimright, line: " << __LINE__;
 
 	std::string result = str;
 	std::string::size_type pos = result.find_last_not_of( trimChars );
 	result.erase( pos + 1 );
-	LOG(INFO) << "trimright, line: " << __LINE__;
+//	LOG(INFO) << "trimright, line: " << __LINE__;
 	return result;
 }
 
@@ -188,22 +188,22 @@ std::string trimRight(const std::string& str,
 std::string trimLeft(const std::string& str,
       const std::string& trimChars = whiteSpaces )
 {
-	LOG(INFO) << "trimlef, line: " << __LINE__;
+//	LOG(INFO) << "trimlef, line: " << __LINE__;
 	std::string result = str;
 	std::string::size_type pos = result.find_first_not_of( trimChars );
     result.erase( 0, pos );
-	LOG(INFO) << "trimlef, line: " << __LINE__;
+//	LOG(INFO) << "trimlef, line: " << __LINE__;
     return result;
 }
 
 
 std::string trim(const std::string& str, const std::string& trimChars = whiteSpaces )
 {
-	LOG(INFO) << "trim, line: " << __LINE__;
+//	LOG(INFO) << "trim, line: " << __LINE__;
 
 	std::string result = trimRight( str, trimChars );
 	result = trimLeft( result, trimChars );
-	LOG(INFO) << "trim, line: " << __LINE__;
+//	LOG(INFO) << "trim, line: " << __LINE__;
 
 	return result;
 }
@@ -211,7 +211,7 @@ std::string trim(const std::string& str, const std::string& trimChars = whiteSpa
 void FMReceiver::readRDSInfo()
 {
     std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
-    bool notify = false;
+    //bool notify = false;
 /*
     time_t rawTime;
 	struct tm* timeInfo;
@@ -236,12 +236,12 @@ void FMReceiver::readRDSInfo()
 	while (rdsAvailable)
 	{
 		std::vector<uint8_t> rdsInfoResponse(13);
-		LOG(INFO) << "readRDS, line: " << __LINE__;
+	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 		mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_RDS_STATUS, RDS_STATUS_ARG1_CLEAR_INT}), rdsInfoResponse);
-		LOG(INFO) << "readRDS, line: " << __LINE__;
+	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 
 		rdsAvailable = (rdsInfoResponse[3] > 0);
-		LOG(INFO) << "RdsAvailable: " << (int) rdsInfoResponse[3];
+	//	LOG(INFO) << "RdsAvailable: " << (int) rdsInfoResponse[3];
 
 		// Only if no errors found
 	    if (rdsInfoResponse[12] != 0)
@@ -253,44 +253,48 @@ void FMReceiver::readRDSInfo()
 	    if (!rdsInfoResponse[Block_B_H] & 0x01) // If not RDSSync
 	    {
        		mRDSInfo.mText = "";
-       		notify = true;
+       		//notify = true;
+       		notifyObservers(InfoType::RdsInfo);
 	    	return;
 	    }
 
 	    uint8_t type =  rdsInfoResponse[Block_B_H]>>4U;
 	    bool version = rdsInfoResponse[Block_B_H] & 0b00001000;
-		LOG(INFO) << "readRDS, line: " << __LINE__;
+	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	    if (type == 0)
 	    {
-			 LOG(INFO) << "readRDS, line: " << __LINE__;
+			// LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	         uint8_t segment =  rdsInfoResponse[Block_B_L] & 0b00000011;
 	         uint8_t pos = segment * 2;
-	 		LOG(INFO) << "readRDS, line: " << __LINE__;
+	 	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 
-	         mReceivingRDSInfo.mStationName[pos] = rdsInfoResponse[Block_D_H];
-	 		LOG(INFO) << "readRDS, line: " << __LINE__;
+	 		if ((pos + 1) < static_cast<uint8_t>(mReceivingRDSInfo.mStationName.size()))
+			{
+		 		mReceivingRDSInfo.mStationName[pos] = rdsInfoResponse[Block_D_H];
+		 	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 
-	         mReceivingRDSInfo.mStationName[pos + 1] = rdsInfoResponse[Block_D_L];
-	    		LOG(INFO) << "readRDS, line: " << __LINE__;
+		 		mReceivingRDSInfo.mStationName[pos + 1] = rdsInfoResponse[Block_D_L];
+		   // 	LOG(INFO) << "readRDS, line: " << __LINE__;
+			}
 
 	         if (std::count(mReceivingRDSInfo.mStationName.begin(), mReceivingRDSInfo.mStationName.end(), ' ') < std::count(mRDSInfo.mStationName.begin(), mRDSInfo.mStationName.end(), ' ')
 	        	|| (trim(mReceivingRDSInfo.mStationName).size() > trim(mRDSInfo.mStationName).size())
 	        	|| !mRDSInfo.mValidRds)
 		      {
-	     		LOG(INFO) << "readRDS, line: " << __LINE__;
+	     	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 
-	    		LOG(INFO) << "readRDS, line: " << __LINE__;
+	    	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	     		mRDSInfo.mStationName = trimRight(mReceivingRDSInfo.mStationName);
 		    	 mRDSInfo.mValidRds = true;
 		         LOG(INFO) << "Station: " << mRDSInfo.mStationName;
-		 		LOG(INFO) << "readRDS, line: " << __LINE__;
-
-		         notify = true;
+		 	//	LOG(INFO) << "readRDS, line: " << __LINE__;
+		         notifyObservers(InfoType::RdsInfo);
+		        // notify = true;
 		      }
-	    		LOG(INFO) << "readRDS, line: " << __LINE__;
+	    	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	    }
 
@@ -314,67 +318,76 @@ void FMReceiver::readRDSInfo()
 
 	        for (uint8_t pos = 0; pos < count; ++pos)
 	        {
-	    		LOG(INFO) << "readRDS, line: " << __LINE__;
+	    //		LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	        	if (mReceivingRDSInfo.mTextType != ABToTextType(new_ab))
 	        	{
-		    		LOG(INFO) << "readRDS, line: " << __LINE__;
+		    	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 	        		mReceivingRDSInfo.clearAll();
-		    		LOG(INFO) << "readRDS, line: " << __LINE__;
+		    	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 	        		mReceivingRDSInfo.mTextType = ABToTextType(new_ab);
-		    		LOG(INFO) << "readRDS, line: " << __LINE__;
+		    	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 	        	}
 
-	        	LOG(INFO) << "readRDS, line: " << __LINE__;
+	        //	LOG(INFO) << "readRDS, line: " << __LINE__;
 	        	uint8_t textPos = (segment * count) + pos;
 	        	uint8_t recPos = startPos + pos;
 
-	        	if (rdsInfoResponse[recPos] == '\r')
+	        	if (recPos < rdsInfoResponse.size())
 	        	{
-	        		LOG(INFO) << "readRDS, line: " << __LINE__;
+					if (rdsInfoResponse[recPos] == '\r')
+					{
+				//		LOG(INFO) << "readRDS, line: " << __LINE__;
 
-	        		mReceivingRDSInfo.mText = mReceivingRDSInfo.mText.substr(0, textPos);
-	        		if (mReceivingRDSInfo.mText.find(EMPTY_CHAR) == std::string::npos)
-	        		{
-	        			LOG(INFO) << "readRDS, line: " << __LINE__;
+						mReceivingRDSInfo.mText = mReceivingRDSInfo.mText.substr(0, textPos);
+						if (mReceivingRDSInfo.mText.find(EMPTY_CHAR) == std::string::npos)
+						{
+				//			LOG(INFO) << "readRDS, line: " << __LINE__;
 
-		   	        	if (mRDSInfo.mText != mReceivingRDSInfo.mText)
-		   	        	{
-		   	     		LOG(INFO) << "readRDS, line: " << __LINE__;
+							if (mRDSInfo.mText != mReceivingRDSInfo.mText)
+							{
+				//			LOG(INFO) << "readRDS, line: " << __LINE__;
 
-		   	        		mRDSInfo.mText = mReceivingRDSInfo.mText;
-			   	        	mRDSInfo.mTextType = mReceivingRDSInfo.mTextType;
-			   	        	LOG(INFO) << "Clean Text: " << mRDSInfo.mText;
-			   	        	notify = true;
-			   	 		LOG(INFO) << "readRDS, line: " << __LINE__;
+								mRDSInfo.mText = mReceivingRDSInfo.mText;
+								mRDSInfo.mTextType = mReceivingRDSInfo.mTextType;
+								LOG(INFO) << "Clean Text: " << mRDSInfo.mText;
+								//notify = true;
+								notifyObservers(InfoType::RdsInfo);
+					//		LOG(INFO) << "readRDS, line: " << __LINE__;
 
-			   	        	mReceivingRDSInfo.clearText();
-		   	        	}
-	        		}
+								mReceivingRDSInfo.clearText();
+							}
+						}
+					}
+					else
+					{
+				//		LOG(INFO) << "readRDS, line: " << __LINE__;
+						if (textPos < mReceivingRDSInfo.mText.size())
+						{
+							//LOG(INFO) << "readRDS, line: " << __LINE__;
+							mReceivingRDSInfo.mText[textPos] = rdsInfoResponse[recPos];
+						}
+				//		LOG(INFO) << "readRDS, line: " << __LINE__;
+
+					}
 	        	}
-	        	else
-	        	{
-	        		LOG(INFO) << "readRDS, line: " << __LINE__;
-	        		mReceivingRDSInfo.mText[textPos] = rdsInfoResponse[recPos];
-	        		LOG(INFO) << "readRDS, line: " << __LINE__;
-
-	        	}
-        		LOG(INFO) << "readRDS, line: " << __LINE__;
+        	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	        }
-    		LOG(INFO) << "readRDS, line: " << __LINE__;
+    	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	    }
-		LOG(INFO) << "readRDS, line: " << __LINE__;
+	//	LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	}
+	/*
     if (notify)
     {
 		LOG(INFO) << "readRDS, line: " << __LINE__;
 
         notifyObservers(InfoType::RdsInfo);
     }
-
+*/
 	return;
 
 }

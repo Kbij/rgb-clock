@@ -230,6 +230,8 @@ void ClockDisplay::refreshThread()
 		    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
 			if (mNewRDSAvailable)
 			{
+			//	LOG(INFO) << "ClockDisplay::refreshThread, line: " << __LINE__;
+
 			    mRDSStationName = mFMReceiver.getRDSInfo().mStationName;
 
 			    mRDSStationName = mRDSStationName.substr(0, 7);
@@ -248,7 +250,7 @@ void ClockDisplay::refreshThread()
 			if (localRDSText.size()  > 26)
 			{
 				localRDSText = localRDSText.substr(0, 26);
-				++mRDSTextPos;
+				mRDSTextPos +=2;
 			}
 			else
 			{
