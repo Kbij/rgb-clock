@@ -236,7 +236,9 @@ void FMReceiver::readRDSInfo()
 	while (rdsAvailable)
 	{
 		std::vector<uint8_t> rdsInfoResponse(13);
+		LOG(INFO) << "readRDS, line: " << __LINE__;
 		mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_RDS_STATUS, RDS_STATUS_ARG1_CLEAR_INT}), rdsInfoResponse);
+		LOG(INFO) << "readRDS, line: " << __LINE__;
 
 		rdsAvailable = (rdsInfoResponse[3] > 0);
 		LOG(INFO) << "RdsAvailable: " << (int) rdsInfoResponse[3];
@@ -247,7 +249,6 @@ void FMReceiver::readRDSInfo()
 	    	return;
 	    }
     	//mRDSInfo.mProgramId = (rdsInfoResponse[PI_H] << 8) | rdsInfoResponse[PI_L] ;
-        std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
 
 	    if (!rdsInfoResponse[Block_B_H] & 0x01) // If not RDSSync
 	    {
@@ -272,6 +273,7 @@ void FMReceiver::readRDSInfo()
 	 		LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	         mReceivingRDSInfo.mStationName[pos + 1] = rdsInfoResponse[Block_D_L];
+	    		LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	         if (std::count(mReceivingRDSInfo.mStationName.begin(), mReceivingRDSInfo.mStationName.end(), ' ') < std::count(mRDSInfo.mStationName.begin(), mRDSInfo.mStationName.end(), ' ')
 	        	|| (trim(mReceivingRDSInfo.mStationName).size() > trim(mRDSInfo.mStationName).size())
@@ -279,13 +281,16 @@ void FMReceiver::readRDSInfo()
 		      {
 	     		LOG(INFO) << "readRDS, line: " << __LINE__;
 
-	        	 mRDSInfo.mStationName = trimRight(mReceivingRDSInfo.mStationName);
+	    		LOG(INFO) << "readRDS, line: " << __LINE__;
+
+	     		mRDSInfo.mStationName = trimRight(mReceivingRDSInfo.mStationName);
 		    	 mRDSInfo.mValidRds = true;
 		         LOG(INFO) << "Station: " << mRDSInfo.mStationName;
 		 		LOG(INFO) << "readRDS, line: " << __LINE__;
 
 		         notify = true;
 		      }
+	    		LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	    }
 
@@ -313,10 +318,14 @@ void FMReceiver::readRDSInfo()
 
 	        	if (mReceivingRDSInfo.mTextType != ABToTextType(new_ab))
 	        	{
+		    		LOG(INFO) << "readRDS, line: " << __LINE__;
 	        		mReceivingRDSInfo.clearAll();
+		    		LOG(INFO) << "readRDS, line: " << __LINE__;
 	        		mReceivingRDSInfo.mTextType = ABToTextType(new_ab);
+		    		LOG(INFO) << "readRDS, line: " << __LINE__;
 	        	}
-	    		LOG(INFO) << "readRDS, line: " << __LINE__;
+
+	        	LOG(INFO) << "readRDS, line: " << __LINE__;
 	        	uint8_t textPos = (segment * count) + pos;
 	        	uint8_t recPos = startPos + pos;
 
@@ -350,8 +359,13 @@ void FMReceiver::readRDSInfo()
 	        		LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	        	}
+        		LOG(INFO) << "readRDS, line: " << __LINE__;
+
 	        }
+    		LOG(INFO) << "readRDS, line: " << __LINE__;
+
 	    }
+		LOG(INFO) << "readRDS, line: " << __LINE__;
 
 	}
     if (notify)
