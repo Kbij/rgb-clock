@@ -161,7 +161,6 @@ bool FMReceiver::tuneFrequency(double frequency)
 RDSInfo FMReceiver::getRDSInfo()
 {
 	std::lock_guard<std::recursive_mutex> lk_guard(mRdsInfoMutex);
-	std::replace(mRDSInfo.mText.begin(), mRDSInfo.mText.end(), EMPTY_CHAR,' ');
     return mRDSInfo; // Should be copy constructor
 }
 
@@ -294,7 +293,7 @@ void FMReceiver::readRDSInfo()
 					if (rdsInfoResponse[recPos] == '\r')
 					{
 						mReceivingRDSInfo.mText = mReceivingRDSInfo.mText.substr(0, textPos);
-						if (mReceivingRDSInfo.mText.find(EMPTY_CHAR) == std::string::npos)
+						if (mReceivingRDSInfo.textComplete())
 						{
 							if (mRDSInfo.mText != mReceivingRDSInfo.mText)
 							{

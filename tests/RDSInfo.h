@@ -49,6 +49,11 @@ struct RDSInfo {
 		mText = "";
 		mText.resize(65,EMPTY_CHAR);
 	}
+
+	bool textComplete()
+	{
+		return mText.find(EMPTY_CHAR) == std::string::npos;
+	}
 };
 
 #endif /* RDSINFO_H_ */

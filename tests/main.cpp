@@ -367,17 +367,7 @@ int main (int argc, char* argv[])
 			std::stringstream keyboardString;
 
 			LOG(INFO) << "Keyboard value: " << binary(keyboardValue, 16);
-			//keyboardString << "Kb: " << binary(keyboardValue, 16) ;
-	//		clockDisplay.showRDSInfo(keyboardString.str());
 
-
-/*
-			counter++;
-			if (counter > 100)
-			{
-				counter = 0;
-			}
-			*/
 		} while (runMain);
 
 	}
