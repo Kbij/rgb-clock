@@ -13,6 +13,7 @@
 #include "Keyboard.h"
 //#include "MPR121.h"
 #include "FMReceiver.h"
+#include "Radio.h"
 
 #include <string>
 #include <glog/logging.h>
@@ -324,36 +325,21 @@ int main (int argc, char* argv[])
 		*/
 		Keyboard keyboard(i2c, 0x5A);
 		FMReceiver receiver(i2c, 0x63);
+		Radio radio(i2c, 0x64, receiver);
 
-		ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS, receiver);
-		receiver.registerRadioObserver(&clockDisplay);
+		ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS, radio);
 
 		clockDisplay.showClock();
-		if (receiver.powerOn())
+		if (radio.powerOn())
 		{
-			receiver.tuneFrequency(94.5);
+			radio.tuneFrequency(94.5);
 		}
 		uint8_t volume = 50;
 		clockDisplay.showVolume(volume);
 		clockDisplay.showRDSInfo();
 		do{
 			std::this_thread::sleep_for( std::chrono::milliseconds(500) );
- // 		    receiver.seekUp(5);
-//			receiver.getRDSInfo();
 
-/*
-			uint8_t test;
-	        i2c.readByteSync(0x5A, FILTER_CONFIG, test);
-	        if (test != 0x04)
-	        {
-	        	LOG(ERROR) << "Wrong info !!!:!" << (int) test;
-	        }
-*/
-/*
-			clockDisplay.showNextAlarm(nextAlarm);
-			clockDisplay.showVolume(counter);
-			clockDisplay.showSignal(counter);
-*/
 
 			uint16_t keyboardValue = keyboard.readKeys();
 			if (keyboardValue & 0b0001)
@@ -378,9 +364,9 @@ int main (int argc, char* argv[])
 			{
 				//receiver.seekUp(5);
 			}
-			//std::stringstream keyboardString;
+			std::stringstream keyboardString;
 
-			//LOG(INFO) << "Keyboard value: " << binary(keyboardValue, 16);
+			LOG(INFO) << "Keyboard value: " << binary(keyboardValue, 16);
 			//keyboardString << "Kb: " << binary(keyboardValue, 16) ;
 	//		clockDisplay.showRDSInfo(keyboardString.str());
 

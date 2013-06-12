@@ -10,14 +10,14 @@
 #include "LCDisplay.h"
 #include "RadioObserverIf.h"
 #include "LightSensor.h"
-#include "FMReceiver.h"
+#include "Radio.h"
 #include <string>
 #include <time.h>
 #include <mutex>
 
 class ClockDisplay : public RadioObserverIf {
 public:
-	ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress, FMReceiver& receiver);
+	ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress, Radio& radio);
 	virtual ~ClockDisplay();
 
 	void showClock();
@@ -44,7 +44,7 @@ private:
 
 	LCDisplay mLCDisplay;
 	LightSensor mLightSensor;
-	FMReceiver& mFMReceiver;
+	Radio& mRadio;
     std::thread* mRefreshThread;
     std::atomic_bool mRefreshThreadRunning;
     uint8_t mPrevMin;
