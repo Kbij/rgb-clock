@@ -11,10 +11,10 @@
 #include <glog/logging.h>
 #include <iostream>
 
-ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress, FMReceiver& receiver) :
+ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress, Radio& radio) :
 	mLCDisplay(i2c, lcdAddress),
 	mLightSensor(i2c, lsAddress),
-	mFMReceiver(receiver),
+	mRadio(radio),
 	mRefreshThread(nullptr),
 	mRefreshThreadRunning(false),
 	mPrevMin(-1),
@@ -28,12 +28,14 @@ ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress, FMRe
 {
 	mLCDisplay.initGraphic();
 	mLCDisplay.clearGraphicDisplay();
+
+	mRadio.registerRadioObserver(this);
 	startRefreshThread();
 }
 
 ClockDisplay::~ClockDisplay()
 {
-	mFMReceiver.unRegisterRadioObserver(this);
+	mRadio.unRegisterRadioObserver(this);
 	stopRefreshThread();
 }
 
@@ -156,19 +158,6 @@ void ClockDisplay::infoAvailable(InfoType type)
 {
 	LOG(INFO) << "Received new info from receiver";
 	mNewRDSAvailable = true;
-/*
-    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
-    mRDSStationName = mFMReceiver.getRDSInfo().mStationName;
-
-    mRDSStationName = mRDSStationName.substr(0, 7);
-	mRDSStationName.append(7 - mRDSStationName.size(), ' ');
-
-    mRDSText = mFMReceiver.getRDSInfo().mText;
-    mRDSTextPos = 0;
-
-    mReceiveLevel = mFMReceiver.getRDSInfo().mReceiveLevel;
-    mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
-    */
 }
 
 
@@ -230,17 +219,15 @@ void ClockDisplay::refreshThread()
 		    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
 			if (mNewRDSAvailable)
 			{
-			//	LOG(INFO) << "ClockDisplay::refreshThread, line: " << __LINE__;
-
-			    mRDSStationName = mFMReceiver.getRDSInfo().mStationName;
+			    mRDSStationName = mRadio.getRDSInfo().mStationName;
 
 			    mRDSStationName = mRDSStationName.substr(0, 7);
 				mRDSStationName.append(7 - mRDSStationName.size(), ' ');
 
-			    mRDSText = mFMReceiver.getRDSInfo().mText;
+			    mRDSText = mRadio.getRDSInfo().mText;
 			    mRDSTextPos = 0;
 
-			    mReceiveLevel = mFMReceiver.getRDSInfo().mReceiveLevel;
+			    mReceiveLevel = mRadio.getRDSInfo().mReceiveLevel;
 			    mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
 			    mNewRDSAvailable = false;
 			}

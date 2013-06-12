@@ -10,11 +10,14 @@
 
 #include "I2C.h"
 #include "RadioObserverIf.h"
+#include "RDSInfo.h"
 #include <stdint.h>
 #include <mutex>
 #include <atomic>
 #include <thread>
 #include <set>
+
+class Radio;
 
 enum class PowerState
 {
@@ -23,52 +26,14 @@ enum class PowerState
 	PowerOff,
 
 };
-enum class TextType
-{
-	Unknown,
-	TypeA,
-	TypeB
-};
-const char EMPTY_CHAR = '~';
 
-struct RDSInfo {
-	uint16_t mProgramId;
-	bool mValidRds;
-	std::string mStationName;
-	std::string mText;
-	TextType mTextType;
-	uint8_t mReceiveLevel;
-	RDSInfo()
-	{
-		mValidRds = false;
-		mProgramId = 0;
-		mReceiveLevel = 0;
-		clearAll();
-		mTextType = TextType::Unknown;
-	}
-	void clearAll()
-	{
-		clearStationName();
-		clearText();
-	}
-	void clearStationName()
-	{
-		mStationName = "";
-		mStationName.resize(9,' ');
-	}
-
-	void clearText()
-	{
-		mText = "";
-		mText.resize(65,EMPTY_CHAR);
-	}
-};
 
 class FMReceiver {
 public:
 	FMReceiver(I2C &i2c, uint8_t address);
 	virtual ~FMReceiver();
-
+	friend Radio;
+private:
 	void registerRadioObserver(RadioObserverIf *observer);
     void unRegisterRadioObserver(RadioObserverIf *observer);
 
@@ -77,7 +42,7 @@ public:
 	bool seekUp(int timeout);
 	bool tuneFrequency(double frequency);
 	RDSInfo getRDSInfo();
-private:
+
 	void readRDSInfo();
 	bool setProperty(int property, int value);
 	bool getProperty(int property, int& value);
