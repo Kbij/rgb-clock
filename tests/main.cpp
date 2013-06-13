@@ -14,6 +14,7 @@
 //#include "MPR121.h"
 #include "FMReceiver.h"
 #include "Radio.h"
+#include "RTC.h"
 
 #include <string>
 #include <glog/logging.h>
@@ -337,8 +338,11 @@ int main (int argc, char* argv[])
 		uint8_t volume = 50;
 		clockDisplay.showVolume(volume);
 		clockDisplay.showRDSInfo();
+
+		RTC rtc(i2c);
+
 		do{
-			std::this_thread::sleep_for( std::chrono::milliseconds(500) );
+			std::this_thread::sleep_for( std::chrono::milliseconds(10000) );
 
 
 			uint16_t keyboardValue = keyboard.readKeys();
@@ -364,9 +368,9 @@ int main (int argc, char* argv[])
 			{
 				//receiver.seekUp(5);
 			}
-			std::stringstream keyboardString;
-
-			LOG(INFO) << "Keyboard value: " << binary(keyboardValue, 16);
+			//std::stringstream keyboardString;
+			rtc.showNTPStatus();
+			//G(INFO) << "Keyboard value: " << binary(keyboardValue, 16);
 
 		} while (runMain);
 
