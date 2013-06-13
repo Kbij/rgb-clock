@@ -22,9 +22,9 @@ public:
 	bool readByteSync(uint8_t address, uint8_t reg, uint8_t& byte);
 	bool readWordSync(uint8_t address, uint8_t reg, uint16_t& word);
 	bool writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeData, std::vector<uint8_t>& readData);
+	void blockI2C();
+	void unBlockI2C();
 private:
-	//int mI2CFile;
-
 	bool mI2CWriteError;
 	std::mutex mBusMutex;
 };
