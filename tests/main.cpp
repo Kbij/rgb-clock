@@ -308,6 +308,8 @@ int main (int argc, char* argv[])
 		} while (runMain);
 */
 		I2C i2c;
+		RTC rtc(i2c);
+
 	/*
 		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
 */
@@ -339,7 +341,6 @@ int main (int argc, char* argv[])
 		clockDisplay.showVolume(volume);
 		clockDisplay.showRDSInfo();
 
-		RTC rtc(i2c);
 
 		do{
 			std::this_thread::sleep_for( std::chrono::milliseconds(10000) );

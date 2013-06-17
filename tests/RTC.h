@@ -14,7 +14,9 @@ public:
 	RTC(I2C &i2c);
 	virtual ~RTC();
 
+	bool ntpSynchronized();
 	void showNTPStatus();
+
 private:
 	I2C &mI2C;
 };
