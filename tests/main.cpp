@@ -328,7 +328,7 @@ int main (int argc, char* argv[])
 		*/
 		Keyboard keyboard(i2c, 0x5A);
 		FMReceiver receiver(i2c, 0x63);
-		Radio radio(i2c, 0x64, receiver);
+		Radio radio(i2c, 0x6C, receiver);
 
 		ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS, radio);
 
@@ -343,7 +343,7 @@ int main (int argc, char* argv[])
 
 
 		do{
-			std::this_thread::sleep_for( std::chrono::milliseconds(10000) );
+			std::this_thread::sleep_for( std::chrono::milliseconds(2000) );
 
 
 			uint16_t keyboardValue = keyboard.readKeys();
@@ -369,8 +369,10 @@ int main (int argc, char* argv[])
 			{
 				//receiver.seekUp(5);
 			}
+
+			//radio.volumeUp();
 			//std::stringstream keyboardString;
-			rtc.showNTPStatus();
+			//rtc.showNTPStatus();
 			//G(INFO) << "Keyboard value: " << binary(keyboardValue, 16);
 
 		} while (runMain);

@@ -156,7 +156,7 @@ void ClockDisplay::hideNextAlarm()
 
 void ClockDisplay::infoAvailable(InfoType type)
 {
-	LOG(INFO) << "Received new info from receiver";
+	//LOG(INFO) << "Received new info from receiver";
 	mNewRDSAvailable = true;
 }
 
