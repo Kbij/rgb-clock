@@ -250,16 +250,20 @@ bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeDa
 		close(i2cFile);
 		return false;
 	}
-	if ((write(i2cFile, writeData.data(), writeData.size())) != static_cast<int>(writeData.size()) )
-	{
-		if (!mI2CWriteError) // If first occurrence
-		{
-			LOG(ERROR) << "Failed writing data: " << strerror(errno);
-		}
-		mI2CWriteError = true;
 
-		close(i2cFile);
-		return false;
+	if (writeData.size() > 0)
+	{
+		if ((write(i2cFile, writeData.data(), writeData.size())) != static_cast<int>(writeData.size()) )
+		{
+			if (!mI2CWriteError) // If first occurrence
+			{
+				LOG(ERROR) << "Failed writing data: " << strerror(errno);
+			}
+			mI2CWriteError = true;
+
+			close(i2cFile);
+			return false;
+		}
 	}
 	mI2CWriteError = false;
 

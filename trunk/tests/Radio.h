@@ -21,16 +21,25 @@ public:
 
 	void registerRadioObserver(RadioObserverIf *observer);
     void unRegisterRadioObserver(RadioObserverIf *observer);
+//must be internal
 
     bool powerOn();
 	bool powerOff();
+    void volumeUp();
+    void volumeDown();
+	void readRegisters();
+	void writeRegisters();
 	bool seekUp(int timeout);
 	bool tuneFrequency(double frequency);
 	RDSInfo getRDSInfo();
 private:
+
 	I2C &mI2C;
 	const uint8_t mAplifierAddress;
 	FMReceiver &mFMReceiver;
+	uint8_t mMaskRegister;
+	uint8_t mControlRegister;
+	uint8_t mVolume;
 };
 
 #endif /* RADIO_H_ */
