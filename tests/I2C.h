@@ -10,6 +10,16 @@
 #include <stdint.h>
 #include <vector>
 #include <mutex>
+#include <atomic>
+#include <thread>
+#include <map>
+
+struct StatData {
+	std::string mName;
+	int mByteCount;
+	int mBytesPerSecond;
+	int mMaxBytesPerSecond;
+};
 
 class I2C {
 public:
@@ -24,9 +34,22 @@ public:
 	bool writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeData, std::vector<uint8_t>& readData);
 	void blockI2C();
 	void unBlockI2C();
+	void registerAddress(uint8_t address, std::string name);
+	void printStatistics();
+	void resetStat();
 private:
+	void startStatisticsThread();
+	void stopStatisticsThread();
+	void statisticsThread();
+
 	bool mI2CWriteError;
 	std::mutex mBusMutex;
+	std::mutex mStatMutex;
+	std::map<uint8_t, StatData> mAddressStatistics;
+	StatData mGeneralStatistics;
+    std::thread* mStatisticsThread;
+    std::atomic_bool mStatisticsThreadRunning;
+
 };
 
 #endif /* I2C_H_ */

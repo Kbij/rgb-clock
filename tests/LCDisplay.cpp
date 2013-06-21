@@ -26,6 +26,7 @@ LCDisplay::LCDisplay(I2C &i2c, uint8_t address):
 	mFontMap(),
 	mDisplayMutex()
 {
+	i2c.registerAddress(address, "Display");
     mGraphicRam = new std::array<std::array<MyGraphicWord,10>,32>;
     mFontMap[FontType::Verdana20].mWidth = 32;
     mFontMap[FontType::Verdana20].mSpacing = 22;

@@ -51,6 +51,7 @@ std::string runCmd(const std::string& cmd, bool log)
 RTC::RTC(I2C &i2c):
 	mI2C(i2c)
 {
+
 	LOG(INFO) << "Checking time accuracy";
 
 	if (!ntpSynchronized())

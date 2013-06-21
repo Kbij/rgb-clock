@@ -20,6 +20,8 @@ Radio::Radio(I2C &i2c, uint8_t apmlifierAddress, FMReceiver &fmReceiver):
 //	mVolume(63)
 	mVolume(30)
 {
+	mI2C.registerAddress(mAplifierAddress, "Amplifier");
+
 	// Use BTL
 	mControlRegister = 0b00010000;
 	writeRegisters();

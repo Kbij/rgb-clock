@@ -29,6 +29,7 @@ FMReceiver::FMReceiver(I2C &i2c, uint8_t address) :
 		mRadioObserversMutex()
 {
 	powerOff();
+	mI2C.registerAddress(address, "FM Receiver");
 }
 
 FMReceiver::~FMReceiver()

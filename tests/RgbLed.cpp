@@ -23,6 +23,8 @@ RgbLed::RgbLed(I2C &i2c, uint8_t address) :
 			mSat(0),
 			mLum(0)
 {
+	mI2C.registerAddress(address, "PWM");
+
 // Reset PCA9685
 	mI2C.writeByteSync(0x00, 0x06); // General Call Address, Send SWRST data byte 1):
 	init();
