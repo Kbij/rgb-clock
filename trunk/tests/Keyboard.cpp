@@ -18,6 +18,8 @@ Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 	mReadThread(nullptr),
 	mReadThreadRunning(false)
 {
+	mI2C.registerAddress(address, "MPR121");
+
 	init();
 	startReadThread();
 }
@@ -195,7 +197,7 @@ void Keyboard::readThread()
     while (mReadThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
         uint8_t byte0;
         uint8_t byte1;
         uint8_t test;

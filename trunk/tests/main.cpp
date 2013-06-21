@@ -340,10 +340,11 @@ int main (int argc, char* argv[])
 		uint8_t volume = 50;
 		clockDisplay.showVolume(volume);
 		clockDisplay.showRDSInfo();
+		i2c.resetStat();
 
 
 		do{
-			std::this_thread::sleep_for( std::chrono::milliseconds(2000) );
+			std::this_thread::sleep_for( std::chrono::milliseconds(5000) );
 
 
 			uint16_t keyboardValue = keyboard.readKeys();
@@ -354,7 +355,7 @@ int main (int argc, char* argv[])
 					volume -= 5;
 				}
 
-				clockDisplay.showVolume(volume);
+				//clockDisplay.showVolume(volume);
 			}
 			if (keyboardValue & 0b0010)
 			{
@@ -363,13 +364,13 @@ int main (int argc, char* argv[])
 					volume += 5;
 				}
 
-				clockDisplay.showVolume(volume);
+				//clockDisplay.showVolume(volume);
 			}
 			if (keyboardValue & 0b0100)
 			{
 				//receiver.seekUp(5);
 			}
-
+			i2c.printStatistics();
 			//radio.volumeUp();
 			//std::stringstream keyboardString;
 			//rtc.showNTPStatus();

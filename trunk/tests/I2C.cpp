@@ -18,10 +18,13 @@
 const std::string i2cFileName("/dev/i2c-1");
 
 I2C::I2C() :
-//	mI2CFile(0),
 	mI2CWriteError(false),
-	mBusMutex()
+	mBusMutex(),
+	mStatMutex(),
+	mAddressStatistics(),
+	mGeneralStatistics()
 {
+	startStatisticsThread();
 #ifndef HOSTBUILD
 	int i2cFile;
 	// Open port for reading and writing
@@ -39,13 +42,17 @@ I2C::I2C() :
 #endif
 }
 
-I2C::~I2C() {
-//	close(mI2CFile);
+I2C::~I2C()
+{
+	stopStatisticsThread();
 }
 
 bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 {
-    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+    std::lock_guard<std::mutex> lk_guard(mStatMutex);
+    mAddressStatistics[address].mByteCount += 2;
+
+	std::lock_guard<std::mutex> lk_guard2(mBusMutex);
 
 	VLOG(1) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data: 0x" << (int) byte << ";";
 
@@ -102,7 +109,10 @@ bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
 
 bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 {
-    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+    std::lock_guard<std::mutex> lk_guard(mStatMutex);
+    mAddressStatistics[address].mByteCount += 3;
+
+    std::lock_guard<std::mutex> lk_guard2(mBusMutex);
 
 	VLOG(1) << "Read byte I2C; Addr: 0x" << std::hex << (int) address << "; Register:" << (int) reg << ";";
 
@@ -155,7 +165,10 @@ bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 }
 bool I2C::readWordSync(uint8_t address, uint8_t reg, uint16_t& word)
 {
-    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+    std::lock_guard<std::mutex> lk_guard(mStatMutex);
+    mAddressStatistics[address].mByteCount += 4;
+
+    std::lock_guard<std::mutex> lk_guard2(mBusMutex);
 
 	VLOG(1) << "Read word I2C; Addr: 0x" << std::hex << (int) address << "; Register:" << (int) reg << ";";
 
@@ -208,7 +221,10 @@ bool I2C::readWordSync(uint8_t address, uint8_t reg, uint16_t& word)
 
 bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeData, std::vector<uint8_t>& readData)
 {
-    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+    std::lock_guard<std::mutex> lk_guard(mStatMutex);
+    mAddressStatistics[address].mByteCount += 1 + writeData.size() + readData.size();
+
+    std::lock_guard<std::mutex> lk_guard2(mBusMutex);
 
 	if (writeData.size() == 0)
 	{
@@ -299,4 +315,93 @@ bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeDa
 #else
 	return true;
 #endif
+}
+
+void I2C::registerAddress(uint8_t address, std::string name)
+{
+    std::lock_guard<std::mutex> lk_guard(mStatMutex);
+    mAddressStatistics[address].mName = name;
+}
+
+void I2C::printStatistics()
+{
+    std::lock_guard<std::mutex> lk_guard(mStatMutex);
+
+    LOG(INFO) << "I2C Address statistics";
+    LOG(INFO) << "======================";
+    for (auto& stat : mAddressStatistics)
+    {
+    	LOG(INFO) << "Address: " << std::hex << "0x" << (int) stat.first;
+    	LOG(INFO) << "Name: " << stat.second.mName;
+    	LOG(INFO) << "Bytes/sec: " << stat.second.mBytesPerSecond;
+    	LOG(INFO) << "Max Bytes/sec: " << stat.second.mMaxBytesPerSecond;
+        LOG(INFO) << "---------------------";
+
+    }
+
+    LOG(INFO) << "I2C General statistics";
+    LOG(INFO) << "======================";
+   	LOG(INFO) << "Bytes/sec: " << mGeneralStatistics.mBytesPerSecond;
+   	LOG(INFO) << "Max Bytes/sec: " << mGeneralStatistics.mMaxBytesPerSecond;
+}
+
+void I2C::resetStat()
+{
+    std::lock_guard<std::mutex> lk_guard(mStatMutex);
+    mGeneralStatistics.mBytesPerSecond = 0;
+    mGeneralStatistics.mMaxBytesPerSecond = 0;
+    for (auto& stat : mAddressStatistics)
+    {
+    	stat.second.mMaxBytesPerSecond = 0;
+    }
+}
+
+void I2C::startStatisticsThread()
+{
+	mStatisticsThreadRunning = true;
+
+	mStatisticsThread = new std::thread(&I2C::statisticsThread, this);
+}
+
+void I2C::stopStatisticsThread()
+{
+	mStatisticsThreadRunning = false;
+
+    if (mStatisticsThread)
+    {
+    	mStatisticsThread->join();
+
+        delete mStatisticsThread;
+        mStatisticsThread = nullptr;
+    }
+}
+
+void I2C::statisticsThread()
+{
+    while (mStatisticsThreadRunning == true)
+    {
+        // default sleep interval
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::lock_guard<std::mutex> lk_guard(mStatMutex);
+    	mGeneralStatistics.mName = "General Statistics";
+    	mGeneralStatistics.mBytesPerSecond = 0;
+
+        for (auto& stat : mAddressStatistics)
+        {
+        	stat.second.mBytesPerSecond = stat.second.mByteCount;
+        	mGeneralStatistics.mBytesPerSecond += stat.second.mBytesPerSecond;
+
+        	if (stat.second.mBytesPerSecond > stat.second.mMaxBytesPerSecond)
+        	{
+        		stat.second.mMaxBytesPerSecond = stat.second.mBytesPerSecond;
+        	}
+        	stat.second.mByteCount = 0;
+        }
+        if (mGeneralStatistics.mBytesPerSecond > mGeneralStatistics.mMaxBytesPerSecond)
+        {
+        	mGeneralStatistics.mMaxBytesPerSecond = mGeneralStatistics.mBytesPerSecond;
+        }
+       //	LOG(INFO) << "Bytes/sec: " << mGeneralStatistics.mBytesPerSecond;
+       //	LOG(INFO) << "Max Bytes/sec: " << mGeneralStatistics.mMaxBytesPerSecond;
+    }
 }

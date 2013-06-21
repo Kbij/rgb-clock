@@ -18,6 +18,7 @@ LightSensor::LightSensor(I2C &i2c, uint8_t address) :
 		mReadThread(nullptr),
 		mReadThreadRunning(false)
 {
+	mI2C.registerAddress(address, "Light Sensor");
 	init();
 }
 
