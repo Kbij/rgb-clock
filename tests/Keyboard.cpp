@@ -16,7 +16,9 @@ Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 	mKeys(0),
 	mKeysMutex(),
 	mReadThread(nullptr),
-	mReadThreadRunning(false)
+	mReadThreadRunning(false),
+	mKeyboardObservers(),
+	mKeyboardObserversMutex()
 {
 	mI2C.registerAddress(address, "MPR121");
 
@@ -32,6 +34,26 @@ uint16_t Keyboard::readKeys()
 {
     std::lock_guard<std::mutex> lk_guard(mKeysMutex);
 	return mKeys;
+}
+
+void Keyboard::registerKeyboardObserver(KeyboardObserverIf *observer)
+{
+    if (observer)
+    {
+        std::lock_guard<std::recursive_mutex> lk_guard(mKeyboardObserversMutex);
+
+        mKeyboardObservers.insert(observer);
+    }
+}
+
+void Keyboard::unRegisterKeyboardObserver(KeyboardObserverIf *observer)
+{
+    if (observer)
+    {
+    	std::lock_guard<std::recursive_mutex> lk_guard(mKeyboardObserversMutex);
+
+        mKeyboardObservers.erase(observer);
+    }
 }
 
 void Keyboard::init()
@@ -224,6 +246,14 @@ void Keyboard::readThread()
         mKeys = byte1;
         mKeys = mKeys << 8;
         mKeys = mKeys | byte0;
+        if (mKeys & 0xFF)
+        {
+        	std::lock_guard<std::recursive_mutex> lk_guard(mKeyboardObserversMutex);
+            for (auto observer : mKeyboardObservers)
+            {
+                observer->keyboardPressed(mKeys);
+            }
+        }
        // LOG(INFO) << "mKeys:" << std::hex << (int) mKeys;
 
     }

@@ -308,29 +308,18 @@ int main (int argc, char* argv[])
 		} while (runMain);
 */
 		I2C i2c;
+//		IOExpander io(i2c,DISPLAY_ADDRESS);
+
 		RTC rtc(i2c);
 
-	/*
-		RgbLed rgbLed(i2c, PCA9685_ADDRESS);
-*/
-//		ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS);
-		//Keyboard keyboard(i2c, 0x5A);
-	//	clockDisplay.showClock();
-/*
-		rgbLed.hue(200);
-		rgbLed.saturation(4000);
-		rgbLed.pwrOn();
-		struct tm nextAlarm;
-		nextAlarm.tm_hour = 6;
-		nextAlarm.tm_min = 59;
-		uint8_t counter = 0;
-		clockDisplay.showSignal(100);
-		*/
+
 		Keyboard keyboard(i2c, 0x5A);
 		FMReceiver receiver(i2c, 0x63);
-		Radio radio(i2c, 0x6C, receiver);
 
+		Radio radio(i2c, 0x6C, receiver);
 		ClockDisplay clockDisplay(i2c, DISPLAY_ADDRESS, LIGHTSENSOR_ADDRESS, radio);
+
+		radio.setDisplay(&clockDisplay);
 
 		clockDisplay.showClock();
 		if (radio.powerOn())
@@ -341,12 +330,17 @@ int main (int argc, char* argv[])
 		clockDisplay.showVolume(volume);
 		clockDisplay.showRDSInfo();
 		i2c.resetStat();
+		keyboard.registerKeyboardObserver(&radio);
 
 
 		do{
-			std::this_thread::sleep_for( std::chrono::milliseconds(5000) );
-
-
+			std::this_thread::sleep_for( std::chrono::milliseconds(1000) );
+/*
+			std::this_thread::sleep_for( std::chrono::milliseconds(1) );
+			io.writeB(0);
+			io.writeB(0b00001000);
+*/
+/*
 			uint16_t keyboardValue = keyboard.readKeys();
 			if (keyboardValue & 0b0001)
 			{
@@ -370,11 +364,12 @@ int main (int argc, char* argv[])
 			{
 				//receiver.seekUp(5);
 			}
-			i2c.printStatistics();
+*/
+			//i2c.printStatistics();
 			//radio.volumeUp();
-			//std::stringstream keyboardString;
+			std::stringstream keyboardString;
 			//rtc.showNTPStatus();
-			//G(INFO) << "Keyboard value: " << binary(keyboardValue, 16);
+			//LOG(INFO) << "Keyboard value: " << binary(keyboardValue, 16);
 
 		} while (runMain);
 
