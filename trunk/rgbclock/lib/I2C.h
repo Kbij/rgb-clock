@@ -14,13 +14,17 @@
 #include <thread>
 #include <map>
 
+namespace {
 struct StatData {
 	std::string mName;
 	int mByteCount;
 	int mBytesPerSecond;
 	int mMaxBytesPerSecond;
 };
+}
 
+namespace HW
+{
 class I2C {
 public:
 	I2C();
@@ -51,5 +55,5 @@ private:
     std::atomic_bool mStatisticsThreadRunning;
 
 };
-
+}
 #endif /* I2C_H_ */
