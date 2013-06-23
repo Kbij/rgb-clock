@@ -14,9 +14,12 @@
 #include <sys/ioctl.h>
 #include <string>
 #include <iomanip>
-
+namespace {
 const std::string i2cFileName("/dev/i2c-1");
+}
 
+namespace HW
+{
 I2C::I2C() :
 	mI2CWriteError(false),
 	mBusMutex(),
@@ -404,4 +407,5 @@ void I2C::statisticsThread()
        //	LOG(INFO) << "Bytes/sec: " << mGeneralStatistics.mBytesPerSecond;
        //	LOG(INFO) << "Max Bytes/sec: " << mGeneralStatistics.mMaxBytesPerSecond;
     }
+}
 }
