@@ -6,20 +6,13 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
-#include <iostream>
-#include <stdio.h>
 #include <chrono>
-#include <thread>
-#include <algorithm>
-#include <unistd.h>
 #include <signal.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sstream>
-#include <time.h>
-#include <sstream>
-#include <bitset>
+//#include <sstream>
+
 
 DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
 DEFINE_string(pidfile,"","Pid file when running as Daemon");
@@ -168,16 +161,20 @@ int main (int argc, char* argv[])
 	LOG(INFO) << "=================================";
 	try
 	{
-		I2C i2c;
+		Hardware::I2C i2c;
 	}
-	catch (std::string caught)
+	catch (std::string &ex)
 	{
-		LOG(ERROR) << "Failed to open I2C port:" << caught;
+		LOG(ERROR) << "Failed to open I2C port:" << ex;
 		return EXIT_FAILURE;
 	}
 
 	do{
-		std::this_thread::sleep_for( std::chrono::milliseconds(1000) );
+		// This is the clock hw maitenance thread
+		// Any disconnected module needs to be reconnected here
+		std::this_thread::sleep_for( std::chrono::milliseconds(3000) );
+
+
 
 	} while (runMain);
 
