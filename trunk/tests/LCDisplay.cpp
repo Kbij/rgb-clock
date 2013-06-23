@@ -16,6 +16,8 @@
 const uint8_t RS = 0;
 const uint8_t RW = 1;
 const uint8_t E = 2;
+const uint8_t E2 = 3;
+
 const uint32_t CHANGED_BIT = 0x80000000;
 
 LCDisplay::LCDisplay(I2C &i2c, uint8_t address):
@@ -319,6 +321,7 @@ void LCDisplay::writeData(uint8_t byte)
 	mControlBus[RS] = 1; // Write Data
 	mControlBus[E] = 1;
 	mControlBus[RW] = 0;
+	mControlBus[E2] = 1;
 
 	// Set the control Bus to the initial state
 	mIO.writeB(mControlBus.to_ulong());
@@ -327,6 +330,7 @@ void LCDisplay::writeData(uint8_t byte)
 
 	// Write data to display
 	mControlBus[E] = 0;
+	mControlBus[E2] = 0;
 	mIO.writeB(mControlBus.to_ulong());
 }
 
