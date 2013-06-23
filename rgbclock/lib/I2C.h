@@ -14,17 +14,16 @@
 #include <thread>
 #include <map>
 
-namespace {
+namespace Hardware
+{
+
 struct StatData {
 	std::string mName;
 	int mByteCount;
 	int mBytesPerSecond;
 	int mMaxBytesPerSecond;
 };
-}
 
-namespace HW
-{
 class I2C {
 public:
 	I2C();

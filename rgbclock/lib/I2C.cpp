@@ -18,7 +18,7 @@ namespace {
 const std::string i2cFileName("/dev/i2c-1");
 }
 
-namespace HW
+namespace Hardware
 {
 I2C::I2C() :
 	mI2CWriteError(false),
