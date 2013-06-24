@@ -14,12 +14,11 @@
 #include <sys/ioctl.h>
 #include <string>
 #include <iomanip>
-namespace {
-const std::string i2cFileName("/dev/i2c-1");
-}
 
 namespace Hardware
 {
+const std::string i2cFileName("/dev/i2c-1");
+
 I2C::I2C() :
 	mI2CWriteError(false),
 	mBusMutex(),
@@ -166,6 +165,7 @@ bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 	return true;
 #endif
 }
+
 bool I2C::readWordSync(uint8_t address, uint8_t reg, uint16_t& word)
 {
     std::lock_guard<std::mutex> lk_guard(mStatMutex);
@@ -404,8 +404,6 @@ void I2C::statisticsThread()
         {
         	mGeneralStatistics.mMaxBytesPerSecond = mGeneralStatistics.mBytesPerSecond;
         }
-       //	LOG(INFO) << "Bytes/sec: " << mGeneralStatistics.mBytesPerSecond;
-       //	LOG(INFO) << "Max Bytes/sec: " << mGeneralStatistics.mMaxBytesPerSecond;
     }
 }
 }

@@ -2,6 +2,9 @@
  * Raspberry Pi Ultimate Alarm Clock
  */
 #include "lib/I2C.h"
+#include "Light.h"
+#include "AlarmClock.h"
+
 #include <string>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
@@ -16,6 +19,8 @@
 
 DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
 DEFINE_string(pidfile,"","Pid file when running as Daemon");
+
+
 
 void signal_handler(int sig);
 void daemonize();
@@ -146,6 +151,10 @@ int main (int argc, char* argv[])
 {
     umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //User: r/w, Group: r, Other: r
 	google::InitGoogleLogging("RGBClock");
+	App::Addresses addressesA;
+	addressesA.mLight = 0x40;
+	addressesA.mKeyboard = 0x5A;
+
 
 	std::string usage("Raspberry Pi Ultimate Alarm Clock. Sample usage:\n");
 	usage += argv[0];
@@ -162,21 +171,29 @@ int main (int argc, char* argv[])
 	try
 	{
 		Hardware::I2C i2c;
+
+		// I2C bus is operational, create the hardware here
+		App::Light *lightA = new App::Light(i2c, addressesA.mLight);
+		App::AlarmClock *alarmClockA = new App::AlarmClock(i2c, addressesA);
+
+		alarmClockA->registerLight(lightA);
+
+		do{
+			// This is the clock hw maitenance thread
+			// Any disconnected module needs to be reconnected here
+			std::this_thread::sleep_for( std::chrono::milliseconds(3000) );
+
+
+
+		} while (runMain);
+
 	}
 	catch (std::string &ex)
 	{
-		LOG(ERROR) << "Failed to open I2C port:" << ex;
+		LOG(ERROR) << "Exception occurred:" << ex;
 		return EXIT_FAILURE;
 	}
 
-	do{
-		// This is the clock hw maitenance thread
-		// Any disconnected module needs to be reconnected here
-		std::this_thread::sleep_for( std::chrono::milliseconds(3000) );
-
-
-
-	} while (runMain);
 
 	close(pidFilehandle);
 	return EXIT_SUCCESS;
