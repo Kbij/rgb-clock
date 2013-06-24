@@ -25,9 +25,10 @@ public:
 	Light(Hardware::I2C &i2c, uint8_t address);
 	virtual ~Light();
 
-	void keyboardPressed(uint16_t value);
+	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
 private:
 	Hardware::RgbLed mRGBLed;
+	int mIntensity;
 };
 
 } /* namespace App */

@@ -15,27 +15,20 @@ namespace Hardware
 Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 	mI2C(i2c),
 	mAddress(address),
-	mKeys(0),
-	mKeysMutex(),
+	mKeyHistory(0),
 	mReadThread(nullptr),
 	mReadThreadRunning(false),
 	mKeyboardObservers(),
 	mKeyboardObserversMutex()
 {
 	mI2C.registerAddress(address, "MPR121");
-
+	mKeyHistory.resize(8,0); // Monitoring 8 Keys
 	init();
 	startReadThread();
 }
 
 Keyboard::~Keyboard() {
 
-}
-
-uint16_t Keyboard::readKeys()
-{
-    std::lock_guard<std::mutex> lk_guard(mKeysMutex);
-	return mKeys;
 }
 
 void Keyboard::registerKeyboardObserver(KeyboardObserverIf *observer)
@@ -192,6 +185,7 @@ void Keyboard::init()
 	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_USL, 0x9C);
 	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_LSL, 0x65);
 	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_TARGET_LEVEL, 0x8C);
+	  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 }
 
 void Keyboard::startReadThread()
@@ -223,28 +217,53 @@ void Keyboard::readThread()
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
         uint8_t byte0;
-        uint8_t byte1;
-        uint8_t test;
-        uint8_t oor0;
-        uint8_t oor1;
 
         mI2C.readByteSync(mAddress, ELE0_ELE7_TOUCH_STATUS, byte0);
-        mI2C.readByteSync(mAddress, ELE8_ELE11_ELEPROX_TOUCH_STATUS, byte1);
 
-        mI2C.readByteSync(mAddress, ELE0_7_OOR_STATUS, oor0);
-        mI2C.readByteSync(mAddress, ELE8_11_ELEPROX_OOR_STATUS, oor1);
+        std::vector<Hardware::KeyInfo> keyboardInfo(8); // 8 Keys);
+        bool keyPressed = false;
 
-       // LOG(INFO) << "OOR0: " << std::hex << (int) oor0;
-      //  LOG(INFO) << "OOR1: " << std::hex << (int) oor1 << std::dec;
-
-        mI2C.readByteSync(mAddress, FILTER_CONFIG, test);
-        if (test != 0x04)
+        for (int i = 0; i < 8; ++i)
         {
-        //	LOG(ERROR) << "Wrong info !!!!" << std::hex << (int) test;
+        	mKeyHistory[i] <<= 1;// Shift history 1 to the left
+        	mKeyHistory[i] |= (byte0 & 0x01); // add 1 bit to the history
+
+        	byte0 >>= 1; // Shift the current values 1 to the right
+
+    		keyboardInfo[i].mPressed = false;
+    		keyboardInfo[i].mLongPress = false;
+        	if (mKeyHistory[i] == 0b00001110) // Short press
+        	{
+        		keyboardInfo[i].mPressed = true;
+        		keyPressed = true;
+        	}
+        	if (mKeyHistory[i] & 0b00011111) // Long press
+        	{
+        		keyboardInfo[i].mLongPress = true;
+        		keyPressed = true;
+        	}
+
         }
 
-        std::lock_guard<std::mutex> lk_guard(mKeysMutex);
-
+        if (keyboardInfo[6].mPressed)
+        {
+        	LOG(INFO) << "Short";
+        }
+        if (keyboardInfo[6].mLongPress)
+        {
+        	LOG(INFO) << "Long";
+        }
+//        LOG(INFO) << "Key 6: " << std::hex << (int) mKeyHistory[6];
+       // LOG(INFO) << "Key 7: " << std::hex << (int) mKeyHistory[7];
+        if (keyPressed)
+        {
+        	std::lock_guard<std::recursive_mutex> lk_guard(mKeyboardObserversMutex);
+            for (auto observer : mKeyboardObservers)
+            {
+               observer->keyboardPressed(keyboardInfo);
+            }
+        }
+/*
         mKeys = byte1;
         mKeys = mKeys << 8;
         mKeys = mKeys | byte0;
@@ -253,11 +272,11 @@ void Keyboard::readThread()
         	std::lock_guard<std::recursive_mutex> lk_guard(mKeyboardObserversMutex);
             for (auto observer : mKeyboardObservers)
             {
-                observer->keyboardPressed(mKeys);
+               // observer->keyboardPressed(mKeys);
             }
         }
-       // LOG(INFO) << "mKeys:" << std::hex << (int) mKeys;
 
+*/
     }
 }
 }

@@ -22,7 +22,6 @@ public:
 	Keyboard(I2C &i2c, uint8_t address);
 	virtual ~Keyboard();
 
-	uint16_t readKeys();
 	void registerKeyboardObserver(KeyboardObserverIf *observer);
     void unRegisterKeyboardObserver(KeyboardObserverIf *observer);
 private:
@@ -33,8 +32,7 @@ private:
 
 	I2C &mI2C;
 	const uint8_t mAddress;
-	uint16_t mKeys;
-	std::mutex mKeysMutex;
+	std::vector<uint8_t> mKeyHistory;
     std::thread* mReadThread;
     std::atomic_bool mReadThreadRunning;
     std::set<KeyboardObserverIf*> mKeyboardObservers;
