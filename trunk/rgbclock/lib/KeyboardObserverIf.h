@@ -11,13 +11,18 @@
 
 namespace Hardware
 {
+struct KeyInfo
+{
+	bool mPressed;
+	bool mLongPress;
+};
 
 class KeyboardObserverIf
 {
 public:
     virtual ~KeyboardObserverIf() {};
 
-    virtual void keyboardPressed(uint16_t value) = 0;
+    virtual void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo) = 0;
 };
 }
 

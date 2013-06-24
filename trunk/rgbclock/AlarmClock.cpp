@@ -27,6 +27,7 @@ AlarmClock::~AlarmClock()
 void AlarmClock::registerLight(Light *light)
 {
 	mLight = light;
+	mKeyboard.registerKeyboardObserver(light);
 }
 
 void AlarmClock::unregisterLight()
