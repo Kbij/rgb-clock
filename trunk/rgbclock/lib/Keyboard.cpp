@@ -8,9 +8,17 @@
 #include "Keyboard.h"
 #include <glog/logging.h>
 #include "MPR121.h"
+#include <bitset>
 
 namespace Hardware
 {
+std::string binary(uint16_t number, uint8_t width)
+{
+	std::bitset<16> bitset(number);
+	std::string result = bitset.to_string();
+
+	return result;
+}
 
 Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 	mI2C(i2c),
@@ -53,9 +61,12 @@ void Keyboard::unRegisterKeyboardObserver(KeyboardObserverIf *observer)
 
 void Keyboard::init()
 {
+	  // Put the chip in standby, so that values can be changed
+	  mI2C.writeRegByteSync(mAddress, ELECTRODE_CONFIG, 0x00);
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	  // These are the configuration values recommended by app note AN3944
 	  // along with the description in the app note.
-/*
+
 	  // Section A
 	  // Description:
 	  // This group of settings controls the filtering of the system
@@ -140,7 +151,7 @@ void Keyboard::init()
       mI2C.writeRegByteSync(mAddress, ELE10_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
       mI2C.writeRegByteSync(mAddress, ELE11_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
       mI2C.writeRegByteSync(mAddress, ELE11_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-*/
+
 	  // Section D
 	  // Description:
 	  // There are three settings embedded in this register so it is
@@ -181,11 +192,19 @@ void Keyboard::init()
 	  // Variation:
 	  // In most cases these values will never need to be changed, but if
 	  // a case arises, a full description is found in application note AN3889.
+//	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_USL, 0x9C);
+//	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_TARGET_LEVEL, 0x8C);
+//	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_LSL, 0x65);
+/*
+      mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_USL, 0x1E);
+	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_TARGET_LEVEL, 0x1B);
+	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_LSL, 0x14);
+
 	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_CONTROL_0, 0x0B);
-	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_USL, 0x9C);
-	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_LSL, 0x65);
-	  mI2C.writeRegByteSync(mAddress, AUTO_CONFIG_TARGET_LEVEL, 0x8C);
-	  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+      mI2C.writeRegByteSync(mAddress, ELECTRODE_CONFIG, 0x0C);
+*/
+
 }
 
 void Keyboard::startReadThread()
@@ -212,49 +231,65 @@ void Keyboard::stopReadThread()
 
 void Keyboard::readThread()
 {
+	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    uint8_t oor0;
+    uint8_t oor1;
+    mI2C.readByteSync(mAddress, ELE0_7_OOR_STATUS, oor0);
+    mI2C.readByteSync(mAddress, ELE8_11_ELEPROX_OOR_STATUS, oor1);
+
+    LOG(INFO) << "OOR0: " << std::hex << (int) oor0;
+    LOG(INFO) << "OOR1: " << std::hex << (int) oor1 << std::dec;
+
+
     while (mReadThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         uint8_t byte0;
 
         mI2C.readByteSync(mAddress, ELE0_ELE7_TOUCH_STATUS, byte0);
 
         std::vector<Hardware::KeyInfo> keyboardInfo(8); // 8 Keys);
         bool keyPressed = false;
-
+/*
+        if (byte0 > 0)
+        {
+            LOG(INFO) << binary(byte0, 8);
+        }
+*/
         for (int i = 0; i < 8; ++i)
         {
+
         	mKeyHistory[i] <<= 1;// Shift history 1 to the left
         	mKeyHistory[i] |= (byte0 & 0x01); // add 1 bit to the history
-
+        	if (i == 0)
+        	{
+        	//	LOG(INFO) << binary(mKeyHistory[i], 16);
+        	}
         	byte0 >>= 1; // Shift the current values 1 to the right
 
     		keyboardInfo[i].mPressed = false;
     		keyboardInfo[i].mLongPress = false;
-        	if (mKeyHistory[i] == 0b00001110) // Short press
+        	if (!(mKeyHistory[i] & 0x01)) // if key is released
         	{
-        		keyboardInfo[i].mPressed = true;
-        		keyPressed = true;
+        		if ((mKeyHistory[i] > 0x02) && (mKeyHistory[i] < 0x80)) // Key released, and short Pressed
+        		{
+        			LOG(INFO) << "S" << i;
+        			keyboardInfo[i].mPressed = true;
+        			keyPressed = true;
+        		}
+
+        		mKeyHistory[i] = 0; // delete the history
         	}
-        	if (mKeyHistory[i] & 0b00011111) // Long press
+        	if (mKeyHistory[i] > 0x80) // Long press
         	{
+        		LOG(INFO) << "L" << i;
         		keyboardInfo[i].mLongPress = true;
         		keyPressed = true;
         	}
 
         }
 
-        if (keyboardInfo[6].mPressed)
-        {
-        	LOG(INFO) << "Short";
-        }
-        if (keyboardInfo[6].mLongPress)
-        {
-        	LOG(INFO) << "Long";
-        }
-//        LOG(INFO) << "Key 6: " << std::hex << (int) mKeyHistory[6];
-       // LOG(INFO) << "Key 7: " << std::hex << (int) mKeyHistory[7];
         if (keyPressed)
         {
         	std::lock_guard<std::recursive_mutex> lk_guard(mKeyboardObserversMutex);

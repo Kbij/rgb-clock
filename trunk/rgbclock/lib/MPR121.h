@@ -156,8 +156,8 @@ const uint8_t AUTO_CONFIG_TARGET_LEVEL = 0x7F;
 
 // Other Constants
 // these are suggested values from app note 3944
-const uint8_t TOUCH_THRESHOLD = 0x0F;
-const uint8_t RELEASE_THRESHOLD = 0x0A;
+const uint8_t TOUCH_THRESHOLD = 0x15;
+const uint8_t RELEASE_THRESHOLD = 0x0E;
 const uint8_t NUM_CHANNELS = 12;
 
 

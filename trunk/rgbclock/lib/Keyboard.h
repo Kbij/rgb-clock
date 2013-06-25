@@ -32,7 +32,7 @@ private:
 
 	I2C &mI2C;
 	const uint8_t mAddress;
-	std::vector<uint8_t> mKeyHistory;
+	std::vector<uint16_t> mKeyHistory;
     std::thread* mReadThread;
     std::atomic_bool mReadThreadRunning;
     std::set<KeyboardObserverIf*> mKeyboardObservers;
