@@ -27,6 +27,7 @@ public:
 
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
 private:
+	bool mOn;
 	Hardware::RgbLed mRGBLed;
 	int mIntensity;
 };
