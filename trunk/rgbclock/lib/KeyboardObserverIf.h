@@ -24,6 +24,7 @@ namespace Hardware
 struct KeyInfo
 {
 	bool mPressed;
+	bool mReleased;
 	bool mLongPress;
 };
 
