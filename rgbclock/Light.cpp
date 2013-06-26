@@ -15,14 +15,14 @@ namespace App
 Light::Light(Hardware::I2C &i2c, uint8_t address) :
 		mState(State::PwrOff),
 		mRGBLed(i2c, address),
-		mLuminance(0),
+		mLuminance(1000),
 		mLastLong(time(nullptr)),
 		mDimDown(true)
 {
 	mRGBLed.hue(200);
 	mRGBLed.saturation(4000);
-	mRGBLed.luminance(mLuminance);
-	mRGBLed.write();
+	//mRGBLed.luminance(mLuminance);
+	//mRGBLed.write();
 }
 
 Light::~Light()
@@ -31,6 +31,7 @@ Light::~Light()
 }
 void Light::pwrOn()
 {
+	mRGBLed.luminance(mLuminance);
 	mRGBLed.pwrOn();
 	mState = State::PwrOn;
 }
@@ -60,17 +61,20 @@ void Light::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 		pwrToggle();
 	}
 
+	if (keyboardInfo[KEY_CENTRAL].mReleased)
+	{
+		mDimDown = !mDimDown;
+	}
+
 	if (keyboardInfo[KEY_CENTRAL].mLongPress)
 	{
 		if (mState == State::PwrOn)
 		{
-			double seconds = difftime(time(nullptr) , mLastLong);
-			mLastLong = time(nullptr);
-			LOG(INFO) << "Seconds: " << seconds;
-			if (seconds > 5)
+			if (difftime(time(nullptr) , mLastLong) > 5)
 			{
 				mDimDown = true;
 			}
+			mLastLong = time(nullptr);
 
 			if (mDimDown)
 			{
@@ -86,7 +90,6 @@ void Light::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 					mLuminance += 10;
 				}
 			}
-		//	mDimDown = !mDimDown;
 
 			mRGBLed.luminance(mLuminance);
 			mRGBLed.write();

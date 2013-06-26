@@ -188,7 +188,7 @@ int main (int argc, char* argv[])
 			std::this_thread::sleep_for( std::chrono::milliseconds(3000) );
 
 
-			i2c.printStatistics();
+			//i2c.printStatistics();
 		} while (runMain);
 
 	}

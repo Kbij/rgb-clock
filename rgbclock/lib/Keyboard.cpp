@@ -19,6 +19,7 @@ std::string binary(uint16_t number, uint8_t width)
 
 	return result;
 }
+const int LONG_MASK = 0x80;
 
 Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 	mI2C(i2c),
@@ -273,19 +274,28 @@ void Keyboard::readThread()
         	byte0 >>= 1; // Shift the current values 1 to the right
 
     		keyboardInfo[i].mPressed = false;
+    		keyboardInfo[i].mReleased = false;
     		keyboardInfo[i].mLongPress = false;
         	if (!(mKeyHistory[i] & 0x01)) // if key is released
         	{
-        		if ((mKeyHistory[i] > 0x02) && (mKeyHistory[i] < 0x80)) // Key released, and short Pressed
+        		if (mKeyHistory[i] > 0x01)
         		{
-        			//LOG(INFO) << "S" << i;
-        			keyboardInfo[i].mPressed = true;
         			keyPressed = true;
+        			if (mKeyHistory[i] < LONG_MASK) //short Pressed
+            		{
+            			//LOG(INFO) << "S" << i;
+            			keyboardInfo[i].mPressed = true;
+            		}
+            		else
+            		{
+            			//LOG(INFO) << "R" << i;
+            			keyboardInfo[i].mReleased = true; // Released after long press
+            		}
         		}
 
         		mKeyHistory[i] = 0; // delete the history
         	}
-        	if (mKeyHistory[i] > 0x80) // Long press
+        	if (mKeyHistory[i] > LONG_MASK) // Long press
         	{
         		//LOG(INFO) << "L" << i;
         		keyboardInfo[i].mLongPress = true;
