@@ -61,10 +61,10 @@ void Keyboard::unRegisterKeyboardObserver(KeyboardObserverIf *observer)
 
 void Keyboard::init()
 {
-	  // Put the chip in standby, so that values can be changed
-	  mI2C.writeRegByteSync(mAddress, ELECTRODE_CONFIG, 0x00);
+	  mI2C.writeRegByteSync(mAddress, SOFT_RESET, 0x63);
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	  // These are the configuration values recommended by app note AN3944
+
+      // These are the configuration values recommended by app note AN3944
 	  // along with the description in the app note.
 
 	  // Section A
@@ -232,19 +232,21 @@ void Keyboard::stopReadThread()
 void Keyboard::readThread()
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-    uint8_t oor0;
+/*
+	uint8_t oor0;
     uint8_t oor1;
+
     mI2C.readByteSync(mAddress, ELE0_7_OOR_STATUS, oor0);
     mI2C.readByteSync(mAddress, ELE8_11_ELEPROX_OOR_STATUS, oor1);
 
     LOG(INFO) << "OOR0: " << std::hex << (int) oor0;
     LOG(INFO) << "OOR1: " << std::hex << (int) oor1 << std::dec;
-
+*/
 
     while (mReadThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         uint8_t byte0;
 
         mI2C.readByteSync(mAddress, ELE0_ELE7_TOUCH_STATUS, byte0);
@@ -262,10 +264,12 @@ void Keyboard::readThread()
 
         	mKeyHistory[i] <<= 1;// Shift history 1 to the left
         	mKeyHistory[i] |= (byte0 & 0x01); // add 1 bit to the history
+/*
         	if (i == 0)
         	{
-        	//	LOG(INFO) << binary(mKeyHistory[i], 16);
+        		LOG(INFO) << binary(mKeyHistory[i], 16);
         	}
+*/
         	byte0 >>= 1; // Shift the current values 1 to the right
 
     		keyboardInfo[i].mPressed = false;
@@ -274,7 +278,7 @@ void Keyboard::readThread()
         	{
         		if ((mKeyHistory[i] > 0x02) && (mKeyHistory[i] < 0x80)) // Key released, and short Pressed
         		{
-        			LOG(INFO) << "S" << i;
+        			//LOG(INFO) << "S" << i;
         			keyboardInfo[i].mPressed = true;
         			keyPressed = true;
         		}
@@ -283,7 +287,7 @@ void Keyboard::readThread()
         	}
         	if (mKeyHistory[i] > 0x80) // Long press
         	{
-        		LOG(INFO) << "L" << i;
+        		//LOG(INFO) << "L" << i;
         		keyboardInfo[i].mLongPress = true;
         		keyPressed = true;
         	}
@@ -298,20 +302,6 @@ void Keyboard::readThread()
                observer->keyboardPressed(keyboardInfo);
             }
         }
-/*
-        mKeys = byte1;
-        mKeys = mKeys << 8;
-        mKeys = mKeys | byte0;
-        if (mKeys & 0xFF)
-        {
-        	std::lock_guard<std::recursive_mutex> lk_guard(mKeyboardObserversMutex);
-            for (auto observer : mKeyboardObservers)
-            {
-               // observer->keyboardPressed(mKeys);
-            }
-        }
-
-*/
     }
 }
 }

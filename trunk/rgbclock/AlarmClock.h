@@ -9,6 +9,8 @@
 #define ALARMCLOCK_H_
 
 #include "lib/Keyboard.h"
+#include "lib/KeyboardObserverIf.h"
+#include "lib/Radio.h"
 #include <stdint.h>
 
 namespace Hardware
@@ -28,16 +30,19 @@ struct Addresses
 	uint8_t mLightSensor;
 };
 
-class AlarmClock {
+class AlarmClock : public Hardware::KeyboardObserverIf {
 public:
-	AlarmClock(Hardware::I2C &i2c, Addresses addresses);
+	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, Addresses addresses);
 	virtual ~AlarmClock();
 
 	void registerLight(Light *light);
 	void unregisterLight();
+
+	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
 private:
 	Addresses mAddresses;
 	Hardware::Keyboard mKeyboard;
+	Hardware::Radio mRadio;
 	Light *mLight;
 };
 

@@ -7,48 +7,91 @@
 
 #include "Light.h"
 #include <glog/logging.h>
+#include <time.h>
 
 namespace App
 {
 
 Light::Light(Hardware::I2C &i2c, uint8_t address) :
-		mOn(false),
+		mState(State::PwrOff),
 		mRGBLed(i2c, address),
-		mIntensity(0)
+		mLuminance(0),
+		mLastLong(time(nullptr)),
+		mDimDown(true)
 {
-	//mRGBLed.pwrOn();
 	mRGBLed.hue(200);
 	mRGBLed.saturation(4000);
-	mIntensity = 100;
-	mRGBLed.luminance(mIntensity);
+	mRGBLed.luminance(mLuminance);
+	mRGBLed.write();
 }
 
-Light::~Light() {
-	// TODO Auto-generated destructor stub
+Light::~Light()
+{
+	mRGBLed.pwrOff();
+}
+void Light::pwrOn()
+{
+	mRGBLed.pwrOn();
+	mState = State::PwrOn;
+}
+
+void Light::pwrOff()
+{
+	mRGBLed.pwrOff();
+	mState = State::PwrOff;
+}
+
+void Light::pwrToggle()
+{
+	if (mState == State::PwrOn)
+	{
+		pwrOff();
+	}
+	else
+	{
+		pwrOn();
+	}
 }
 
 void Light::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 {
-	if (keyboardInfo[5].mPressed)
+	if (keyboardInfo[KEY_CENTRAL].mPressed)
 	{
-		if (mOn)
-		{
-			mOn = false;
-			mRGBLed.pwrOff();
-		}
-		else
-		{
-			mOn = true;
-			mRGBLed.pwrOn();
-		}
-	}
-	if (keyboardInfo[5].mLongPress)
-	{
-		mIntensity += 10;
-		mRGBLed.luminance(mIntensity);
-		mRGBLed.write();
+		pwrToggle();
 	}
 
-//	LOG(INFO) << "Intensity: " << mIntensity;
+	if (keyboardInfo[KEY_CENTRAL].mLongPress)
+	{
+		if (mState == State::PwrOn)
+		{
+			double seconds = difftime(time(nullptr) , mLastLong);
+			mLastLong = time(nullptr);
+			LOG(INFO) << "Seconds: " << seconds;
+			if (seconds > 5)
+			{
+				mDimDown = true;
+			}
+
+			if (mDimDown)
+			{
+				if (mLuminance > 9)
+				{
+					mLuminance -= 10;
+				}
+			}
+			else
+			{
+				if (mLuminance < 3990 )
+				{
+					mLuminance += 10;
+				}
+			}
+		//	mDimDown = !mDimDown;
+
+			mRGBLed.luminance(mLuminance);
+			mRGBLed.write();
+		}
+	}
+
 }
 } /* namespace App */

@@ -2,6 +2,7 @@
  * Raspberry Pi Ultimate Alarm Clock
  */
 #include "lib/I2C.h"
+#include "lib/FMReceiver.h"
 #include "Light.h"
 #include "AlarmClock.h"
 
@@ -154,6 +155,7 @@ int main (int argc, char* argv[])
 	App::Addresses addressesA;
 	addressesA.mLight = 0x40;
 	addressesA.mKeyboard = 0x5A;
+	addressesA.mAmplifier = 0x6C;
 
 
 	std::string usage("Raspberry Pi Ultimate Alarm Clock. Sample usage:\n");
@@ -171,10 +173,12 @@ int main (int argc, char* argv[])
 	try
 	{
 		Hardware::I2C i2c;
+		Hardware::FMReceiver fmReceiver(i2c, 0x63);
 
 		// I2C bus is operational, create the hardware here
+		// This hardware is removable (= Not on the mainboard)
 		App::Light *lightA = new App::Light(i2c, addressesA.mLight);
-		App::AlarmClock *alarmClockA = new App::AlarmClock(i2c, addressesA);
+		App::AlarmClock *alarmClockA = new App::AlarmClock(i2c, fmReceiver, addressesA);
 
 		alarmClockA->registerLight(lightA);
 
@@ -184,7 +188,7 @@ int main (int argc, char* argv[])
 			std::this_thread::sleep_for( std::chrono::milliseconds(3000) );
 
 
-
+			i2c.printStatistics();
 		} while (runMain);
 
 	}
