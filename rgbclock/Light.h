@@ -20,16 +20,31 @@ class I2C;
 
 namespace App {
 
+enum class State {
+	PwrOn,
+	PwrOff,
+	SlowUp,
+	SlowDown,
+	FastUp,
+	FastDown
+};
+
 class Light : public Hardware::KeyboardObserverIf {
 public:
 	Light(Hardware::I2C &i2c, uint8_t address);
 	virtual ~Light();
 
+	void pwrOn();
+	void pwrOff();
+	void pwrToggle();
+
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
 private:
-	bool mOn;
+	State mState;
 	Hardware::RgbLed mRGBLed;
-	int mIntensity;
+	int mLuminance;
+	time_t mLastLong;
+	bool mDimDown;
 };
 
 } /* namespace App */

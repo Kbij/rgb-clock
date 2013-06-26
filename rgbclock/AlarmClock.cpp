@@ -7,21 +7,22 @@
 
 #include "AlarmClock.h"
 #include "Light.h"
+#include "lib/FMReceiver.h"
 
 namespace App {
 
-AlarmClock::AlarmClock(Hardware::I2C &i2c, Addresses addresses) :
+AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, Addresses addresses) :
 	mAddresses(addresses),
 	mKeyboard(i2c, addresses.mKeyboard),
+	mRadio(i2c, addresses.mAmplifier, fmReceiver),
 	mLight(nullptr)
 {
-	// TODO Auto-generated constructor stub
-
+	mKeyboard.registerKeyboardObserver(this);
 }
 
 AlarmClock::~AlarmClock()
 {
-	// TODO Auto-generated destructor stub
+	mKeyboard.unRegisterKeyboardObserver(this);
 }
 
 void AlarmClock::registerLight(Light *light)
@@ -34,5 +35,19 @@ void AlarmClock::unregisterLight()
 {
 	mLight = nullptr;
 }
+
+void AlarmClock::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
+{
+	if (keyboardInfo[KEY_UP].mPressed || keyboardInfo[KEY_UP].mLongPress)
+	{
+		mRadio.volumeUp();
+	}
+	if (keyboardInfo[KEY_DOWN].mPressed || keyboardInfo[KEY_DOWN].mLongPress)
+	{
+		mRadio.volumeDown();
+	}
+
+}
+
 
 } /* namespace App */
