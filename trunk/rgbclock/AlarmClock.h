@@ -21,6 +21,13 @@ class I2C;
 
 namespace App
 {
+enum class RadioState
+{
+	PwrOff,
+	PwrOn,
+	Wakeup
+};
+
 class Light;
 
 struct Addresses
@@ -47,7 +54,7 @@ private:
 	Hardware::Radio mRadio;
 	Hardware::ClockDisplay mDisplay;
 	Light *mLight;
-	int mRadioVolume;
+	RadioState mRadioState;
 };
 
 } /* namespace App */
