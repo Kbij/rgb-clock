@@ -15,12 +15,7 @@
 
 namespace Hardware
 {
-enum class RadioState
-{
-	PwrOff,
-	PwrOn,
-	Wakeup
-};
+
 
 class FMReceiver;
 class I2C;
@@ -34,22 +29,20 @@ public:
 
 	void registerRadioObserver(RadioObserverIf *observer);
     void unRegisterRadioObserver(RadioObserverIf *observer);
-//must be internal
-//    void setDisplay(ClockDisplay *clockDisplay);
-    bool togglePwr();
+
     bool powerOn();
 	bool powerOff();
 	void volume(int volume);
     void volumeUp();
     void volumeDown();
-	void readRegisters();
-	void writeRegisters();
 	bool seekUp(int timeout);
 	bool tuneFrequency(double frequency);
 	RDSInfo getRDSInfo();
 
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
 private:
+	void readRegisters();
+	void writeRegisters();
 
 	I2C &mI2C;
 	const uint8_t mAplifierAddress;
@@ -58,7 +51,6 @@ private:
 	uint8_t mMaskRegister;
 	uint8_t mControlRegister;
 	uint8_t mVolume;
-	RadioState mState;
     std::set<RadioObserverIf*> mRadioObservers;
     std::recursive_mutex mRadioObserversMutex;
 

@@ -21,7 +21,6 @@ Radio::Radio(I2C &i2c, uint8_t apmlifierAddress, FMReceiver &fmReceiver):
 	mMaskRegister(0),
 	mControlRegister(0),
 	mVolume(20),
-	mState(RadioState::PwrOff),
 	mRadioObservers(),
 	mRadioObserversMutex()
 
@@ -72,33 +71,33 @@ void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 
 }
 
-bool Radio::togglePwr()
-{
-	if (mState == RadioState::PwrOff)
-	{
-		return powerOn();
-	}
-	if (mState == RadioState::PwrOn)
-	{
-		return powerOff();
-	}
-
-	return true;
-}
-
 bool Radio::powerOn()
 {
-	mState = RadioState::PwrOn;
+
 	if (mFMReceiver.powerOn())
 	{
 		mFMReceiver.tuneFrequency(94.5);
 	}
+
+	mVolume = 35;
+	mControlRegister = 0b00010000; // PowerUp
+	writeRegisters();
+
+	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
+    for (auto observer : mRadioObservers)
+    {
+        observer->volumeChange(mVolume);
+    }
+
 	return true;
 }
 
 bool Radio::powerOff()
 {
-	mState = RadioState::PwrOff;
+	mVolume = 0;
+	mControlRegister = 0b00010001; // Shutdown
+	writeRegisters();
+
 	return mFMReceiver.powerOff();
 }
 
