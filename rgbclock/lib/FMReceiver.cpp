@@ -30,6 +30,8 @@ FMReceiver::FMReceiver(I2C &i2c, uint8_t address) :
 		mRadioObservers(),
 		mRadioObserversMutex()
 {
+	mRDSInfo.mStationName = "";
+	mRDSInfo.mText = "";
 	powerOff();
 	mI2C.registerAddress(address, "FM Receiver");
 }
@@ -137,7 +139,7 @@ bool FMReceiver::seekUp(int timeoutSeconds)
 	mRDSInfo.clearAll();
 	mRDSInfo.mValidRds = false;
 	mRDSInfo.mStationName = "Seek...";
-	notifyObservers(InfoType::RdsInfo);
+	notifyObservers();
 	return true;
 }
 
@@ -156,7 +158,7 @@ bool FMReceiver::tuneFrequency(double frequency)
 
 	mRDSInfo.clearAll();
 	mRDSInfo.mValidRds = false;
-	notifyObservers(InfoType::RdsInfo);
+	notifyObservers();
 
 	return true;
 }
@@ -233,7 +235,7 @@ void FMReceiver::readRDSInfo()
 	    {
        		mRDSInfo.mText = "";
        		//notify = true;
-       		notifyObservers(InfoType::RdsInfo);
+       		notifyObservers();
 	    	return;
 	    }
 
@@ -258,7 +260,7 @@ void FMReceiver::readRDSInfo()
 	        	 mRDSInfo.mStationName = trimRight(mReceivingRDSInfo.mStationName);
 		    	 mRDSInfo.mValidRds = true;
 		         LOG(INFO) << "Station: " << mRDSInfo.mStationName;
-		         notifyObservers(InfoType::RdsInfo);
+		         notifyObservers();
 		      }
 	    }
 
@@ -304,7 +306,7 @@ void FMReceiver::readRDSInfo()
 								mRDSInfo.mTextType = mReceivingRDSInfo.mTextType;
 								LOG(INFO) << "Clean Text: " << mRDSInfo.mText;
 
-								notifyObservers(InfoType::RdsInfo);
+								notifyObservers();
 								mReceivingRDSInfo.clearText();
 							}
 						}
@@ -461,7 +463,7 @@ void FMReceiver::readThread()
     	    	if (mRDSInfo.mStationName != freqStream.str())
     	    	{
     	    		mRDSInfo.mStationName = freqStream.str();
-        	    	notifyObservers(InfoType::RdsInfo);
+        	    	notifyObservers();
 
     	    	}
     		}
@@ -471,12 +473,12 @@ void FMReceiver::readThread()
     }
 }
 
-void FMReceiver::notifyObservers(InfoType type)
+void FMReceiver::notifyObservers()
 {
 	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
     for (auto observer : mRadioObservers)
     {
-        observer->infoAvailable(type);
+        observer->infoAvailable(mRDSInfo);
     }
 }
 

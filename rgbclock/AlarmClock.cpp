@@ -15,14 +15,21 @@ AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, Ad
 	mAddresses(addresses),
 	mKeyboard(i2c, addresses.mKeyboard),
 	mRadio(i2c, addresses.mAmplifier, fmReceiver),
-	mLight(nullptr)
+	mDisplay(i2c, addresses.mLCD, addresses.mLightSensor),
+	mLight(nullptr),
+	mRadioVolume(20)
 {
 	mKeyboard.registerKeyboardObserver(this);
+	mKeyboard.registerKeyboardObserver(&mRadio);
+	mRadio.registerRadioObserver(&mDisplay);
+
 }
 
 AlarmClock::~AlarmClock()
 {
 	mKeyboard.unRegisterKeyboardObserver(this);
+	mKeyboard.registerKeyboardObserver(&mRadio);
+	mRadio.unRegisterRadioObserver(&mDisplay);
 }
 
 void AlarmClock::registerLight(Light *light)
@@ -38,13 +45,9 @@ void AlarmClock::unregisterLight()
 
 void AlarmClock::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 {
-	if (keyboardInfo[KEY_UP].mPressed || keyboardInfo[KEY_UP].mLongPress)
+	if (keyboardInfo[KEY_1].mPressed)
 	{
-		mRadio.volumeUp();
-	}
-	if (keyboardInfo[KEY_DOWN].mPressed || keyboardInfo[KEY_DOWN].mLongPress)
-	{
-		mRadio.volumeDown();
+		mRadio.togglePwr();
 	}
 
 }

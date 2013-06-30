@@ -156,6 +156,9 @@ int main (int argc, char* argv[])
 	addressesA.mLight = 0x40;
 	addressesA.mKeyboard = 0x5A;
 	addressesA.mAmplifier = 0x6C;
+	addressesA.mLCD = 0x20;
+	addressesA.mLightSensor = 0x29;
+
 
 
 	std::string usage("Raspberry Pi Ultimate Alarm Clock. Sample usage:\n");

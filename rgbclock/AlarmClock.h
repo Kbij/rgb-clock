@@ -11,6 +11,7 @@
 #include "lib/Keyboard.h"
 #include "lib/KeyboardObserverIf.h"
 #include "lib/Radio.h"
+#include "lib/ClockDisplay.h"
 #include <stdint.h>
 
 namespace Hardware
@@ -28,6 +29,7 @@ struct Addresses
 	uint8_t mKeyboard;
 	uint8_t mAmplifier;
 	uint8_t mLightSensor;
+	uint8_t mLCD;
 };
 
 class AlarmClock : public Hardware::KeyboardObserverIf {
@@ -43,7 +45,9 @@ private:
 	Addresses mAddresses;
 	Hardware::Keyboard mKeyboard;
 	Hardware::Radio mRadio;
+	Hardware::ClockDisplay mDisplay;
 	Light *mLight;
+	int mRadioVolume;
 };
 
 } /* namespace App */

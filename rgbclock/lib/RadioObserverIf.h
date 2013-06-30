@@ -7,6 +7,7 @@
 
 #ifndef RADIOOBSERVERIF_H_
 #define RADIOOBSERVERIF_H_
+#include "RDSInfo.h"
 
 namespace Hardware
 {
@@ -21,7 +22,8 @@ class RadioObserverIf
 public:
     virtual ~RadioObserverIf() {};
 
-    virtual void infoAvailable(InfoType type) = 0;
+    virtual void infoAvailable(RDSInfo rdsInfo) = 0;
+    virtual void volumeChange(int volume) = 0;
 };
 }
 
