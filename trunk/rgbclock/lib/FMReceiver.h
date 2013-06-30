@@ -57,7 +57,7 @@ private:
 	void stopReadThread();
 	void readThread();
 
-	void notifyObservers(InfoType type);
+	void notifyObservers();
 
 	I2C &mI2C;
 	const uint8_t mAddress;

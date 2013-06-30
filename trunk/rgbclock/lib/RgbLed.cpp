@@ -11,6 +11,7 @@
 #include <iostream>
 
 const uint16_t MAX_RESOLUTION = 4000;
+
 namespace Hardware
 {
 RgbLed::RgbLed(I2C &i2c, uint8_t address) :

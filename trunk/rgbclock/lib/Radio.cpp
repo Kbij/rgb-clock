@@ -20,14 +20,13 @@ Radio::Radio(I2C &i2c, uint8_t apmlifierAddress, FMReceiver &fmReceiver):
 	mFMReceiver(fmReceiver),
 	mMaskRegister(0),
 	mControlRegister(0),
-	mVolume(30)
+	mVolume(20),
+	mState(RadioState::PwrOff),
+	mRadioObservers(),
+	mRadioObserversMutex()
 
 {
 	mI2C.registerAddress(mAplifierAddress, "Amplifier");
-	if (mFMReceiver.powerOn())
-	{
-		mFMReceiver.tuneFrequency(94.5);
-	}
 	// Use BTL
 	mControlRegister = 0b00010000;
 	writeRegisters();
@@ -40,42 +39,114 @@ Radio::~Radio()
 
 void Radio::registerRadioObserver(RadioObserverIf *observer)
 {
+    if (observer)
+    {
+        std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
+
+        mRadioObservers.insert(observer);
+    }
 	mFMReceiver.registerRadioObserver(observer);
 }
 void Radio::unRegisterRadioObserver(RadioObserverIf *observer)
 {
+    if (observer)
+    {
+    	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
+
+        mRadioObservers.erase(observer);
+    }
 	mFMReceiver.unRegisterRadioObserver(observer);
+}
+
+void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
+{
+	if (keyboardInfo[KEY_UP].mPressed || keyboardInfo[KEY_UP].mLongPress)
+	{
+		volumeUp();
+	}
+	if (keyboardInfo[KEY_DOWN].mPressed || keyboardInfo[KEY_DOWN].mLongPress)
+	{
+		volumeDown();
+	}
+
+
+}
+
+bool Radio::togglePwr()
+{
+	if (mState == RadioState::PwrOff)
+	{
+		return powerOn();
+	}
+	if (mState == RadioState::PwrOn)
+	{
+		return powerOff();
+	}
+
+	return true;
 }
 
 bool Radio::powerOn()
 {
-	return mFMReceiver.powerOn();
+	mState = RadioState::PwrOn;
+	if (mFMReceiver.powerOn())
+	{
+		mFMReceiver.tuneFrequency(94.5);
+	}
+	return true;
 }
 
 bool Radio::powerOff()
 {
+	mState = RadioState::PwrOff;
 	return mFMReceiver.powerOff();
+}
+
+void Radio::volume(int volume)
+{
+	mVolume = volume;
+	writeRegisters();
+
+	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
+    for (auto observer : mRadioObservers)
+    {
+        observer->volumeChange(mVolume);
+    }
 }
 
 void Radio::volumeUp()
 {
-	if (mVolume < 95)
+	if (mVolume < 99)
 	{
 		mVolume += 1;
 		//LOG(INFO) << "Volume: " << (int) mVolume;
 		writeRegisters();
+
+		std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
+	    for (auto observer : mRadioObservers)
+	    {
+	        observer->volumeChange(mVolume);
+	    }
 	}
+
 }
 
 void Radio::volumeDown()
 {
-	if (mVolume > 5)
+	if (mVolume > 1)
 	{
 		mVolume -= 1;
 		//LOG(INFO) << "Volume: " << (int) mVolume;
 		writeRegisters();
+		std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
+	    for (auto observer : mRadioObservers)
+	    {
+	        observer->volumeChange(mVolume);
+	    }
+
 	}
 }
+
 
 bool Radio::seekUp(int timeout)
 {
