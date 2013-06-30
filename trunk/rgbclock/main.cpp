@@ -3,6 +3,7 @@
  */
 #include "lib/I2C.h"
 #include "lib/FMReceiver.h"
+#include "lib/RTC.h"
 #include "Light.h"
 #include "AlarmClock.h"
 
@@ -176,6 +177,8 @@ int main (int argc, char* argv[])
 	try
 	{
 		Hardware::I2C i2c;
+		Hardware::RTC rtc(i2c);
+
 		Hardware::FMReceiver fmReceiver(i2c, 0x63);
 
 		// I2C bus is operational, create the hardware here
