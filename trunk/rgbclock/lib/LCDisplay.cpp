@@ -162,23 +162,23 @@ void LCDisplay::vLine(uint8_t col, uint8_t row1, uint8_t row2, bool set)
 	refreshDisplay();
 }
 
-void LCDisplay::rectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, bool set, bool fill)
+void LCDisplay::rectangle(uint8_t col1, uint8_t row1, uint8_t col2, uint8_t row2, bool set, bool fill)
 {
     std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
 
 	if (fill)
 	{
-		for (int i = y1; i <= y2; ++i)
+		for (int row = row1; row <= row2; ++row)
 		{
-			rawHLine(x1, x2, i, set);
+			rawHLine(col1, col2, row, set);
 		}
 	}
 	else
 	{
-		rawHLine(x1, x2, y1, set);
-		rawHLine(x1, x2, y2, set);
-		rawVLine(x1, y1, y2, set);
-		rawVLine(x2, y1, y2, set);
+		rawHLine(col1, col2, row1, set);
+		rawHLine(col1, col2, row2, set);
+		rawVLine(col1, row1, row2, set);
+		rawVLine(col2, row1, row2, set);
 	}
 	refreshDisplay();
 }

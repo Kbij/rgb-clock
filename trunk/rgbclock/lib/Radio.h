@@ -9,6 +9,7 @@
 #define RADIO_H_
 #include "RDSInfo.h"
 #include "KeyboardObserverIf.h"
+#include "RadioObserverIf.h"
 #include <stdint.h>
 #include <set>
 #include <mutex>
@@ -19,7 +20,6 @@ namespace Hardware
 
 class FMReceiver;
 class I2C;
-class RadioObserverIf;
 class ClockDisplay;
 
 class Radio : public Hardware::KeyboardObserverIf {
@@ -43,6 +43,7 @@ public:
 private:
 	void readRegisters();
 	void writeRegisters();
+	void notifyObservers();
 
 	I2C &mI2C;
 	const uint8_t mAplifierAddress;
@@ -53,6 +54,7 @@ private:
 	uint8_t mVolume;
     std::set<RadioObserverIf*> mRadioObservers;
     std::recursive_mutex mRadioObserversMutex;
+	RadioState mState;
 
 };
 }

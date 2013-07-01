@@ -11,10 +11,17 @@
 
 namespace Hardware
 {
-enum class InfoType
+enum class RadioState
 {
-	RdsInfo,
-	SignalStrength
+	PwrOff,
+	PwrOn,
+	Wakeup
+};
+
+struct RadioInfo
+{
+	RadioState mState;
+	int mVolume;
 };
 
 class RadioObserverIf
@@ -22,8 +29,8 @@ class RadioObserverIf
 public:
     virtual ~RadioObserverIf() {};
 
-    virtual void infoAvailable(RDSInfo rdsInfo) = 0;
-    virtual void volumeChange(int volume) = 0;
+    virtual void radioRdsUpdate(RDSInfo rdsInfo) = 0;
+    virtual void radioStateUpdate(RadioInfo radioInfo) = 0;
 };
 }
 
