@@ -71,6 +71,9 @@ void ClockDisplay::showVolume(uint8_t vol)
 
 void ClockDisplay::hideVolume()
 {
+	mLCDisplay.rectangle(158, 10, 159, 31, false, false);
+	// bottom part: set
+	//mLCDisplay.rectangle(158, 31-length, 159, 31, true, false);
 
 }
 
@@ -114,7 +117,7 @@ void ClockDisplay::showSignal(uint8_t signal)
 
 void ClockDisplay::hideSignal()
 {
-
+	mLCDisplay.rectangle(156, 0, 159, 3, false, false);
 }
 
 void ClockDisplay::showRDSInfo()
@@ -154,31 +157,42 @@ void ClockDisplay::hideNextAlarm()
 
 }
 
-void ClockDisplay::infoAvailable(RDSInfo rdsInfo)
+void ClockDisplay::radioRdsUpdate(RDSInfo rdsInfo)
 {
-	//LOG(INFO) << "Received new info from receiver";
-	mNewRDSAvailable = true;
-	if (mRDSStationName != rdsInfo.mStationName)
-	{
-		mRDSStationName = rdsInfo.mStationName;
-	    mRDSStationName = mRDSStationName.substr(0, 7);
-		mRDSStationName.append(7 - mRDSStationName.size(), ' ');
-	}
 
-	if (mRDSText != rdsInfo.mText)
-	{
-		mRDSText = rdsInfo.mText;
-		mRDSTextPos = 0;
-	}
+		if (mRDSStationName != rdsInfo.mStationName)
+		{
+			mRDSStationName = rdsInfo.mStationName;
+		    mRDSStationName = mRDSStationName.substr(0, 7);
+			mRDSStationName.append(7 - mRDSStationName.size(), ' ');
+		}
 
-    mReceiveLevel = rdsInfo.mReceiveLevel;
-    mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
+		if (mRDSText != rdsInfo.mText)
+		{
+			mRDSText = rdsInfo.mText;
+			mRDSTextPos = 0;
+		}
+
+	    mReceiveLevel = rdsInfo.mReceiveLevel;
+	    mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
+
 }
 
-void ClockDisplay::volumeChange(int volume)
+void ClockDisplay::radioStateUpdate(RadioInfo radioInfo)
 {
-	showVolume(volume);
+	if (radioInfo.mState == RadioState::PwrOn)
+	{
+		showRDSInfo();
+		showVolume(radioInfo.mVolume);
+	}
+	if (radioInfo.mState == RadioState::PwrOff)
+	{
+		hideRDSInfo();
+		hideVolume();
+		hideSignal();
+	}
 }
+
 
 void ClockDisplay::startRefreshThread()
 {
@@ -239,20 +253,36 @@ void ClockDisplay::refreshThread()
 
 
 			mLCDisplay.writeGraphicText(0, 14, mRDSStationName, FontType::Terminal8);
-			std::string localRDSText = mRDSText.substr(mRDSTextPos, std::string::npos);
-			if (localRDSText.size()  > 26)
+			if (mRDSText.size() > 0)
 			{
-				localRDSText = localRDSText.substr(0, 26);
-				mRDSTextPos +=2;
+				std::string localRDSText = mRDSText.substr(mRDSTextPos, std::string::npos);
+				if (localRDSText.size()  > 26)
+				{
+					localRDSText = localRDSText.substr(0, 26);
+					mRDSTextPos +=2;
+				}
+				else
+				{
+					localRDSText.append(26 - localRDSText.size(), ' ');
+					mRDSTextPos = 0;
+				}
+				mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
 			}
 			else
 			{
-				localRDSText.append(26 - localRDSText.size(), ' ');
-				mRDSTextPos = 0;
+				std::string localRDSText(26, ' ');
+				mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
 			}
-
-			mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
 		}
+	    else
+	    {
+	    	std::string stationName(7, ' ');
+	    	mLCDisplay.writeGraphicText(0, 14, stationName, FontType::Terminal8);
+
+	    	std::string localRDSText(26, ' ');
+			mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
+	    }
+
 		showSignal(mReceiveLevel);
 
 /*

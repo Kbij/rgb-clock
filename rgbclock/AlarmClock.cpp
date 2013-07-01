@@ -16,8 +16,7 @@ AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, Ad
 	mKeyboard(i2c, addresses.mKeyboard),
 	mRadio(i2c, addresses.mAmplifier, fmReceiver),
 	mDisplay(i2c, addresses.mLCD, addresses.mLightSensor),
-	mLight(nullptr),
-	mRadioState(RadioState::PwrOff)
+	mLight(nullptr)
 {
 	mKeyboard.registerKeyboardObserver(this);
 	mKeyboard.registerKeyboardObserver(&mRadio);
@@ -45,23 +44,7 @@ void AlarmClock::unregisterLight()
 
 void AlarmClock::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 {
-	if (keyboardInfo[KEY_1].mPressed)
-	{
-		if (mRadioState == RadioState::PwrOff)
-		{
-			mRadioState = RadioState::PwrOn;
-			mRadio.powerOn();
-		}
-		if (mRadioState == RadioState::PwrOn)
-		{
-			mRadioState = RadioState::PwrOff;
-			mRadio.powerOff();
-			mDisplay.hideRDSInfo();
-			mDisplay.hideSignal();
-			mDisplay.hideVolume();
 
-		}
-	}
 
 }
 

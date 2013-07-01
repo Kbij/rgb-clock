@@ -39,8 +39,9 @@ public:
 	void showNextAlarm(const struct tm& nextAlarm);
 	void hideNextAlarm();
 
-	void infoAvailable(RDSInfo rdsInfo);
-    void volumeChange(int volume);
+    void radioRdsUpdate(RDSInfo rdsInfo);
+    void radioStateUpdate(RadioInfo radioInfo);
+
 private:
 	void startRefreshThread();
 	void stopRefreshThread();

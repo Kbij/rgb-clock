@@ -21,12 +21,7 @@ class I2C;
 
 namespace App
 {
-enum class RadioState
-{
-	PwrOff,
-	PwrOn,
-	Wakeup
-};
+
 
 class Light;
 
@@ -54,7 +49,6 @@ private:
 	Hardware::Radio mRadio;
 	Hardware::ClockDisplay mDisplay;
 	Light *mLight;
-	RadioState mRadioState;
 };
 
 } /* namespace App */

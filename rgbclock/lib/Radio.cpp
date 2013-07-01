@@ -22,7 +22,8 @@ Radio::Radio(I2C &i2c, uint8_t apmlifierAddress, FMReceiver &fmReceiver):
 	mControlRegister(0),
 	mVolume(20),
 	mRadioObservers(),
-	mRadioObserversMutex()
+	mRadioObserversMutex(),
+	mState(RadioState::PwrOff)
 
 {
 	mI2C.registerAddress(mAplifierAddress, "Amplifier");
@@ -59,43 +60,54 @@ void Radio::unRegisterRadioObserver(RadioObserverIf *observer)
 
 void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 {
-	if (keyboardInfo[KEY_UP].mPressed || keyboardInfo[KEY_UP].mLongPress)
+	if (mState == RadioState::PwrOn)
 	{
-		volumeUp();
-	}
-	if (keyboardInfo[KEY_DOWN].mPressed || keyboardInfo[KEY_DOWN].mLongPress)
-	{
-		volumeDown();
+		if (keyboardInfo[KEY_UP].mPressed || keyboardInfo[KEY_UP].mLongPress)
+		{
+			volumeUp();
+		}
+		if (keyboardInfo[KEY_DOWN].mPressed || keyboardInfo[KEY_DOWN].mLongPress)
+		{
+			volumeDown();
+		}
 	}
 
+	if (keyboardInfo[KEY_1].mPressed)
+	{
+		switch (mState)
+		{
+			case RadioState::PwrOff: powerOn();
+				break;
+			case RadioState::PwrOn : powerOff();
+				break;
+			default: ;
+		}
+
+	}
 
 }
 
 bool Radio::powerOn()
 {
-
+	LOG(INFO) << "Radio On";
 	if (mFMReceiver.powerOn())
 	{
 		mFMReceiver.tuneFrequency(94.5);
 	}
 
-	mVolume = 35;
-	mControlRegister = 0b00010000; // PowerUp
+	mState = RadioState::PwrOn;
+	//mControlRegister = 0b00010000; // PowerUp
 	writeRegisters();
-
-	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
-    for (auto observer : mRadioObservers)
-    {
-        observer->volumeChange(mVolume);
-    }
 
 	return true;
 }
 
 bool Radio::powerOff()
 {
-	mVolume = 0;
-	mControlRegister = 0b00010001; // Shutdown
+	LOG(INFO) << "Radio Off";
+
+	mState = RadioState::PwrOff;
+	//mControlRegister = 0b00010001; // Shutdown
 	writeRegisters();
 
 	return mFMReceiver.powerOff();
@@ -105,12 +117,6 @@ void Radio::volume(int volume)
 {
 	mVolume = volume;
 	writeRegisters();
-
-	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
-    for (auto observer : mRadioObservers)
-    {
-        observer->volumeChange(mVolume);
-    }
 }
 
 void Radio::volumeUp()
@@ -120,12 +126,6 @@ void Radio::volumeUp()
 		mVolume += 1;
 		//LOG(INFO) << "Volume: " << (int) mVolume;
 		writeRegisters();
-
-		std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
-	    for (auto observer : mRadioObservers)
-	    {
-	        observer->volumeChange(mVolume);
-	    }
 	}
 
 }
@@ -137,12 +137,6 @@ void Radio::volumeDown()
 		mVolume -= 1;
 		//LOG(INFO) << "Volume: " << (int) mVolume;
 		writeRegisters();
-		std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
-	    for (auto observer : mRadioObservers)
-	    {
-	        observer->volumeChange(mVolume);
-	    }
-
 	}
 }
 
@@ -189,5 +183,17 @@ void Radio::writeRegisters()
 	registers.push_back(mControlRegister);
 
 	mI2C.writeDataSync(mAplifierAddress, registers);
+	notifyObservers();
+}
+void Radio::notifyObservers()
+{
+	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
+    for (auto observer : mRadioObservers)
+    {
+    	RadioInfo info;
+    	info.mVolume = mVolume;
+    	info.mState = mState;
+        observer->radioStateUpdate(info);
+    }
 }
 }
