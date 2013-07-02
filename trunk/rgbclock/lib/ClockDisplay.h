@@ -27,10 +27,10 @@ public:
 	void showClock();
 	void hideClock();
 
-	void showVolume(uint8_t vol);
+	void showVolume();
 	void hideVolume();
 
-	void showSignal(uint8_t signal);
+	void showSignal();
 	void hideSignal();
 
 	void showRDSInfo();
@@ -43,6 +43,13 @@ public:
     void radioStateUpdate(RadioInfo radioInfo);
 
 private:
+    void drawVolume();
+    void eraseVolume();
+    void drawSignal();
+    void eraseSignal();
+    void drawRDS();
+    void eraseRDS();
+
 	void startRefreshThread();
 	void stopRefreshThread();
 
@@ -53,14 +60,15 @@ private:
     std::thread* mRefreshThread;
     std::atomic_bool mRefreshThreadRunning;
     uint8_t mPrevMin;
-    std::recursive_mutex mRDSInfoMutex;
-    bool mRDSVisible;
-    std::atomic_bool mNewRDSAvailable;
+    std::recursive_mutex mRadioInfoMutex;
+    std::atomic_bool mRDSVisible;
+    std::atomic_bool mVolumeVisible;
+    std::atomic_bool mSignalVisible;
     std::string mRDSStationName;
     std::string mRDSText;
     int mRDSTextPos;
     int mReceiveLevel;
-
+    int mVolume;
 };
 }
 #endif /* CLOCKDISPLAY_H_ */

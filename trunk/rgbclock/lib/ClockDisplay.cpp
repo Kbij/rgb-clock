@@ -19,13 +19,15 @@ ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress) :
 	mRefreshThread(nullptr),
 	mRefreshThreadRunning(false),
 	mPrevMin(-1),
-	mRDSInfoMutex(),
+	mRadioInfoMutex(),
 	mRDSVisible(false),
-	mNewRDSAvailable(false),
+	mVolumeVisible(false),
+	mSignalVisible(false),
 	mRDSStationName(),
 	mRDSText(),
 	mRDSTextPos(0),
-	mReceiveLevel(0)
+	mReceiveLevel(0),
+	mVolume(0)
 {
 	mLCDisplay.initGraphic();
 	mLCDisplay.clearGraphicDisplay();
@@ -49,91 +51,40 @@ void ClockDisplay::hideClock()
 
 }
 
-void ClockDisplay::showVolume(uint8_t vol)
+void ClockDisplay::showVolume()
 {
-	if (vol > 100)
-	{
-		vol = 100;
-	}
-	const uint8_t top = 10;
-	const uint8_t bottom = 31;
-
-	const double step = ((double)bottom - (double)top) / 100.0;
-
-	uint8_t length = vol * step;
-
-	// top part: clear
-	mLCDisplay.rectangle(158, top, 159, 31-length - 1, false, false);
-	// bottom part: set
-	mLCDisplay.rectangle(158, 31-length, 159, 31, true, false);
-
+	mVolumeVisible = true;
 }
 
 void ClockDisplay::hideVolume()
 {
-	mLCDisplay.rectangle(158, 10, 159, 31, false, false);
-	// bottom part: set
-	//mLCDisplay.rectangle(158, 31-length, 159, 31, true, false);
-
+	mVolumeVisible = false;
 }
 
-void ClockDisplay::showSignal(uint8_t signal)
+void ClockDisplay::showSignal()
 {
-	if (signal >= 75)
-	{
-		mLCDisplay.hLine(159-3, 159, 0, true);
-	}
-	else
-	{
-		mLCDisplay.hLine(159-3, 159, 0, false);
-	}
-
-	if (signal >= 50)
-	{
-		mLCDisplay.hLine(159-2, 159, 1, true);
-	}
-	else
-	{
-		mLCDisplay.hLine(159-2, 159, 1, false);
-	}
-	if (signal >= 25)
-	{
-		mLCDisplay.hLine(159-1, 159, 2, true);
-	}
-	else
-	{
-		mLCDisplay.hLine(159-1, 159, 2, false);
-	}
-
-	if (signal >= 0)
-	{
-		mLCDisplay.point(159, 3, true);
-	}
-	else
-	{
-		mLCDisplay.point(159, 3, false);
-	}
+	mSignalVisible = true;
 }
 
 void ClockDisplay::hideSignal()
 {
-	mLCDisplay.rectangle(156, 0, 159, 3, false, false);
+	mSignalVisible = false;
 }
 
 void ClockDisplay::showRDSInfo()
 {
-    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
+   // std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
 	mRDSVisible = true;
-    mRDSStationName = "";
-    mRDSText = "";
+ //   mRDSStationName = "";
+  //  mRDSText = "";
 }
 
 void ClockDisplay::hideRDSInfo()
 {
-    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
+  //  std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
 	mRDSVisible = false;
-    mRDSStationName = "";
-    mRDSText = "";
+  //  mRDSStationName = "";
+  //  mRDSText = "";
 }
 
 void ClockDisplay::showNextAlarm(const struct tm& nextAlarm)
@@ -159,31 +110,33 @@ void ClockDisplay::hideNextAlarm()
 
 void ClockDisplay::radioRdsUpdate(RDSInfo rdsInfo)
 {
+    std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
+	if (mRDSStationName != rdsInfo.mStationName)
+	{
+		mRDSStationName = rdsInfo.mStationName;
+		mRDSStationName = mRDSStationName.substr(0, 7);
+		mRDSStationName.append(7 - mRDSStationName.size(), ' ');
+	}
 
-		if (mRDSStationName != rdsInfo.mStationName)
-		{
-			mRDSStationName = rdsInfo.mStationName;
-		    mRDSStationName = mRDSStationName.substr(0, 7);
-			mRDSStationName.append(7 - mRDSStationName.size(), ' ');
-		}
+	if (mRDSText != rdsInfo.mText)
+	{
+		mRDSText = rdsInfo.mText;
+		mRDSTextPos = 0;
+	}
 
-		if (mRDSText != rdsInfo.mText)
-		{
-			mRDSText = rdsInfo.mText;
-			mRDSTextPos = 0;
-		}
-
-	    mReceiveLevel = rdsInfo.mReceiveLevel;
-	    mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
-
+	mReceiveLevel = rdsInfo.mReceiveLevel;
+	mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
 }
 
 void ClockDisplay::radioStateUpdate(RadioInfo radioInfo)
 {
+    std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
 	if (radioInfo.mState == RadioState::PwrOn)
 	{
 		showRDSInfo();
-		showVolume(radioInfo.mVolume);
+		showVolume();
+		showSignal();
+		mVolume = radioInfo.mVolume;
 	}
 	if (radioInfo.mState == RadioState::PwrOff)
 	{
@@ -193,6 +146,114 @@ void ClockDisplay::radioStateUpdate(RadioInfo radioInfo)
 	}
 }
 
+void ClockDisplay::drawVolume()
+{
+	std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
+
+	if (mVolume > 100)
+	{
+		mVolume = 100;
+	}
+	const uint8_t top = 10;
+	const uint8_t bottom = 31;
+
+	const double step = ((double)bottom - (double)top) / 100.0;
+
+	uint8_t length = mVolume * step;
+
+	// top part: clear
+	mLCDisplay.rectangle(158, top, 159, 31-length - 1, false, false);
+	// bottom part: set
+	mLCDisplay.rectangle(158, 31-length, 159, 31, true, false);
+}
+
+void ClockDisplay::eraseVolume()
+{
+	mLCDisplay.rectangle(158, 10, 159, 31, false, false);
+}
+
+void ClockDisplay::drawSignal()
+{
+	std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
+
+	if (mReceiveLevel >= 75)
+	{
+		mLCDisplay.hLine(159-3, 159, 0, true);
+	}
+	else
+	{
+		mLCDisplay.hLine(159-3, 159, 0, false);
+	}
+
+	if (mReceiveLevel >= 50)
+	{
+		mLCDisplay.hLine(159-2, 159, 1, true);
+	}
+	else
+	{
+		mLCDisplay.hLine(159-2, 159, 1, false);
+	}
+	if (mReceiveLevel >= 25)
+	{
+		mLCDisplay.hLine(159-1, 159, 2, true);
+	}
+	else
+	{
+		mLCDisplay.hLine(159-1, 159, 2, false);
+	}
+
+	if (mReceiveLevel >= 0)
+	{
+		mLCDisplay.point(159, 3, true);
+	}
+	else
+	{
+		mLCDisplay.point(159, 3, false);
+	}
+
+}
+
+void ClockDisplay::eraseSignal()
+{
+	mLCDisplay.rectangle(156, 0, 159, 3, false, true);
+}
+
+void ClockDisplay::drawRDS()
+{
+	std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
+
+
+	mLCDisplay.writeGraphicText(0, 14, mRDSStationName, FontType::Terminal8);
+	if (mRDSText.size() > 0)
+	{
+		std::string localRDSText = mRDSText.substr(mRDSTextPos, std::string::npos);
+		if (localRDSText.size()  > 26)
+		{
+			localRDSText = localRDSText.substr(0, 26);
+			mRDSTextPos +=2;
+		}
+		else
+		{
+			localRDSText.append(26 - localRDSText.size(), ' ');
+			mRDSTextPos = 0;
+		}
+		mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
+	}
+	else
+	{
+		std::string localRDSText(26, ' ');
+		mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
+	}
+}
+
+void ClockDisplay::eraseRDS()
+{
+	std::string stationName(7, ' ');
+	mLCDisplay.writeGraphicText(0, 14, stationName, FontType::Terminal8);
+
+	std::string localRDSText(26, ' ');
+	mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
+}
 
 void ClockDisplay::startRefreshThread()
 {
@@ -249,41 +310,28 @@ void ClockDisplay::refreshThread()
 
 	    if (mRDSVisible)
 		{
-		    std::lock_guard<std::recursive_mutex> lk_guard(mRDSInfoMutex);
-
-
-			mLCDisplay.writeGraphicText(0, 14, mRDSStationName, FontType::Terminal8);
-			if (mRDSText.size() > 0)
-			{
-				std::string localRDSText = mRDSText.substr(mRDSTextPos, std::string::npos);
-				if (localRDSText.size()  > 26)
-				{
-					localRDSText = localRDSText.substr(0, 26);
-					mRDSTextPos +=2;
-				}
-				else
-				{
-					localRDSText.append(26 - localRDSText.size(), ' ');
-					mRDSTextPos = 0;
-				}
-				mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
-			}
-			else
-			{
-				std::string localRDSText(26, ' ');
-				mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
-			}
+	    	drawRDS();
 		}
 	    else
 	    {
-	    	std::string stationName(7, ' ');
-	    	mLCDisplay.writeGraphicText(0, 14, stationName, FontType::Terminal8);
-
-	    	std::string localRDSText(26, ' ');
-			mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
+	    	eraseRDS();
 	    }
-
-		showSignal(mReceiveLevel);
+	    if (mVolumeVisible)
+	    {
+	    	drawVolume();
+	    }
+	    else
+	    {
+	    	eraseVolume();
+	    }
+	    if (mSignalVisible)
+	    {
+	    	drawSignal();
+	    }
+	    else
+	    {
+	    	eraseSignal();
+	    }
 
 /*
 		double lux = mLightSensor.lux();

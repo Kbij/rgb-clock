@@ -45,7 +45,6 @@ void Radio::registerRadioObserver(RadioObserverIf *observer)
 
         mRadioObservers.insert(observer);
     }
-	mFMReceiver.registerRadioObserver(observer);
 }
 void Radio::unRegisterRadioObserver(RadioObserverIf *observer)
 {
@@ -55,7 +54,6 @@ void Radio::unRegisterRadioObserver(RadioObserverIf *observer)
 
         mRadioObservers.erase(observer);
     }
-	mFMReceiver.unRegisterRadioObserver(observer);
 }
 
 void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
@@ -98,7 +96,7 @@ bool Radio::powerOn()
 	mState = RadioState::PwrOn;
 	//mControlRegister = 0b00010000; // PowerUp
 	writeRegisters();
-
+	registerFMReceiver();
 	return true;
 }
 
@@ -109,8 +107,11 @@ bool Radio::powerOff()
 	mState = RadioState::PwrOff;
 	//mControlRegister = 0b00010001; // Shutdown
 	writeRegisters();
+	mFMReceiver.powerOff();
 
-	return mFMReceiver.powerOff();
+	registerFMReceiver();
+
+	return true;
 }
 
 void Radio::volume(int volume)
@@ -196,4 +197,23 @@ void Radio::notifyObservers()
         observer->radioStateUpdate(info);
     }
 }
+
+void Radio::registerFMReceiver()
+{
+	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
+    for (auto observer : mRadioObservers)
+    {
+    	mFMReceiver.registerRadioObserver(observer);
+    }
+}
+
+void Radio::unRegisterFMReceiver()
+{
+	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
+    for (auto observer : mRadioObservers)
+    {
+    	mFMReceiver.unRegisterRadioObserver(observer);
+    }
+}
+
 }
