@@ -44,6 +44,8 @@ private:
 	void readRegisters();
 	void writeRegisters();
 	void notifyObservers();
+	void registerFMReceiver();
+	void unRegisterFMReceiver();
 
 	I2C &mI2C;
 	const uint8_t mAplifierAddress;
