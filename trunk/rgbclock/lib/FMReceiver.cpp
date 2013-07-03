@@ -30,8 +30,6 @@ FMReceiver::FMReceiver(I2C &i2c, uint8_t address) :
 		mRadioObservers(),
 		mRadioObserversMutex()
 {
-	mRDSInfo.mStationName = "";
-	mRDSInfo.mText = "";
 	powerOff();
 	mI2C.registerAddress(address, "FM Receiver");
 }
@@ -97,12 +95,19 @@ bool FMReceiver::powerOn()
     //if(revision.chip=='D' && revision.firmwareMajor=='6' && revision.firmwareMinor=='0'){
 	setProperty(0xFF00, 0);
     //}
-
+/*
 	setProperty(PROP_FM_RDS_CONFIG, (FM_RDS_CONFIG_ARG_ENABLE |
                                      FM_RDS_CONFIG_ARG_BLOCK_A_2_BIT_ERRORS |
                                      FM_RDS_CONFIG_ARG_BLOCK_B_2_BIT_ERRORS |
                                      FM_RDS_CONFIG_ARG_BLOCK_C_2_BIT_ERRORS |
                                      FM_RDS_CONFIG_ARG_BLOCK_D_2_BIT_ERRORS) );
+*/
+	setProperty(PROP_FM_RDS_CONFIG, (FM_RDS_CONFIG_ARG_ENABLE |
+                                     FM_RDS_CONFIG_ARG_BLOCK_A_NO_ERRORS |
+                                     FM_RDS_CONFIG_ARG_BLOCK_B_NO_ERRORS |
+                                     FM_RDS_CONFIG_ARG_BLOCK_C_NO_ERRORS |
+                                     FM_RDS_CONFIG_ARG_BLOCK_D_NO_ERRORS) );
+
 	//Enable RDS interrupt sources
     //Generate interrupt when new data arrives and when RDS sync is gained or lost.
     //  setProperty(PROP_FM_RDS_INT_SOURCE, (RDS_RECEIVED_MASK |
@@ -120,7 +125,7 @@ bool FMReceiver::powerOn()
 	setProperty(PROP_FM_DEEMPHASIS, FM_DEEMPHASIS_ARG_50);
 
     mRDSInfo.clearAll();
-    mReceivingRDSInfo.clearAll();
+    mReceivingRDSInfo.clearAll(true);
 	startReadThread();
 	return true;
 }
@@ -135,7 +140,7 @@ bool FMReceiver::seekUp(int timeoutSeconds)
 
 	std::vector<uint8_t> seekResponse(1);
 	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_SEEK_START, 0x0C}), seekResponse); // seek up & wrap
-	mReceivingRDSInfo.clearAll();
+	mReceivingRDSInfo.clearAll(true);
 	mRDSInfo.clearAll();
 	mRDSInfo.mValidRds = false;
 	mRDSInfo.mStationName = "Seek...";
@@ -286,7 +291,7 @@ void FMReceiver::readRDSInfo()
 	        {
 	        	if (mReceivingRDSInfo.mTextType != ABToTextType(new_ab))
 	        	{
-	        		mReceivingRDSInfo.clearAll();
+	        		mReceivingRDSInfo.clearAll(true);
 	        		mReceivingRDSInfo.mTextType = ABToTextType(new_ab);
 	        	}
 
@@ -307,7 +312,7 @@ void FMReceiver::readRDSInfo()
 								LOG(INFO) << "Clean Text: " << mRDSInfo.mText;
 
 								notifyObservers();
-								mReceivingRDSInfo.clearText();
+								mReceivingRDSInfo.clearText(true);
 							}
 						}
 					}

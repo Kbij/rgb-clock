@@ -12,6 +12,9 @@
 #include "lib/RgbLed.h"
 #include "lib/KeyboardObserverIf.h"
 #include <stdint.h>
+#include <mutex>
+#include <atomic>
+#include <thread>
 
 namespace Hardware
 {
@@ -40,11 +43,16 @@ public:
 
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
 private:
+	void startDimmerThread();
+	void stopDimmerThread();
+	void dimmerThread();
 	State mState;
 	Hardware::RgbLed mRGBLed;
 	int mLuminance;
 	time_t mLastLong;
 	bool mDimDown;
+    std::thread* mDimmerThread;
+    std::atomic_bool mDimmerThreadRunning;
 };
 
 } /* namespace App */
