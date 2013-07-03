@@ -17,12 +17,14 @@ Light::Light(Hardware::I2C &i2c, uint8_t address) :
 		mRGBLed(i2c, address),
 		mLuminance(1000),
 		mLastLong(time(nullptr)),
-		mDimDown(true)
+		mDimDown(true),
+	    mDimmerThread(),
+	    mDimmerThreadRunning()
 {
+	pwrOff();
 	mRGBLed.hue(200);
 	mRGBLed.saturation(4000);
-	//mRGBLed.luminance(mLuminance);
-	//mRGBLed.write();
+	startDimmerThread();
 }
 
 Light::~Light()
@@ -94,7 +96,46 @@ void Light::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 			mRGBLed.luminance(mLuminance);
 			mRGBLed.write();
 		}
+		if (mState == State::PwrOff)
+		{
+			mLuminance = 0;
+			mRGBLed.luminance(mLuminance);
+			mRGBLed.pwrOn();
+			mState = State::SlowUp;
+		}
 	}
 
+}
+void Light::startDimmerThread()
+{
+	mDimmerThreadRunning = true;
+
+	mDimmerThread = new std::thread(&Light::dimmerThread, this);
+}
+void Light::stopDimmerThread()
+{
+	mDimmerThreadRunning = false;
+
+    if (mDimmerThread)
+    {
+    	mDimmerThread->join();
+
+        delete mDimmerThread;
+        mDimmerThread = nullptr;
+    }
+}
+void Light::dimmerThread()
+{
+	   while (mDimmerThreadRunning == true)
+	    {
+	        // default sleep interval
+	        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	        if (mState == State::SlowUp)
+	        {
+	        	mLuminance += 1;
+				mRGBLed.luminance(mLuminance);
+				mRGBLed.write();
+	        }
+	    }
 }
 } /* namespace App */

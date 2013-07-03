@@ -33,10 +33,11 @@ struct RDSInfo {
 		clearAll();
 		mTextType = TextType::Unknown;
 	}
-	void clearAll()
+	void clearAll(bool fillSpecial = false)
 	{
 		clearStationName();
-		clearText();
+		clearText(fillSpecial);
+
 	}
 	void clearStationName()
 	{
@@ -44,10 +45,17 @@ struct RDSInfo {
 		mStationName.resize(9,' ');
 	}
 
-	void clearText()
+	void clearText(bool fillSpecial = false)
 	{
 		mText = "";
-		mText.resize(65,EMPTY_CHAR);
+		if (fillSpecial)
+		{
+			mText.resize(65,EMPTY_CHAR);
+		}
+		else
+		{
+			mText.resize(65,' ');
+		}
 	}
 
 	bool textComplete()

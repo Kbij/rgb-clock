@@ -94,7 +94,7 @@ bool Radio::powerOn()
 	}
 
 	mState = RadioState::PwrOn;
-	//mControlRegister = 0b00010000; // PowerUp
+	mControlRegister = 0b00010000; // PowerUp
 	writeRegisters();
 	registerFMReceiver();
 	return true;
@@ -105,7 +105,7 @@ bool Radio::powerOff()
 	LOG(INFO) << "Radio Off";
 
 	mState = RadioState::PwrOff;
-	//mControlRegister = 0b00010001; // Shutdown
+	mControlRegister = 0b00010001; // Shutdown
 	writeRegisters();
 	mFMReceiver.powerOff();
 
