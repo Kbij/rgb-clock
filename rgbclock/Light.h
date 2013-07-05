@@ -46,11 +46,12 @@ private:
 	void startDimmerThread();
 	void stopDimmerThread();
 	void dimmerThread();
-	State mState;
+	std::atomic<State> mState;
 	Hardware::RgbLed mRGBLed;
-	int mLuminance;
+	std::atomic_int mLuminance;
 	time_t mLastLong;
 	bool mDimDown;
+	std::mutex mLedMutex;
     std::thread* mDimmerThread;
     std::atomic_bool mDimmerThreadRunning;
 };
