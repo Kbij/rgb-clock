@@ -43,6 +43,10 @@ public:
 
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
 private:
+	void initiateFastUp();
+	void initiateFastDown();
+	void initiateSlowUp();
+
 	void startDimmerThread();
 	void stopDimmerThread();
 	void dimmerThread();
