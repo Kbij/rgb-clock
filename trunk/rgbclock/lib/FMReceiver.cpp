@@ -20,6 +20,8 @@ namespace Hardware
 FMReceiver::FMReceiver(I2C &i2c, uint8_t address) :
 		mI2C(i2c),
 		mAddress(address),
+		mPowerCounter(0),
+		mPowerMutex(),
 		mPowerState(PowerState::Unknown),
 		mRDSInfo(),
 		mReceivingRDSInfo(),
@@ -31,6 +33,9 @@ FMReceiver::FMReceiver(I2C &i2c, uint8_t address) :
 		mRadioObserversMutex()
 {
 	powerOff();
+    std::lock_guard<std::mutex> lk_guard(mPowerMutex);
+    mPowerCounter = 0;
+
 	mI2C.registerAddress(address, "FM Receiver");
 }
 
@@ -57,33 +62,37 @@ void FMReceiver::unRegisterRadioObserver(RadioObserverIf *observer)
         mRadioObservers.erase(observer);
     }
 }
+bool FMReceiver::powerOn()
+{
+	LOG(INFO) << "PowerOn";
+    std::lock_guard<std::mutex> lk_guard(mPowerMutex);
+    if (mPowerCounter == 0)
+    {
+    	internalPowerOn();
+    }
+    mPowerCounter++;
+
+    return true;
+}
 
 bool FMReceiver::powerOff()
 {
 	LOG(INFO) << "PowerOff";
-	stopReadThread();
-    std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
-	switch (mPowerState)
-	{
-		case PowerState::PowerOff : return true;
-		case PowerState::PowerOn :
-			if (!waitForCTS())
-			{
-				return false;
-			}; // No break is intended
-		default:
-			std::vector<uint8_t> powerdownResponse(1);
-			mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_DOWN}), powerdownResponse);
-			LOG(INFO) << "POWER_DOWN Status: " << std::hex << "0x" << (int) powerdownResponse[0];
+    std::lock_guard<std::mutex> lk_guard(mPowerMutex);
+    if (mPowerCounter <= 1)
+    {
+    	internalPowerOff();
+    }
+    mPowerCounter--;
 
-		break;
-	}
-	return true;
+    return true;
 }
 
-bool FMReceiver::powerOn()
+
+
+bool FMReceiver::internalPowerOn()
 {
-	LOG(INFO) << "PowerOn";
+	LOG(INFO) << "Internal PowerOn";
     std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
 
 	if (!waitForCTS()) return false;
@@ -127,6 +136,29 @@ bool FMReceiver::powerOn()
     mRDSInfo.clearAll();
     mReceivingRDSInfo.clearAll(true);
 	startReadThread();
+	return true;
+
+}
+bool FMReceiver::internalPowerOff()
+{
+	LOG(INFO) << "Internal PowerOff";
+	stopReadThread();
+    std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
+	switch (mPowerState)
+	{
+		case PowerState::PowerOff : return true;
+		case PowerState::PowerOn :
+			if (!waitForCTS())
+			{
+				return false;
+			}; // No break is intended
+		default:
+			std::vector<uint8_t> powerdownResponse(1);
+			mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({POWER_DOWN}), powerdownResponse);
+			LOG(INFO) << "POWER_DOWN Status: " << std::hex << "0x" << (int) powerdownResponse[0];
+
+		break;
+	}
 	return true;
 }
 

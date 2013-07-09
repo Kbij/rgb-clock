@@ -40,6 +40,10 @@ private:
 
     bool powerOn();
 	bool powerOff();
+
+	bool internalPowerOn();
+	bool internalPowerOff();
+
 	bool seekUp(int timeout);
 	bool tuneFrequency(double frequency);
 	RDSInfo getRDSInfo();
@@ -61,6 +65,8 @@ private:
 
 	I2C &mI2C;
 	const uint8_t mAddress;
+	int mPowerCounter;
+	std::mutex mPowerMutex;
 	PowerState mPowerState;
 	RDSInfo mRDSInfo;
 	RDSInfo mReceivingRDSInfo;
