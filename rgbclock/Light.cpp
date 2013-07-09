@@ -36,9 +36,9 @@ void Light::pwrOn()
 {
 	if (mState == State::PwrOff)
 	{
-		if (mLuminance < 100)
+		if (mLuminance < 10)
 		{
-			mLuminance = 100;
+			mLuminance = 10;
 		}
 
 		initiateFastUp();
@@ -125,9 +125,9 @@ void Light::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 void Light::initiateFastUp()
 {
 	LOG(INFO) << "Init fast, lum=" << mLuminance;
-	if (mLuminance < 200)
+	if (mLuminance < 10)
 	{
-		mLuminance = 200;
+		mLuminance = 10;
 	}
 	std::lock_guard<std::mutex> lk_guard(mLedMutex);
 
@@ -181,6 +181,7 @@ void Light::dimmerThread()
 	int sleepInterval = 1;
 	int deltaLuminance = 20;
 	int targetLuminance = 0;
+	int memorizedLuminance = 0;
 	switch(mState)
 	{
 	case State::SlowUp:
@@ -194,6 +195,7 @@ void Light::dimmerThread()
 		sleepInterval = 100;
 		deltaLuminance = -1;
 		targetLuminance = 0;
+		memorizedLuminance = mLuminance;
 		LOG(INFO) << "RGBLed SlowDown";
 		break;
 	case State::FastUp:
@@ -207,11 +209,12 @@ void Light::dimmerThread()
 		sleepInterval = 1;
 		deltaLuminance = -20;
 		targetLuminance = 0;
+		memorizedLuminance = mLuminance;
 		LOG(INFO) << "RGBLed FastDown";
 		break;
 	default: break;
 	}
-	LOG(INFO) << "Thread STart, target: " << targetLuminance;
+	LOG(INFO) << "Thread Start, target: " << targetLuminance;
 
    while (mDimmerThreadRunning)
    {
@@ -220,7 +223,6 @@ void Light::dimmerThread()
 
 	   if (deltaLuminance > 0)
 	   {
-		   LOG(INFO) << "lum" << (int) mLuminance;
 		   if (mLuminance >= targetLuminance)
 		   {
 			   mLuminance = targetLuminance;
@@ -255,6 +257,12 @@ void Light::dimmerThread()
 		   }
 	   }
    }
+
+   if (memorizedLuminance > 0)
+   {
+	   mLuminance = memorizedLuminance;
+   }
+
    LOG(INFO) << "Thread Exit";
 
 }
