@@ -322,60 +322,43 @@ void LCDisplay::refreshDisplay()
 
 void LCDisplay::writeData(uint8_t byte)
 {
-	//byte = reverse(byte);
-	mControlBus[RS] = 1; // Write Data
-	mControlBus[E] = 1;
-	mControlBus[RW] = 0;
-	mControlBus[E2] = 1;
+	setRSRWBits(1, 0); // RS=1, RW = 0
 
-	// Set the control Bus to the initial state
-	mIO.writeB(mControlBus.to_ulong());
 	// Write databus
 	mIO.writeA(byte);
 
 	// Write data to display
-	mControlBus[E] = 0;
-	mControlBus[E2] = 0;
+	mControlBus.flip(E2);
 	mIO.writeB(mControlBus.to_ulong());
 }
 
 void LCDisplay::writeControl(uint8_t byte)
 {
-	mControlBus[RS] = 0; // Write Control
-	mControlBus[E] = 1;
-	mControlBus[RW] = 0;
+	setRSRWBits(0, 0); // RS=0, RW = 0
 
-	// Set the control Bus to the initial state
-	mIO.writeB(mControlBus.to_ulong());
 	// Write databus
 	mIO.writeA(byte);
 
 	// Write data to display
-	mControlBus[E] = 0;
+	mControlBus.flip(E2);
+
 	mIO.writeB(mControlBus.to_ulong());
 }
 
 uint8_t LCDisplay::readControl()
 {
 	mIO.directionA(IOExpander::DataDirection::dirIn);
-	mControlBus[RS] = 0; // Read Control
-	mControlBus[E] = 1;
-	mControlBus[RW] = 1; // Set read
 
-	// Set as Read
-	mIO.writeB(mControlBus.to_ulong());
+	setRSRWBits(0, 1); // RS=0, RW = 1
 
-	mControlBus[E] = 0;
+	mControlBus.flip(E2);
 	mIO.writeB(mControlBus.to_ulong());
 
 	uint8_t byte;
 
 	mIO.readA(byte);
 
-	mControlBus[E] = 1;
-	mControlBus[RW] = 0; // Set back to write
-
-	mIO.writeB(mControlBus.to_ulong());
+	setRSRWBits(0, 0); // RS=0, RW = 1
 
 	// and change the direction of the bus back
 	mIO.directionA(IOExpander::DataDirection::dirOut);
@@ -387,23 +370,18 @@ uint8_t LCDisplay::readControl()
 uint8_t LCDisplay::readData()
 {
 	mIO.directionA(IOExpander::DataDirection::dirIn);
-	mControlBus[RS] = 1; // Read Data
-	mControlBus[E] = 1;
-	mControlBus[RW] = 1; // Set read
 
-	// Set as Read
-	mIO.writeB(mControlBus.to_ulong());
+	setRSRWBits(1, 1); // RS=0, RW = 1
 
-	mControlBus[E] = 0;
+
+	mControlBus.flip(E2);
 	mIO.writeB(mControlBus.to_ulong());
 
 	uint8_t byte;
 
 	mIO.readA(byte);
 
-	mControlBus[E] = 1;
-	mControlBus[RW] = 0; // Set back to write
-
+	setRSRWBits(1, 0); // RS=0, RW = 0
 	mIO.writeB(mControlBus.to_ulong());
 
 	// and change the direction of the bus back
@@ -412,5 +390,18 @@ uint8_t LCDisplay::readData()
 	LOG(INFO) << "DataBus read: 0x" << std::hex << (int) byte;
 	return byte;
 }
+
+void LCDisplay::setRSRWBits(bool wantedRS, bool wantedRW)
+{
+	if ((mControlBus[RS] != wantedRS) || (mControlBus[RW] != wantedRW))
+	{
+		mControlBus[RS] = wantedRS; // Write Data
+		mControlBus[RW] = wantedRW;
+
+		// Set the control Bus to the initial state
+		mIO.writeB(mControlBus.to_ulong());
+	}
+}
+
 }
 
