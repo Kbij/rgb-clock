@@ -70,8 +70,16 @@ RTC::RTC(I2C &i2c):
 			}
 			newDevice.close();
 		}
-		LOG(INFO) << "Synchronising hwclock with DS1307";
-		runCmd("hwclock -s --debug", true);
+
+		if (rtcValidDateTime())
+		{
+			LOG(INFO) << "Synchronising hwclock with DS1307";
+			runCmd("hwclock -s --debug", true);
+		}
+		else
+		{
+			// RTC Clock is not set; start a thread to set it lateron
+		}
 	}
 	else
 	{
@@ -133,5 +141,11 @@ void RTC::showNTPStatus()
 {
 	std::string ntpStatus =  runCmd("ntpq -p", true);
 }
+
+bool RTC::rtcValidDateTime()
+{
+	return true;
+}
+
 }
 

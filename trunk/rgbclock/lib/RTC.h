@@ -19,6 +19,8 @@ public:
 	void showNTPStatus();
 
 private:
+	// Is the RTC clock set to a valid date/time ?
+	bool rtcValidDateTime();
 	I2C &mI2C;
 };
 }

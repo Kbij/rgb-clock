@@ -74,6 +74,9 @@ private:
 	void writeControl(uint8_t byte);
 	uint8_t readControl();
 	uint8_t readData();
+
+	void setRSRWBits(bool wantedRS, bool wantedRW);
+
 	IOExpander mIO;
 	uint8_t mPortA;
 	std::bitset<8> mControlBus;
