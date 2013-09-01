@@ -6,6 +6,7 @@
 #include "lib/RTC.h"
 #include "Light.h"
 #include "AlarmClock.h"
+#include "Config.h"
 
 #include <string>
 #include <glog/logging.h>
@@ -16,12 +17,12 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-//#include <sstream>
+
 
 
 DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
 DEFINE_string(pidfile,"","Pid file when running as Daemon");
-
+DEFINE_bool(i2cstatistics, false, "Print I2C statistics");
 
 
 void signal_handler(int sig);
@@ -153,6 +154,8 @@ int main (int argc, char* argv[])
 {
     umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //User: r/w, Group: r, Other: r
 	google::InitGoogleLogging("RGBClock");
+
+
 	App::Addresses addressesA;
 	addressesA.mLight = 0x40;
 	addressesA.mKeyboard = 0x5A;
@@ -171,6 +174,10 @@ int main (int argc, char* argv[])
 	{
 		daemonize();
 	}
+
+	App::Config config;
+
+	return 0;
 
 	LOG(INFO) << "Raspberry Pi Ultimate Alarm Clock";
 	LOG(INFO) << "=================================";
@@ -193,8 +200,11 @@ int main (int argc, char* argv[])
 			// Any disconnected module needs to be reconnected here
 			std::this_thread::sleep_for( std::chrono::milliseconds(3000) );
 
+			if (FLAGS_i2cstatistics)
+			{
+				i2c.printStatistics();
+			}
 
-			//i2c.printStatistics();
 		} while (runMain);
 
 	}

@@ -37,8 +37,9 @@ public:
 	bool writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeData, std::vector<uint8_t>& readData);
 	void blockI2C();
 	void unBlockI2C();
-	void registerAddress(uint8_t address, std::string name);
+	void registerAddress(uint8_t address, const std::string& name);
 	void printStatistics();
+	void printStatistics(const std::string& name);
 	void resetStat();
 private:
 	void startStatisticsThread();

@@ -30,4 +30,15 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>org.eclipse.cdt.autotools.core.autotoolsNatureV2</nature>
 	</natures>
+	<filteredResources>
+		<filter>
+			<id>1377977986111</id>
+			<name></name>
+			<type>10</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-location-matches-false-false-/home/koen/workspace/rgb-clock/libraries/boost/*</arguments>
+			</matcher>
+		</filter>
+	</filteredResources>
 </projectDescription>
