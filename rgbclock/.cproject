@@ -69,6 +69,7 @@
 								<option id="gnu.cpp.compiler.option.other.other.599321114" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -std=c++11" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1496754310" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="_GLIBCXX_USE_NANOSLEEP"/>
+									<listOptionValue builtIn="false" value="TIXML_USE_TICPP"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1335248604" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -92,8 +93,9 @@
 								<option id="gnu.cpp.link.option.libs.206819188" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="glog"/>
 									<listOptionValue builtIn="false" value="pthread"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="gflags"/>
+									<listOptionValue builtIn="false" value="gflags"/>
 								</option>
+								<option id="gnu.cpp.link.option.flags.1654814525" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="/home/koen/workspace/rgb-clock/libraries/boost/boost_1_54_0/stage/lib/libboost_serialization.a" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.51071421" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -113,14 +115,29 @@
 		<project id="RgbClock.org.eclipse.linuxtools.cdt.autotools.core.projectType.650886910" name="GNU Autotools" projectType="org.eclipse.linuxtools.cdt.autotools.core.projectType"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Build (GNU)">
+			<resource resourceType="PROJECT" workspacePath="/RgbClock"/>
+		</configuration>
+		<configuration configurationName="Raspberry">
+			<resource resourceType="PROJECT" workspacePath="/RgbClock"/>
+		</configuration>
+	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.956519331.771961594.1121735565;cdt.managedbuild.config.gnu.exe.debug.956519331.771961594.1121735565.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.392577676;cdt.managedbuild.tool.gnu.cpp.compiler.input.1335248604">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1373416184;org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1373416184.;org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc.441483015;cdt.managedbuild.tool.gnu.c.compiler.input.1915214789">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.956519331.771961594.1121735565;cdt.managedbuild.config.gnu.exe.debug.956519331.771961594.1121735565.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.2035754623;cdt.managedbuild.tool.gnu.c.compiler.input.495322385">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1373416184;org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1373416184.;org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp.1178886759;cdt.managedbuild.tool.gnu.cpp.compiler.input.1556188165">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

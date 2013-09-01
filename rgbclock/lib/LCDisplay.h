@@ -80,7 +80,7 @@ private:
 	IOExpander mIO;
 	uint8_t mPortA;
 	std::bitset<8> mControlBus;
-	std::array<std::array<MyGraphicWord,10>,32>* mGraphicRam;
+	std::array<std::array<MyGraphicWord,10>,32> mGraphicRam;
 	std::map<FontType, FontInfo> mFontMap;
 	std::mutex mDisplayMutex;
 };

@@ -24,7 +24,9 @@ I2C::I2C() :
 	mBusMutex(),
 	mStatMutex(),
 	mAddressStatistics(),
-	mGeneralStatistics()
+	mGeneralStatistics(),
+	mStatisticsThread(),
+	mStatisticsThreadRunning(false)
 {
 	startStatisticsThread();
 #ifndef HOSTBUILD
@@ -320,7 +322,17 @@ bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeDa
 #endif
 }
 
-void I2C::registerAddress(uint8_t address, std::string name)
+void I2C::blockI2C()
+{
+    mBusMutex.lock();
+}
+
+void I2C::unBlockI2C()
+{
+    mBusMutex.unlock();
+}
+
+void I2C::registerAddress(uint8_t address, const std::string& name)
 {
     std::lock_guard<std::mutex> lk_guard(mStatMutex);
     mAddressStatistics[address].mName = name;
@@ -346,6 +358,19 @@ void I2C::printStatistics()
     LOG(INFO) << "======================";
    	LOG(INFO) << "Bytes/sec: " << mGeneralStatistics.mBytesPerSecond;
    	LOG(INFO) << "Max Bytes/sec: " << mGeneralStatistics.mMaxBytesPerSecond;
+}
+
+void I2C::printStatistics(const std::string& name)
+{
+    std::lock_guard<std::mutex> lk_guard(mStatMutex);
+
+    for (auto& stat : mAddressStatistics)
+    {
+    	if (name == stat.second.mName)
+    	{
+        	LOG(INFO) << "Statistics for " << name << ", bytes: " << stat.second.mBytesPerSecond<< ", max bytes: "  <<stat.second.mMaxBytesPerSecond;
+    	}
+    }
 }
 
 void I2C::resetStat()

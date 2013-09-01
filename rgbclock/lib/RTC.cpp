@@ -50,7 +50,9 @@ std::string runCmd(const std::string& cmd, bool log)
 namespace Hardware
 {
 RTC::RTC(I2C &i2c):
-	mI2C(i2c)
+	mI2C(i2c),
+	mRTCThread(),
+	mRTCThreadRunning(false)
 {
 
 	LOG(INFO) << "Checking time accuracy";
@@ -76,20 +78,18 @@ RTC::RTC(I2C &i2c):
 			LOG(INFO) << "Synchronising hwclock with DS1307";
 			runCmd("hwclock -s --debug", true);
 		}
-		else
-		{
-			// RTC Clock is not set; start a thread to set it lateron
-		}
 	}
 	else
 	{
 		LOG(INFO) << "Time synchronized with ntp server";
 	}
+
+	startRTCUpdateThread();
 }
 
 RTC::~RTC()
 {
-
+	stopRTCUpdateThread();
 }
 
 bool RTC::ntpSynchronized()
@@ -139,13 +139,61 @@ bool RTC::ntpSynchronized()
 
 void RTC::showNTPStatus()
 {
-	std::string ntpStatus =  runCmd("ntpq -p", true);
+	runCmd("ntpq -p", true);
 }
 
 bool RTC::rtcValidDateTime()
 {
-	return true;
+	std::string rtcStatus =  runCmd("hwclock -r", true);
+	if ((rtcStatus.find("invalid") != std::string::npos) || (rtcStatus.find("error") != std::string::npos))
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 
-}
+void RTC::startRTCUpdateThread()
+{
+	mRTCThreadRunning = true;
 
+	mRTCThread = new std::thread(&RTC::rtcThread, this);
+}
+void RTC::stopRTCUpdateThread()
+{
+	mRTCThreadRunning = false;
+
+    if (mRTCThread)
+    {
+    	mRTCThread->join();
+
+        delete mRTCThread;
+        mRTCThread = nullptr;
+    }
+}
+void RTC::rtcThread()
+{
+	// sleep interval in minutes at boot
+	int sleepIntervalMin = 5;
+    while (mRTCThreadRunning == true)
+    {
+        // default sleep interval
+        std::this_thread::sleep_for(std::chrono::minutes(sleepIntervalMin));
+
+        if (ntpSynchronized())
+        {
+			LOG(INFO) << "NTP Synchronised, writing RTC";
+
+        	sleepIntervalMin = 4320; // Every 3 days
+        	mI2C.blockI2C();
+        	runCmd("hwclock -w", true);
+        	mI2C.unBlockI2C();
+        }
+
+    }
+
+
+}
+}

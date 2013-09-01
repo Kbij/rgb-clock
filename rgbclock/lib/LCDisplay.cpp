@@ -29,12 +29,12 @@ LCDisplay::LCDisplay(I2C &i2c, uint8_t address):
 	mIO(i2c, address),
 	mPortA(0),
 	mControlBus(0),
-	mGraphicRam(nullptr),
+	mGraphicRam(),
 	mFontMap(),
 	mDisplayMutex()
 {
 	i2c.registerAddress(address, "Display");
-    mGraphicRam = new std::array<std::array<MyGraphicWord,10>,32>;
+    //mGraphicRam = new std::array<std::array<MyGraphicWord,10>,32>;
     mFontMap[FontType::Verdana20].mWidth = 32;
     mFontMap[FontType::Verdana20].mSpacing = 22;
     mFontMap[FontType::Verdana20].mHeight = 25;//27;
@@ -65,8 +65,8 @@ LCDisplay::LCDisplay(I2C &i2c, uint8_t address):
 
 LCDisplay::~LCDisplay()
 {
-	delete mGraphicRam;
-	mGraphicRam = nullptr;
+	//delete mGraphicRam;
+	//mGraphicRam = nullptr;
 }
 
 void LCDisplay::initStandard()
@@ -106,8 +106,8 @@ void LCDisplay::clearGraphicDisplay()
 	{
 		for (int horz = 0; horz < 10; ++horz )
 		{
-			(*mGraphicRam)[vert][horz].mBits.reset();
-			(*mGraphicRam)[vert][horz].mChanged = true;
+			mGraphicRam[vert][horz].mBits.reset();
+			mGraphicRam[vert][horz].mChanged = true;
 		}
 	}
 	refreshDisplay();
@@ -216,8 +216,13 @@ void LCDisplay::rawPoint(uint8_t col, uint8_t row, bool set)
 	divresult = div(col, 16);
 	uint myCol= 0;
 	myCol = 15 - divresult.rem;
-	(*mGraphicRam)[row][divresult.quot].mBits.set(myCol, set);
-	(*mGraphicRam)[row][divresult.quot].mChanged = true;
+
+	// If there is a difference
+	if (mGraphicRam[row][divresult.quot].mBits.test(myCol) != set)
+	{
+		mGraphicRam[row][divresult.quot].mBits.set(myCol, set);
+		mGraphicRam[row][divresult.quot].mChanged = true;
+	}
 }
 
 void LCDisplay::rawVertByte(uint8_t col, uint8_t& row, uint8_t maxRemainingRows, uint8_t byte)
@@ -303,17 +308,17 @@ void LCDisplay::refreshDisplay()
 
 		for (int horz = 0; horz < 10; ++horz )
 		{
-			if ((*mGraphicRam)[vert][horz].mChanged)
+			if (mGraphicRam[vert][horz].mChanged)
 			{
 				if (!(prevHorz == (horz -1)))
 				{
 					setGAddress(vert, horz);
 				}
-				writeData(((*mGraphicRam)[vert][horz].mBits.to_ulong() >> 8) & 0xFF);
-				writeData((*mGraphicRam)[vert][horz].mBits.to_ulong() & 0xFF);
+				writeData((mGraphicRam[vert][horz].mBits.to_ulong() >> 8) & 0xFF);
+				writeData(mGraphicRam[vert][horz].mBits.to_ulong() & 0xFF);
 
 				// Clear Changed Bit
-				(*mGraphicRam)[vert][horz].mChanged = false;
+				mGraphicRam[vert][horz].mChanged = false;
 				prevHorz = horz;
 			}
 		}
