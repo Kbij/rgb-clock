@@ -15,7 +15,7 @@ namespace Hardware
 {
 class RTC {
 public:
-	RTC(I2C &i2c);
+	RTC(I2C &i2c, uint8_t address);
 	virtual ~RTC();
 
 	bool ntpSynchronized();
