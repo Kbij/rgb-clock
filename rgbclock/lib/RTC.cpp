@@ -49,7 +49,7 @@ std::string runCmd(const std::string& cmd, bool log)
 
 namespace Hardware
 {
-RTC::RTC(I2C &i2c):
+RTC::RTC(I2C &i2c, uint8_t address):
 	mI2C(i2c),
 	mRTCThread(),
 	mRTCThreadRunning(false)
@@ -68,7 +68,7 @@ RTC::RTC(I2C &i2c):
 			std::ofstream newDevice("/sys/class/i2c-adapter/i2c-1/new_device");
 			if (newDevice)
 			{
-				newDevice << "ds1307 0x68";
+				newDevice << "ds1307 " << std::to_string(address);
 			}
 			newDevice.close();
 		}

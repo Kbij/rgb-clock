@@ -177,16 +177,25 @@ int main (int argc, char* argv[])
 
 	App::Config config;
 
-	return 0;
+	if (!config.errorFree())
+	{
+		return -1;
+	}
+
+	std::vector<App::AlarmClock*> startedUnits;
+	const std::vector<App::UnitConfig>& configuredUnits = config.configuredUnits();
+	const App::SystemConfig& systemConfig = config.systemConfig();
 
 	LOG(INFO) << "Raspberry Pi Ultimate Alarm Clock";
 	LOG(INFO) << "=================================";
+	LOG(INFO) << "Number of configured units: " << configuredUnits.size();
+
 	try
 	{
 		Hardware::I2C i2c;
-		Hardware::RTC rtc(i2c);
+		Hardware::RTC rtc(i2c, systemConfig.mRtc);
 
-		Hardware::FMReceiver fmReceiver(i2c, 0x63);
+		Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio);
 
 		// I2C bus is operational, create the hardware here
 		// This hardware is removable (= Not on the mainboard)

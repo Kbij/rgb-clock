@@ -95,7 +95,7 @@
 									<listOptionValue builtIn="false" value="pthread"/>
 									<listOptionValue builtIn="false" value="gflags"/>
 								</option>
-								<option id="gnu.cpp.link.option.flags.1654814525" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="/home/koen/workspace/rgb-clock/libraries/boost/boost_1_54_0/stage/lib/libboost_serialization.a" valueType="string"/>
+								<option id="gnu.cpp.link.option.flags.1654814525" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.51071421" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
