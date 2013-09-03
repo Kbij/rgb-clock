@@ -23,6 +23,7 @@ const int LONG_MASK = 0x80;
 
 Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 	mI2C(i2c),
+	mAttached(true), // We assume it is attached
 	mAddress(address),
 	mKeyHistory(0),
 	mReadThread(nullptr),
@@ -58,6 +59,11 @@ void Keyboard::unRegisterKeyboardObserver(KeyboardObserverIf *observer)
 
         mKeyboardObservers.erase(observer);
     }
+}
+
+bool Keyboard::isAttached()
+{
+	return mAttached;
 }
 
 void Keyboard::init()
@@ -233,16 +239,6 @@ void Keyboard::stopReadThread()
 void Keyboard::readThread()
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-/*
-	uint8_t oor0;
-    uint8_t oor1;
-
-    mI2C.readByteSync(mAddress, ELE0_7_OOR_STATUS, oor0);
-    mI2C.readByteSync(mAddress, ELE8_11_ELEPROX_OOR_STATUS, oor1);
-
-    LOG(INFO) << "OOR0: " << std::hex << (int) oor0;
-    LOG(INFO) << "OOR1: " << std::hex << (int) oor1 << std::dec;
-*/
 
     while (mReadThreadRunning == true)
     {
@@ -250,27 +246,17 @@ void Keyboard::readThread()
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         uint8_t byte0;
 
-        mI2C.readByteSync(mAddress, ELE0_ELE7_TOUCH_STATUS, byte0);
+        mAttached = mI2C.readByteSync(mAddress, ELE0_ELE7_TOUCH_STATUS, byte0);
 
         std::vector<Hardware::KeyInfo> keyboardInfo(8); // 8 Keys);
         bool keyPressed = false;
-/*
-        if (byte0 > 0)
-        {
-            LOG(INFO) << binary(byte0, 8);
-        }
-*/
+
         for (int i = 0; i < 8; ++i)
         {
 
         	mKeyHistory[i] <<= 1;// Shift history 1 to the left
         	mKeyHistory[i] |= (byte0 & 0x01); // add 1 bit to the history
-/*
-        	if (i == 0)
-        	{
-        		LOG(INFO) << binary(mKeyHistory[i], 16);
-        	}
-*/
+
         	byte0 >>= 1; // Shift the current values 1 to the right
 
     		keyboardInfo[i].mPressed = false;

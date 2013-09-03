@@ -42,6 +42,12 @@ public:
 	void pwrToggle();
 
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
+
+	bool isAttached();
+
+	// Prevent copy constructor
+	Light(const Light& source) = delete;
+
 private:
 	void initiateFastUp();
 	void initiateFastDown();

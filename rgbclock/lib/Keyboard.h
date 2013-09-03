@@ -24,6 +24,8 @@ public:
 
 	void registerKeyboardObserver(KeyboardObserverIf *observer);
     void unRegisterKeyboardObserver(KeyboardObserverIf *observer);
+
+    bool isAttached();
 private:
 	void init();
 	void startReadThread();
@@ -31,6 +33,7 @@ private:
 	void readThread();
 
 	I2C &mI2C;
+	std::atomic_bool mAttached;
 	const uint8_t mAddress;
 	std::vector<uint16_t> mKeyHistory;
     std::thread* mReadThread;

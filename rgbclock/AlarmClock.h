@@ -12,6 +12,7 @@
 #include "lib/KeyboardObserverIf.h"
 #include "lib/Radio.h"
 #include "lib/ClockDisplay.h"
+#include "Config.h"
 #include <stdint.h>
 
 namespace Hardware
@@ -22,29 +23,24 @@ class I2C;
 namespace App
 {
 
-
 class Light;
-
-struct Addresses
-{
-	uint8_t mLight;
-	uint8_t mKeyboard;
-	uint8_t mAmplifier;
-	uint8_t mLightSensor;
-	uint8_t mLCD;
-};
 
 class AlarmClock : public Hardware::KeyboardObserverIf {
 public:
-	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, Addresses addresses);
+	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, UnitConfig addresses);
 	virtual ~AlarmClock();
 
 	void registerLight(Light *light);
-	void unregisterLight();
+	void unregisterLight(Light *light);
 
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
+
+	bool isAttached();
+
+	// Prevent copy constructor
+	AlarmClock(const AlarmClock& source) = delete;
+
 private:
-	Addresses mAddresses;
 	Hardware::Keyboard mKeyboard;
 	Hardware::Radio mRadio;
 	Hardware::ClockDisplay mDisplay;
