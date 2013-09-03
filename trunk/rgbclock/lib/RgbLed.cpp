@@ -149,6 +149,11 @@ void RgbLed::write()
 	mI2C.writeDataSync(mAddress, buffer);
 }
 
+bool RgbLed::isAttached()
+{
+	return false;
+}
+
 bool RgbLed::init()
 {
 	bool result = true;

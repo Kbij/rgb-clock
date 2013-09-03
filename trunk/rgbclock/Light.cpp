@@ -122,6 +122,11 @@ void Light::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 
 }
 
+bool Light::isAttached()
+{
+	return mRGBLed.isAttached();
+}
+
 void Light::initiateFastUp()
 {
 	LOG(INFO) << "Init fast, lum=" << mLuminance;

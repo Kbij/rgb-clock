@@ -11,8 +11,7 @@
 
 namespace App {
 
-AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, Addresses addresses) :
-	mAddresses(addresses),
+AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, UnitConfig addresses) :
 	mKeyboard(i2c, addresses.mKeyboard),
 	mRadio(i2c, addresses.mAmplifier, fmReceiver),
 	mDisplay(i2c, addresses.mLCD, addresses.mLightSensor),
@@ -21,7 +20,6 @@ AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, Ad
 	mKeyboard.registerKeyboardObserver(this);
 	mKeyboard.registerKeyboardObserver(&mRadio);
 	mRadio.registerRadioObserver(&mDisplay);
-
 }
 
 AlarmClock::~AlarmClock()
@@ -37,8 +35,9 @@ void AlarmClock::registerLight(Light *light)
 	mKeyboard.registerKeyboardObserver(light);
 }
 
-void AlarmClock::unregisterLight()
+void AlarmClock::unregisterLight(Light *light)
 {
+	mKeyboard.registerKeyboardObserver(light);
 	mLight = nullptr;
 }
 
@@ -48,5 +47,9 @@ void AlarmClock::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 
 }
 
+bool AlarmClock::isAttached()
+{
+	return mKeyboard.isAttached();
+}
 
 } /* namespace App */

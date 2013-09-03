@@ -30,6 +30,8 @@ public:
 	void luminance(uint16_t value);
 
 	void write();
+
+	bool isAttached();
 private:
 	bool init();
 	void hslToRgb();

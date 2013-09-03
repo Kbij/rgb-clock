@@ -9,7 +9,7 @@
 #define CONFIG_H_
 #include <string>
 #include <stdint.h>
-#include <vector>
+#include <map>
 
 namespace App {
 
@@ -36,12 +36,12 @@ public:
 	virtual ~Config();
 
 	bool errorFree();
-	const std::vector<UnitConfig>& configuredUnits();
+	const std::map<std::string, UnitConfig>& configuredUnits();
 	const SystemConfig& systemConfig();
 
 private:
 	bool mErrorFree;
-	std::vector<UnitConfig> mConfiguredUnits;
+	std::map<std::string, UnitConfig> mConfiguredUnits;
 	SystemConfig mSystemConfig;
 
 	void loadXML();

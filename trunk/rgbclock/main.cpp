@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <memory>
 
 
 
@@ -155,7 +156,7 @@ int main (int argc, char* argv[])
     umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //User: r/w, Group: r, Other: r
 	google::InitGoogleLogging("RGBClock");
 
-
+/*
 	App::Addresses addressesA;
 	addressesA.mLight = 0x40;
 	addressesA.mKeyboard = 0x5A;
@@ -163,7 +164,7 @@ int main (int argc, char* argv[])
 	addressesA.mLCD = 0x20;
 	addressesA.mLightSensor = 0x29;
 
-
+*/
 
 	std::string usage("Raspberry Pi Ultimate Alarm Clock. Sample usage:\n");
 	usage += argv[0];
@@ -175,15 +176,19 @@ int main (int argc, char* argv[])
 		daemonize();
 	}
 
+	// Create the config object; load the XML file with the settings
 	App::Config config;
 
 	if (!config.errorFree())
 	{
+		// No errorfree load; exit the application
 		return -1;
 	}
 
-	std::vector<App::AlarmClock*> startedUnits;
-	const std::vector<App::UnitConfig>& configuredUnits = config.configuredUnits();
+	std::map<std::string, std::unique_ptr<App::AlarmClock>> startedUnits;
+	std::map<std::string, std::unique_ptr<App::Light>> startedLights;
+
+	const std::map<std::string, App::UnitConfig>& configuredUnits = config.configuredUnits();
 	const App::SystemConfig& systemConfig = config.systemConfig();
 
 	LOG(INFO) << "Raspberry Pi Ultimate Alarm Clock";
@@ -199,20 +204,39 @@ int main (int argc, char* argv[])
 
 		// I2C bus is operational, create the hardware here
 		// This hardware is removable (= Not on the mainboard)
-		App::Light *lightA = new App::Light(i2c, addressesA.mLight);
-		App::AlarmClock *alarmClockA = new App::AlarmClock(i2c, fmReceiver, addressesA);
+//		App::Light *lightA = new App::Light(i2c, addressesA.mLight);
+//		App::AlarmClock *alarmClockA = new App::AlarmClock(i2c, fmReceiver, addressesA);
 
-		alarmClockA->registerLight(lightA);
+//		alarmClockA->registerLight(lightA);
 
 		do{
-			// This is the clock hw maitenance thread
-			// Any disconnected module needs to be reconnected here
+			for (const auto& configUnit : configuredUnits)
+			{
+				if (startedUnits.find(configUnit.first) == startedUnits.end())
+				{
+					// Unit not found; create a unit
+					startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, configUnit.second));
+
+					// Is there a light present for this new unit ?
+					auto lightUnit = startedLights.find(configUnit.first);
+					if (lightUnit == startedLights.end())
+					{
+						startedLights[configUnit.first] = std::unique_ptr<App::Light>(new App::Light(i2c, configUnit.second.mLight));
+					}
+					// register the light
+					startedUnits[configUnit.first]->registerLight(startedLights[configUnit.first].get());
+				}
+			}
+
+			// Sleep for 3 seconds; check for disconnected hardware after this time
 			std::this_thread::sleep_for( std::chrono::milliseconds(3000) );
 
 			if (FLAGS_i2cstatistics)
 			{
 				i2c.printStatistics();
 			}
+
+			// Now run thru the connected devices; and see if they are still connected
 
 		} while (runMain);
 

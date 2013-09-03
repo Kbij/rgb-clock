@@ -68,7 +68,7 @@ void Config::loadXML()
             getAddress(unit.Get(), "lcd_addr", unitSettings.mLCD);
             getAddress(unit.Get(), "lightsensor_addr", unitSettings.mLightSensor);
 
-        	mConfiguredUnits.push_back(unitSettings);
+        	mConfiguredUnits[unitSettings.mName] = unitSettings;
         	// advance to next item
         	++unit;
         }
@@ -79,7 +79,7 @@ void Config::loadXML()
 		return;
 	}
 
-   // mErrorFree = true;
+	mErrorFree = true;
 }
 
 bool Config::errorFree()
@@ -87,7 +87,7 @@ bool Config::errorFree()
 	return mErrorFree;
 }
 
-const std::vector<UnitConfig>& Config::configuredUnits()
+const std::map<std::string, UnitConfig>& Config::configuredUnits()
 {
 	return mConfiguredUnits;
 }
