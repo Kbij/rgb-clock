@@ -37,7 +37,11 @@ Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 	startReadThread();
 }
 
-Keyboard::~Keyboard() {
+Keyboard::~Keyboard()
+{
+	LOG(INFO) << "Keyboard destructor";
+	stopReadThread();
+	LOG(INFO) << "Keyboard destructor 2";
 
 }
 
@@ -246,7 +250,7 @@ void Keyboard::readThread()
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         uint8_t byte0;
 
-        mAttached = mI2C.readByteSync(mAddress, ELE0_ELE7_TOUCH_STATUS, byte0);
+        mAttached = mAttached & mI2C.readByteSync(mAddress, ELE0_ELE7_TOUCH_STATUS, byte0);
 
         std::vector<Hardware::KeyInfo> keyboardInfo(8); // 8 Keys);
         bool keyPressed = false;

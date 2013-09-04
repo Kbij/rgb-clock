@@ -198,7 +198,7 @@ int main (int argc, char* argv[])
 	try
 	{
 		Hardware::I2C i2c;
-		Hardware::RTC rtc(i2c, systemConfig.mRtc);
+//		Hardware::RTC rtc(i2c, systemConfig.mRtc);
 
 		Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio);
 
@@ -214,22 +214,30 @@ int main (int argc, char* argv[])
 			{
 				if (startedUnits.find(configUnit.first) == startedUnits.end())
 				{
+					LOG(INFO) << "Creating clock unit: " << configUnit.first;
 					// Unit not found; create a unit
 					startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, configUnit.second));
+				}
 
-					// Is there a light present for this new unit ?
+				if (!startedUnits[configUnit.first]->hasRegisteredLight())
+				{ // It has no registered light
+					LOG(INFO) << "Unit found, without light registered";
+
+					// Is there a light present for this unit ?
 					auto lightUnit = startedLights.find(configUnit.first);
 					if (lightUnit == startedLights.end())
 					{
+						LOG(INFO) << "Found no existing light; creating: " << configUnit.first;
 						startedLights[configUnit.first] = std::unique_ptr<App::Light>(new App::Light(i2c, configUnit.second.mLight));
 					}
-					// register the light
+
+					LOG(INFO) << "Registering the light";
 					startedUnits[configUnit.first]->registerLight(startedLights[configUnit.first].get());
 				}
 			}
 
 			// Sleep for 3 seconds; check for disconnected hardware after this time
-			std::this_thread::sleep_for( std::chrono::milliseconds(3000) );
+			std::this_thread::sleep_for( std::chrono::milliseconds(10000) );
 
 			if (FLAGS_i2cstatistics)
 			{
@@ -237,6 +245,55 @@ int main (int argc, char* argv[])
 			}
 
 			// Now run thru the connected devices; and see if they are still connected
+			// Start with the clock devices
+			auto unit_it = startedUnits.begin();
+			while (unit_it != startedUnits.end())
+			{
+				if (!unit_it->second->isAttached())
+				{
+					LOG(ERROR) << "Clock unit is no longer attached: " << unit_it->first;
+
+					// Need to remove the clock unit; first find (if any) the light unit, and unregister
+					auto lightUnit = startedLights.find(unit_it->first);
+					if (lightUnit != startedLights.end())
+					{
+						LOG(ERROR) << "The Clock unit had a registered light; unregistering the light";
+						unit_it->second->unRegisterLight(lightUnit->second.get());
+					}
+
+					LOG(ERROR) << "Deleting the clock unit";
+					startedUnits.erase(unit_it);
+				}
+//				else
+	//			{
+					unit_it++;
+		//		}
+			}
+
+
+			// Do the same with the light devices
+			auto light_it = startedLights.begin();
+			while (light_it != startedLights.end())
+			{
+				if (!light_it->second->isAttached())
+				{
+					LOG(ERROR) << "Licht unit no longer attached: " << light_it->first;
+					// Need to remove the light unit; first find (if any) the clock unit, and unregister
+					auto clockUnit = startedUnits.find(light_it->first);
+					if (clockUnit != startedUnits.end())
+					{
+						LOG(ERROR) << "Found the corresponding clock unit; unregistering light";
+						clockUnit->second->unRegisterLight(light_it->second.get());
+					}
+					LOG(ERROR) << "Deleting the light";
+					startedLights.erase(light_it);
+				}
+//				else
+	//			{
+					light_it++;
+		//		}
+			}
+
 
 		} while (runMain);
 

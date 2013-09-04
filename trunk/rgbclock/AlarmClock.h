@@ -31,11 +31,13 @@ public:
 	virtual ~AlarmClock();
 
 	void registerLight(Light *light);
-	void unregisterLight(Light *light);
+	void unRegisterLight(Light *light);
 
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
 
+	bool hasRegisteredLight();
 	bool isAttached();
+
 
 	// Prevent copy constructor
 	AlarmClock(const AlarmClock& source) = delete;
