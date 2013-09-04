@@ -34,7 +34,7 @@ Radio::Radio(I2C &i2c, uint8_t apmlifierAddress, FMReceiver &fmReceiver):
 
 Radio::~Radio()
 {
-
+	LOG(INFO) << "Radio destructor";
 }
 
 void Radio::registerRadioObserver(RadioObserverIf *observer)

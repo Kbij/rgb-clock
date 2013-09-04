@@ -37,7 +37,7 @@ ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress) :
 
 ClockDisplay::~ClockDisplay()
 {
-
+	LOG(INFO) << "Display destructor";
 	stopRefreshThread();
 }
 

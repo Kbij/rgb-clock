@@ -9,6 +9,8 @@
 #include "Light.h"
 #include "lib/FMReceiver.h"
 
+#include <glog/logging.h>
+
 namespace App {
 
 AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, UnitConfig addresses) :
@@ -24,8 +26,13 @@ AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, Un
 
 AlarmClock::~AlarmClock()
 {
+	LOG(INFO) << "Unregistering ourself from the keyboard";
 	mKeyboard.unRegisterKeyboardObserver(this);
+
+	LOG(INFO) << "Unregistering the radio from the keyboard";
 	mKeyboard.registerKeyboardObserver(&mRadio);
+
+	LOG(INFO) << "Unregistering the radio observer";
 	mRadio.unRegisterRadioObserver(&mDisplay);
 }
 
@@ -35,9 +42,9 @@ void AlarmClock::registerLight(Light *light)
 	mKeyboard.registerKeyboardObserver(light);
 }
 
-void AlarmClock::unregisterLight(Light *light)
+void AlarmClock::unRegisterLight(Light *light)
 {
-	mKeyboard.registerKeyboardObserver(light);
+	mKeyboard.unRegisterKeyboardObserver(light);
 	mLight = nullptr;
 }
 
@@ -45,6 +52,11 @@ void AlarmClock::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 {
 
 
+}
+
+bool AlarmClock::hasRegisteredLight()
+{
+	return mLight != nullptr;
 }
 
 bool AlarmClock::isAttached()
