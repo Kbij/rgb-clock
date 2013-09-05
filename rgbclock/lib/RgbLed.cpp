@@ -11,6 +11,8 @@
 #include <iostream>
 
 const uint16_t MAX_RESOLUTION = 4000;
+const uint8_t PRESCALER_REGISTER = 0xFE;
+const uint8_t PRESCALER_VALUE = 30;
 
 namespace Hardware
 {
@@ -151,7 +153,10 @@ void RgbLed::write()
 
 bool RgbLed::isAttached()
 {
-	return false;
+	uint8_t prescaler;
+	mI2C.readByteSync(mAddress, PRESCALER_REGISTER, prescaler);
+
+	return prescaler == PRESCALER_VALUE;
 }
 
 bool RgbLed::init()
@@ -160,13 +165,13 @@ bool RgbLed::init()
 
 	// Set the prescaler
 	std::vector<uint8_t> initBuffer;
-	initBuffer.push_back(0xFE); // PreScaler register
+	initBuffer.push_back(PRESCALER_REGISTER); // PreScaler register
 	/*
      * Prescaler value = (25Mhz/(4096 * OutputFreq)) - 1
 	 * OutputFreq = 200Hz
      *  Value = (25000000/(4096*200)) - 1 = 30
 	 */
-	initBuffer.push_back(30); // Value of Prescaler
+	initBuffer.push_back(PRESCALER_VALUE); // Value of Prescaler
 
 	result = result && mI2C.writeDataSync(mAddress, initBuffer);
 
