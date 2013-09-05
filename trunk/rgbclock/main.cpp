@@ -7,6 +7,7 @@
 #include "Light.h"
 #include "AlarmClock.h"
 #include "Config.h"
+#include "AlarmManager.h"
 
 #include <string>
 #include <glog/logging.h>
@@ -178,6 +179,7 @@ int main (int argc, char* argv[])
 
 	// Create the config object; load the XML file with the settings
 	App::Config config;
+	App::AlarmManager alarmManager;
 
 	if (!config.errorFree())
 	{
