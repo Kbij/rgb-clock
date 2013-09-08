@@ -7,11 +7,19 @@
 
 #ifndef ALARMMANAGER_H_
 #define ALARMMANAGER_H_
+
+#include <set>
 #include <vector>
 #include <string>
 #include <map>
+#include <mutex>
+#include <atomic>
+#include <thread>
 
 namespace App {
+
+class AlarmObserverIf;
+
 enum class Day
 {
 	Monday    = 1,
@@ -31,7 +39,8 @@ struct Alarm
 		mOneTime(false),
 		mDays(),
 		mUnit(""),
-		mVolume(40){};
+		mVolume(40),
+		mSignaled(false){};
 
 	uint8_t mHour;
 	uint8_t mMinutes;
@@ -39,6 +48,7 @@ struct Alarm
 	std::map<Day, bool> mDays;
 	std::string mUnit;
 	uint8_t mVolume;
+	bool mSignaled;
 };
 
 using AlarmList = std::vector<Alarm>;
@@ -48,15 +58,28 @@ public:
 	AlarmManager();
 	virtual ~AlarmManager();
 
+	void registerAlarmObserver(AlarmObserverIf* observer);
+	void unRegisterAlarmObserver(AlarmObserverIf* observer);
+
 	AlarmList* editAlarms(std::string unitName);
 	void saveAlarms(std::string unitName);
 
 private:
-	AlarmList* mAlarmList;
+	AlarmList mAlarmList;
+	std::set<AlarmObserverIf*> mAlarmObservers;
 	std::string mCurrentEditor;
+	std::mutex mAlarmsMutex;
+	std::mutex mAlarmObserversMutex;
+    std::thread* mAlarmThread;
+	std::atomic_bool mAlarmThreadRunning;
 
 	void loadAlarms();
 	void saveAlarms();
+
+	void startAlarmThread();
+	void stopAlarmThread();
+
+	void alarmThread();
 
 };
 

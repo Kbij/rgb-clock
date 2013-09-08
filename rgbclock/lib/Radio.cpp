@@ -82,6 +82,10 @@ void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 		}
 
 	}
+}
+
+void Radio::alarmNotify()
+{
 
 }
 

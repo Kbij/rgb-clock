@@ -10,6 +10,8 @@
 #include "RDSInfo.h"
 #include "KeyboardObserverIf.h"
 #include "RadioObserverIf.h"
+#include "AlarmObserverIf.h"
+
 #include <stdint.h>
 #include <set>
 #include <mutex>
@@ -22,7 +24,7 @@ class FMReceiver;
 class I2C;
 class ClockDisplay;
 
-class Radio : public Hardware::KeyboardObserverIf {
+class Radio : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf {
 public:
 	Radio(I2C &i2c, uint8_t apmlifierAddress, FMReceiver &fmReceiver);
 	virtual ~Radio();
@@ -40,6 +42,8 @@ public:
 	RDSInfo getRDSInfo();
 
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
+
+	void alarmNotify();
 private:
 	void readRegisters();
 	void writeRegisters();
