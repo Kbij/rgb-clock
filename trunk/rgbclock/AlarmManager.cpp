@@ -6,12 +6,17 @@
  */
 
 #include "AlarmManager.h"
+#include "AlarmObserverIf.h"
+
+
 #include "tinyxml/ticpp.h"
 
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include <string>
 #include <fstream>
+//#include <mutex>
+//#include <atomic>
 
 DEFINE_string(alarmfile,"alarms.xml","XML file containing the definition of alarms");
 
@@ -19,10 +24,16 @@ DEFINE_string(alarmfile,"alarms.xml","XML file containing the definition of alar
 namespace App {
 
 AlarmManager::AlarmManager():
-		mAlarmList(new AlarmList),
-		mCurrentEditor()
+		mAlarmList(),
+		mAlarmObservers(),
+		mCurrentEditor(),
+		mAlarmsMutex(),
+		mAlarmObserversMutex(),
+		mAlarmThread(nullptr),
+		mAlarmThreadRunning(false)
 {
-
+	loadAlarms();
+	startAlarmThread();
 }
 
 AlarmManager::~AlarmManager()
@@ -30,12 +41,33 @@ AlarmManager::~AlarmManager()
 
 }
 
+void AlarmManager::registerAlarmObserver(AlarmObserverIf* observer)
+{
+	if (observer)
+	{
+		std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
+		mAlarmObservers.insert(observer);
+	}
+
+}
+
+void AlarmManager::unRegisterAlarmObserver(AlarmObserverIf* observer)
+{
+	if (observer)
+	{
+		std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
+		mAlarmObservers.erase(observer);
+	}
+}
+
 AlarmList* AlarmManager::editAlarms(std::string unitName)
 {
+	std::lock_guard<std::mutex> lk_guard2(mAlarmsMutex);
+
 	if ((mCurrentEditor == "") || (mCurrentEditor == unitName) )
 	{
 		mCurrentEditor = unitName;
-		return mAlarmList;
+		return &mAlarmList;
 	}
 	else
 	{
@@ -45,6 +77,8 @@ AlarmList* AlarmManager::editAlarms(std::string unitName)
 
 void AlarmManager::saveAlarms(std::string unitName)
 {
+	std::lock_guard<std::mutex> lk_guard2(mAlarmsMutex);
+
 	if (mCurrentEditor == unitName)
 	{
 		saveAlarms();
@@ -68,6 +102,9 @@ void AlarmManager::loadAlarms()
 	    try
 	    {
 	        ticpp::Element *alarms = alarmsXML.FirstChildElement("alarms");
+	    	std::lock_guard<std::mutex> lk_guard2(mAlarmsMutex);
+
+	    	mAlarmList.clear();
 
 	        ticpp::Iterator<ticpp::Element>  alarm(alarms->FirstChildElement("alarm"), "alarm");
 	        while ( alarm != alarm.end() )
@@ -95,6 +132,10 @@ void AlarmManager::loadAlarms()
 			return;
 		}
 	}
+	else
+	{
+		LOG(INFO) << "Alarm file (" << FLAGS_alarmfile << ") not found.";
+	}
 }
 
 void AlarmManager::saveAlarms()
@@ -102,5 +143,59 @@ void AlarmManager::saveAlarms()
 
 }
 
+void AlarmManager::startAlarmThread()
+{
+	mAlarmThreadRunning = true;
+
+	mAlarmThread = new std::thread(&AlarmManager::alarmThread, this);
+}
+
+void AlarmManager::stopAlarmThread()
+{
+	mAlarmThreadRunning = false;
+
+    if (mAlarmThread)
+    {
+    	mAlarmThread->join();
+
+        delete mAlarmThread;
+        mAlarmThread = nullptr;
+    }
+}
+
+void AlarmManager::alarmThread()
+{
+    while (mAlarmThreadRunning == true)
+    {
+        // default sleep interval
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    	std::lock_guard<std::mutex> lk_guard2(mAlarmsMutex);
+    	if (mCurrentEditor == "")
+    	{
+    		for (auto alarm: mAlarmList)
+    		{
+    			time_t rawTime;
+    			struct tm* timeInfo;
+
+    			time(&rawTime);
+    			timeInfo = localtime(&rawTime);
+    			if ((alarm.mHour == timeInfo->tm_hour) && (alarm.mMinutes == timeInfo->tm_min) && (!alarm.mSignaled))
+				{
+					std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
+					for (auto& observer : mAlarmObservers)
+					{
+						observer->alarmNotify();
+					}
+					alarm.mSignaled = true;
+				}
+    			if ((alarm.mHour != timeInfo->tm_hour) && (alarm.mMinutes != timeInfo->tm_min))
+    			{
+					alarm.mSignaled = false;
+    			}
+    		}
+    	}
+    }
+}
 
 } /* namespace App */

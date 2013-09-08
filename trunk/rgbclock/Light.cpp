@@ -122,6 +122,11 @@ void Light::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 
 }
 
+void Light::alarmNotify()
+{
+
+}
+
 bool Light::isAttached()
 {
 	std::lock_guard<std::mutex> lk_guard(mLedMutex);

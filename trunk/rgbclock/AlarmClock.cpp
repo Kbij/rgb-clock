@@ -7,32 +7,32 @@
 
 #include "AlarmClock.h"
 #include "Light.h"
+#include "AlarmManager.h"
 #include "lib/FMReceiver.h"
 
 #include <glog/logging.h>
 
 namespace App {
 
-AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, UnitConfig addresses) :
+AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, UnitConfig addresses) :
 	mKeyboard(i2c, addresses.mKeyboard),
 	mRadio(i2c, addresses.mAmplifier, fmReceiver),
 	mDisplay(i2c, addresses.mLCD, addresses.mLightSensor),
-	mLight(nullptr)
+	mLight(nullptr),
+	mAlarmManager(alarmManager)
 {
 	mKeyboard.registerKeyboardObserver(this);
 	mKeyboard.registerKeyboardObserver(&mRadio);
 	mRadio.registerRadioObserver(&mDisplay);
+	mAlarmManager.registerAlarmObserver(this);
 }
 
 AlarmClock::~AlarmClock()
 {
-	LOG(INFO) << "Unregistering ourself from the keyboard";
+	mAlarmManager.unRegisterAlarmObserver(this);
+
 	mKeyboard.unRegisterKeyboardObserver(this);
-
-	LOG(INFO) << "Unregistering the radio from the keyboard";
 	mKeyboard.registerKeyboardObserver(&mRadio);
-
-	LOG(INFO) << "Unregistering the radio observer";
 	mRadio.unRegisterRadioObserver(&mDisplay);
 }
 
@@ -53,6 +53,17 @@ void AlarmClock::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
 
 
 }
+
+void AlarmClock::alarmNotify()
+{
+	LOG(INFO) << "Received alarmNotify";
+	mRadio.alarmNotify();
+	if (mLight)
+	{
+		mLight->alarmNotify();
+	}
+}
+
 
 bool AlarmClock::hasRegisteredLight()
 {

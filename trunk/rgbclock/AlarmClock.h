@@ -7,6 +7,7 @@
 
 #ifndef ALARMCLOCK_H_
 #define ALARMCLOCK_H_
+#include "AlarmObserverIf.h"
 
 #include "lib/Keyboard.h"
 #include "lib/KeyboardObserverIf.h"
@@ -23,17 +24,20 @@ class I2C;
 namespace App
 {
 
+class AlarmManager;
 class Light;
 
-class AlarmClock : public Hardware::KeyboardObserverIf {
+class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf {
 public:
-	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, UnitConfig addresses);
+	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, UnitConfig addresses);
 	virtual ~AlarmClock();
 
 	void registerLight(Light *light);
 	void unRegisterLight(Light *light);
 
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
+
+	void alarmNotify();
 
 	bool hasRegisteredLight();
 	bool isAttached();
@@ -47,6 +51,7 @@ private:
 	Hardware::Radio mRadio;
 	Hardware::ClockDisplay mDisplay;
 	Light *mLight;
+	AlarmManager& mAlarmManager;
 };
 
 } /* namespace App */

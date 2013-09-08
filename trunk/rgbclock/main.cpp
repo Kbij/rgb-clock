@@ -157,16 +157,6 @@ int main (int argc, char* argv[])
     umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //User: r/w, Group: r, Other: r
 	google::InitGoogleLogging("RGBClock");
 
-/*
-	App::Addresses addressesA;
-	addressesA.mLight = 0x40;
-	addressesA.mKeyboard = 0x5A;
-	addressesA.mAmplifier = 0x6C;
-	addressesA.mLCD = 0x20;
-	addressesA.mLightSensor = 0x29;
-
-*/
-
 	std::string usage("Raspberry Pi Ultimate Alarm Clock. Sample usage:\n");
 	usage += argv[0];
 	google::SetUsageMessage(usage);
@@ -200,16 +190,9 @@ int main (int argc, char* argv[])
 	try
 	{
 		Hardware::I2C i2c;
-//		Hardware::RTC rtc(i2c, systemConfig.mRtc);
+		Hardware::RTC rtc(i2c, systemConfig.mRtc);
 
 		Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio);
-
-		// I2C bus is operational, create the hardware here
-		// This hardware is removable (= Not on the mainboard)
-//		App::Light *lightA = new App::Light(i2c, addressesA.mLight);
-//		App::AlarmClock *alarmClockA = new App::AlarmClock(i2c, fmReceiver, addressesA);
-
-//		alarmClockA->registerLight(lightA);
 
 		do{
 			for (const auto& configUnit : configuredUnits)
@@ -218,7 +201,7 @@ int main (int argc, char* argv[])
 				{
 					LOG(INFO) << "Creating clock unit: " << configUnit.first;
 					// Unit not found; create a unit
-					startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, configUnit.second));
+					startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, alarmManager, configUnit.second));
 				}
 
 				if (!startedUnits[configUnit.first]->hasRegisteredLight())
@@ -266,10 +249,7 @@ int main (int argc, char* argv[])
 					LOG(ERROR) << "Deleting the clock unit";
 					startedUnits.erase(unit_it);
 				}
-//				else
-	//			{
-					unit_it++;
-		//		}
+				unit_it++;
 			}
 
 
@@ -290,10 +270,8 @@ int main (int argc, char* argv[])
 					LOG(ERROR) << "Deleting the light";
 					startedLights.erase(light_it);
 				}
-//				else
-	//			{
-					light_it++;
-		//		}
+
+				light_it++;
 			}
 
 
