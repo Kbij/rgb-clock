@@ -7,7 +7,7 @@
 
 #ifndef ALARMOBSERVERIF_H_
 #define ALARMOBSERVERIF_H_
-
+#include <string>
 
 namespace App {
 
@@ -16,6 +16,7 @@ public:
 	virtual ~AlarmObserverIf() {};
 
 	virtual void alarmNotify() = 0;
+	virtual std::string name() = 0;
 };
 
 } /* namespace App */

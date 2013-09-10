@@ -44,6 +44,8 @@ public:
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
 
 	void alarmNotify();
+	std::string name();
+
 private:
 	void readRegisters();
 	void writeRegisters();

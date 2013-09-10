@@ -14,10 +14,11 @@
 
 namespace App {
 
-AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, UnitConfig addresses) :
-	mKeyboard(i2c, addresses.mKeyboard),
-	mRadio(i2c, addresses.mAmplifier, fmReceiver),
-	mDisplay(i2c, addresses.mLCD, addresses.mLightSensor),
+AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, UnitConfig unitConfig) :
+	mUnitConfig(unitConfig),
+	mKeyboard(i2c, unitConfig.mKeyboard),
+	mRadio(i2c, unitConfig.mAmplifier, fmReceiver),
+	mDisplay(i2c, unitConfig.mLCD, unitConfig.mLightSensor),
 	mLight(nullptr),
 	mAlarmManager(alarmManager)
 {
@@ -64,6 +65,10 @@ void AlarmClock::alarmNotify()
 	}
 }
 
+std::string AlarmClock::name()
+{
+	return mUnitConfig.mName;
+}
 
 bool AlarmClock::hasRegisteredLight()
 {

@@ -170,6 +170,14 @@ int main (int argc, char* argv[])
 	// Create the config object; load the XML file with the settings
 	App::Config config;
 	App::AlarmManager alarmManager;
+	auto alarms = alarmManager.editAlarms("Main");
+	App::Alarm testAlarm;
+	testAlarm.mHour = 23;
+	testAlarm.mMinutes = 18;
+	alarms->push_back(testAlarm);
+
+	alarmManager.saveAlarms("Main");
+
 
 	if (!config.errorFree())
 	{
