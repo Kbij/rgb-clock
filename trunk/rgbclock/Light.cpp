@@ -127,6 +127,12 @@ void Light::alarmNotify()
 
 }
 
+std::string Light::name()
+{
+	return "";
+}
+
+
 bool Light::isAttached()
 {
 	std::lock_guard<std::mutex> lk_guard(mLedMutex);

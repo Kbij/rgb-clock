@@ -89,6 +89,11 @@ void Radio::alarmNotify()
 
 }
 
+std::string Radio::name()
+{
+	return "";
+}
+
 bool Radio::powerOn()
 {
 	LOG(INFO) << "Radio On";

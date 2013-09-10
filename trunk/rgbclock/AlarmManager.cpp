@@ -15,8 +15,6 @@
 #include <gflags/gflags.h>
 #include <string>
 #include <fstream>
-//#include <mutex>
-//#include <atomic>
 
 DEFINE_string(alarmfile,"alarms.xml","XML file containing the definition of alarms");
 
@@ -45,7 +43,7 @@ void AlarmManager::registerAlarmObserver(AlarmObserverIf* observer)
 {
 	if (observer)
 	{
-		std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
+		std::lock_guard<std::mutex> lk_guard(mAlarmObserversMutex);
 		mAlarmObservers.insert(observer);
 	}
 
@@ -62,7 +60,7 @@ void AlarmManager::unRegisterAlarmObserver(AlarmObserverIf* observer)
 
 AlarmList* AlarmManager::editAlarms(std::string unitName)
 {
-	std::lock_guard<std::mutex> lk_guard2(mAlarmsMutex);
+	std::lock_guard<std::mutex> lk_guard(mAlarmsMutex);
 
 	if ((mCurrentEditor == "") || (mCurrentEditor == unitName) )
 	{
@@ -77,10 +75,11 @@ AlarmList* AlarmManager::editAlarms(std::string unitName)
 
 void AlarmManager::saveAlarms(std::string unitName)
 {
-	std::lock_guard<std::mutex> lk_guard2(mAlarmsMutex);
+	std::lock_guard<std::mutex> lk_guard(mAlarmsMutex);
 
 	if (mCurrentEditor == unitName)
 	{
+		mCurrentEditor = "";
 		saveAlarms();
 	}
 }
@@ -169,30 +168,34 @@ void AlarmManager::alarmThread()
     {
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::seconds(1));
-
-    	std::lock_guard<std::mutex> lk_guard2(mAlarmsMutex);
+    	std::lock_guard<std::mutex> lk_guard(mAlarmsMutex);
     	if (mCurrentEditor == "")
     	{
-    		for (auto alarm: mAlarmList)
+    		for (auto& alarm: mAlarmList)
     		{
-    			time_t rawTime;
-    			struct tm* timeInfo;
+        			time_t rawTime;
+        			struct tm* timeInfo;
 
-    			time(&rawTime);
-    			timeInfo = localtime(&rawTime);
-    			if ((alarm.mHour == timeInfo->tm_hour) && (alarm.mMinutes == timeInfo->tm_min) && (!alarm.mSignaled))
-				{
-					std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
-					for (auto& observer : mAlarmObservers)
-					{
-						observer->alarmNotify();
-					}
-					alarm.mSignaled = true;
-				}
-    			if ((alarm.mHour != timeInfo->tm_hour) && (alarm.mMinutes != timeInfo->tm_min))
-    			{
-					alarm.mSignaled = false;
-    			}
+        			time(&rawTime);
+        			timeInfo = localtime(&rawTime);
+        			if ((alarm.mHour == timeInfo->tm_hour) && (alarm.mMinutes == timeInfo->tm_min) && (!alarm.mSignalled))
+    				{
+    					std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
+    					for (auto& observer : mAlarmObservers)
+    					{
+    						if ((observer->name() == alarm.mUnit) || (alarm.mUnit == ""))
+    						{
+    							observer->alarmNotify();
+    						}
+    					}
+    					alarm.mSignalled = true;
+    				}
+
+        			// Reset the signalled flag
+        			if ((alarm.mHour != timeInfo->tm_hour) && (alarm.mMinutes != timeInfo->tm_min))
+        			{
+    					alarm.mSignalled = false;
+        			}
     		}
     	}
     }

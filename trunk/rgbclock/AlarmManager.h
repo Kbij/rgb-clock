@@ -40,15 +40,15 @@ struct Alarm
 		mDays(),
 		mUnit(""),
 		mVolume(40),
-		mSignaled(false){};
+		mSignalled(false){};
 
-	uint8_t mHour;
-	uint8_t mMinutes;
+	int mHour;
+	int mMinutes;
 	bool mOneTime;
 	std::map<Day, bool> mDays;
 	std::string mUnit;
-	uint8_t mVolume;
-	bool mSignaled;
+	int mVolume;
+	bool mSignalled;
 };
 
 using AlarmList = std::vector<Alarm>;

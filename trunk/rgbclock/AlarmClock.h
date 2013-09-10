@@ -29,7 +29,7 @@ class Light;
 
 class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf {
 public:
-	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, UnitConfig addresses);
+	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, UnitConfig unitConfig);
 	virtual ~AlarmClock();
 
 	void registerLight(Light *light);
@@ -38,6 +38,7 @@ public:
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
 
 	void alarmNotify();
+	std::string name();
 
 	bool hasRegisteredLight();
 	bool isAttached();
@@ -47,6 +48,7 @@ public:
 	AlarmClock(const AlarmClock& source) = delete;
 
 private:
+	UnitConfig mUnitConfig;
 	Hardware::Keyboard mKeyboard;
 	Hardware::Radio mRadio;
 	Hardware::ClockDisplay mDisplay;
