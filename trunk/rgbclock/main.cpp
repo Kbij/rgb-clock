@@ -172,8 +172,9 @@ int main (int argc, char* argv[])
 	App::AlarmManager alarmManager;
 	auto alarms = alarmManager.editAlarms("Main");
 	App::Alarm testAlarm;
-	testAlarm.mHour = 23;
-	testAlarm.mMinutes = 18;
+	testAlarm.mHour = 21;
+	testAlarm.mMinutes = 36;
+	testAlarm.mDays[App::Day::Wednesday] = true;
 	alarms->push_back(testAlarm);
 
 	alarmManager.saveAlarms("Main");
