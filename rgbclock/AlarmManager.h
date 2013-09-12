@@ -22,6 +22,7 @@ class AlarmObserverIf;
 
 enum class Day
 {
+	// Keep these enum values, they correspond with tm struct tm_wday enum values
 	Monday    = 1,
 	Thusday   = 2,
 	Wednesday = 3,

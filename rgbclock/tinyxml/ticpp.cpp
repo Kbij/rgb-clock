@@ -715,7 +715,7 @@ StylesheetReference* Node::ToStylesheetReference() const
 
 	return temp;
 }
-
+/*
 std::auto_ptr< Node > Node::Clone() const
 {
 	TiXmlNode* node = GetTiXmlPointer()->Clone();
@@ -730,7 +730,7 @@ std::auto_ptr< Node > Node::Clone() const
 
 	return temp;
 }
-
+*/
 bool Node::Accept( TiXmlVisitor* visitor ) const
 {
 	return GetTiXmlPointer()->Accept( visitor );

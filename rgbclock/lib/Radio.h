@@ -10,7 +10,7 @@
 #include "RDSInfo.h"
 #include "KeyboardObserverIf.h"
 #include "RadioObserverIf.h"
-#include "AlarmObserverIf.h"
+#include "../AlarmObserverIf.h"
 
 #include <stdint.h>
 #include <set>

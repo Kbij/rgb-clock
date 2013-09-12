@@ -178,7 +178,8 @@ void AlarmManager::alarmThread()
 
         			time(&rawTime);
         			timeInfo = localtime(&rawTime);
-        			if ((alarm.mHour == timeInfo->tm_hour) && (alarm.mMinutes == timeInfo->tm_min) && (!alarm.mSignalled))
+
+        			if ((alarm.mHour == timeInfo->tm_hour) && (alarm.mMinutes == timeInfo->tm_min) && (alarm.mDays[Day(timeInfo->tm_wday)]) && (!alarm.mSignalled))
     				{
     					std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
     					for (auto& observer : mAlarmObservers)
