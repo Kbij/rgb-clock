@@ -108,19 +108,47 @@ void AlarmManager::loadAlarms()
 	        ticpp::Iterator<ticpp::Element>  alarm(alarms->FirstChildElement("alarm"), "alarm");
 	        while ( alarm != alarm.end() )
 	        {
-	        	LOG(INFO) << "Alarm found ";
 	        	Alarm alarmSettings;
-	        	/*
-	        	unit->GetAttribute("name", &unitSettings.mName);
 
-	        	getAddress(unit.Get(), "light_addr", unitSettings.mLight);
-	            getAddress(unit.Get(), "keyboard_addr", unitSettings.mKeyboard);
-	            getAddress(unit.Get(), "amplifier_addr", unitSettings.mAmplifier);
-	            getAddress(unit.Get(), "lcd_addr", unitSettings.mLCD);
-	            getAddress(unit.Get(), "lightsensor_addr", unitSettings.mLightSensor);
+	        	ticpp::Element *unitElement = alarm->FirstChildElement("unit", true);
+	        	if ( unitElement != nullptr )
+	        	{
+	        		alarmSettings.mUnit = unitElement->GetText();
+	        	}
 
-	        	mConfiguredUnits[unitSettings.mName] = unitSettings;
-	        	*/
+	        	ticpp::Element *hourElement = alarm->FirstChildElement("hour", true);
+	        	if ( hourElement != nullptr )
+	        	{
+	        		alarmSettings.mHour = std::stoi(hourElement->GetText());
+	        	}
+
+	        	ticpp::Element *minutesElement = alarm->FirstChildElement("minutes", true);
+	        	if ( minutesElement != nullptr )
+	        	{
+	        		alarmSettings.mMinutes = std::stoi(minutesElement->GetText());
+	        	}
+
+	        	ticpp::Element *onetimeElement = alarm->FirstChildElement("onetime", true);
+	        	if ( onetimeElement != nullptr )
+	        	{
+	        		alarmSettings.mOneTime = onetimeElement->GetText() == "1";
+	        	}
+
+	        	ticpp::Element *volumeElement = alarm->FirstChildElement("volume", true);
+	        	if ( volumeElement != nullptr )
+	        	{
+	        		alarmSettings.mVolume = std::stoi(volumeElement->GetText());
+	        	}
+
+	        	ticpp::Element *daysElement = alarm->FirstChildElement("days", true);
+	        	if ( daysElement != nullptr )
+	        	{
+	        		alarmSettings.mDays = std::bitset<7>(daysElement->GetText());
+	        	}
+
+	        	LOG(INFO) << "Alarm loaded: " << alarmSettings.to_string();
+	        	mAlarmList.push_back(alarmSettings);
+
 	        	// advance to next item
 	        	++alarm;
 	        }
@@ -135,11 +163,52 @@ void AlarmManager::loadAlarms()
 	{
 		LOG(INFO) << "Alarm file (" << FLAGS_alarmfile << ") not found.";
 	}
+
+	LOG(INFO) << mAlarmList.size() << " alarms loaded";
 }
 
 void AlarmManager::saveAlarms()
 {
+	TiXmlDocument doc;
+ 	TiXmlDeclaration* decl = new TiXmlDeclaration( "1.0", "UTF-8", "" );
+	doc.LinkEndChild( decl );
 
+
+	TiXmlElement * alarms = new TiXmlElement("alarms");
+	doc.LinkEndChild( alarms );
+
+	for (const auto& alarm: mAlarmList)
+	{
+		TiXmlElement* alarmElement = new TiXmlElement("alarm");
+		//alarmElement->LinkEndChild( new TiXmlText("test"));
+		alarms->LinkEndChild( alarmElement );
+
+		TiXmlElement* unitElement = new TiXmlElement("unit");
+		unitElement->LinkEndChild( new TiXmlText(alarm.mUnit));
+		alarmElement->LinkEndChild(unitElement);
+
+		TiXmlElement* hourElement = new TiXmlElement("hour");
+		hourElement->LinkEndChild( new TiXmlText(std::to_string(alarm.mHour)));
+		alarmElement->LinkEndChild(hourElement);
+
+		TiXmlElement* minutesElement = new TiXmlElement("minutes");
+		minutesElement->LinkEndChild( new TiXmlText(std::to_string(alarm.mMinutes)));
+		alarmElement->LinkEndChild(minutesElement);
+
+		TiXmlElement* onetimeElement = new TiXmlElement("onetime");
+		onetimeElement->LinkEndChild( new TiXmlText(std::to_string(alarm.mOneTime)));
+		alarmElement->LinkEndChild(onetimeElement);
+
+		TiXmlElement* daysElement = new TiXmlElement("days");
+		daysElement->LinkEndChild( new TiXmlText(alarm.mDays.to_string()));
+		alarmElement->LinkEndChild(daysElement);
+
+		TiXmlElement* volumeElement = new TiXmlElement("volume");
+		volumeElement->LinkEndChild( new TiXmlText(std::to_string(alarm.mVolume)));
+		alarmElement->LinkEndChild(volumeElement);
+	}
+
+	doc.SaveFile(FLAGS_alarmfile);
 }
 
 void AlarmManager::startAlarmThread()
@@ -179,7 +248,7 @@ void AlarmManager::alarmThread()
         			time(&rawTime);
         			timeInfo = localtime(&rawTime);
 
-        			if ((alarm.mHour == timeInfo->tm_hour) && (alarm.mMinutes == timeInfo->tm_min) && (alarm.mDays[Day(timeInfo->tm_wday)]) && (!alarm.mSignalled))
+        			if ((alarm.mHour == timeInfo->tm_hour) && (alarm.mMinutes == timeInfo->tm_min) && (alarm.mDays[Day(timeInfo->tm_wday)] || alarm.mOneTime) && (!alarm.mSignalled))
     				{
     					std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
     					for (auto& observer : mAlarmObservers)
@@ -198,6 +267,8 @@ void AlarmManager::alarmThread()
     					alarm.mSignalled = false;
         			}
     		}
+
+    		//cleanUpSingleAlarms;
     	}
     }
 }
