@@ -11,7 +11,7 @@
 #include <set>
 #include <vector>
 #include <string>
-#include <map>
+#include <bitset>
 #include <mutex>
 #include <atomic>
 #include <thread>
@@ -20,16 +20,16 @@ namespace App {
 
 class AlarmObserverIf;
 
-enum class Day
+enum Day
 {
 	// Keep these enum values, they correspond with tm struct tm_wday enum values
+	Sunday    = 0,
 	Monday    = 1,
 	Thusday   = 2,
 	Wednesday = 3,
 	Thursday  = 4,
 	Friday    = 5,
-	Saturday  = 6,
-	Sunday    = 7
+	Saturday  = 6
 };
 
 struct Alarm
@@ -42,14 +42,20 @@ struct Alarm
 		mUnit(""),
 		mVolume(40),
 		mSignalled(false){};
-
 	int mHour;
 	int mMinutes;
 	bool mOneTime;
-	std::map<Day, bool> mDays;
+	std::bitset<7> mDays;
 	std::string mUnit;
 	int mVolume;
 	bool mSignalled;
+	std::string to_string()
+	{
+		std::string result;
+		result = "Unit: " + mUnit + ": " + std::to_string(mHour) + ":" + std::to_string(mMinutes) + ", OneTime: " + std::to_string(mOneTime) +  ", Days: " + mDays.to_string() + ", Volume: " + std::to_string(mVolume);
+		return result;
+	}
+
 };
 
 using AlarmList = std::vector<Alarm>;

@@ -33,7 +33,7 @@ Config::~Config() {
 bool getAddress(ticpp::Element* element, const std::string& name, uint8_t& addressValue)
 {
 	ticpp::Element *addressElement = element->FirstChildElement(name, true);
-	if ( addressElement != NULL )
+	if ( addressElement != nullptr )
 	{
 		std::string addressString = addressElement->GetText();
 		addressValue = std::stoi(addressString);
