@@ -49,7 +49,7 @@ void AlarmClock::unRegisterLight(Light *light)
 	mLight = nullptr;
 }
 
-void AlarmClock::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
+void AlarmClock::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardware::KeyboardState state)
 {
 
 

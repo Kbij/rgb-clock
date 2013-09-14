@@ -14,6 +14,7 @@
 #include <atomic>
 #include <thread>
 #include <set>
+
 namespace Hardware
 {
 
@@ -25,6 +26,8 @@ public:
 	void registerKeyboardObserver(KeyboardObserverIf *observer);
     void unRegisterKeyboardObserver(KeyboardObserverIf *observer);
 
+    void keyboardState(KeyboardState state);
+
     bool isAttached();
 private:
 	void init();
@@ -35,6 +38,7 @@ private:
 	I2C &mI2C;
 	std::atomic_bool mAttached;
 	const uint8_t mAddress;
+	std::atomic<KeyboardState> mKeyboardState;
 	std::vector<uint16_t> mKeyHistory;
     std::thread* mReadThread;
     std::atomic_bool mReadThreadRunning;
