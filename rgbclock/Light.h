@@ -43,7 +43,7 @@ public:
 	void pwrOff();
 	void pwrToggle();
 
-	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
+	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardware::KeyboardState state);
 
 	void alarmNotify();
 	std::string name();

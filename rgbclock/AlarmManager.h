@@ -49,10 +49,72 @@ struct Alarm
 	std::string mUnit;
 	int mVolume;
 	bool mSignalled;
+	std::string daysString()
+	{
+		std::string result = "[";
+		if (mDays[Sunday])
+		{
+			result = result + "Z";
+		}
+		else
+		{
+			result = result + "_";
+		}
+		if (mDays[Monday])
+		{
+			result = result + "M";
+		}
+		else
+		{
+			result = result + "_";
+		}
+		if (mDays[Thusday])
+		{
+			result = result + "D";
+		}
+		else
+		{
+			result = result + "_";
+		}
+		if (mDays[Wednesday])
+		{
+			result = result + "W";
+		}
+		else
+		{
+			result = result + "_";
+		}
+		if (mDays[Thursday])
+		{
+			result = result + "D";
+		}
+		else
+		{
+			result = result + "_";
+		}
+		if (mDays[Friday])
+		{
+			result = result + "V";
+		}
+		else
+		{
+			result = result + "_";
+		}
+		if (mDays[Saturday])
+		{
+			result = result + "Z";
+		}
+		else
+		{
+			result = result + "_";
+		}
+
+		return result + "]";
+	}
 	std::string to_string()
 	{
 		std::string result;
-		result = "Unit: " + mUnit + ": " + std::to_string(mHour) + ":" + std::to_string(mMinutes) + ", OneTime: " + std::to_string(mOneTime) +  ", Days: " + mDays.to_string() + ", Volume: " + std::to_string(mVolume);
+		result = "Unit: " + mUnit + ": " + std::to_string(mHour) + ":" + std::to_string(mMinutes) + ", OneTime: " + std::to_string(mOneTime) +  ", Days: " + daysString() + ", Volume: " + std::to_string(mVolume);
 		return result;
 	}
 

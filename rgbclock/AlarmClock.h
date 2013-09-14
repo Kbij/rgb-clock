@@ -35,7 +35,7 @@ public:
 	void registerLight(Light *light);
 	void unRegisterLight(Light *light);
 
-	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
+	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardware::KeyboardState state);
 
 	void alarmNotify();
 	std::string name();

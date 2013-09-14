@@ -25,6 +25,7 @@ Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 	mI2C(i2c),
 	mAttached(true), // We assume it is attached
 	mAddress(address),
+	mKeyboardState(KeyboardState::stNormal),
 	mKeyHistory(0),
 	mReadThread(nullptr),
 	mReadThreadRunning(false),
@@ -63,6 +64,11 @@ void Keyboard::unRegisterKeyboardObserver(KeyboardObserverIf *observer)
 
         mKeyboardObservers.erase(observer);
     }
+}
+
+void Keyboard::keyboardState(KeyboardState state)
+{
+	mKeyboardState = state;
 }
 
 bool Keyboard::isAttached()
@@ -299,7 +305,7 @@ void Keyboard::readThread()
         	std::lock_guard<std::recursive_mutex> lk_guard(mKeyboardObserversMutex);
             for (auto observer : mKeyboardObservers)
             {
-               observer->keyboardPressed(keyboardInfo);
+               observer->keyboardPressed(keyboardInfo, mKeyboardState);
             }
         }
     }

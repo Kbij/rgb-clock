@@ -41,7 +41,7 @@ public:
 	bool tuneFrequency(double frequency);
 	RDSInfo getRDSInfo();
 
-	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo);
+	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, KeyboardState state);
 
 	void alarmNotify();
 	std::string name();

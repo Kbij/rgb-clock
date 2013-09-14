@@ -21,6 +21,13 @@ const uint8_t KEY_DOWN    = 7;
 
 namespace Hardware
 {
+
+enum class KeyboardState
+{
+	stNormal,
+	stAlarmEdit
+};
+
 struct KeyInfo
 {
 	bool mPressed;
@@ -33,7 +40,7 @@ class KeyboardObserverIf
 public:
     virtual ~KeyboardObserverIf() {};
 
-    virtual void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo) = 0;
+    virtual void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, KeyboardState state) = 0;
 };
 }
 

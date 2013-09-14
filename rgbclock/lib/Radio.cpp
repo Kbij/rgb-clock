@@ -56,8 +56,13 @@ void Radio::unRegisterRadioObserver(RadioObserverIf *observer)
     }
 }
 
-void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo)
+void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, KeyboardState state)
 {
+	if (state != KeyboardState::stNormal)
+	{
+		return;
+	}
+
 	if (mState == RadioState::PwrOn)
 	{
 		if (keyboardInfo[KEY_UP].mPressed || keyboardInfo[KEY_UP].mLongPress)
