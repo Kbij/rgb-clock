@@ -9,6 +9,8 @@
 #define CLOCKDISPLAY_H_
 #include "LCDisplay.h"
 #include "RadioObserverIf.h"
+#include "KeyboardObserverIf.h"
+#include "Keyboard.h"
 #include "RDSInfo.h"
 #include "LightSensor.h"
 #include "Radio.h"
@@ -16,12 +18,40 @@
 #include <time.h>
 #include <mutex>
 
+namespace
+{
+enum class DisplayState
+{
+	stNormal,
+	stEditAlarms
+};
+
+enum class EditPos
+{
+	posEnable,
+	posUnit,
+	posHourT,
+	posHourE,
+	posMinT,
+	posMinE,
+	posOneTime,
+	posDaySu,
+	posDayMo,
+	posDayTu,
+	posDayWe,
+	posDayTh,
+	posDayFr,
+	posDaySa,
+	posVol
+};
+
+}
 namespace Hardware
 {
 
-class ClockDisplay : public RadioObserverIf {
+class ClockDisplay : public RadioObserverIf, public Hardware::KeyboardObserverIf {
 public:
-	ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress);
+	ClockDisplay(I2C &i2c, Keyboard& keyboard, uint8_t lcdAddress, uint8_t lsAddress);
 	virtual ~ClockDisplay();
 
 	void showClock();
@@ -42,6 +72,9 @@ public:
     void radioRdsUpdate(RDSInfo rdsInfo);
     void radioStateUpdate(RadioInfo radioInfo);
 
+	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardware::KeyboardState state);
+
+
 private:
     void drawVolume();
     void eraseVolume();
@@ -57,8 +90,12 @@ private:
 
 	LCDisplay mLCDisplay;
 	LightSensor mLightSensor;
+	Keyboard& mKeyboard;
+
+	std::atomic<DisplayState> mDisplayState;
     std::thread* mRefreshThread;
     std::atomic_bool mRefreshThreadRunning;
+    std::atomic_bool mForceRefresh;
     uint8_t mPrevMin;
     std::recursive_mutex mRadioInfoMutex;
     std::atomic_bool mRDSVisible;

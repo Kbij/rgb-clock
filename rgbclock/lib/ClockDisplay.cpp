@@ -13,11 +13,14 @@
 
 namespace Hardware
 {
-ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress) :
+ClockDisplay::ClockDisplay(I2C &i2c, Keyboard& keyboard, uint8_t lcdAddress, uint8_t lsAddress) :
 	mLCDisplay(i2c, lcdAddress),
 	mLightSensor(i2c, lsAddress),
+	mKeyboard(keyboard),
+	mDisplayState(DisplayState::stNormal),
 	mRefreshThread(nullptr),
 	mRefreshThreadRunning(false),
+	mForceRefresh(false),
 	mPrevMin(-1),
 	mRadioInfoMutex(),
 	mRDSVisible(false),
@@ -31,13 +34,14 @@ ClockDisplay::ClockDisplay(I2C &i2c, uint8_t lcdAddress, uint8_t lsAddress) :
 {
 	mLCDisplay.initGraphic();
 	mLCDisplay.clearGraphicDisplay();
-
+	mKeyboard.registerKeyboardObserver(this);
 	startRefreshThread();
 }
 
 ClockDisplay::~ClockDisplay()
 {
 	LOG(INFO) << "Display destructor";
+	mKeyboard.unRegisterKeyboardObserver(this);
 	stopRefreshThread();
 }
 
@@ -143,6 +147,30 @@ void ClockDisplay::radioStateUpdate(RadioInfo radioInfo)
 		hideRDSInfo();
 		hideVolume();
 		hideSignal();
+	}
+}
+
+void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardware::KeyboardState state)
+{
+	if (keyboardInfo[KEY_1].mReleased)
+	{
+		if (state == KeyboardState::stNormal)
+		{
+			LOG(INFO) << "Entering alarm editmode";
+			mKeyboard.keyboardState(KeyboardState::stAlarmEdit);
+			mDisplayState = DisplayState::stEditAlarms;
+			mLCDisplay.clearGraphicDisplay();
+		}
+		else
+			if (state == KeyboardState::stAlarmEdit)
+			{
+				mKeyboard.keyboardState(KeyboardState::stNormal);
+				LOG(INFO) << "Exit alarm editmode";
+				mDisplayState = DisplayState::stNormal;
+				mLCDisplay.clearGraphicDisplay();
+				mForceRefresh = true;
+			}
+
 	}
 }
 
@@ -282,64 +310,69 @@ void ClockDisplay::refreshThread()
     while (mRefreshThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
 
-		time_t rawTime;
-		struct tm* timeInfo;
+        if (mDisplayState == DisplayState::stNormal)
+        {
+    		time_t rawTime;
+    		struct tm* timeInfo;
 
-		time(&rawTime);
-		timeInfo = localtime(&rawTime);
-		if (timeInfo->tm_min != mPrevMin)
-		{
-			std::stringstream hourStream;
-			hourStream.width(2);
-			hourStream.fill('0');
-			hourStream << timeInfo->tm_hour;
-			mLCDisplay.writeGraphicText(44, 0, hourStream.str(), FontType::Verdana20);
-			mLCDisplay.writeGraphicText(90, 0, ":", FontType::Verdana20);
+    		time(&rawTime);
+    		timeInfo = localtime(&rawTime);
+    		if ((timeInfo->tm_min != mPrevMin) || mForceRefresh)
+    		{
+    			mForceRefresh = false;
+    			std::stringstream hourStream;
+    			hourStream.width(2);
+    			hourStream.fill('0');
+    			hourStream << timeInfo->tm_hour;
+    			mLCDisplay.writeGraphicText(44, 0, hourStream.str(), FontType::Verdana20);
+    			mLCDisplay.writeGraphicText(90, 0, ":", FontType::Verdana20);
 
-			std::stringstream minStream;
-			minStream.width(2);
-			minStream.fill('0');
-			minStream << timeInfo->tm_min;
-			mLCDisplay.writeGraphicText(104,0, minStream.str(), FontType::Verdana20);
+    			std::stringstream minStream;
+    			minStream.width(2);
+    			minStream.fill('0');
+    			minStream << timeInfo->tm_min;
+    			mLCDisplay.writeGraphicText(104,0, minStream.str(), FontType::Verdana20);
 
-		}
+    		}
 
-		mPrevMin = timeInfo->tm_min;
+    		mPrevMin = timeInfo->tm_min;
 
-	    if (mRDSVisible)
-		{
-	    	drawRDS();
-		}
-	    else
-	    {
-	    	eraseRDS();
-	    }
-	    if (mVolumeVisible)
-	    {
-	    	drawVolume();
-	    }
-	    else
-	    {
-	    	eraseVolume();
-	    }
-	    if (mSignalVisible)
-	    {
-	    	drawSignal();
-	    }
-	    else
-	    {
-	    	eraseSignal();
-	    }
+    	    if (mRDSVisible)
+    		{
+    	    	drawRDS();
+    		}
+    	    else
+    	    {
+    	    	eraseRDS();
+    	    }
+    	    if (mVolumeVisible)
+    	    {
+    	    	drawVolume();
+    	    }
+    	    else
+    	    {
+    	    	eraseVolume();
+    	    }
+    	    if (mSignalVisible)
+    	    {
+    	    	drawSignal();
+    	    }
+    	    else
+    	    {
+    	    	eraseSignal();
+    	    }
 
-/*
-		double lux = mLightSensor.lux();
-		std::stringstream stream;
+    /*
+    		double lux = mLightSensor.lux();
+    		std::stringstream stream;
 
-		stream << "Measured Lux: " << lux;
-		showRDSInfo(stream.str());
-		*/
+    		stream << "Measured Lux: " << lux;
+    		showRDSInfo(stream.str());
+    		*/
+
+        }
     }
 }
 }
