@@ -67,7 +67,7 @@ void Light::pwrToggle()
 
 void Light::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardware::KeyboardState state)
 {
-	if (state != KeyboardState::stNormal)
+	if (state != Hardware::KeyboardState::stNormal)
 	{
 		return;
 	}

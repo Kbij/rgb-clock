@@ -18,7 +18,7 @@ AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, Al
 	mUnitConfig(unitConfig),
 	mKeyboard(i2c, unitConfig.mKeyboard),
 	mRadio(i2c, unitConfig.mAmplifier, fmReceiver),
-	mDisplay(i2c, unitConfig.mLCD, unitConfig.mLightSensor),
+	mDisplay(i2c, mKeyboard, unitConfig.mLCD, unitConfig.mLightSensor),
 	mLight(nullptr),
 	mAlarmManager(alarmManager)
 {
