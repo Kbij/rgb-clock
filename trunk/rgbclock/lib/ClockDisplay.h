@@ -10,7 +10,6 @@
 #include "LCDisplay.h"
 #include "RadioObserverIf.h"
 #include "KeyboardObserverIf.h"
-#include "Keyboard.h"
 #include "RDSInfo.h"
 #include "LightSensor.h"
 #include "Radio.h"
@@ -26,8 +25,16 @@ enum class DisplayState
 	stEditAlarms
 };
 
+enum class EditState
+{
+	edUndefined,
+	edListAlarms,
+	edEditAlarm
+};
+
 enum class EditPos
 {
+	posIndex,
 	posEnable,
 	posUnit,
 	posHourT,
@@ -46,12 +53,19 @@ enum class EditPos
 };
 
 }
+namespace App
+{
+class AlarmManager;
+struct Alarm;
+struct UnitConfig;
+}
 namespace Hardware
 {
+class Keyboard;
 
 class ClockDisplay : public RadioObserverIf, public Hardware::KeyboardObserverIf {
 public:
-	ClockDisplay(I2C &i2c, Keyboard& keyboard, uint8_t lcdAddress, uint8_t lsAddress);
+	ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alarmManager, const App::UnitConfig& unitConfig);
 	virtual ~ClockDisplay();
 
 	void showClock();
@@ -76,7 +90,10 @@ public:
 
 
 private:
-    void drawVolume();
+	void updateEditDisplay();
+	void writeAlarm(int line, const App::Alarm& alarm);
+
+	void drawVolume();
     void eraseVolume();
     void drawSignal();
     void eraseSignal();
@@ -88,11 +105,16 @@ private:
 
 	void refreshThread();
 
+
 	LCDisplay mLCDisplay;
 	LightSensor mLightSensor;
 	Keyboard& mKeyboard;
+	App::AlarmManager& mAlarmManager;
 
 	std::atomic<DisplayState> mDisplayState;
+	EditState mEditState;
+	EditPos mEditPos;
+	int mAlarmCount;
     std::thread* mRefreshThread;
     std::atomic_bool mRefreshThreadRunning;
     std::atomic_bool mForceRefresh;
@@ -106,6 +128,8 @@ private:
     int mRDSTextPos;
     int mReceiveLevel;
     int mVolume;
+    const std::string mUnitName;
+    int mAlarmEditIndex;
 };
 }
 #endif /* CLOCKDISPLAY_H_ */

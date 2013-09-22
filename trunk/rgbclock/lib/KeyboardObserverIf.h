@@ -33,6 +33,7 @@ struct KeyInfo
 	bool mPressed;
 	bool mReleased;
 	bool mLongPress;
+	bool mRepeat;
 };
 
 class KeyboardObserverIf

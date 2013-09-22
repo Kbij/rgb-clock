@@ -35,6 +35,7 @@ enum Day
 struct Alarm
 {
 	Alarm() :
+		mEnabled(true),
 		mHour(7),
 		mMinutes(0),
 		mOneTime(false),
@@ -42,6 +43,7 @@ struct Alarm
 		mUnit(""),
 		mVolume(40),
 		mSignalled(false){};
+	bool mEnabled;
 	int mHour;
 	int mMinutes;
 	bool mOneTime;
@@ -49,7 +51,7 @@ struct Alarm
 	std::string mUnit;
 	int mVolume;
 	bool mSignalled;
-	std::string daysString()
+	std::string daysString() const
 	{
 		std::string result = "[";
 		if (mDays[Sunday])
@@ -111,10 +113,28 @@ struct Alarm
 
 		return result + "]";
 	}
-	std::string to_string()
+	std::string to_string_long()
 	{
 		std::string result;
 		result = "Unit: " + mUnit + ": " + std::to_string(mHour) + ":" + std::to_string(mMinutes) + ", OneTime: " + std::to_string(mOneTime) +  ", Days: " + daysString() + ", Volume: " + std::to_string(mVolume);
+		return result;
+	}
+	std::string to_string_short()
+	{
+		std::string result;
+		std::string oneTime = "";
+		std::string daysStr = "";
+		if (mOneTime)
+		{
+			oneTime = "O";
+		}
+		else
+		{
+			oneTime = "D";
+			daysStr = daysString();
+		}
+
+		result = "'" + mUnit + "' " + std::to_string(mHour) + ":" + std::to_string(mMinutes) + " " + oneTime + daysStr + " " + std::to_string(mVolume);
 		return result;
 	}
 

@@ -29,7 +29,7 @@ class Light;
 
 class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf {
 public:
-	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, UnitConfig unitConfig);
+	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, const UnitConfig& unitConfig);
 	virtual ~AlarmClock();
 
 	void registerLight(Light *light);
@@ -48,12 +48,12 @@ public:
 	AlarmClock(const AlarmClock& source) = delete;
 
 private:
-	UnitConfig mUnitConfig;
+	const UnitConfig& mUnitConfig;
 	Hardware::Keyboard mKeyboard;
 	Hardware::Radio mRadio;
+	AlarmManager& mAlarmManager;
 	Hardware::ClockDisplay mDisplay;
 	Light *mLight;
-	AlarmManager& mAlarmManager;
 };
 
 } /* namespace App */
