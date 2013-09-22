@@ -110,6 +110,12 @@ void AlarmManager::loadAlarms()
 	        {
 	        	Alarm alarmSettings;
 
+	        	ticpp::Element *enabledElement = alarm->FirstChildElement("enabled", true);
+	        	if ( enabledElement != nullptr )
+	        	{
+	        		alarmSettings.mEnabled = std::stoi(enabledElement->GetText());
+	        	}
+
 	        	ticpp::Element *unitElement = alarm->FirstChildElement("unit", true);
 	        	if ( unitElement != nullptr )
 	        	{
@@ -146,7 +152,7 @@ void AlarmManager::loadAlarms()
 	        		alarmSettings.mDays = std::bitset<7>(daysElement->GetText());
 	        	}
 
-	        	LOG(INFO) << "Alarm loaded: " << alarmSettings.to_string();
+	        	LOG(INFO) << "Alarm loaded: " << alarmSettings.to_string_long();
 	        	mAlarmList.push_back(alarmSettings);
 
 	        	// advance to next item
@@ -182,6 +188,10 @@ void AlarmManager::saveAlarms()
 		TiXmlElement* alarmElement = new TiXmlElement("alarm");
 		//alarmElement->LinkEndChild( new TiXmlText("test"));
 		alarms->LinkEndChild( alarmElement );
+
+		TiXmlElement* enabledElement = new TiXmlElement("enabled");
+		enabledElement->LinkEndChild( new TiXmlText(std::to_string(alarm.mEnabled)));
+		alarmElement->LinkEndChild(enabledElement);
 
 		TiXmlElement* unitElement = new TiXmlElement("unit");
 		unitElement->LinkEndChild( new TiXmlText(alarm.mUnit));

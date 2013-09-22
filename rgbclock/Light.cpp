@@ -172,6 +172,7 @@ void Light::initiateSlowUp()
     std::lock_guard<std::mutex> lk_guard(mLedMutex);
 
 	mRGBLed.luminance(mLuminance);
+	mRGBLed.write();
 	mRGBLed.pwrOn();
 	mState = State::SlowUp;
 	startDimmerThread();

@@ -14,13 +14,13 @@
 
 namespace App {
 
-AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, UnitConfig unitConfig) :
+AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, const UnitConfig& unitConfig) :
 	mUnitConfig(unitConfig),
 	mKeyboard(i2c, unitConfig.mKeyboard),
 	mRadio(i2c, unitConfig.mAmplifier, fmReceiver),
-	mDisplay(i2c, mKeyboard, unitConfig.mLCD, unitConfig.mLightSensor),
-	mLight(nullptr),
-	mAlarmManager(alarmManager)
+	mAlarmManager(alarmManager),
+	mDisplay(i2c, mKeyboard, mAlarmManager, unitConfig),
+	mLight(nullptr)
 {
 	mKeyboard.registerKeyboardObserver(this);
 	mKeyboard.registerKeyboardObserver(&mRadio);
