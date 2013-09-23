@@ -8,6 +8,7 @@
 #include "AlarmManager.h"
 #include "AlarmObserverIf.h"
 
+#include "Config.h"
 
 #include "tinyxml/ticpp.h"
 
@@ -21,14 +22,15 @@ DEFINE_string(alarmfile,"alarms.xml","XML file containing the definition of alar
 
 namespace App {
 
-AlarmManager::AlarmManager():
+AlarmManager::AlarmManager(const Config& config):
 		mAlarmList(),
 		mAlarmObservers(),
 		mCurrentEditor(),
 		mAlarmsMutex(),
 		mAlarmObserversMutex(),
 		mAlarmThread(nullptr),
-		mAlarmThreadRunning(false)
+		mAlarmThreadRunning(false),
+		mConfig(config)
 {
 	loadAlarms();
 	startAlarmThread();
@@ -84,6 +86,32 @@ void AlarmManager::saveAlarms(std::string unitName)
 	}
 }
 
+std::string AlarmManager::nextUnitName(std::string currentUnitName)
+{
+	LOG(INFO) << "Currentname: " << currentUnitName;
+	const auto& config = mConfig.configuredUnits();
+	auto current = config.find(currentUnitName);
+	if ((currentUnitName == "") || (current == config.end()))
+	{
+		LOG(INFO) << "return first:" << mConfig.configuredUnits().begin()->first;
+		return mConfig.configuredUnits().begin()->first;
+	}
+
+	current++;
+	if (current != config.end())
+	{
+		LOG(INFO) << "Return: " << current->first;
+		return current->first;
+	}
+	else
+	{
+		LOG(INFO) << "Return empty";
+		return "";
+	}
+
+}
+
+
 bool fileExists(std::string fileName)
 {
    std::ifstream infile(fileName);
@@ -116,7 +144,7 @@ void AlarmManager::loadAlarms()
 	        		alarmSettings.mEnabled = std::stoi(enabledElement->GetText());
 	        	}
 
-	        	ticpp::Element *unitElement = alarm->FirstChildElement("unit", true);
+	        	ticpp::Element *unitElement = alarm->FirstChildElement("unit", false);
 	        	if ( unitElement != nullptr )
 	        	{
 	        		alarmSettings.mUnit = unitElement->GetText();

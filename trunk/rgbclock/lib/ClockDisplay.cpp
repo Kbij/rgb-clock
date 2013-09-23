@@ -213,6 +213,12 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 		App::AlarmList* alarms = mAlarmManager.editAlarms(mUnitName);
 		if (alarms)
 		{
+			if (mAlarmEditIndex == mAlarmCount) // add a new alarm
+			{
+				App::Alarm alarm;
+				alarms->push_back(alarm); // Add a new alarm
+				mAlarmCount++;
+			}
 			auto& alarm = (*alarms)[mAlarmEditIndex];
 
 			if (keyboardInfo[KEY_CENTRAL].mPressed)
@@ -324,14 +330,17 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 					}
 					case EditPos::posEnable: alarm.mEnabled = !alarm.mEnabled;
 						break;
-					case EditPos::posUnit:;
+					case EditPos::posUnit:
+					{
+						alarm.mUnit = mAlarmManager.nextUnitName(alarm.mUnit);
 						break;
+					}
 					case EditPos::posHourT:
 					{
-						alarm.mHour = alarm.mHour - 10;
+						alarm.mHour -=  10;
 						if (alarm.mHour < 0)
 						{
-							alarm.mHour = alarm.mHour + 10;
+							alarm.mHour += 10;
 						}
 						break;
 					}
@@ -429,37 +438,98 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 						}
 						break;
 					}
-					case EditPos::posEnable:;
+					case EditPos::posEnable: alarm.mEnabled = !alarm.mEnabled;
 						break;
-					case EditPos::posUnit:;
+					case EditPos::posUnit:
+					{
+						alarm.mUnit = mAlarmManager.nextUnitName(alarm.mUnit);
 						break;
-					case EditPos::posHourT:;
+					}
+					case EditPos::posHourT:
+					{
+						alarm.mHour += 10;
+						if (alarm.mHour > 23)
+						{
+							alarm.mHour -= 10;
+						}
 						break;
-					case EditPos::posHourE:;
+					}
+					case EditPos::posHourE:
+					{
+						alarm.mHour += 1;
+						if (alarm.mHour > 23)
+						{
+							alarm.mHour -= 1;
+						}
 						break;
-					case EditPos::posMinT:;
+					}
+					case EditPos::posMinT:
+					{
+						alarm.mMinutes += 10;
+						if (alarm.mMinutes > 59)
+						{
+							alarm.mMinutes -= 10;
+						}
 						break;
-					case EditPos::posMinE:;
+					}
+					case EditPos::posMinE:
+					{
+						alarm.mMinutes += 1;
+						if (alarm.mMinutes > 59)
+						{
+							alarm.mMinutes -= 1;
+						}
 						break;
-					case EditPos::posOneTime:;
+					}
+					case EditPos::posOneTime:
+					{
+						alarm.mOneTime = !alarm.mOneTime;
 						break;
-					case EditPos::posDaySu:;
+					}
+					case EditPos::posDaySu:
+					{
+						alarm.mDays[App::Sunday] = !alarm.mDays[App::Sunday];
 						break;
+					}
 					case EditPos::posDayMo:;
+					{
+						alarm.mDays[App::Monday] = !alarm.mDays[App::Monday];
 						break;
+					}
 					case EditPos::posDayTu:;
+					{
+						alarm.mDays[App::Thusday] = !alarm.mDays[App::Thusday];
 						break;
+					}
 					case EditPos::posDayWe:;
+					{
+						alarm.mDays[App::Wednesday] = !alarm.mDays[App::Wednesday];
 						break;
+					}
 					case EditPos::posDayTh:;
+					{
+						alarm.mDays[App::Thursday] = !alarm.mDays[App::Thursday];
 						break;
+					}
 					case EditPos::posDayFr:;
+					{
+						alarm.mDays[App::Friday] = !alarm.mDays[App::Friday];
 						break;
+					}
 					case EditPos::posDaySa:;
+					{
+						alarm.mDays[App::Saturday] = !alarm.mDays[App::Saturday];
 						break;
-					case EditPos::posVol:;
+					}
+					case EditPos::posVol:
+					{
+						alarm.mVolume += 1;
+						if (alarm.mVolume > 99)
+						{
+							alarm.mVolume -= 1;
+						}
 						break;
-
+					}
 				}
 
 				updateEditDisplay();
@@ -472,13 +542,11 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 
 void ClockDisplay::updateEditDisplay()
 {
-	LOG(INFO) << "Update edit display";
 	App::AlarmList* alarms = mAlarmManager.editAlarms(mUnitName);
 	if (alarms)
 	{
 		if (mEditState == EditState::edListAlarms)
 		{
-			LOG(INFO) << "List Alarms";
 			mLCDisplay.rectangle(0, 0, 163, 63, false, true);
 			unsigned int alarmIndex = mAlarmEditIndex;
 			int line = 0;
@@ -495,7 +563,6 @@ void ClockDisplay::updateEditDisplay()
 		}
 		if (mEditState == EditState::edEditAlarm)
 		{
-			LOG(INFO) << "Edit alarm";
 			auto alarm = (*alarms)[mAlarmEditIndex];
 			writeAlarm(0,alarm);
 			mLCDisplay.rectangle(0, 8, 163, 63, false, true);
@@ -544,7 +611,7 @@ void ClockDisplay::updateEditDisplay()
 void ClockDisplay::writeAlarm(int line, const App::Alarm& alarm)
 {
 	mLCDisplay.writeGraphicText(POS_ENABLE, line * LINESPACING, alarm.mEnabled ? "1":"0", FontType::Terminal8);
-	mLCDisplay.writeGraphicText(POS_UNITNAME, line * LINESPACING, alarm.mUnit, FontType::Terminal8);
+	mLCDisplay.writeGraphicText(POS_UNITNAME, line * LINESPACING, alarm.mUnit == "" ? "     ": alarm.mUnit, FontType::Terminal8);
 	mLCDisplay.writeGraphicText(POS_HOUR_T, line * LINESPACING, std::to_string((int) alarm.mHour / 10), FontType::Terminal8);
 	mLCDisplay.writeGraphicText(POS_HOUR_E, line * LINESPACING, std::to_string(alarm.mHour % 10), FontType::Terminal8);
 	mLCDisplay.writeGraphicText(POS_MIN_T, line * LINESPACING, std::to_string((int) alarm.mMinutes / 10 ), FontType::Terminal8);

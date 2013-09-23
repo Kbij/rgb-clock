@@ -87,7 +87,7 @@ bool Config::errorFree()
 	return mErrorFree;
 }
 
-const std::map<std::string, UnitConfig>& Config::configuredUnits()
+const std::map<std::string, UnitConfig>& Config::configuredUnits() const
 {
 	return mConfiguredUnits;
 }

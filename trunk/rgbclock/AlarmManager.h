@@ -19,6 +19,7 @@
 namespace App {
 
 class AlarmObserverIf;
+class Config;
 
 enum Day
 {
@@ -144,7 +145,7 @@ using AlarmList = std::vector<Alarm>;
 
 class AlarmManager {
 public:
-	AlarmManager();
+	AlarmManager(const Config& config);
 	virtual ~AlarmManager();
 
 	void registerAlarmObserver(AlarmObserverIf* observer);
@@ -152,6 +153,8 @@ public:
 
 	AlarmList* editAlarms(std::string unitName);
 	void saveAlarms(std::string unitName);
+
+	std::string nextUnitName(std::string currentUnitName);
 
 private:
 	AlarmList mAlarmList;
@@ -161,6 +164,7 @@ private:
 	std::mutex mAlarmObserversMutex;
     std::thread* mAlarmThread;
 	std::atomic_bool mAlarmThreadRunning;
+	const Config& mConfig;
 
 	void loadAlarms();
 	void saveAlarms();
