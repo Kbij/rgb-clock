@@ -36,7 +36,7 @@ public:
 	virtual ~Config();
 
 	bool errorFree();
-	const std::map<std::string, UnitConfig>& configuredUnits();
+	const std::map<std::string, UnitConfig>& configuredUnits() const;
 	const SystemConfig& systemConfig();
 
 private:
