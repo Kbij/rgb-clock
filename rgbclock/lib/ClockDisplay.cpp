@@ -53,7 +53,6 @@ ClockDisplay::ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alar
 	mRefreshThread(nullptr),
 	mRefreshThreadRunning(false),
 	mForceRefresh(false),
-	mPrevMin(-1),
 	mRadioInfoMutex(),
 	mRDSVisible(false),
 	mVolumeVisible(false),
@@ -64,7 +63,8 @@ ClockDisplay::ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alar
 	mReceiveLevel(0),
 	mVolume(0),
 	mUnitName(unitConfig.mName),
-	mAlarmEditIndex(0)
+	mAlarmEditIndex(0),
+	mConfirmDelete(false)
 {
 	mLCDisplay.initGraphic();
 	mLCDisplay.clearGraphicDisplay();
@@ -213,12 +213,36 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 		App::AlarmList* alarms = mAlarmManager.editAlarms(mUnitName);
 		if (alarms)
 		{
-			if (mAlarmEditIndex == mAlarmCount) // add a new alarm
+			if (mEditState == EditState::edListAlarms)
 			{
-				App::Alarm alarm;
-				alarms->push_back(alarm); // Add a new alarm
-				mAlarmCount++;
+				if (keyboardInfo[KEY_CENTRAL].mLongPress && !(keyboardInfo[KEY_CENTRAL].mRepeat) && (mAlarmEditIndex < alarms->size()))
+				{
+					LOG(INFO) << "Confirm delete";
+					mLCDisplay.rectangle(0, 0, 163, 63, false, true);
+					mEditState = EditState::edConfirmDelete;
+					return;
+				}
+
+				if (mAlarmEditIndex == mAlarmCount) // add a new alarm
+				{
+					LOG(INFO) << "Add new alarm";
+					App::Alarm alarm;
+					alarms->push_back(alarm); // Add a new alarm
+					mAlarmCount++;
+				}
 			}
+
+			if (mEditState == EditState::edConfirmDelete)
+			{
+				if (keyboardInfo[KEY_DOWN].mPressed || keyboardInfo[KEY_UP].mPressed )
+				{
+					mConfirmDelete = ! mConfirmDelete;
+					updateEditDisplay();
+					return;
+				}
+
+			}
+
 			auto& alarm = (*alarms)[mAlarmEditIndex];
 
 			if (keyboardInfo[KEY_CENTRAL].mPressed)
@@ -561,6 +585,15 @@ void ClockDisplay::updateEditDisplay()
 			mLCDisplay.writeGraphicText(POS_UNITNAME, line * LINESPACING, "Nieuw alarm                   ", FontType::Terminal8);
 
 		}
+		if (mEditState == EditState::edConfirmDelete)
+		{
+			int carretPos = mConfirmDelete ? 25: 30;
+			mLCDisplay.writeGraphicText(20, 8, "Alarm verwijderen ?", FontType::Terminal8);
+			mLCDisplay.writeGraphicText(20, 16, "  Ja      Nee", FontType::Terminal8);
+			mLCDisplay.writeGraphicText(0, 24, "                                       ", FontType::Terminal8);
+			mLCDisplay.writeGraphicText(carretPos, 24, "^", FontType::Terminal8);
+
+		}
 		if (mEditState == EditState::edEditAlarm)
 		{
 			auto alarm = (*alarms)[mAlarmEditIndex];
@@ -731,6 +764,15 @@ void ClockDisplay::eraseRDS()
 	mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
 }
 
+bool ClockDisplay::confirmDelete()
+{
+	mLCDisplay.rectangle(0, 0, 163, 63, false, true);
+	mLCDisplay.writeGraphicText(10, 16, "Alarm verwijderen ?", FontType::Terminal8);
+	mLCDisplay.writeGraphicText(16, 16, "Ja     Nee", FontType::Terminal8);
+
+
+}
+
 void ClockDisplay::startRefreshThread()
 {
 	mRefreshThreadRunning = true;
@@ -755,10 +797,13 @@ void ClockDisplay::stopRefreshThread()
 
 void ClockDisplay::refreshThread()
 {
+	int prevMin = -1;
+	int prevSec = -1;
+
     while (mRefreshThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
         if (mDisplayState == DisplayState::stNormal)
         {
@@ -767,7 +812,7 @@ void ClockDisplay::refreshThread()
 
     		time(&rawTime);
     		timeInfo = localtime(&rawTime);
-    		if ((timeInfo->tm_min != mPrevMin) || mForceRefresh)
+    		if ((timeInfo->tm_min != prevMin) || mForceRefresh)
     		{
     			mForceRefresh = false;
     			std::stringstream hourStream;
@@ -785,16 +830,22 @@ void ClockDisplay::refreshThread()
 
     		}
 
-    		mPrevMin = timeInfo->tm_min;
 
     	    if (mRDSVisible)
     		{
-    	    	drawRDS();
+    	    	if (timeInfo->tm_sec != prevSec)
+    	    	{
+        	    	drawRDS();
+    	    	}
     		}
     	    else
     	    {
     	    	eraseRDS();
     	    }
+
+    		prevMin = timeInfo->tm_min;
+    		prevSec = timeInfo->tm_sec;
+
     	    if (mVolumeVisible)
     	    {
     	    	drawVolume();

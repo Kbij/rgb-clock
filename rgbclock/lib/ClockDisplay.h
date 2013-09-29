@@ -29,6 +29,7 @@ enum class EditState
 {
 	edUndefined,
 	edListAlarms,
+	edConfirmDelete,
 	edEditAlarm
 };
 
@@ -100,6 +101,8 @@ private:
     void drawRDS();
     void eraseRDS();
 
+    bool confirmDelete();
+
 	void startRefreshThread();
 	void stopRefreshThread();
 
@@ -114,11 +117,10 @@ private:
 	std::atomic<DisplayState> mDisplayState;
 	EditState mEditState;
 	EditPos mEditPos;
-	int mAlarmCount;
+	unsigned int mAlarmCount;
     std::thread* mRefreshThread;
     std::atomic_bool mRefreshThreadRunning;
     std::atomic_bool mForceRefresh;
-    uint8_t mPrevMin;
     std::recursive_mutex mRadioInfoMutex;
     std::atomic_bool mRDSVisible;
     std::atomic_bool mVolumeVisible;
@@ -129,7 +131,8 @@ private:
     int mReceiveLevel;
     int mVolume;
     const std::string mUnitName;
-    int mAlarmEditIndex;
+    unsigned int mAlarmEditIndex;
+    bool mConfirmDelete;
 };
 }
 #endif /* CLOCKDISPLAY_H_ */
