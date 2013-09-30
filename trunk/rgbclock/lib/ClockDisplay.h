@@ -35,7 +35,6 @@ enum class EditState
 
 enum class EditPos
 {
-	posIndex,
 	posEnable,
 	posUnit,
 	posHourT,
@@ -101,8 +100,6 @@ private:
     void drawRDS();
     void eraseRDS();
 
-    bool confirmDelete();
-
 	void startRefreshThread();
 	void stopRefreshThread();
 
@@ -117,7 +114,6 @@ private:
 	std::atomic<DisplayState> mDisplayState;
 	EditState mEditState;
 	EditPos mEditPos;
-	unsigned int mAlarmCount;
     std::thread* mRefreshThread;
     std::atomic_bool mRefreshThreadRunning;
     std::atomic_bool mForceRefresh;
