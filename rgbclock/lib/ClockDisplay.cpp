@@ -48,8 +48,7 @@ ClockDisplay::ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alar
 	mAlarmManager(alarmManager),
 	mDisplayState(DisplayState::stNormal),
 	mEditState(EditState::edUndefined),
-	mEditPos(EditPos::posIndex),
-	mAlarmCount(0),
+	mEditPos(EditPos::posEnable),
 	mRefreshThread(nullptr),
 	mRefreshThreadRunning(false),
 	mForceRefresh(false),
@@ -188,10 +187,10 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 			if (alarms)
 			{
 				mKeyboard.keyboardState(KeyboardState::stAlarmEdit);
+				mAlarmEditIndex = 0;
 				mDisplayState = DisplayState::stEditAlarms;
 				mEditState = EditState::edListAlarms;
-				mEditPos = EditPos::posIndex;
-				mAlarmCount = alarms->size();
+				mEditPos = EditPos::posEnable;
 				updateEditDisplay();
 			}
 		}
@@ -205,7 +204,6 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 				mLCDisplay.clearGraphicDisplay();
 				mForceRefresh = true;
 			}
-
 	}
 
 	if (mDisplayState == DisplayState::stEditAlarms)
@@ -220,15 +218,53 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 					LOG(INFO) << "Confirm delete";
 					mLCDisplay.rectangle(0, 0, 163, 63, false, true);
 					mEditState = EditState::edConfirmDelete;
+					mConfirmDelete = false;
+
+					updateEditDisplay();
 					return;
 				}
 
-				if (mAlarmEditIndex == mAlarmCount) // add a new alarm
+				if (keyboardInfo[KEY_CENTRAL].mPressed)
 				{
-					LOG(INFO) << "Add new alarm";
-					App::Alarm alarm;
-					alarms->push_back(alarm); // Add a new alarm
-					mAlarmCount++;
+					if (mAlarmEditIndex == alarms->size()) // add a new alarm
+					{
+						LOG(INFO) << "Add new alarm";
+						App::Alarm alarm;
+						alarms->push_back(alarm); // Add a new alarm
+					}
+
+					mEditPos = EditPos::posEnable;
+					mEditState = EditState::edEditAlarm;
+
+					// going from list alarm to edit individual alarm; clear screen
+					mLCDisplay.rectangle(0, 0, 163, 63, false, true);
+
+					updateEditDisplay();
+					return;
+				}
+
+				// Up and down must be interpresed in reverse order (be consistent with the display order in the list)
+				if (keyboardInfo[KEY_DOWN].mPressed)
+				{
+					++mAlarmEditIndex;
+					if (mAlarmEditIndex > alarms->size()) // last pos: new alarm
+					{
+						mAlarmEditIndex = alarms->size();
+					}
+
+					updateEditDisplay();
+					return;
+				}
+
+				if (keyboardInfo[KEY_UP].mPressed)
+				{
+					if (mAlarmEditIndex > 0)
+					{
+						--mAlarmEditIndex;
+					}
+
+					updateEditDisplay();
+					return;
 				}
 			}
 
@@ -240,326 +276,321 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 					updateEditDisplay();
 					return;
 				}
+				if (keyboardInfo[KEY_CENTRAL].mPressed)
+				{
+					if (mConfirmDelete)
+					{
+						alarms->erase(alarms->begin() + mAlarmEditIndex);
+					}
 
+					mAlarmEditIndex = 0;
+					mEditState = EditState::edListAlarms;
+					mEditPos = EditPos::posEnable;
+					updateEditDisplay();
+
+					return;
+				}
 			}
 
-			auto& alarm = (*alarms)[mAlarmEditIndex];
-
-			if (keyboardInfo[KEY_CENTRAL].mPressed)
+			if (mEditState == EditState::edEditAlarm)
 			{
-				switch(mEditPos)
+				if (mAlarmEditIndex >= alarms->size())
 				{
-					case EditPos::posIndex:
-					{
-						mEditPos = EditPos::posEnable;
-						mEditState = EditState::edEditAlarm;
-
-						// going from list alarm to edit individual alarm; clear screen
-						mLCDisplay.rectangle(0, 0, 163, 63, false, true);
-						break;
-					}
-					case EditPos::posEnable:
-					{
-						mEditPos = EditPos::posUnit;
-						break;
-					}
-					case EditPos::posUnit:
-					{
-						mEditPos = EditPos::posHourT;
-						break;
-					}
-					case EditPos::posHourT:
-					{
-						mEditPos = EditPos::posHourE;
-						break;
-					}
-					case EditPos::posHourE:
-					{
-						mEditPos = EditPos::posMinT;
-						break;
-					}
-					case EditPos::posMinT:
-					{
-						mEditPos = EditPos::posMinE;
-						break;
-					}
-					case EditPos::posMinE:
-					{
-						mEditPos = EditPos::posOneTime;
-						break;
-					}
-					case EditPos::posOneTime:
-					{
-						mEditPos = alarm.mOneTime ? EditPos::posVol: EditPos::posDaySu;
-						break;
-					}
-					case EditPos::posDaySu:
-					{
-						mEditPos = EditPos::posDayMo;
-						break;
-					}
-					case EditPos::posDayMo:
-					{
-						mEditPos = EditPos::posDayTu;
-						break;
-					}
-					case EditPos::posDayTu:
-					{
-						mEditPos = EditPos::posDayWe;
-						break;
-					}
-					case EditPos::posDayWe:
-					{
-						mEditPos = EditPos::posDayTh;
-						break;
-					}
-					case EditPos::posDayTh:
-					{
-						mEditPos = EditPos::posDayFr;
-						break;
-					}
-					case EditPos::posDayFr:
-					{
-						mEditPos = EditPos::posDaySa;
-						break;
-					}
-					case EditPos::posDaySa:
-					{
-						mEditPos = EditPos::posVol;
-						break;
-					}
-					case EditPos::posVol:
-					{
-						mEditPos = EditPos::posIndex;
-						mEditState = EditState::edListAlarms;
-						break;
-					}
+					LOG(ERROR) << "mAlarmIndex out of range (index: " << mAlarmEditIndex << ", alarmsize: " << alarms->size();
+					return;
 				}
 
-				updateEditDisplay();
-			}
+				auto& alarm = (*alarms)[mAlarmEditIndex];
 
-			if (keyboardInfo[KEY_DOWN].mPressed)
-			{
-				switch(mEditPos)
+				if (keyboardInfo[KEY_CENTRAL].mPressed)
 				{
-					case EditPos::posIndex:
+					switch(mEditPos)
 					{
-						++mAlarmEditIndex;
-						if (mAlarmEditIndex > mAlarmCount) // last pos: new alarm
+						case EditPos::posEnable:
 						{
-							mAlarmEditIndex = mAlarmCount;
+							mEditPos = EditPos::posUnit;
+							break;
 						}
-						break;
-					}
-					case EditPos::posEnable: alarm.mEnabled = !alarm.mEnabled;
-						break;
-					case EditPos::posUnit:
-					{
-						alarm.mUnit = mAlarmManager.nextUnitName(alarm.mUnit);
-						break;
-					}
-					case EditPos::posHourT:
-					{
-						alarm.mHour -=  10;
-						if (alarm.mHour < 0)
+						case EditPos::posUnit:
 						{
-							alarm.mHour += 10;
+							mEditPos = EditPos::posHourT;
+							break;
 						}
-						break;
-					}
-					case EditPos::posHourE:
-					{
-						alarm.mHour -= 1;
-						if (alarm.mHour < 0)
+						case EditPos::posHourT:
 						{
-							alarm.mHour += 1;
+							mEditPos = EditPos::posHourE;
+							break;
 						}
-						break;
-					}
-					case EditPos::posMinT:
-					{
-						alarm.mMinutes -= 10;
-						if (alarm.mMinutes < 0)
+						case EditPos::posHourE:
 						{
-							alarm.mMinutes += 10;
+							mEditPos = EditPos::posMinT;
+							break;
 						}
-						break;
-					}
-					case EditPos::posMinE:
-					{
-						alarm.mMinutes -= 1;
-						if (alarm.mMinutes < 0)
+						case EditPos::posMinT:
 						{
-							alarm.mMinutes += 1;
+							mEditPos = EditPos::posMinE;
+							break;
 						}
-						break;
-					}
-					case EditPos::posOneTime:
-					{
-						alarm.mOneTime = !alarm.mOneTime;
-						break;
-					}
-					case EditPos::posDaySu:
-					{
-						alarm.mDays[App::Sunday] = !alarm.mDays[App::Sunday];
-						break;
-					}
-					case EditPos::posDayMo:;
-					{
-						alarm.mDays[App::Monday] = !alarm.mDays[App::Monday];
-						break;
-					}
-					case EditPos::posDayTu:;
-					{
-						alarm.mDays[App::Thusday] = !alarm.mDays[App::Thusday];
-						break;
-					}
-					case EditPos::posDayWe:;
-					{
-						alarm.mDays[App::Wednesday] = !alarm.mDays[App::Wednesday];
-						break;
-					}
-					case EditPos::posDayTh:;
-					{
-						alarm.mDays[App::Thursday] = !alarm.mDays[App::Thursday];
-						break;
-					}
-					case EditPos::posDayFr:;
-					{
-						alarm.mDays[App::Friday] = !alarm.mDays[App::Friday];
-						break;
-					}
-					case EditPos::posDaySa:;
-					{
-						alarm.mDays[App::Saturday] = !alarm.mDays[App::Saturday];
-						break;
-					}
-					case EditPos::posVol:
-					{
-						alarm.mVolume -= 1;
-						if (alarm.mVolume < 0)
+						case EditPos::posMinE:
 						{
-							alarm.mVolume += 1;
+							mEditPos = EditPos::posOneTime;
+							break;
 						}
-						break;
-					}
-				}
-
-				updateEditDisplay();
-			}
-
-			if (keyboardInfo[KEY_UP].mPressed)
-			{
-				switch(mEditPos)
-				{
-					case EditPos::posIndex:
-					{
-						--mAlarmEditIndex;
-						if (mAlarmEditIndex < 0)
+						case EditPos::posOneTime:
 						{
+							mEditPos = alarm.mOneTime ? EditPos::posVol: EditPos::posDaySu;
+							break;
+						}
+						case EditPos::posDaySu:
+						{
+							mEditPos = EditPos::posDayMo;
+							break;
+						}
+						case EditPos::posDayMo:
+						{
+							mEditPos = EditPos::posDayTu;
+							break;
+						}
+						case EditPos::posDayTu:
+						{
+							mEditPos = EditPos::posDayWe;
+							break;
+						}
+						case EditPos::posDayWe:
+						{
+							mEditPos = EditPos::posDayTh;
+							break;
+						}
+						case EditPos::posDayTh:
+						{
+							mEditPos = EditPos::posDayFr;
+							break;
+						}
+						case EditPos::posDayFr:
+						{
+							mEditPos = EditPos::posDaySa;
+							break;
+						}
+						case EditPos::posDaySa:
+						{
+							mEditPos = EditPos::posVol;
+							break;
+						}
+						case EditPos::posVol:
+						{
+							mEditPos = EditPos::posEnable;
+							mEditState = EditState::edListAlarms;
 							mAlarmEditIndex = 0;
+							break;
 						}
-						break;
 					}
-					case EditPos::posEnable: alarm.mEnabled = !alarm.mEnabled;
-						break;
-					case EditPos::posUnit:
+
+					updateEditDisplay();
+				}
+
+				if (keyboardInfo[KEY_DOWN].mPressed)
+				{
+					switch(mEditPos)
 					{
-						alarm.mUnit = mAlarmManager.nextUnitName(alarm.mUnit);
-						break;
-					}
-					case EditPos::posHourT:
-					{
-						alarm.mHour += 10;
-						if (alarm.mHour > 23)
+						case EditPos::posEnable: alarm.mEnabled = !alarm.mEnabled;
+							break;
+						case EditPos::posUnit:
 						{
-							alarm.mHour -= 10;
+							alarm.mUnit = mAlarmManager.nextUnitName(alarm.mUnit);
+							break;
 						}
-						break;
-					}
-					case EditPos::posHourE:
-					{
-						alarm.mHour += 1;
-						if (alarm.mHour > 23)
+						case EditPos::posHourT:
+						{
+							alarm.mHour -=  10;
+							if (alarm.mHour < 0)
+							{
+								alarm.mHour += 10;
+							}
+							break;
+						}
+						case EditPos::posHourE:
 						{
 							alarm.mHour -= 1;
+							if (alarm.mHour < 0)
+							{
+								alarm.mHour += 1;
+							}
+							break;
 						}
-						break;
-					}
-					case EditPos::posMinT:
-					{
-						alarm.mMinutes += 10;
-						if (alarm.mMinutes > 59)
+						case EditPos::posMinT:
 						{
 							alarm.mMinutes -= 10;
+							if (alarm.mMinutes < 0)
+							{
+								alarm.mMinutes += 10;
+							}
+							break;
 						}
-						break;
-					}
-					case EditPos::posMinE:
-					{
-						alarm.mMinutes += 1;
-						if (alarm.mMinutes > 59)
+						case EditPos::posMinE:
 						{
 							alarm.mMinutes -= 1;
+							if (alarm.mMinutes < 0)
+							{
+								alarm.mMinutes += 1;
+							}
+							break;
 						}
-						break;
-					}
-					case EditPos::posOneTime:
-					{
-						alarm.mOneTime = !alarm.mOneTime;
-						break;
-					}
-					case EditPos::posDaySu:
-					{
-						alarm.mDays[App::Sunday] = !alarm.mDays[App::Sunday];
-						break;
-					}
-					case EditPos::posDayMo:;
-					{
-						alarm.mDays[App::Monday] = !alarm.mDays[App::Monday];
-						break;
-					}
-					case EditPos::posDayTu:;
-					{
-						alarm.mDays[App::Thusday] = !alarm.mDays[App::Thusday];
-						break;
-					}
-					case EditPos::posDayWe:;
-					{
-						alarm.mDays[App::Wednesday] = !alarm.mDays[App::Wednesday];
-						break;
-					}
-					case EditPos::posDayTh:;
-					{
-						alarm.mDays[App::Thursday] = !alarm.mDays[App::Thursday];
-						break;
-					}
-					case EditPos::posDayFr:;
-					{
-						alarm.mDays[App::Friday] = !alarm.mDays[App::Friday];
-						break;
-					}
-					case EditPos::posDaySa:;
-					{
-						alarm.mDays[App::Saturday] = !alarm.mDays[App::Saturday];
-						break;
-					}
-					case EditPos::posVol:
-					{
-						alarm.mVolume += 1;
-						if (alarm.mVolume > 99)
+						case EditPos::posOneTime:
+						{
+							alarm.mOneTime = !alarm.mOneTime;
+							break;
+						}
+						case EditPos::posDaySu:
+						{
+							alarm.mDays[App::Sunday] = !alarm.mDays[App::Sunday];
+							break;
+						}
+						case EditPos::posDayMo:;
+						{
+							alarm.mDays[App::Monday] = !alarm.mDays[App::Monday];
+							break;
+						}
+						case EditPos::posDayTu:;
+						{
+							alarm.mDays[App::Thusday] = !alarm.mDays[App::Thusday];
+							break;
+						}
+						case EditPos::posDayWe:;
+						{
+							alarm.mDays[App::Wednesday] = !alarm.mDays[App::Wednesday];
+							break;
+						}
+						case EditPos::posDayTh:;
+						{
+							alarm.mDays[App::Thursday] = !alarm.mDays[App::Thursday];
+							break;
+						}
+						case EditPos::posDayFr:;
+						{
+							alarm.mDays[App::Friday] = !alarm.mDays[App::Friday];
+							break;
+						}
+						case EditPos::posDaySa:;
+						{
+							alarm.mDays[App::Saturday] = !alarm.mDays[App::Saturday];
+							break;
+						}
+						case EditPos::posVol:
 						{
 							alarm.mVolume -= 1;
+							if (alarm.mVolume < 0)
+							{
+								alarm.mVolume += 1;
+							}
+							break;
 						}
-						break;
 					}
+
+					updateEditDisplay();
 				}
 
-				updateEditDisplay();
+				if (keyboardInfo[KEY_UP].mPressed)
+				{
+					switch(mEditPos)
+					{
+						case EditPos::posEnable: alarm.mEnabled = !alarm.mEnabled;
+							break;
+						case EditPos::posUnit:
+						{
+							alarm.mUnit = mAlarmManager.nextUnitName(alarm.mUnit);
+							break;
+						}
+						case EditPos::posHourT:
+						{
+							alarm.mHour += 10;
+							if (alarm.mHour > 23)
+							{
+								alarm.mHour -= 10;
+							}
+							break;
+						}
+						case EditPos::posHourE:
+						{
+							alarm.mHour += 1;
+							if (alarm.mHour > 23)
+							{
+								alarm.mHour -= 1;
+							}
+							break;
+						}
+						case EditPos::posMinT:
+						{
+							alarm.mMinutes += 10;
+							if (alarm.mMinutes > 59)
+							{
+								alarm.mMinutes -= 10;
+							}
+							break;
+						}
+						case EditPos::posMinE:
+						{
+							alarm.mMinutes += 1;
+							if (alarm.mMinutes > 59)
+							{
+								alarm.mMinutes -= 1;
+							}
+							break;
+						}
+						case EditPos::posOneTime:
+						{
+							alarm.mOneTime = !alarm.mOneTime;
+							break;
+						}
+						case EditPos::posDaySu:
+						{
+							alarm.mDays[App::Sunday] = !alarm.mDays[App::Sunday];
+							break;
+						}
+						case EditPos::posDayMo:;
+						{
+							alarm.mDays[App::Monday] = !alarm.mDays[App::Monday];
+							break;
+						}
+						case EditPos::posDayTu:;
+						{
+							alarm.mDays[App::Thusday] = !alarm.mDays[App::Thusday];
+							break;
+						}
+						case EditPos::posDayWe:;
+						{
+							alarm.mDays[App::Wednesday] = !alarm.mDays[App::Wednesday];
+							break;
+						}
+						case EditPos::posDayTh:;
+						{
+							alarm.mDays[App::Thursday] = !alarm.mDays[App::Thursday];
+							break;
+						}
+						case EditPos::posDayFr:;
+						{
+							alarm.mDays[App::Friday] = !alarm.mDays[App::Friday];
+							break;
+						}
+						case EditPos::posDaySa:;
+						{
+							alarm.mDays[App::Saturday] = !alarm.mDays[App::Saturday];
+							break;
+						}
+						case EditPos::posVol:
+						{
+							alarm.mVolume += 1;
+							if (alarm.mVolume > 99)
+							{
+								alarm.mVolume -= 1;
+							}
+							break;
+						}
+					}
+
+					updateEditDisplay();
+				}
 			}
 		}
-
 
 	}
 }
@@ -587,7 +618,7 @@ void ClockDisplay::updateEditDisplay()
 		}
 		if (mEditState == EditState::edConfirmDelete)
 		{
-			int carretPos = mConfirmDelete ? 25: 30;
+			int carretPos = mConfirmDelete ? 34: 86;
 			mLCDisplay.writeGraphicText(20, 8, "Alarm verwijderen ?", FontType::Terminal8);
 			mLCDisplay.writeGraphicText(20, 16, "  Ja      Nee", FontType::Terminal8);
 			mLCDisplay.writeGraphicText(0, 24, "                                       ", FontType::Terminal8);
@@ -603,8 +634,6 @@ void ClockDisplay::updateEditDisplay()
 			int carretPos = 0;
 			switch (mEditPos)
 			{
-				case EditPos::posIndex:;
-					break;
 				case EditPos::posEnable: carretPos = POS_ENABLE;
 					break;
 				case EditPos::posUnit: carretPos = POS_UNITNAME;
@@ -764,14 +793,6 @@ void ClockDisplay::eraseRDS()
 	mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
 }
 
-bool ClockDisplay::confirmDelete()
-{
-	mLCDisplay.rectangle(0, 0, 163, 63, false, true);
-	mLCDisplay.writeGraphicText(10, 16, "Alarm verwijderen ?", FontType::Terminal8);
-	mLCDisplay.writeGraphicText(16, 16, "Ja     Nee", FontType::Terminal8);
-
-
-}
 
 void ClockDisplay::startRefreshThread()
 {
