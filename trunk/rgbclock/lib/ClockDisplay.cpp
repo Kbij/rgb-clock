@@ -118,27 +118,6 @@ void ClockDisplay::hideRDSInfo()
 	mRDSVisible = false;
 }
 
-void ClockDisplay::showNextAlarm(const struct tm& nextAlarm)
-{
-	std::stringstream hourStream;
-	hourStream.width(2);
-	hourStream.fill('0');
-	hourStream << nextAlarm.tm_hour;
-	mLCDisplay.writeGraphicText(0,0, hourStream.str(), FontType::Terminal8);
-	mLCDisplay.writeGraphicText(13,0, ":", FontType::Terminal8);
-
-	std::stringstream minStream;
-	minStream.width(2);
-	minStream.fill('0');
-	minStream << nextAlarm.tm_min;
-	mLCDisplay.writeGraphicText(18,0, minStream.str(), FontType::Terminal8);
-}
-
-void ClockDisplay::hideNextAlarm()
-{
-
-}
-
 void ClockDisplay::radioRdsUpdate(RDSInfo rdsInfo)
 {
     std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
@@ -793,6 +772,19 @@ void ClockDisplay::eraseRDS()
 	mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
 }
 
+void ClockDisplay::drawNextAlarm()
+{
+	std::string nextAlarm = mAlarmManager.nextAlarm(mUnitName);
+	if (nextAlarm != "")
+	{
+		mLCDisplay.writeGraphicText(0, 0, nextAlarm, FontType::Terminal8);
+	}
+	else
+	{
+		// Erase
+		mLCDisplay.writeGraphicText(0, 0, "     ", FontType::Terminal8);
+	}
+}
 
 void ClockDisplay::startRefreshThread()
 {
@@ -883,6 +875,9 @@ void ClockDisplay::refreshThread()
     	    {
     	    	eraseSignal();
     	    }
+
+			// Next alarm always visible in normal mode
+    	    drawNextAlarm();
 
     /*
     		double lux = mLightSensor.lux();

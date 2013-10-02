@@ -80,9 +80,6 @@ public:
 	void showRDSInfo();
 	void hideRDSInfo();
 
-	void showNextAlarm(const struct tm& nextAlarm);
-	void hideNextAlarm();
-
     void radioRdsUpdate(RDSInfo rdsInfo);
     void radioStateUpdate(RadioInfo radioInfo);
 
@@ -99,6 +96,8 @@ private:
     void eraseSignal();
     void drawRDS();
     void eraseRDS();
+
+    void drawNextAlarm();
 
 	void startRefreshThread();
 	void stopRefreshThread();
