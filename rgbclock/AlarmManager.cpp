@@ -30,6 +30,8 @@ AlarmManager::AlarmManager(const Config& config):
 		mAlarmObserversMutex(),
 		mAlarmThread(nullptr),
 		mAlarmThreadRunning(false),
+		mNextAlarmMap(),
+		mNextAlarmMapMutex(),
 		mConfig(config)
 {
 	loadAlarms();
@@ -83,6 +85,20 @@ void AlarmManager::saveAlarms(std::string unitName)
 	{
 		mCurrentEditor = "";
 		saveAlarms();
+	}
+}
+
+std::string AlarmManager::nextAlarm(std::string unitName)
+{
+	std::lock_guard<std::mutex> lk_guard(mNextAlarmMapMutex);
+
+	if (mNextAlarmMap.find(unitName) != mNextAlarmMap.end())
+	{
+		return mNextAlarmMap[unitName].to_string();
+	}
+	else
+	{
+		return "";
 	}
 }
 
@@ -269,17 +285,64 @@ void AlarmManager::stopAlarmThread()
     }
 }
 
+int minutesUntilFired(const Alarm& alarm)
+{
+	LOG(INFO) << "sleep seconds terug aanpassen !!!";
+
+	if (!alarm.mEnabled)
+	{
+		return -1; // alarm not active
+	}
+	LOG(INFO) << "Calculating difference for alarm: " << alarm.to_string_long();
+	time_t rawTime;
+	struct tm* timeInfo;
+
+	time(&rawTime);
+	timeInfo = localtime(&rawTime);
+
+	int nowMinutes = timeInfo->tm_hour * 60 + timeInfo->tm_min;
+	int almMinutes = alarm.mHour * 60 + alarm.mMinutes;
+	LOG(INFO) << "nowMinutes: " << nowMinutes;
+	LOG(INFO) << "almMinutes: " << almMinutes;
+
+	// If a onetime alarm that will happen in less than 24h; add 24h to get a positive result
+	if (alarm.mOneTime && (almMinutes < nowMinutes))
+	{
+		almMinutes += 24 * 60; // add 1 day
+		LOG(INFO) << "Onetime alarm, almMinutes < nowMinutes, almMinutes: " << almMinutes;
+	}
+	else
+	{// nextday = if before saturday then (current day + 1) else sunday
+		int nextDay =  timeInfo->tm_wday < 6 ? (timeInfo->tm_wday + 1) : 0;
+		LOG(INFO) << "nextDay: " << nextDay;
+
+		if (!alarm.mDays[Day(timeInfo->tm_wday)]) // not for today
+		{
+			if (alarm.mDays[Day(nextDay)])
+			{
+				LOG(INFO) << "Adding 1 day to alarmminutes, almMinutes: " << almMinutes;
+				almMinutes += 60 * 24; // add 1 day (in minutes)
+			}
+		}
+	}
+
+	LOG(INFO) << "Result: " << (almMinutes - nowMinutes);
+	return almMinutes - nowMinutes;
+}
 void AlarmManager::alarmThread()
 {
     while (mAlarmThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(10));
     	std::lock_guard<std::mutex> lk_guard(mAlarmsMutex);
     	if (mCurrentEditor == "")
     	{
+    		bool saveAlm = false;
+
     		for (auto& alarm: mAlarmList)
     		{
+    				minutesUntilFired(alarm);
         			time_t rawTime;
         			struct tm* timeInfo;
 
@@ -297,6 +360,10 @@ void AlarmManager::alarmThread()
     						}
     					}
     					alarm.mSignalled = true;
+    					if (alarm.mOneTime)
+    					{
+    						alarm.mEnabled = false;
+    					}
     				}
 
         			// Reset the signalled flag
@@ -306,7 +373,10 @@ void AlarmManager::alarmThread()
         			}
     		}
 
-    		//cleanUpSingleAlarms;
+    		if (saveAlm)
+    		{
+				saveAlarms();
+    		}
     	}
     }
 }

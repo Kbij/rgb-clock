@@ -15,6 +15,7 @@
 #include <mutex>
 #include <atomic>
 #include <thread>
+#include <map>
 
 namespace App {
 
@@ -114,13 +115,13 @@ struct Alarm
 
 		return result + "]";
 	}
-	std::string to_string_long()
+	std::string to_string_long() const
 	{
 		std::string result;
 		result = "Unit: " + mUnit + ": " + std::to_string(mHour) + ":" + std::to_string(mMinutes) + ", OneTime: " + std::to_string(mOneTime) +  ", Days: " + daysString() + ", Volume: " + std::to_string(mVolume);
 		return result;
 	}
-	std::string to_string_short()
+	std::string to_string_short() const
 	{
 		std::string result;
 		std::string oneTime = "";
@@ -142,8 +143,8 @@ struct Alarm
 };
 
 using AlarmList = std::vector<Alarm>;
-
 class AlarmManager {
+
 public:
 	AlarmManager(const Config& config);
 	virtual ~AlarmManager();
@@ -154,9 +155,21 @@ public:
 	AlarmList* editAlarms(std::string unitName);
 	void saveAlarms(std::string unitName);
 
+	std::string nextAlarm(std::string unitName);
+
 	std::string nextUnitName(std::string currentUnitName);
 
 private:
+	struct NextAlarm
+	{
+		int mIntervalMinutes;
+		int mHour;
+		int mMin;
+		std::string to_string()
+		{
+			return std::to_string(mHour) + ":" + std::to_string(mMin);
+		}
+	};
 	AlarmList mAlarmList;
 	std::set<AlarmObserverIf*> mAlarmObservers;
 	std::string mCurrentEditor;
@@ -164,6 +177,9 @@ private:
 	std::mutex mAlarmObserversMutex;
     std::thread* mAlarmThread;
 	std::atomic_bool mAlarmThreadRunning;
+	std::map<std::string, NextAlarm> mNextAlarmMap;
+	std::mutex mNextAlarmMapMutex;
+
 	const Config& mConfig;
 
 	void loadAlarms();
