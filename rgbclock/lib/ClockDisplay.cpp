@@ -281,6 +281,9 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 
 				auto& alarm = (*alarms)[mAlarmEditIndex];
 
+				// When you immediately edit a alarm after it was triggered
+				alarm.mSignalled = false;
+
 				if (keyboardInfo[KEY_CENTRAL].mPressed)
 				{
 					switch(mEditPos)

@@ -58,45 +58,42 @@ void Radio::unRegisterRadioObserver(RadioObserverIf *observer)
 
 void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, KeyboardState state)
 {
-	if (state != KeyboardState::stNormal)
+	if ((state == KeyboardState::stNormal) || (state == KeyboardState::stAlarmActive))
 	{
-		return;
-	}
-
-	if (mState == RadioState::PwrOn)
-	{
-		if (keyboardInfo[KEY_UP].mPressed || keyboardInfo[KEY_UP].mLongPress)
+		if (mState == RadioState::PwrOn)
 		{
-			volumeUp();
-		}
-		if (keyboardInfo[KEY_DOWN].mPressed || keyboardInfo[KEY_DOWN].mLongPress)
-		{
-			volumeDown();
+			if (keyboardInfo[KEY_UP].mPressed || keyboardInfo[KEY_UP].mLongPress)
+			{
+				volumeUp();
+			}
+			if (keyboardInfo[KEY_DOWN].mPressed || keyboardInfo[KEY_DOWN].mLongPress)
+			{
+				volumeDown();
+			}
 		}
 	}
 
-	if (keyboardInfo[KEY_1].mPressed)
+	if (state == KeyboardState::stNormal)
 	{
-		switch (mState)
+		if (keyboardInfo[KEY_1].mPressed)
 		{
-			case RadioState::PwrOff: powerOn();
-				break;
-			case RadioState::PwrOn : powerOff();
-				break;
-			default: ;
-		}
+			switch (mState)
+			{
+				case RadioState::PwrOff: powerOn();
+					break;
+				case RadioState::PwrOn : powerOff();
+					break;
+				default: ;
+			}
 
+		}
 	}
 }
 
-void Radio::alarmNotify()
+bool Radio::slowPowerOn(int volume)
 {
-
-}
-
-std::string Radio::name()
-{
-	return "";
+	mVolume = volume;
+	return powerOn();
 }
 
 bool Radio::powerOn()

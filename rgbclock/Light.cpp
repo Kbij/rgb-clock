@@ -32,6 +32,7 @@ Light::~Light()
 	mRGBLed.pwrOff();
 	stopDimmerThread();
 }
+
 void Light::pwrOn()
 {
 	if (mState == State::PwrOff)
@@ -43,6 +44,11 @@ void Light::pwrOn()
 
 		initiateFastUp();
 	}
+}
+
+void Light::pwrSlowOn()
+{
+	initiateSlowUp();
 }
 
 void Light::pwrOff()
@@ -126,17 +132,6 @@ void Light::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardwar
 	}
 
 }
-
-void Light::alarmNotify()
-{
-
-}
-
-std::string Light::name()
-{
-	return "";
-}
-
 
 bool Light::isAttached()
 {

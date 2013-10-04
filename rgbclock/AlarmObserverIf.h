@@ -15,7 +15,7 @@ class AlarmObserverIf {
 public:
 	virtual ~AlarmObserverIf() {};
 
-	virtual void alarmNotify() = 0;
+	virtual void alarmNotify(int volume) = 0;
 	virtual std::string name() = 0;
 };
 

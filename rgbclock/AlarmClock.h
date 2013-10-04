@@ -15,6 +15,7 @@
 #include "lib/ClockDisplay.h"
 #include "Config.h"
 #include <stdint.h>
+#include <atomic>
 
 namespace Hardware
 {
@@ -28,6 +29,14 @@ class AlarmManager;
 class Light;
 
 class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf {
+
+enum class ClockState
+{
+	clkNormal,
+	clkAlarm,
+	clkSnooze
+};
+
 public:
 	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, const UnitConfig& unitConfig);
 	virtual ~AlarmClock();
@@ -37,7 +46,7 @@ public:
 
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardware::KeyboardState state);
 
-	void alarmNotify();
+	void alarmNotify(int volume);
 	std::string name();
 
 	bool hasRegisteredLight();
@@ -54,6 +63,7 @@ private:
 	AlarmManager& mAlarmManager;
 	Hardware::ClockDisplay mDisplay;
 	Light *mLight;
+	std::atomic<ClockState> mClockState;
 };
 
 } /* namespace App */

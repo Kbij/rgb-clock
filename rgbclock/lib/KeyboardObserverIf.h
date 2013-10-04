@@ -25,7 +25,8 @@ namespace Hardware
 enum class KeyboardState
 {
 	stNormal,
-	stAlarmEdit
+	stAlarmEdit,
+	stAlarmActive
 };
 
 struct KeyInfo

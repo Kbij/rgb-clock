@@ -11,7 +11,6 @@
 #include "lib/I2C.h"
 #include "lib/RgbLed.h"
 #include "lib/KeyboardObserverIf.h"
-#include "AlarmObserverIf.h"
 
 #include <stdint.h>
 #include <mutex>
@@ -34,19 +33,17 @@ enum class State {
 	FastDown
 };
 
-class Light : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf {
+class Light : public Hardware::KeyboardObserverIf {
 public:
 	Light(Hardware::I2C &i2c, uint8_t address);
 	virtual ~Light();
 
 	void pwrOn();
+	void pwrSlowOn();
 	void pwrOff();
 	void pwrToggle();
 
 	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardware::KeyboardState state);
-
-	void alarmNotify();
-	std::string name();
 
 	bool isAttached();
 
