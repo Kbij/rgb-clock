@@ -20,7 +20,8 @@ AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, Al
 	mRadio(i2c, unitConfig.mAmplifier, fmReceiver),
 	mAlarmManager(alarmManager),
 	mDisplay(i2c, mKeyboard, mAlarmManager, unitConfig),
-	mLight(nullptr)
+	mLight(nullptr),
+	mClockState(ClockState::clkNormal)
 {
 	mKeyboard.registerKeyboardObserver(this);
 	mKeyboard.registerKeyboardObserver(&mRadio);
@@ -51,17 +52,33 @@ void AlarmClock::unRegisterLight(Light *light)
 
 void AlarmClock::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardware::KeyboardState state)
 {
+	if (mClockState == ClockState::clkAlarm)
+	{
+		if (keyboardInfo[KEY_1].mPressed)
+		{
+			mClockState = ClockState::clkNormal;
+			mRadio.powerOff();
+			if (mLight)
+			{
+				mLight->pwrOff();
+			}
+
+			mKeyboard.keyboardState(Hardware::KeyboardState::stNormal);
+		}
+	}
 
 
 }
 
-void AlarmClock::alarmNotify()
+void AlarmClock::alarmNotify(int volume)
 {
 	LOG(INFO) << "Received alarmNotify";
-	mRadio.alarmNotify();
+	mClockState = ClockState::clkAlarm;
+	mKeyboard.keyboardState(Hardware::KeyboardState::stAlarmActive);
+	mRadio.slowPowerOn(volume);
 	if (mLight)
 	{
-		mLight->alarmNotify();
+		mLight->pwrSlowOn();
 	}
 }
 

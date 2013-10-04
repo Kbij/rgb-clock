@@ -38,7 +38,8 @@ private:
 	I2C &mI2C;
 	std::atomic_bool mAttached;
 	const uint8_t mAddress;
-	std::atomic<KeyboardState> mKeyboardState;
+	std::recursive_mutex mKeyboardStateMutex;
+	KeyboardState mKeyboardState;
 	std::vector<uint16_t> mKeyHistory;
     std::thread* mReadThread;
     std::atomic_bool mReadThreadRunning;

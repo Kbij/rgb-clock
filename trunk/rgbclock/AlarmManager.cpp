@@ -287,90 +287,123 @@ void AlarmManager::stopAlarmThread()
 
 int minutesUntilFired(const Alarm& alarm)
 {
-	LOG(INFO) << "sleep seconds terug aanpassen !!!";
-
 	if (!alarm.mEnabled)
 	{
 		return -1; // alarm not active
 	}
-	LOG(INFO) << "Calculating difference for alarm: " << alarm.to_string_long();
+//	LOG(INFO) << "Calculating difference for alarm: " << alarm.to_string_long();
 	time_t rawTime;
 	struct tm* timeInfo;
 
 	time(&rawTime);
 	timeInfo = localtime(&rawTime);
 
+	// nextday = if before saturday then (current day + 1) else sunday
+	int nextDay =  timeInfo->tm_wday < 6 ? (timeInfo->tm_wday + 1) : 0;
+
 	int nowMinutes = timeInfo->tm_hour * 60 + timeInfo->tm_min;
 	int almMinutes = alarm.mHour * 60 + alarm.mMinutes;
-	LOG(INFO) << "nowMinutes: " << nowMinutes;
-	LOG(INFO) << "almMinutes: " << almMinutes;
+//	LOG(INFO) << "nowMinutes: " << nowMinutes;
+//	LOG(INFO) << "almMinutes: " << almMinutes;
+//	LOG(INFO) << "nextDay: " << nextDay;
+
+	// if not(today || tomorow)
+	if ( !((alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes > nowMinutes)) || (alarm.mDays[Day(nextDay)])) )
+	{
+		return -1;
+	}
 
 	// If a onetime alarm that will happen in less than 24h; add 24h to get a positive result
 	if (alarm.mOneTime && (almMinutes < nowMinutes))
 	{
 		almMinutes += 24 * 60; // add 1 day
-		LOG(INFO) << "Onetime alarm, almMinutes < nowMinutes, almMinutes: " << almMinutes;
+//		LOG(INFO) << "Onetime alarm, almMinutes < nowMinutes, almMinutes: " << almMinutes;
 	}
 	else
-	{// nextday = if before saturday then (current day + 1) else sunday
-		int nextDay =  timeInfo->tm_wday < 6 ? (timeInfo->tm_wday + 1) : 0;
-		LOG(INFO) << "nextDay: " << nextDay;
-
-		if (!alarm.mDays[Day(timeInfo->tm_wday)]) // not for today
+	{
+		if ((alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes < nowMinutes))  && alarm.mDays[Day(nextDay)]) // Tomorrow
 		{
-			if (alarm.mDays[Day(nextDay)])
-			{
-				LOG(INFO) << "Adding 1 day to alarmminutes, almMinutes: " << almMinutes;
-				almMinutes += 60 * 24; // add 1 day (in minutes)
-			}
+			almMinutes += 60 * 24; // add 1 day (in minutes)
 		}
 	}
 
-	LOG(INFO) << "Result: " << (almMinutes - nowMinutes);
+//	LOG(INFO) << "Result: " << (almMinutes - nowMinutes);
 	return almMinutes - nowMinutes;
 }
+
 void AlarmManager::alarmThread()
 {
     while (mAlarmThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     	std::lock_guard<std::mutex> lk_guard(mAlarmsMutex);
     	if (mCurrentEditor == "")
     	{
     		bool saveAlm = false;
+    		mNextAlarmMap.clear();
 
     		for (auto& alarm: mAlarmList)
     		{
-    				minutesUntilFired(alarm);
-        			time_t rawTime;
-        			struct tm* timeInfo;
+    			minutesUntilFired(alarm);
+        		time_t rawTime;
+        		struct tm* timeInfo;
 
-        			time(&rawTime);
-        			timeInfo = localtime(&rawTime);
-
-        			if ((alarm.mHour == timeInfo->tm_hour) && (alarm.mMinutes == timeInfo->tm_min) && (alarm.mDays[Day(timeInfo->tm_wday)] || alarm.mOneTime) && (!alarm.mSignalled))
+        		time(&rawTime);
+        		timeInfo = localtime(&rawTime);
+        		int minutesLeft = minutesUntilFired(alarm);
+        		if ((minutesLeft ==  0) && (!alarm.mSignalled))
+    			{
+    				std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
+    				for (auto& observer : mAlarmObservers)
     				{
-    					std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
-    					for (auto& observer : mAlarmObservers)
+    					if ((observer->name() == alarm.mUnit) || (alarm.mUnit == ""))
     					{
-    						if ((observer->name() == alarm.mUnit) || (alarm.mUnit == ""))
-    						{
-    							observer->alarmNotify();
-    						}
-    					}
-    					alarm.mSignalled = true;
-    					if (alarm.mOneTime)
-    					{
-    						alarm.mEnabled = false;
+    						LOG(INFO) << "Send notify to: " << observer->name();
+    						observer->alarmNotify(alarm.mVolume);
     					}
     				}
-
-        			// Reset the signalled flag
-        			if ((alarm.mHour != timeInfo->tm_hour) && (alarm.mMinutes != timeInfo->tm_min))
+    				alarm.mSignalled = true;
+    				if (alarm.mOneTime)
+    				{
+    					alarm.mEnabled = false;
+    					saveAlm = true;
+    				}
+    			}
+        		else //not yet there; store in the next alarmmap
+        		{
+        			if (minutesLeft > 0)
         			{
-    					alarm.mSignalled = false;
+        				for (auto& observer : mAlarmObservers)
+        				{
+							if (mNextAlarmMap.find(observer->name()) != mNextAlarmMap.end())
+							{
+								if (mNextAlarmMap[observer->name()].mIntervalMinutes > minutesLeft)
+								{
+									mNextAlarmMap[observer->name()].mIntervalMinutes = minutesLeft;
+									mNextAlarmMap[observer->name()].mHour = alarm.mHour;
+									mNextAlarmMap[observer->name()].mMinutes = alarm.mMinutes;
+								}
+
+							}
+							else
+							{
+								if (minutesLeft < ( 23 * 60))
+								{
+									mNextAlarmMap[observer->name()].mIntervalMinutes = minutesLeft;
+									mNextAlarmMap[observer->name()].mHour = alarm.mHour;
+									mNextAlarmMap[observer->name()].mMinutes = alarm.mMinutes;
+								}
+							}
+        				}
         			}
+        		}
+
+        		// Reset the signalled flag
+        		if ((alarm.mHour != timeInfo->tm_hour) || (alarm.mMinutes != timeInfo->tm_min))
+        		{
+    				alarm.mSignalled = false;
+        		}
     		}
 
     		if (saveAlm)

@@ -164,10 +164,10 @@ private:
 	{
 		int mIntervalMinutes;
 		int mHour;
-		int mMin;
+		int mMinutes;
 		std::string to_string()
 		{
-			return std::to_string(mHour) + ":" + std::to_string(mMin);
+			return std::to_string(mHour) + ":" + std::to_string(mMinutes);
 		}
 	};
 	AlarmList mAlarmList;
