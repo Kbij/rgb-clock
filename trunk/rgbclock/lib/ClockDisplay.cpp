@@ -13,6 +13,7 @@
 #include <sstream>
 #include <glog/logging.h>
 #include <iostream>
+#include <iomanip>
 
 const int LINESPACING = 8;
 const int LINE1 = 0;
@@ -63,7 +64,8 @@ ClockDisplay::ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alar
 	mVolume(0),
 	mUnitName(unitConfig.mName),
 	mAlarmEditIndex(0),
-	mConfirmDelete(false)
+	mConfirmDelete(false),
+	mClockState(App::ClockState::clkNormal)
 {
 	mLCDisplay.initGraphic();
 	mLCDisplay.clearGraphicDisplay();
@@ -116,6 +118,11 @@ void ClockDisplay::showRDSInfo()
 void ClockDisplay::hideRDSInfo()
 {
 	mRDSVisible = false;
+}
+
+void ClockDisplay::signalClockState(App::ClockState state)
+{
+	mClockState = state;
 }
 
 void ClockDisplay::radioRdsUpdate(RDSInfo rdsInfo)
@@ -775,17 +782,36 @@ void ClockDisplay::eraseRDS()
 	mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
 }
 
-void ClockDisplay::drawNextAlarm()
+void ClockDisplay::updateAlarmInfo()
 {
-	std::string nextAlarm = mAlarmManager.nextAlarm(mUnitName);
-	if (nextAlarm != "")
+	switch(mClockState)
 	{
-		mLCDisplay.writeGraphicText(0, 0, nextAlarm, FontType::Terminal8);
-	}
-	else
-	{
-		// Erase
-		mLCDisplay.writeGraphicText(0, 0, "     ", FontType::Terminal8);
+		case App::ClockState::clkNormal:
+		{
+			std::string nextAlarm = mAlarmManager.nextAlarm(mUnitName);
+			if (nextAlarm != "")
+			{
+				mLCDisplay.writeGraphicText(0, 0, nextAlarm, FontType::Terminal8);
+			}
+			else
+			{
+				// Erase
+				mLCDisplay.writeGraphicText(0, 0, "      ", FontType::Terminal8);
+			}
+
+			break;
+		}
+		case App::ClockState::clkAlarm:
+		{
+			mLCDisplay.writeGraphicText(0, 0, "Alarm  ", FontType::Terminal8);
+			break;
+		}
+		case App::ClockState::clkSnooze:
+		{
+			mLCDisplay.writeGraphicText(0, 0, "Snooze ", FontType::Terminal8);
+			break;
+		}
+
 	}
 }
 
@@ -879,8 +905,8 @@ void ClockDisplay::refreshThread()
     	    	eraseSignal();
     	    }
 
-			// Next alarm always visible in normal mode
-    	    drawNextAlarm();
+			// update Alarm info
+    	    updateAlarmInfo();
 
     /*
     		double lux = mLightSensor.lux();

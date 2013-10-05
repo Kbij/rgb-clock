@@ -58,6 +58,13 @@ namespace App
 class AlarmManager;
 struct Alarm;
 struct UnitConfig;
+
+enum class ClockState
+{
+	clkNormal,
+	clkAlarm,
+	clkSnooze
+};
 }
 namespace Hardware
 {
@@ -80,6 +87,8 @@ public:
 	void showRDSInfo();
 	void hideRDSInfo();
 
+	void signalClockState(App::ClockState state);
+
     void radioRdsUpdate(RDSInfo rdsInfo);
     void radioStateUpdate(RadioInfo radioInfo);
 
@@ -97,7 +106,7 @@ private:
     void drawRDS();
     void eraseRDS();
 
-    void drawNextAlarm();
+    void updateAlarmInfo();
 
 	void startRefreshThread();
 	void stopRefreshThread();
@@ -128,6 +137,7 @@ private:
     const std::string mUnitName;
     unsigned int mAlarmEditIndex;
     bool mConfirmDelete;
+    App::ClockState mClockState;
 };
 }
 #endif /* CLOCKDISPLAY_H_ */

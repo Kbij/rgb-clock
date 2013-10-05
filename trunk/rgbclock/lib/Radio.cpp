@@ -23,7 +23,10 @@ Radio::Radio(I2C &i2c, uint8_t apmlifierAddress, FMReceiver &fmReceiver):
 	mVolume(20),
 	mRadioObservers(),
 	mRadioObserversMutex(),
-	mState(RadioState::PwrOff)
+	mState(RadioState::PwrOff),
+	mMaintenanceThread(nullptr),
+	mMaintenanceThreadRunning(false),
+	mTargetVolume(0)
 
 {
 	mI2C.registerAddress(mAplifierAddress, "Amplifier");
@@ -83,7 +86,7 @@ void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Keyboar
 					break;
 				case RadioState::PwrOn : powerOff();
 					break;
-				default: ;
+				default: break;
 			}
 
 		}
@@ -92,7 +95,8 @@ void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Keyboar
 
 bool Radio::slowPowerOn(int volume)
 {
-	mVolume = volume;
+	mTargetVolume = volume;
+	mVolume = 0;
 	return powerOn();
 }
 
@@ -120,7 +124,8 @@ bool Radio::powerOff()
 	writeRegisters();
 	mFMReceiver.powerOff();
 
-	registerFMReceiver();
+	unRegisterFMReceiver();
+	stopMaintenanceThread();
 
 	return true;
 }
@@ -197,6 +202,7 @@ void Radio::writeRegisters()
 	mI2C.writeDataSync(mAplifierAddress, registers);
 	notifyObservers();
 }
+
 void Radio::notifyObservers()
 {
 	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
@@ -227,4 +233,43 @@ void Radio::unRegisterFMReceiver()
     }
 }
 
+void Radio::startMaintenanceThread()
+{
+	stopMaintenanceThread();
+
+	mMaintenanceThreadRunning = true;
+
+	mMaintenanceThread = new std::thread(&Radio::maintenanceThread, this);
+}
+
+void Radio::stopMaintenanceThread()
+{
+	mMaintenanceThreadRunning = false;
+
+    if (mMaintenanceThread)
+    {
+    	mMaintenanceThread->join();
+
+        delete mMaintenanceThread;
+        mMaintenanceThread = nullptr;
+    }
+}
+
+void Radio::maintenanceThread()
+{
+	   while (mMaintenanceThreadRunning)
+	   {
+		   std::this_thread::sleep_for(std::chrono::seconds(1));
+
+		   if (mVolume < mTargetVolume)
+		   {
+			   mVolume++;
+			   writeRegisters();
+		   }
+		   else
+		   {
+			   mMaintenanceThreadRunning = false;
+		   }
+	   }
+}
 }
