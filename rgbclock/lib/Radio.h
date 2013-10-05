@@ -14,6 +14,8 @@
 #include <stdint.h>
 #include <set>
 #include <mutex>
+#include <atomic>
+#include <thread>
 
 namespace Hardware
 {
@@ -50,6 +52,10 @@ private:
 	void registerFMReceiver();
 	void unRegisterFMReceiver();
 
+	void startMaintenanceThread();
+	void stopMaintenanceThread();
+	void maintenanceThread();
+
 	I2C &mI2C;
 	const uint8_t mAplifierAddress;
 	FMReceiver &mFMReceiver;
@@ -60,6 +66,9 @@ private:
     std::set<RadioObserverIf*> mRadioObservers;
     std::recursive_mutex mRadioObserversMutex;
 	RadioState mState;
+    std::thread* mMaintenanceThread;
+    std::atomic_bool mMaintenanceThreadRunning;
+    std::atomic_int mTargetVolume;
 
 };
 }

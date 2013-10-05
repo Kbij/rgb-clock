@@ -16,6 +16,8 @@
 #include <atomic>
 #include <thread>
 #include <map>
+#include <sstream>
+#include <iomanip>
 
 namespace App {
 
@@ -167,9 +169,22 @@ private:
 		int mMinutes;
 		std::string to_string()
 		{
-			return std::to_string(mHour) + ":" + std::to_string(mMinutes);
+			std::stringstream result;
+			result << std::setw(2) << std::setfill('0');
+			result << mHour << ":";
+			result << std::setw(2) << std::setfill('0') << mMinutes;
+
+			return result.str();
 		}
 	};
+	void loadAlarms();
+	void saveAlarms();
+
+	void startAlarmThread();
+	void stopAlarmThread();
+
+	void alarmThread();
+
 	AlarmList mAlarmList;
 	std::set<AlarmObserverIf*> mAlarmObservers;
 	std::string mCurrentEditor;
@@ -182,13 +197,7 @@ private:
 
 	const Config& mConfig;
 
-	void loadAlarms();
-	void saveAlarms();
 
-	void startAlarmThread();
-	void stopAlarmThread();
-
-	void alarmThread();
 
 };
 

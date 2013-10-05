@@ -30,12 +30,7 @@ class Light;
 
 class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf {
 
-enum class ClockState
-{
-	clkNormal,
-	clkAlarm,
-	clkSnooze
-};
+
 
 public:
 	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, const UnitConfig& unitConfig);
@@ -57,6 +52,12 @@ public:
 	AlarmClock(const AlarmClock& source) = delete;
 
 private:
+	void startAlarm();
+
+	void startAlarmMaintenanceThread();
+	void stopAlarmMaintenanceThread();
+	void alarmMaintenanceThread();
+
 	const UnitConfig& mUnitConfig;
 	Hardware::Keyboard mKeyboard;
 	Hardware::Radio mRadio;
@@ -64,6 +65,11 @@ private:
 	Hardware::ClockDisplay mDisplay;
 	Light *mLight;
 	std::atomic<ClockState> mClockState;
+    std::thread* mAlarmMaintenanceThread;
+    std::atomic_bool mAlarmMaintenanceThreadRunning;
+    std::atomic_int mAlarmCounter;
+    std::atomic_int mAlarmVolume;
+
 };
 
 } /* namespace App */
