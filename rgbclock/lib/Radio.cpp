@@ -23,6 +23,7 @@ Radio::Radio(I2C &i2c, uint8_t apmlifierAddress, FMReceiver &fmReceiver):
 	mVolume(20),
 	mRadioObservers(),
 	mRadioObserversMutex(),
+	mRadioMutex(),
 	mState(RadioState::PwrOff),
 	mMaintenanceThread(nullptr),
 	mMaintenanceThreadRunning(false),
@@ -38,6 +39,7 @@ Radio::Radio(I2C &i2c, uint8_t apmlifierAddress, FMReceiver &fmReceiver):
 Radio::~Radio()
 {
 	LOG(INFO) << "Radio destructor";
+	stopMaintenanceThread();
 }
 
 void Radio::registerRadioObserver(RadioObserverIf *observer)
@@ -95,13 +97,22 @@ void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Keyboar
 
 bool Radio::slowPowerOn(int volume)
 {
-	mTargetVolume = volume;
+    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
+
+    mTargetVolume = volume;
 	mVolume = 0;
-	return powerOn();
+	// Write volume first
+	writeRegisters();
+	powerOn();
+	// at last: volume up thread
+	startMaintenanceThread();
+	return true;
 }
 
 bool Radio::powerOn()
 {
+    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
+
 	LOG(INFO) << "Radio On";
 	if (mFMReceiver.powerOn())
 	{
@@ -118,6 +129,8 @@ bool Radio::powerOn()
 bool Radio::powerOff()
 {
 	LOG(INFO) << "Radio Off";
+    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
+
 
 	mState = RadioState::PwrOff;
 	mControlRegister = 0b00010001; // Shutdown
@@ -132,12 +145,16 @@ bool Radio::powerOff()
 
 void Radio::volume(int volume)
 {
+    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
+
 	mVolume = volume;
 	writeRegisters();
 }
 
 void Radio::volumeUp()
 {
+    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
+
 	if (mVolume < 99)
 	{
 		mVolume += 1;
@@ -149,6 +166,8 @@ void Radio::volumeUp()
 
 void Radio::volumeDown()
 {
+    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
+
 	if (mVolume > 1)
 	{
 		mVolume -= 1;
@@ -160,11 +179,15 @@ void Radio::volumeDown()
 
 bool Radio::seekUp(int timeout)
 {
+    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
+
 	return mFMReceiver.seekUp(timeout);
 }
 
 bool Radio::tuneFrequency(double frequency)
 {
+    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
+
 	return mFMReceiver.tuneFrequency(frequency);
 }
 
@@ -190,7 +213,6 @@ void Radio::writeRegisters()
 	double attenuation = 64 - static_cast<double>(mVolume)/100 * 64.0;
 	uint8_t att =  static_cast<uint8_t>(ceil(attenuation));
 
-	//LOG(INFO) << "mVolume: " << (int) mVolume << ", Amp vol:" << attenuation << ", att: " << (int) att;
 	std::vector<uint8_t> registers;
 	registers.push_back(att);
 	registers.push_back(att);

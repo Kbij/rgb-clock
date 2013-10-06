@@ -307,9 +307,13 @@ int minutesUntilFired(const Alarm& alarm)
 //	LOG(INFO) << "nextDay: " << nextDay;
 
 	// if not(today || tomorow)
-	if ( !((alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes > nowMinutes)) || (alarm.mDays[Day(nextDay)])) )
+	if (!alarm.mOneTime)
 	{
-		return -1;
+		if ( !((alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes > nowMinutes)) || (alarm.mDays[Day(nextDay)])) )
+		{
+//			LOG(INFO) << "Not today, and not tomorrow";
+			return -1;
+		}
 	}
 
 	// If a onetime alarm that will happen in less than 24h; add 24h to get a positive result
