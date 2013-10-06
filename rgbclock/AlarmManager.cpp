@@ -127,7 +127,6 @@ std::string AlarmManager::nextUnitName(std::string currentUnitName)
 
 }
 
-
 bool fileExists(std::string fileName)
 {
    std::ifstream infile(fileName);

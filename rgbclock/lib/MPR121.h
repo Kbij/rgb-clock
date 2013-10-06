@@ -156,8 +156,6 @@ const uint8_t AUTO_CONFIG_LSL = 0x7E;
 const uint8_t AUTO_CONFIG_TARGET_LEVEL = 0x7F;
 
 // Other Constants
-//const uint8_t TOUCH_THRESHOLD = 0x15;
-//const uint8_t RELEASE_THRESHOLD = 0x0E;
 const uint8_t TOUCH_THRESHOLD = 0x10;
 const uint8_t RELEASE_THRESHOLD = 0x0E;
 
