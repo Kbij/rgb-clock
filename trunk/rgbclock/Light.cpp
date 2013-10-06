@@ -78,17 +78,17 @@ void Light::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardwar
 		return;
 	}
 
-	if (keyboardInfo[KEY_CENTRAL].mPressed)
+	if (keyboardInfo[KEY_CENTRAL_L].mPressed || keyboardInfo[KEY_CENTRAL_R].mPressed)
 	{
 		pwrToggle();
 	}
 
-	if (keyboardInfo[KEY_CENTRAL].mReleased)
+	if (keyboardInfo[KEY_CENTRAL_L].mReleased || keyboardInfo[KEY_CENTRAL_R].mReleased)
 	{
 		mDimDown = !mDimDown;
 	}
 
-	if (keyboardInfo[KEY_CENTRAL].mLongPress)
+	if (keyboardInfo[KEY_CENTRAL_L].mLongPress || keyboardInfo[KEY_CENTRAL_R].mLongPress)
 	{
 		if (mState == State::PwrOn)
 		{

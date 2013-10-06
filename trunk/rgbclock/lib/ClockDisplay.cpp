@@ -199,7 +199,8 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 		{
 			if (mEditState == EditState::edListAlarms)
 			{
-				if (keyboardInfo[KEY_CENTRAL].mLongPress && !(keyboardInfo[KEY_CENTRAL].mRepeat) && (mAlarmEditIndex < alarms->size()))
+				if (((keyboardInfo[KEY_CENTRAL_L].mLongPress && !keyboardInfo[KEY_CENTRAL_L].mRepeat) ||  (keyboardInfo[KEY_CENTRAL_R].mLongPress && !keyboardInfo[KEY_CENTRAL_R].mRepeat))
+					&& (mAlarmEditIndex < alarms->size()))
 				{
 					LOG(INFO) << "Confirm delete";
 					mLCDisplay.rectangle(0, 0, 163, 63, false, true);
@@ -210,7 +211,7 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 					return;
 				}
 
-				if (keyboardInfo[KEY_CENTRAL].mPressed)
+				if (keyboardInfo[KEY_CENTRAL_R].mPressed)
 				{
 					if (mAlarmEditIndex == alarms->size()) // add a new alarm
 					{
@@ -262,7 +263,7 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 					updateEditDisplay();
 					return;
 				}
-				if (keyboardInfo[KEY_CENTRAL].mPressed)
+				if (keyboardInfo[KEY_CENTRAL_L].mPressed || keyboardInfo[KEY_CENTRAL_R].mPressed )
 				{
 					if (mConfirmDelete)
 					{
@@ -290,8 +291,7 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 
 				// When you immediately edit a alarm after it was triggered
 				alarm.mSignalled = false;
-
-				if (keyboardInfo[KEY_CENTRAL].mPressed)
+				if (keyboardInfo[KEY_CENTRAL_R].mPressed)
 				{
 					switch(mEditPos)
 					{
@@ -370,6 +370,92 @@ void ClockDisplay::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, 
 							mEditPos = EditPos::posEnable;
 							mEditState = EditState::edListAlarms;
 							mAlarmEditIndex = 0;
+							break;
+						}
+					}
+
+					updateEditDisplay();
+				}
+
+				if (keyboardInfo[KEY_CENTRAL_L].mPressed)
+				{
+					switch(mEditPos)
+					{
+						case EditPos::posEnable:
+						{
+							mEditPos = EditPos::posEnable;
+							mEditState = EditState::edListAlarms;
+							mAlarmEditIndex = 0;
+							break;
+						}
+						case EditPos::posUnit:
+						{
+							mEditPos = EditPos::posEnable;
+							break;
+						}
+						case EditPos::posHourT:
+						{
+							mEditPos = EditPos::posUnit;
+							break;
+						}
+						case EditPos::posHourE:
+						{
+							mEditPos = EditPos::posHourT;
+							break;
+						}
+						case EditPos::posMinT:
+						{
+							mEditPos = EditPos::posHourE;
+							break;
+						}
+						case EditPos::posMinE:
+						{
+							mEditPos = EditPos::posMinT;
+							break;
+						}
+						case EditPos::posOneTime:
+						{
+							mEditPos = EditPos::posMinE;
+							break;
+						}
+						case EditPos::posDaySu:
+						{
+							mEditPos = EditPos::posOneTime;
+							break;
+						}
+						case EditPos::posDayMo:
+						{
+							mEditPos = EditPos::posDaySu;
+							break;
+						}
+						case EditPos::posDayTu:
+						{
+							mEditPos = EditPos::posDayMo;
+							break;
+						}
+						case EditPos::posDayWe:
+						{
+							mEditPos = EditPos::posDayTu;
+							break;
+						}
+						case EditPos::posDayTh:
+						{
+							mEditPos = EditPos::posDayWe;
+							break;
+						}
+						case EditPos::posDayFr:
+						{
+							mEditPos = EditPos::posDayTh;
+							break;
+						}
+						case EditPos::posDaySa:
+						{
+							mEditPos = EditPos::posDayFr;
+							break;
+						}
+						case EditPos::posVol:
+						{
+							mEditPos = alarm.mOneTime ? EditPos::posOneTime: EditPos::posDaySa;
 							break;
 						}
 					}

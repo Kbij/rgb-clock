@@ -65,6 +65,7 @@ private:
 	uint8_t mVolume;
     std::set<RadioObserverIf*> mRadioObservers;
     std::recursive_mutex mRadioObserversMutex;
+    std::recursive_mutex mRadioMutex;
 	RadioState mState;
     std::thread* mMaintenanceThread;
     std::atomic_bool mMaintenanceThreadRunning;
