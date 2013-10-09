@@ -342,10 +342,14 @@ UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/xilinx-xcv.lbr"
 UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/zetex.lbr"
 UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/zilog.lbr"
 UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/Texas/Texas.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/Microchip/Microchip.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/Maxim/Maxim_By_element14_Batch_1.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/DiodesInc/Diodes.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/Silicon Labs/SiliconLabs.lbr"
 
 [Win_1]
 Type="Control Panel"
-Loc="463 81 1487 804"
+Loc="185 78 1209 801"
 State=2
 Number=0
 
