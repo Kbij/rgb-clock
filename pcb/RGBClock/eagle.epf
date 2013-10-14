@@ -346,10 +346,11 @@ UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/Microchip/Microchip.lbr"
 UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/Maxim/Maxim_By_element14_Batch_1.lbr"
 UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/DiodesInc/Diodes.lbr"
 UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/Silicon Labs/SiliconLabs.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/element14/Bourns_By_element14_Batch_1.lbr"
 
 [Win_1]
 Type="Control Panel"
-Loc="469 94 1493 817"
+Loc="536 97 1560 820"
 State=2
 Number=0
 
