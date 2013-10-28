@@ -57,11 +57,11 @@ void AlarmClock::unRegisterLight(Light *light)
 	mLight = nullptr;
 }
 
-void AlarmClock::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardware::KeyboardState state)
+void AlarmClock::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, Hardware::KeyboardState state)
 {
 	if ((mClockState == ClockState::clkAlarm) || (mClockState == ClockState::clkSnooze))
 	{
-		if (keyboardInfo[KEY_1].mPressed)
+		if (keyboardInfo[KEY_1].mShortPressed)
 		{
 			mClockState = ClockState::clkNormal;
 			mDisplay.signalClockState(mClockState);
@@ -76,7 +76,7 @@ void AlarmClock::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Ha
 			mKeyboard.keyboardState(Hardware::KeyboardState::stNormal);
 		}
 
-		if (keyboardInfo[KEY_CENTRAL_L].mPressed || keyboardInfo[KEY_CENTRAL_R].mPressed)
+		if (keyboardInfo[KEY_CENTRAL_L].mShortPressed || keyboardInfo[KEY_CENTRAL_R].mShortPressed)
 		{
 			mClockState = ClockState::clkSnooze;
 			mDisplay.signalClockState(mClockState);

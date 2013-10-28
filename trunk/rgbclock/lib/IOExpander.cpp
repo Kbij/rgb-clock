@@ -17,11 +17,14 @@ const uint8_t GPPUB = 0x0D;
 
 namespace Hardware
 {
-IOExpander::IOExpander(I2C &i2c, uint8_t address) :
+IOExpander::IOExpander(I2C &i2c, uint8_t address, bool initHw) :
 			mI2C(i2c),
 			mAddress(address)
 {
-	init();
+	if (initHw)
+	{
+		init();
+	}
 }
 
 IOExpander::~IOExpander() {

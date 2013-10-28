@@ -8,6 +8,7 @@
 #ifndef IOEXPANDER_H_
 #define IOEXPANDER_H_
 #include "I2C.h"
+
 #include <stdint.h>
 
 namespace Hardware
@@ -22,7 +23,7 @@ enum class DataDirection
 };
 
 public:
-	IOExpander(I2C &i2c, uint8_t address);
+	IOExpander(I2C &i2c, uint8_t address, bool initHw = true);
 	virtual ~IOExpander();
 
 	bool writeA(uint8_t byte);

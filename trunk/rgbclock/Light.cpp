@@ -71,14 +71,14 @@ void Light::pwrToggle()
 	}
 }
 
-void Light::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardware::KeyboardState state)
+void Light::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, Hardware::KeyboardState state)
 {
 	if (state != Hardware::KeyboardState::stNormal)
 	{
 		return;
 	}
 
-	if (keyboardInfo[KEY_CENTRAL_L].mPressed || keyboardInfo[KEY_CENTRAL_R].mPressed)
+	if (keyboardInfo[KEY_CENTRAL_L].mShortPressed || keyboardInfo[KEY_CENTRAL_R].mShortPressed)
 	{
 		pwrToggle();
 	}
