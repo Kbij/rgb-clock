@@ -14,9 +14,9 @@
 namespace Hardware
 {
 
-Radio::Radio(I2C &i2c, uint8_t apmlifierAddress, FMReceiver &fmReceiver):
+Radio::Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver):
 	mI2C(i2c),
-	mAplifierAddress(apmlifierAddress),
+	mAplifierAddress(amplifierAddress),
 	mFMReceiver(fmReceiver),
 	mMaskRegister(0),
 	mControlRegister(0),
@@ -61,17 +61,17 @@ void Radio::unRegisterRadioObserver(RadioObserverIf *observer)
     }
 }
 
-void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, KeyboardState state)
+void Radio::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, KeyboardState state)
 {
 	if ((state == KeyboardState::stNormal) || (state == KeyboardState::stAlarmActive))
 	{
 		if (mState == RadioState::PwrOn)
 		{
-			if (keyboardInfo[KEY_UP].mPressed || keyboardInfo[KEY_UP].mLongPress)
+			if (keyboardInfo[KEY_UP].mShortPressed || keyboardInfo[KEY_UP].mLongPress)
 			{
 				volumeUp();
 			}
-			if (keyboardInfo[KEY_DOWN].mPressed || keyboardInfo[KEY_DOWN].mLongPress)
+			if (keyboardInfo[KEY_DOWN].mShortPressed || keyboardInfo[KEY_DOWN].mLongPress)
 			{
 				volumeDown();
 			}
@@ -80,7 +80,7 @@ void Radio::keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Keyboar
 
 	if (state == KeyboardState::stNormal)
 	{
-		if (keyboardInfo[KEY_1].mPressed)
+		if (keyboardInfo[KEY_1].mShortPressed)
 		{
 			switch (mState)
 			{

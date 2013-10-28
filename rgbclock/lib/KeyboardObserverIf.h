@@ -31,9 +31,10 @@ enum class KeyboardState
 
 struct KeyInfo
 {
-	bool mPressed;
-	bool mReleased;
+	bool mShortPressed;
 	bool mLongPress;
+	bool mReleased;
+	bool mPressed;
 	bool mRepeat;
 };
 
@@ -42,7 +43,7 @@ class KeyboardObserverIf
 public:
     virtual ~KeyboardObserverIf() {};
 
-    virtual void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, KeyboardState state) = 0;
+    virtual void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, KeyboardState state) = 0;
 };
 }
 

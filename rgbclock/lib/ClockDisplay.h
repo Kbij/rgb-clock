@@ -92,7 +92,7 @@ public:
     void radioRdsUpdate(RDSInfo rdsInfo);
     void radioStateUpdate(RadioInfo radioInfo);
 
-	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, Hardware::KeyboardState state);
+	void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, Hardware::KeyboardState state);
 
 
 private:

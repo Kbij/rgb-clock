@@ -263,7 +263,7 @@ void Keyboard::readThread()
         mAttached = mAttached & mI2C.readByteSync(mAddress, ELE0_ELE7_TOUCH_STATUS, byte0);
 
         std::vector<Hardware::KeyInfo> keyboardInfo(8); // 8 Keys);
-        bool keyPressed = false;
+        bool stateChange = false;
 
         for (int i = 0; i < 8; ++i)
         {
@@ -273,19 +273,23 @@ void Keyboard::readThread()
 
         	byte0 >>= 1; // Shift the current values 1 to the right
 
-    		keyboardInfo[i].mPressed = false;
+    		keyboardInfo[i].mShortPressed = false;
     		keyboardInfo[i].mReleased = false;
     		keyboardInfo[i].mLongPress = false;
     		keyboardInfo[i].mRepeat = false;
+    		keyboardInfo[i].mPressed = (mKeyHistory[i] & 0x01);
+
+    		// Key just pressed, or released
+    		stateChange |= ((mKeyHistory[i] & 0x02) == 0b01) || ((mKeyHistory[i] & 0x02) == 0b10) ;
+
         	if (!(mKeyHistory[i] & 0x01)) // if key is released
         	{
         		if (mKeyHistory[i] > 0x01)
         		{
-        			keyPressed = true;
         			if (mKeyHistory[i] < LONG_MASK) //short Pressed
             		{
             			//LOG(INFO) << "S" << i;
-            			keyboardInfo[i].mPressed = true;
+            			keyboardInfo[i].mShortPressed = true;
             		}
             		else
             		{
@@ -299,7 +303,6 @@ void Keyboard::readThread()
         	{
         		//LOG(INFO) << "L" << i;
         		keyboardInfo[i].mLongPress = true;
-        		keyPressed = true;
         		if (mKeyHistory[i] > LONG_MASKREPEAT) // Long press repeat
         		{
             		keyboardInfo[i].mRepeat = true;
@@ -309,7 +312,7 @@ void Keyboard::readThread()
 
         }
 
-        if (keyPressed)
+        if (stateChange)
         {
         	std::lock_guard<std::recursive_mutex> lk_guard1(mKeyboardObserversMutex);
             std::lock_guard<std::recursive_mutex> lk_guard2(mKeyboardStateMutex);

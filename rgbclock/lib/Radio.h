@@ -27,7 +27,7 @@ class ClockDisplay;
 
 class Radio : public Hardware::KeyboardObserverIf {
 public:
-	Radio(I2C &i2c, uint8_t apmlifierAddress, FMReceiver &fmReceiver);
+	Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver);
 	virtual ~Radio();
 
 	void registerRadioObserver(RadioObserverIf *observer);
@@ -43,7 +43,7 @@ public:
 	bool tuneFrequency(double frequency);
 	RDSInfo getRDSInfo();
 
-	void keyboardPressed(std::vector<Hardware::KeyInfo> keyboardInfo, KeyboardState state);
+	void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, KeyboardState state);
 
 private:
 	void readRegisters();
