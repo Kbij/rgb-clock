@@ -43,8 +43,11 @@
 <layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
 <layer number="48" name="Document" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="49" name="Reference" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="50" name="dxf" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="51" name="tDocu" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="53" name="tPadExt" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="54" name="bPadExt" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="91" name="Nets" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="92" name="Busses" color="1" fill="1" visible="yes" active="yes"/>
 <layer number="93" name="Pins" color="2" fill="1" visible="yes" active="yes"/>
@@ -70,7 +73,6 @@ by exp-lbrs.ulp</description>
 <smd name="2" x="5.4" y="-0.1" dx="5.4" dy="4" layer="1" rot="R90"/>
 <text x="-5.045" y="3.4114" size="2.0828" layer="25" ratio="10" rot="SR0">&gt;NAME</text>
 <text x="-5.7182" y="-5.518" size="2.0828" layer="27" ratio="10" rot="SR0">&gt;VALUE</text>
-<dimension x1="-3.3" y1="-2.8" x2="3.5" y2="-2.8" x3="0.1" y3="1.4" textsize="1.27" layer="21" width="0.1"/>
 </package>
 <package name="DIODES_SOT103P240X110-3N">
 <wire x1="0.7112" y1="0.6096" x2="0.7112" y2="1.4986" width="0.1524" layer="21"/>
@@ -563,6 +565,8 @@ package type SS</description>
 <package name="MYCOMPONENTS_594D-B">
 <smd name="P$1" x="0" y="-1.4" dx="3" dy="1.5" layer="1" rot="R180"/>
 <smd name="P$2" x="0" y="1.6" dx="3" dy="1.5" layer="1"/>
+<text x="-2.032" y="-2.032" size="0.8128" layer="21" rot="R90">&gt;VALUE</text>
+<text x="2.54" y="-2.032" size="0.8128" layer="21" rot="R90">&gt;NAME</text>
 </package>
 <package name="MYCOMPONENTS_DO-221AC">
 <wire x1="-2.11" y1="-1.24" x2="-2.11" y2="1.26" width="0.127" layer="21"/>
@@ -576,6 +580,8 @@ package type SS</description>
 <wire x1="-1.19" y1="-1.24" x2="-1.19" y2="1.2" width="0.127" layer="21"/>
 <smd name="AN" x="2.11" y="-0.05" dx="1.52" dy="1.2" layer="1" rot="R90"/>
 <smd name="KAT" x="-2.21" y="-0.05" dx="1.52" dy="1.2" layer="1" rot="R90"/>
+<text x="-2.54" y="1.27" size="0.6096" layer="21">&gt;NAME</text>
+<text x="-2.54" y="-2.54" size="0.6096" layer="21">&gt;VALUE</text>
 </package>
 <package name="MYCOMPONENTS_SOD323">
 <wire x1="-0.8" y1="0.6" x2="0.8" y2="0.6" width="0.127" layer="21"/>
@@ -584,6 +590,8 @@ package type SS</description>
 <wire x1="-0.8" y1="-0.6" x2="-0.8" y2="0.6" width="0.127" layer="21"/>
 <smd name="P$1" x="0.7" y="0" dx="0.8" dy="0.8" layer="1" rot="R90"/>
 <smd name="P$2" x="-0.8" y="0" dx="0.8" dy="0.8" layer="1" rot="R90"/>
+<text x="-0.77" y="0.81" size="0.3048" layer="21">&gt;NAME</text>
+<text x="-0.79" y="-1.09" size="0.3048" layer="21">&gt;VALUE</text>
 </package>
 <package name="NXP_BY_ELEMENT14_BATCH_1_SOT65P212X110-5N">
 <wire x1="1.8034" y1="-1.3716" x2="-1.8034" y2="-1.3716" width="0.1524" layer="39"/>
@@ -643,6 +651,8 @@ package type SS</description>
 <wire x1="-5.3975" y1="4.41" x2="2.8575" y2="4.41" width="0.127" layer="21"/>
 <wire x1="2.8575" y1="4.41" x2="2.8575" y2="-1.87" width="0.127" layer="21"/>
 <wire x1="-5.3975" y1="1.905" x2="-5.3975" y2="0.635" width="0.127" layer="21" curve="-180"/>
+<rectangle x1="-5.56" y1="-2.07" x2="2.96" y2="4.56" layer="1"/>
+<rectangle x1="1.39" y1="4.22" x2="2.42" y2="4.92" layer="1"/>
 <smd name="1" x="-4.7625" y="-2.54" dx="0.3048" dy="0.6096" layer="1" rot="R180"/>
 <smd name="2" x="-4.1275" y="-2.54" dx="0.3048" dy="0.6096" layer="1" rot="R180"/>
 <smd name="3" x="-3.4925" y="-2.54" dx="0.3048" dy="0.6096" layer="1" rot="R180"/>
@@ -1138,6 +1148,37 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 <text x="0" y="7.24" size="1.27" layer="25">&gt;NAME</text>
 <text x="0" y="-19.24" size="1.27" layer="27">&gt;VALUE</text>
 </package>
+<package name="CON-MOLEX_5566-4">
+<description>&lt;b&gt;Mini FIT connector 4 pol&lt;/b&gt;&lt;p&gt;
+Source: http://www.molex.com</description>
+<wire x1="-4.7" y1="4.5" x2="4.7" y2="4.5" width="0.254" layer="21"/>
+<wire x1="4.7" y1="4.5" x2="4.7" y2="-2.2" width="0.254" layer="21"/>
+<wire x1="4.7" y1="-3.3" x2="4.7" y2="-4.9" width="0.254" layer="21"/>
+<wire x1="4.7" y1="-4.9" x2="-4.7" y2="-4.9" width="0.254" layer="21"/>
+<wire x1="-4.7" y1="-4.9" x2="-4.7" y2="4.5" width="0.254" layer="21"/>
+<wire x1="-8.2" y1="3.2" x2="-5.4" y2="3.2" width="0.254" layer="21" curve="-114.529547"/>
+<wire x1="-8.2" y1="1.4" x2="-5.4" y2="1.4" width="0.254" layer="21" curve="114.529547"/>
+<wire x1="-8.2" y1="3.2" x2="-8.2" y2="1.4" width="0.254" layer="21"/>
+<wire x1="-5.5" y1="3.3" x2="-4.8" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-5.5" y1="1.3" x2="-4.8" y2="1.3" width="0.254" layer="21"/>
+<wire x1="5.4" y1="1.4" x2="8.2" y2="1.4" width="0.254" layer="21" curve="114.529547"/>
+<wire x1="5.4" y1="3.2" x2="8.2" y2="3.2" width="0.254" layer="21" curve="-114.529547"/>
+<wire x1="8.2" y1="1.4" x2="8.2" y2="3.2" width="0.254" layer="21"/>
+<wire x1="5.5" y1="1.3" x2="4.8" y2="1.3" width="0.254" layer="21"/>
+<wire x1="5.5" y1="3.3" x2="4.8" y2="3.3" width="0.254" layer="21"/>
+<wire x1="4.7" y1="-2.2" x2="4.7" y2="-3.3" width="0.254" layer="21" curve="-180"/>
+<wire x1="-2.1" y1="6.3" x2="2.1" y2="6.3" width="0.254" layer="27"/>
+<wire x1="-2.1" y1="6.3" x2="-2.1" y2="4.6" width="0.254" layer="27"/>
+<wire x1="2.1" y1="6.3" x2="2.1" y2="4.6" width="0.254" layer="27"/>
+<pad name="1" x="2.1" y="-2.75" drill="1.4" shape="square"/>
+<pad name="2" x="-2.1" y="-2.75" drill="1.4" shape="square"/>
+<pad name="3" x="2.1" y="2.75" drill="1.4" shape="square"/>
+<pad name="4" x="-2.1" y="2.75" drill="1.4" shape="square"/>
+<text x="-1.27" y="-6.985" size="1.27" layer="25">&gt;NAME</text>
+<text x="-3.81" y="6.985" size="1.27" layer="27">&gt;VALUE</text>
+<hole x="6.8" y="2.29" drill="3"/>
+<hole x="-6.8" y="2.29" drill="3"/>
+</package>
 <package name="CON-MOLEX_5566-8">
 <description>&lt;b&gt;Mini FIT connector 8 pol&lt;/b&gt;&lt;p&gt;
 Source: http://www.molex.com</description>
@@ -1172,35 +1213,6 @@ Source: http://www.molex.com</description>
 <text x="-2.54" y="6.985" size="1.27" layer="27">&gt;VALUE</text>
 <hole x="11" y="2.29" drill="3"/>
 <hole x="-11" y="2.29" drill="3"/>
-</package>
-<package name="CON-WAGO-500_W237-102">
-<description>&lt;b&gt;WAGO SCREW CLAMP&lt;/b&gt;</description>
-<circle x="-2.5" y="-1.27" radius="1.4986" width="0.1524" layer="51"/>
-<circle x="-2.5" y="2.2098" radius="0.508" width="0.1524" layer="21"/>
-<circle x="2.5038" y="-1.27" radius="1.4986" width="0.1524" layer="51"/>
-<circle x="2.5038" y="2.2098" radius="0.508" width="0.1524" layer="21"/>
-<wire x1="-3.491" y1="-2.286" x2="-1.484" y2="-0.279" width="0.254" layer="51"/>
-<wire x1="1.488" y1="-2.261" x2="3.469" y2="-0.254" width="0.254" layer="51"/>
-<wire x1="-4.989" y1="-5.461" x2="4.993" y2="-5.461" width="0.1524" layer="21"/>
-<wire x1="4.993" y1="3.734" x2="4.993" y2="3.531" width="0.1524" layer="21"/>
-<wire x1="4.993" y1="3.734" x2="-4.989" y2="3.734" width="0.1524" layer="21"/>
-<wire x1="-4.989" y1="-5.461" x2="-4.989" y2="-3.073" width="0.1524" layer="21"/>
-<wire x1="-4.989" y1="-3.073" x2="-3.389" y2="-3.073" width="0.1524" layer="21"/>
-<wire x1="-3.389" y1="-3.073" x2="-1.611" y2="-3.073" width="0.1524" layer="51"/>
-<wire x1="-1.611" y1="-3.073" x2="1.615" y2="-3.073" width="0.1524" layer="21"/>
-<wire x1="3.393" y1="-3.073" x2="4.993" y2="-3.073" width="0.1524" layer="21"/>
-<wire x1="-4.989" y1="-3.073" x2="-4.989" y2="3.531" width="0.1524" layer="21"/>
-<wire x1="4.993" y1="-3.073" x2="4.993" y2="-5.461" width="0.1524" layer="21"/>
-<wire x1="-4.989" y1="3.531" x2="4.993" y2="3.531" width="0.1524" layer="21"/>
-<wire x1="-4.989" y1="3.531" x2="-4.989" y2="3.734" width="0.1524" layer="21"/>
-<wire x1="4.993" y1="3.531" x2="4.993" y2="-3.073" width="0.1524" layer="21"/>
-<wire x1="1.615" y1="-3.073" x2="3.393" y2="-3.073" width="0.1524" layer="51"/>
-<pad name="1" x="-2.5" y="-1.27" drill="1.1938" shape="long" rot="R90"/>
-<pad name="2" x="2.5" y="-1.27" drill="1.1938" shape="long" rot="R90"/>
-<text x="-5.04" y="-7.62" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
-<text x="-3.8462" y="-5.0038" size="1.27" layer="25" ratio="10">&gt;NAME</text>
-<text x="-4.532" y="0.635" size="1.27" layer="21" ratio="10">1</text>
-<text x="0.421" y="0.635" size="1.27" layer="21" ratio="10">2</text>
 </package>
 <package name="CRYSTAL_86SMX">
 <description>&lt;b&gt;CRYSTAL RESONATOR&lt;/b&gt;</description>
@@ -3505,78 +3517,6 @@ diameter 3.3 mm, vertical, grid 10.16 mm</description>
 <pad name="C" x="-2.54" y="-2.54" drill="1.016" shape="long" rot="R90"/>
 <text x="-5.08" y="-6.0452" size="1.27" layer="25" ratio="10">&gt;NAME</text>
 <text x="-5.08" y="-7.62" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
-</package>
-<package name="FUSE_SH22,5">
-<description>&lt;b&gt;FUSE HOLDER&lt;/b&gt;&lt;p&gt; grid 22,5 mm, OGN0031 8201 Schurter (Buerklin)</description>
-<wire x1="-12.573" y1="-3.937" x2="12.573" y2="-3.937" width="0.1524" layer="21"/>
-<wire x1="12.573" y1="3.937" x2="-12.573" y2="3.937" width="0.1524" layer="21"/>
-<wire x1="-5.08" y1="-2.921" x2="5.08" y2="-2.921" width="0.0508" layer="21"/>
-<wire x1="-5.08" y1="2.921" x2="5.08" y2="2.921" width="0.0508" layer="21"/>
-<wire x1="-10.795" y1="3.683" x2="-5.715" y2="3.683" width="0.1524" layer="21"/>
-<wire x1="-10.795" y1="-3.683" x2="-10.795" y2="-3.175" width="0.1524" layer="21"/>
-<wire x1="-10.795" y1="-2.54" x2="-5.715" y2="-2.54" width="0.1524" layer="21"/>
-<wire x1="-10.795" y1="3.683" x2="-10.795" y2="2.54" width="0.1524" layer="21"/>
-<wire x1="-10.795" y1="2.54" x2="-5.715" y2="2.54" width="0.1524" layer="21"/>
-<wire x1="-5.715" y1="-3.683" x2="-10.795" y2="-3.683" width="0.1524" layer="21"/>
-<wire x1="-5.715" y1="-3.683" x2="-5.715" y2="-2.54" width="0.1524" layer="21"/>
-<wire x1="-10.795" y1="-3.683" x2="-11.43" y2="-3.683" width="0.1524" layer="21"/>
-<wire x1="-11.43" y1="-3.683" x2="-11.43" y2="-2.032" width="0.1524" layer="21"/>
-<wire x1="-11.176" y1="-2.032" x2="-11.176" y2="-3.175" width="0.1524" layer="21"/>
-<wire x1="-11.176" y1="-3.175" x2="-10.795" y2="-3.175" width="0.1524" layer="21"/>
-<wire x1="-10.795" y1="-3.175" x2="-10.795" y2="-2.54" width="0.1524" layer="21"/>
-<wire x1="-5.715" y1="2.54" x2="-5.715" y2="3.683" width="0.1524" layer="21"/>
-<wire x1="-11.43" y1="-2.032" x2="-11.43" y2="-1.27" width="0.1524" layer="51"/>
-<wire x1="-11.43" y1="-1.27" x2="-11.176" y2="-1.27" width="0.1524" layer="51"/>
-<wire x1="-11.176" y1="-1.27" x2="-11.176" y2="-2.032" width="0.1524" layer="51"/>
-<wire x1="10.795" y1="-3.683" x2="5.715" y2="-3.683" width="0.1524" layer="21"/>
-<wire x1="10.795" y1="3.683" x2="10.795" y2="3.175" width="0.1524" layer="21"/>
-<wire x1="10.795" y1="2.54" x2="5.715" y2="2.54" width="0.1524" layer="21"/>
-<wire x1="10.795" y1="-3.683" x2="10.795" y2="-2.54" width="0.1524" layer="21"/>
-<wire x1="10.795" y1="-2.54" x2="5.715" y2="-2.54" width="0.1524" layer="21"/>
-<wire x1="5.715" y1="3.683" x2="10.795" y2="3.683" width="0.1524" layer="21"/>
-<wire x1="5.715" y1="3.683" x2="5.715" y2="2.54" width="0.1524" layer="21"/>
-<wire x1="10.795" y1="3.683" x2="11.43" y2="3.683" width="0.1524" layer="21"/>
-<wire x1="11.43" y1="3.683" x2="11.43" y2="2.032" width="0.1524" layer="21"/>
-<wire x1="11.176" y1="2.032" x2="11.176" y2="3.175" width="0.1524" layer="21"/>
-<wire x1="11.176" y1="3.175" x2="10.795" y2="3.175" width="0.1524" layer="21"/>
-<wire x1="10.795" y1="3.175" x2="10.795" y2="2.54" width="0.1524" layer="21"/>
-<wire x1="5.715" y1="-2.54" x2="5.715" y2="-3.683" width="0.1524" layer="21"/>
-<wire x1="11.43" y1="2.032" x2="11.43" y2="1.27" width="0.1524" layer="51"/>
-<wire x1="11.43" y1="1.27" x2="11.176" y2="1.27" width="0.1524" layer="51"/>
-<wire x1="11.176" y1="1.27" x2="11.176" y2="2.032" width="0.1524" layer="51"/>
-<wire x1="-5.207" y1="0" x2="5.207" y2="0" width="0.0508" layer="21"/>
-<wire x1="12.573" y1="3.937" x2="12.573" y2="1.651" width="0.1524" layer="21"/>
-<wire x1="12.573" y1="-1.651" x2="12.573" y2="1.651" width="0.1524" layer="51"/>
-<wire x1="12.573" y1="-1.651" x2="12.573" y2="-3.937" width="0.1524" layer="21"/>
-<wire x1="-12.573" y1="3.937" x2="-12.573" y2="1.651" width="0.1524" layer="21"/>
-<wire x1="-12.573" y1="-1.651" x2="-12.573" y2="1.651" width="0.1524" layer="51"/>
-<wire x1="-12.573" y1="-1.651" x2="-12.573" y2="-3.937" width="0.1524" layer="21"/>
-<rectangle x1="-10.541" y1="-2.032" x2="-10.16" y2="2.032" layer="51"/>
-<rectangle x1="-10.541" y1="1.905" x2="-9.652" y2="2.032" layer="51"/>
-<rectangle x1="-10.541" y1="-2.032" x2="-9.652" y2="-1.905" layer="51"/>
-<rectangle x1="-5.715" y1="-3.175" x2="-5.08" y2="-2.032" layer="21"/>
-<rectangle x1="-5.715" y1="2.032" x2="-5.08" y2="3.175" layer="21"/>
-<rectangle x1="-5.715" y1="-2.032" x2="-5.08" y2="2.032" layer="21"/>
-<rectangle x1="10.16" y1="-2.032" x2="10.541" y2="2.032" layer="51"/>
-<rectangle x1="9.652" y1="-2.032" x2="10.541" y2="-1.905" layer="51"/>
-<rectangle x1="9.652" y1="1.905" x2="10.541" y2="2.032" layer="51"/>
-<rectangle x1="5.08" y1="2.032" x2="5.715" y2="3.175" layer="21"/>
-<rectangle x1="5.08" y1="-3.175" x2="5.715" y2="-2.032" layer="21"/>
-<rectangle x1="5.08" y1="-2.032" x2="5.715" y2="2.032" layer="21"/>
-<rectangle x1="-5.08" y1="2.159" x2="5.08" y2="2.667" layer="21"/>
-<rectangle x1="-5.08" y1="-2.667" x2="5.08" y2="-2.159" layer="21"/>
-<rectangle x1="5.715" y1="-2.032" x2="9.652" y2="-1.905" layer="21"/>
-<rectangle x1="5.715" y1="1.905" x2="9.652" y2="2.032" layer="21"/>
-<rectangle x1="-9.652" y1="1.905" x2="-5.715" y2="2.032" layer="21"/>
-<rectangle x1="-9.652" y1="-2.032" x2="-5.715" y2="-1.905" layer="21"/>
-<rectangle x1="-10.541" y1="-2.54" x2="-5.715" y2="-2.032" layer="21"/>
-<rectangle x1="-10.541" y1="2.032" x2="-5.715" y2="2.54" layer="21"/>
-<rectangle x1="5.715" y1="2.032" x2="10.541" y2="2.54" layer="21"/>
-<rectangle x1="5.715" y1="-2.54" x2="10.541" y2="-2.032" layer="21"/>
-<pad name="1" x="-11.2522" y="0" drill="1.3208" diameter="2.54" shape="long" rot="R90"/>
-<pad name="2" x="11.2522" y="0" drill="1.3208" diameter="2.54" shape="long" rot="R90"/>
-<text x="-12.7" y="-6.096" size="1.778" layer="25" ratio="10">&gt;NAME</text>
-<text x="1.143" y="-6.096" size="1.778" layer="27" ratio="10">&gt;VALUE</text>
 </package>
 <package name="JUMPER_JP1">
 <description>&lt;b&gt;JUMPER&lt;/b&gt;</description>
@@ -7773,61 +7713,362 @@ Source: VISHAY wscwsn.pdf</description>
 <text x="-8.75" y="3.9" size="1.27" layer="25">&gt;NAME</text>
 <text x="-8.75" y="-5.15" size="1.27" layer="27">&gt;VALUE</text>
 </package>
-<package name="RELAY_G6D">
-<description>&lt;b&gt;Slim, Miniature Relay&lt;/b&gt; 17.5 × 6.5 × 12.5 mm&lt;p&gt;
-Source: http://ecb.omron.com.sg/pdf/relay/power/G6D.pdf</description>
-<wire x1="-8.725" y1="3.1" x2="-5.6" y2="3.1" width="0.2032" layer="51"/>
-<wire x1="-5.6" y1="3.1" x2="-3.725" y2="3.1" width="0.2032" layer="21"/>
-<wire x1="-3.725" y1="3.1" x2="-0.4" y2="3.1" width="0.2032" layer="51"/>
-<wire x1="-0.4" y1="3.1" x2="6.375" y2="3.1" width="0.2032" layer="21"/>
-<wire x1="6.375" y1="3.1" x2="8.55" y2="3.1" width="0.2032" layer="51"/>
-<wire x1="8.55" y1="3.1" x2="8.55" y2="1.375" width="0.2032" layer="51"/>
-<wire x1="8.55" y1="1.375" x2="8.55" y2="-3.175" width="0.2032" layer="21"/>
-<wire x1="8.55" y1="-3.175" x2="6.625" y2="-3.175" width="0.2032" layer="21"/>
-<wire x1="6.625" y1="-3.175" x2="4.5" y2="-3.175" width="0.2032" layer="51"/>
-<wire x1="4.5" y1="-3.175" x2="-8.725" y2="-3.175" width="0.2032" layer="21"/>
-<wire x1="-8.725" y1="-3.175" x2="-8.725" y2="3.1" width="0.2032" layer="21"/>
-<wire x1="9" y1="0.6" x2="8.6" y2="0.6" width="0.2032" layer="21"/>
-<wire x1="8.6" y1="-0.675" x2="9" y2="-0.675" width="0.2032" layer="21"/>
-<wire x1="-9.225" y1="-0.675" x2="-9.225" y2="0.6" width="0.2032" layer="21"/>
-<wire x1="9.05" y1="0.6" x2="9.05" y2="-0.675" width="0.2032" layer="21"/>
-<wire x1="-9.225" y1="-0.675" x2="-8.825" y2="-0.675" width="0.2032" layer="21"/>
-<wire x1="-8.825" y1="0.6" x2="-9.225" y2="0.6" width="0.2032" layer="21"/>
-<pad name="1" x="8.08" y="2.5" drill="1.1" diameter="1.6764" rot="R180"/>
-<pad name="5" x="-2.08" y="2.5" drill="1.1" diameter="1.6764" rot="R180"/>
-<pad name="7" x="-7.16" y="2.5" drill="1.1" diameter="1.6764" rot="R180"/>
-<pad name="13" x="5.54" y="-2.58" drill="1.1" diameter="1.6764" rot="R180"/>
-<text x="-7.16" y="3.77" size="1.27" layer="25">&gt;NAME</text>
-<text x="-7.16" y="-5.12" size="1.27" layer="27">&gt;VALUE</text>
+<package name="RELAY_G6K-2F">
+<description>&lt;b&gt;Low Signal Relay&lt;/b&gt;&lt;p&gt;
+oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
+<circle x="-3.84" y="-1.8" radius="0.6" width="0" layer="21"/>
+<wire x1="-4.9" y1="-3.15" x2="-4.55" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="-4.55" y1="-3.15" x2="-3.1" y2="-3.15" width="0.254" layer="51"/>
+<wire x1="-3.1" y1="-3.15" x2="-2" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="-0.55" y1="-3.15" x2="0.55" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="2" y1="-3.15" x2="3.1" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="-2" y1="-3.15" x2="-0.55" y2="-3.15" width="0.254" layer="51"/>
+<wire x1="0.55" y1="-3.15" x2="2" y2="-3.15" width="0.254" layer="51"/>
+<wire x1="3.1" y1="-3.15" x2="4.55" y2="-3.15" width="0.254" layer="51"/>
+<wire x1="-4.9" y1="3.15" x2="-4.55" y2="3.15" width="0.254" layer="21"/>
+<wire x1="-4.55" y1="3.15" x2="-3.1" y2="3.15" width="0.254" layer="51"/>
+<wire x1="-3.1" y1="3.15" x2="-2" y2="3.15" width="0.254" layer="21"/>
+<wire x1="-0.55" y1="3.15" x2="0.55" y2="3.15" width="0.254" layer="21"/>
+<wire x1="2" y1="3.15" x2="3.1" y2="3.15" width="0.254" layer="21"/>
+<wire x1="-2" y1="3.15" x2="-0.55" y2="3.15" width="0.254" layer="51"/>
+<wire x1="0.55" y1="3.15" x2="2" y2="3.15" width="0.254" layer="51"/>
+<wire x1="3.1" y1="3.15" x2="4.55" y2="3.15" width="0.254" layer="51"/>
+<wire x1="-4.9" y1="3.15" x2="-4.9" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="4.9" y1="3.15" x2="4.55" y2="3.15" width="0.254" layer="21"/>
+<wire x1="4.9" y1="-3.15" x2="4.55" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="4.9" y1="-3.15" x2="4.9" y2="3.15" width="0.254" layer="21"/>
+<rectangle x1="-4.06" y1="-3.9" x2="-3.56" y2="-3.2" layer="51"/>
+<rectangle x1="-1.52" y1="-3.9" x2="-1.02" y2="-3.2" layer="51"/>
+<rectangle x1="1.02" y1="-3.9" x2="1.52" y2="-3.2" layer="51"/>
+<rectangle x1="3.56" y1="-3.9" x2="4.06" y2="-3.2" layer="51"/>
+<rectangle x1="-4.06" y1="3.2" x2="-3.56" y2="3.9" layer="51"/>
+<rectangle x1="-1.52" y1="3.2" x2="-1.02" y2="3.9" layer="51"/>
+<rectangle x1="1.02" y1="3.2" x2="1.52" y2="3.9" layer="51"/>
+<rectangle x1="3.56" y1="3.2" x2="4.06" y2="3.9" layer="51"/>
+<smd name="1" x="-3.81" y="-3.6" dx="1" dy="2" layer="1"/>
+<smd name="2" x="-1.27" y="-3.6" dx="1" dy="2" layer="1"/>
+<smd name="3" x="1.27" y="-3.6" dx="1" dy="2" layer="1"/>
+<smd name="4" x="3.81" y="-3.6" dx="1" dy="2" layer="1"/>
+<smd name="5" x="3.81" y="3.6" dx="1" dy="2" layer="1"/>
+<smd name="6" x="1.27" y="3.6" dx="1" dy="2" layer="1"/>
+<smd name="7" x="-1.27" y="3.6" dx="1" dy="2" layer="1"/>
+<smd name="8" x="-3.81" y="3.6" dx="1" dy="2" layer="1"/>
+<text x="-3.81" y="0.635" size="1.27" layer="25">&gt;NAME</text>
+<text x="-2.54" y="-1.905" size="1.27" layer="27">&gt;VALUE</text>
 </package>
-<package name="RELAY_G6D-SOCKET">
-<description>Slim, Miniature Relay &lt;b&gt;SOCKET&lt;/b&gt; 17.5 × 6.5 × 12.5 mm&lt;p&gt;
-Source: http://ecb.omron.com.sg/pdf/relay/power/G6D.pdf</description>
-<wire x1="8.85" y1="0.8" x2="9.65" y2="0.8" width="0.2032" layer="21"/>
-<wire x1="9.65" y1="-0.875" x2="8.85" y2="-0.875" width="0.2032" layer="21"/>
-<wire x1="-9.025" y1="-0.875" x2="-9.025" y2="0.8" width="0.2032" layer="21"/>
-<wire x1="8.85" y1="0.8" x2="8.85" y2="-0.875" width="0.2032" layer="21"/>
-<wire x1="-9.025" y1="-0.875" x2="-9.825" y2="-0.875" width="0.2032" layer="21"/>
-<wire x1="-9.825" y1="0.8" x2="-9.025" y2="0.8" width="0.2032" layer="21"/>
-<wire x1="-9.825" y1="-3.375" x2="-9.825" y2="-0.875" width="0.2032" layer="21"/>
-<wire x1="-9.825" y1="0.8" x2="-9.825" y2="3.3" width="0.2032" layer="21"/>
-<wire x1="9.65" y1="3.3" x2="9.65" y2="0.8" width="0.2032" layer="21"/>
-<wire x1="9.65" y1="-0.875" x2="9.65" y2="-3.375" width="0.2032" layer="21"/>
-<wire x1="-1" y1="3.3" x2="6.975" y2="3.3" width="0.2032" layer="21"/>
-<wire x1="6.975" y1="3.3" x2="9.65" y2="3.3" width="0.2032" layer="51"/>
-<wire x1="-3.125" y1="3.3" x2="-1" y2="3.3" width="0.2032" layer="51"/>
-<wire x1="-6" y1="3.3" x2="-3.125" y2="3.3" width="0.2032" layer="21"/>
-<wire x1="-8.125" y1="3.3" x2="-6" y2="3.3" width="0.2032" layer="51"/>
-<wire x1="4.5" y1="-3.375" x2="-9.725" y2="-3.375" width="0.2032" layer="21"/>
-<wire x1="6.625" y1="-3.375" x2="4.5" y2="-3.375" width="0.2032" layer="51"/>
-<wire x1="9.65" y1="-3.375" x2="6.625" y2="-3.375" width="0.2032" layer="21"/>
-<wire x1="-9.825" y1="3.3" x2="-8.125" y2="3.3" width="0.2032" layer="21"/>
-<pad name="1" x="8.08" y="2.5" drill="1.1" diameter="1.6764" rot="R180"/>
-<pad name="5" x="-2.08" y="2.5" drill="1.1" diameter="1.6764" rot="R180"/>
-<pad name="7" x="-7.16" y="2.5" drill="1.1" diameter="1.6764" rot="R180"/>
-<pad name="13" x="5.54" y="-2.58" drill="1.1" diameter="1.6764" rot="R180"/>
-<text x="-7.16" y="3.77" size="1.27" layer="25">&gt;NAME</text>
-<text x="-7.16" y="-5.12" size="1.27" layer="27">&gt;VALUE</text>
+<package name="RELAY_G6K-2F-Y">
+<description>&lt;b&gt;Low Signal Relay&lt;/b&gt;&lt;p&gt;
+oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
+<wire x1="-5" y1="3.3" x2="-4.5" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-4.5" y1="3.3" x2="-3.1" y2="3.3" width="0.254" layer="51"/>
+<wire x1="-3.1" y1="3.3" x2="-1.3" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-1.3" y1="3.3" x2="0.1" y2="3.3" width="0.254" layer="51"/>
+<wire x1="0.1" y1="3.3" x2="0.9" y2="3.3" width="0.254" layer="21"/>
+<wire x1="0.9" y1="3.3" x2="2.3" y2="3.3" width="0.254" layer="51"/>
+<wire x1="2.3" y1="3.3" x2="3.1" y2="3.3" width="0.254" layer="21"/>
+<wire x1="3.1" y1="3.3" x2="4.6" y2="3.3" width="0.254" layer="51"/>
+<wire x1="5" y1="3.3" x2="5" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="5" y1="-3.3" x2="4.6" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="4.6" y1="-3.3" x2="3.1" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="3.1" y1="-3.3" x2="2.3" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="2.3" y1="-3.3" x2="0.9" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="0.9" y1="-3.3" x2="0.1" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="0.1" y1="-3.3" x2="-1.3" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="-1.3" y1="-3.3" x2="-3" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="-3" y1="-3.3" x2="-4.5" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="-5" y1="-3.3" x2="-5" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-5" y1="-3.3" x2="-4.5" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="5" y1="3.3" x2="4.6" y2="3.3" width="0.254" layer="21"/>
+<rectangle x1="-4.05" y1="-3.9" x2="-3.55" y2="-3.4" layer="51"/>
+<rectangle x1="-0.85" y1="-3.9" x2="-0.35" y2="-3.4" layer="51"/>
+<rectangle x1="1.35" y1="-3.9" x2="1.85" y2="-3.4" layer="51"/>
+<rectangle x1="3.55" y1="-3.9" x2="4.05" y2="-3.4" layer="51"/>
+<rectangle x1="3.55" y1="3.4" x2="4.05" y2="3.9" layer="51"/>
+<rectangle x1="1.35" y1="3.4" x2="1.85" y2="3.9" layer="51"/>
+<rectangle x1="-0.85" y1="3.4" x2="-0.35" y2="3.9" layer="51"/>
+<rectangle x1="-4.05" y1="3.4" x2="-3.55" y2="3.9" layer="51"/>
+<smd name="1" x="-3.8" y="-3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="2" x="-0.6" y="-3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="3" x="1.6" y="-3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="4" x="3.8" y="-3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="5" x="3.8" y="3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="6" x="1.6" y="3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="7" x="-0.6" y="3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="8" x="-3.8" y="3.5" dx="1.2" dy="1.8" layer="1"/>
+<text x="-3.81" y="0.635" size="1.27" layer="25">&gt;NAME</text>
+<text x="-3.81" y="-1.905" size="1.27" layer="27">&gt;VALUE</text>
+</package>
+<package name="RELAY_G6K-2G">
+<description>&lt;b&gt;Low Signal Relay&lt;/b&gt;&lt;p&gt;
+oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
+<circle x="-3.84" y="-1.165" radius="0.6" width="0" layer="21"/>
+<wire x1="-4.9" y1="-3.15" x2="-4.55" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="-4.55" y1="-3.15" x2="-3.1" y2="-3.15" width="0.254" layer="51"/>
+<wire x1="-3.1" y1="-3.15" x2="-2" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="-0.55" y1="-3.15" x2="0.55" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="2" y1="-3.15" x2="3.1" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="-2" y1="-3.15" x2="-0.55" y2="-3.15" width="0.254" layer="51"/>
+<wire x1="0.55" y1="-3.15" x2="2" y2="-3.15" width="0.254" layer="51"/>
+<wire x1="3.1" y1="-3.15" x2="4.55" y2="-3.15" width="0.254" layer="51"/>
+<wire x1="-4.9" y1="3.15" x2="-4.55" y2="3.15" width="0.254" layer="21"/>
+<wire x1="-4.55" y1="3.15" x2="-3.1" y2="3.15" width="0.254" layer="51"/>
+<wire x1="-3.1" y1="3.15" x2="-2" y2="3.15" width="0.254" layer="21"/>
+<wire x1="-0.55" y1="3.15" x2="0.55" y2="3.15" width="0.254" layer="21"/>
+<wire x1="2" y1="3.15" x2="3.1" y2="3.15" width="0.254" layer="21"/>
+<wire x1="-2" y1="3.15" x2="-0.55" y2="3.15" width="0.254" layer="51"/>
+<wire x1="0.55" y1="3.15" x2="2" y2="3.15" width="0.254" layer="51"/>
+<wire x1="3.1" y1="3.15" x2="4.55" y2="3.15" width="0.254" layer="51"/>
+<wire x1="-4.9" y1="3.15" x2="-4.9" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="4.9" y1="3.15" x2="4.55" y2="3.15" width="0.254" layer="21"/>
+<wire x1="4.9" y1="-3.15" x2="4.55" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="4.9" y1="-3.15" x2="4.9" y2="3.15" width="0.254" layer="21"/>
+<rectangle x1="-4.06" y1="-3.15" x2="-3.56" y2="-2.45" layer="51"/>
+<rectangle x1="-1.52" y1="-3.15" x2="-1.02" y2="-2.45" layer="51"/>
+<rectangle x1="1.02" y1="-3.15" x2="1.52" y2="-2.45" layer="51"/>
+<rectangle x1="3.56" y1="-3.15" x2="4.06" y2="-2.45" layer="51"/>
+<rectangle x1="-4.06" y1="2.45" x2="-3.56" y2="3.15" layer="51"/>
+<rectangle x1="-1.52" y1="2.45" x2="-1.02" y2="3.15" layer="51"/>
+<rectangle x1="1.02" y1="2.45" x2="1.52" y2="3.15" layer="51"/>
+<rectangle x1="3.56" y1="2.45" x2="4.06" y2="3.15" layer="51"/>
+<smd name="1" x="-3.81" y="-2.75" dx="1" dy="2" layer="1"/>
+<smd name="2" x="-1.27" y="-2.75" dx="1" dy="2" layer="1"/>
+<smd name="3" x="1.27" y="-2.75" dx="1" dy="2" layer="1"/>
+<smd name="4" x="3.81" y="-2.75" dx="1" dy="2" layer="1"/>
+<smd name="5" x="3.81" y="2.75" dx="1" dy="2" layer="1"/>
+<smd name="6" x="1.27" y="2.75" dx="1" dy="2" layer="1"/>
+<smd name="7" x="-1.27" y="2.75" dx="1" dy="2" layer="1"/>
+<smd name="8" x="-3.81" y="2.75" dx="1" dy="2" layer="1"/>
+<text x="-3.81" y="0.235" size="1.27" layer="25">&gt;NAME</text>
+<text x="-2.54" y="-1.305" size="1.27" layer="27">&gt;VALUE</text>
+</package>
+<package name="RELAY_G6K-2G-Y">
+<description>&lt;b&gt;Low Signal Relay&lt;/b&gt;&lt;p&gt;
+oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
+<wire x1="-5" y1="3.3" x2="-4.5" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-4.5" y1="3.3" x2="-3.1" y2="3.3" width="0.254" layer="51"/>
+<wire x1="-3.1" y1="3.3" x2="-1.3" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-1.3" y1="3.3" x2="0.1" y2="3.3" width="0.254" layer="51"/>
+<wire x1="0.1" y1="3.3" x2="0.9" y2="3.3" width="0.254" layer="21"/>
+<wire x1="0.9" y1="3.3" x2="2.3" y2="3.3" width="0.254" layer="51"/>
+<wire x1="2.3" y1="3.3" x2="3.1" y2="3.3" width="0.254" layer="21"/>
+<wire x1="3.1" y1="3.3" x2="4.6" y2="3.3" width="0.254" layer="51"/>
+<wire x1="5" y1="3.3" x2="5" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="5" y1="-3.3" x2="4.6" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="4.6" y1="-3.3" x2="3.1" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="3.1" y1="-3.3" x2="2.3" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="2.3" y1="-3.3" x2="0.9" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="0.9" y1="-3.3" x2="0.1" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="0.1" y1="-3.3" x2="-1.3" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="-1.3" y1="-3.3" x2="-3" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="-3" y1="-3.3" x2="-4.5" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="-5" y1="-3.3" x2="-5" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-5" y1="-3.3" x2="-4.5" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="5" y1="3.3" x2="4.6" y2="3.3" width="0.254" layer="21"/>
+<rectangle x1="-4.05" y1="2.45" x2="-3.55" y2="3.25" layer="51"/>
+<rectangle x1="-0.85" y1="2.45" x2="-0.35" y2="3.25" layer="51"/>
+<rectangle x1="1.35" y1="2.45" x2="1.85" y2="3.25" layer="51"/>
+<rectangle x1="3.55" y1="2.45" x2="4.05" y2="3.25" layer="51"/>
+<rectangle x1="3.55" y1="-3.25" x2="4.05" y2="-2.45" layer="51"/>
+<rectangle x1="1.35" y1="-3.25" x2="1.85" y2="-2.45" layer="51"/>
+<rectangle x1="-0.85" y1="-3.25" x2="-0.35" y2="-2.45" layer="51"/>
+<rectangle x1="-4.05" y1="-3.25" x2="-3.55" y2="-2.45" layer="51"/>
+<smd name="1" x="-3.8" y="-2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="2" x="-0.6" y="-2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="3" x="1.6" y="-2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="4" x="3.8" y="-2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="5" x="3.8" y="2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="6" x="1.6" y="2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="7" x="-0.6" y="2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="8" x="-3.8" y="2.85" dx="1.2" dy="1.8" layer="1"/>
+<text x="-3.81" y="0.235" size="1.27" layer="25">&gt;NAME</text>
+<text x="-3.81" y="-1.505" size="1.27" layer="27">&gt;VALUE</text>
+</package>
+<package name="RELAY_G6K-2P">
+<description>&lt;b&gt;Low Signal Relay&lt;/b&gt;&lt;p&gt;
+oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
+<circle x="-2.57" y="-1.165" radius="0.6" width="0" layer="21"/>
+<wire x1="-3.63" y1="-3.15" x2="-3.28" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="-3.28" y1="-3.15" x2="-1.83" y2="-3.15" width="0.254" layer="51"/>
+<wire x1="-1.83" y1="-3.15" x2="-0.73" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="0.72" y1="-3.15" x2="1.82" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="3.27" y1="-3.15" x2="4.37" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="-0.73" y1="-3.15" x2="0.72" y2="-3.15" width="0.254" layer="51"/>
+<wire x1="1.82" y1="-3.15" x2="3.27" y2="-3.15" width="0.254" layer="51"/>
+<wire x1="4.37" y1="-3.15" x2="5.82" y2="-3.15" width="0.254" layer="51"/>
+<wire x1="-3.63" y1="3.15" x2="-3.28" y2="3.15" width="0.254" layer="21"/>
+<wire x1="-3.28" y1="3.15" x2="-1.83" y2="3.15" width="0.254" layer="51"/>
+<wire x1="-1.83" y1="3.15" x2="-0.73" y2="3.15" width="0.254" layer="21"/>
+<wire x1="0.72" y1="3.15" x2="1.82" y2="3.15" width="0.254" layer="21"/>
+<wire x1="3.27" y1="3.15" x2="4.37" y2="3.15" width="0.254" layer="21"/>
+<wire x1="-0.73" y1="3.15" x2="0.72" y2="3.15" width="0.254" layer="51"/>
+<wire x1="1.82" y1="3.15" x2="3.27" y2="3.15" width="0.254" layer="51"/>
+<wire x1="4.37" y1="3.15" x2="5.82" y2="3.15" width="0.254" layer="51"/>
+<wire x1="-3.63" y1="3.15" x2="-3.63" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="6.17" y1="3.15" x2="5.82" y2="3.15" width="0.254" layer="21"/>
+<wire x1="6.17" y1="-3.15" x2="5.82" y2="-3.15" width="0.254" layer="21"/>
+<wire x1="6.17" y1="-3.15" x2="6.17" y2="3.15" width="0.254" layer="21"/>
+<pad name="1" x="-2.54" y="-2.54" drill="0.8" shape="octagon"/>
+<pad name="2" x="0" y="-2.54" drill="0.8" shape="octagon"/>
+<pad name="3" x="2.54" y="-2.54" drill="0.8" shape="octagon"/>
+<pad name="4" x="5.08" y="-2.54" drill="0.8" shape="octagon"/>
+<pad name="5" x="5.08" y="2.54" drill="0.8" shape="octagon"/>
+<pad name="6" x="2.54" y="2.54" drill="0.8" shape="octagon"/>
+<pad name="7" x="0" y="2.54" drill="0.8" shape="octagon"/>
+<pad name="8" x="-2.54" y="2.54" drill="0.8" shape="octagon"/>
+<text x="-2.54" y="0.635" size="1.27" layer="25">&gt;NAME</text>
+<text x="-1.27" y="-1.905" size="1.27" layer="27">&gt;VALUE</text>
+</package>
+<package name="RELAY_G6K-2P-Y">
+<description>&lt;b&gt;Low Signal Relay&lt;/b&gt;&lt;p&gt;
+oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
+<wire x1="-0.7" y1="3.1" x2="0.9" y2="3.1" width="0.254" layer="51"/>
+<wire x1="0.9" y1="3.1" x2="2.5" y2="3.1" width="0.254" layer="21"/>
+<wire x1="6.9" y1="3.1" x2="8.3" y2="3.1" width="0.254" layer="51"/>
+<wire x1="8.7" y1="3.1" x2="8.7" y2="-3.1" width="0.254" layer="21"/>
+<wire x1="8.3" y1="-3.1" x2="6.9" y2="-3.1" width="0.254" layer="51"/>
+<wire x1="0.9" y1="-3.1" x2="-0.7" y2="-3.1" width="0.254" layer="51"/>
+<wire x1="-1.1" y1="-3.1" x2="-1.1" y2="3.1" width="0.254" layer="21"/>
+<wire x1="4.7" y1="3.1" x2="6.1" y2="3.1" width="0.254" layer="51"/>
+<wire x1="2.5" y1="3.1" x2="3.9" y2="3.1" width="0.254" layer="51"/>
+<wire x1="6.1" y1="-3.1" x2="4.7" y2="-3.1" width="0.254" layer="51"/>
+<wire x1="3.9" y1="-3.1" x2="2.5" y2="-3.1" width="0.254" layer="51"/>
+<wire x1="2.5" y1="-3.1" x2="0.9" y2="-3.1" width="0.254" layer="21"/>
+<wire x1="4.7" y1="-3.1" x2="3.9" y2="-3.1" width="0.254" layer="21"/>
+<wire x1="6.9" y1="-3.1" x2="6.1" y2="-3.1" width="0.254" layer="21"/>
+<wire x1="6.9" y1="3.1" x2="6.1" y2="3.1" width="0.254" layer="21"/>
+<wire x1="4.7" y1="3.1" x2="3.9" y2="3.1" width="0.254" layer="21"/>
+<wire x1="8.7" y1="3.1" x2="8.3" y2="3.1" width="0.254" layer="21"/>
+<wire x1="8.7" y1="-3.1" x2="8.3" y2="-3.1" width="0.254" layer="21"/>
+<wire x1="-0.7" y1="3.1" x2="-1.1" y2="3.1" width="0.254" layer="21"/>
+<wire x1="-0.7" y1="-3.1" x2="-1.1" y2="-3.1" width="0.254" layer="21"/>
+<pad name="1" x="0" y="-2.54" drill="0.85" shape="octagon"/>
+<pad name="2" x="3.2" y="-2.54" drill="0.85" shape="octagon"/>
+<pad name="3" x="5.4" y="-2.54" drill="0.85" shape="octagon"/>
+<pad name="4" x="7.6" y="-2.54" drill="0.85" shape="octagon"/>
+<pad name="5" x="7.6" y="2.54" drill="0.85" shape="octagon"/>
+<pad name="6" x="5.4" y="2.54" drill="0.85" shape="octagon"/>
+<pad name="7" x="3.2" y="2.54" drill="0.85" shape="octagon"/>
+<pad name="8" x="0" y="2.54" drill="0.85" shape="octagon"/>
+<text x="-0.01" y="0.27" size="1.27" layer="25">&gt;NAME</text>
+<text x="-0.01" y="-1.57" size="1.27" layer="27">&gt;VALUE</text>
+</package>
+<package name="RELAY_G6KU-2F-Y">
+<description>&lt;b&gt;Low Signal Relay&lt;/b&gt;&lt;p&gt;
+oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
+<wire x1="-5" y1="3.3" x2="-4.5" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-4.5" y1="3.3" x2="-3.1" y2="3.3" width="0.254" layer="51"/>
+<wire x1="-3.1" y1="3.3" x2="-1.3" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-1.3" y1="3.3" x2="0.1" y2="3.3" width="0.254" layer="51"/>
+<wire x1="0.1" y1="3.3" x2="0.9" y2="3.3" width="0.254" layer="21"/>
+<wire x1="0.9" y1="3.3" x2="2.3" y2="3.3" width="0.254" layer="51"/>
+<wire x1="2.3" y1="3.3" x2="3.1" y2="3.3" width="0.254" layer="21"/>
+<wire x1="3.1" y1="3.3" x2="4.6" y2="3.3" width="0.254" layer="51"/>
+<wire x1="5" y1="3.3" x2="5" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="5" y1="-3.3" x2="4.6" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="4.6" y1="-3.3" x2="3.1" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="3.1" y1="-3.3" x2="2.3" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="2.3" y1="-3.3" x2="0.9" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="0.9" y1="-3.3" x2="0.1" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="0.1" y1="-3.3" x2="-1.3" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="-1.3" y1="-3.3" x2="-3" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="-3" y1="-3.3" x2="-4.5" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="-5" y1="-3.3" x2="-5" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-5" y1="-3.3" x2="-4.5" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="5" y1="3.3" x2="4.6" y2="3.3" width="0.254" layer="21"/>
+<rectangle x1="-4.05" y1="-3.9" x2="-3.55" y2="-3.4" layer="51"/>
+<rectangle x1="-0.85" y1="-3.9" x2="-0.35" y2="-3.4" layer="51"/>
+<rectangle x1="1.35" y1="-3.9" x2="1.85" y2="-3.4" layer="51"/>
+<rectangle x1="3.55" y1="-3.9" x2="4.05" y2="-3.4" layer="51"/>
+<rectangle x1="3.55" y1="3.4" x2="4.05" y2="3.9" layer="51"/>
+<rectangle x1="1.35" y1="3.4" x2="1.85" y2="3.9" layer="51"/>
+<rectangle x1="-0.85" y1="3.4" x2="-0.35" y2="3.9" layer="51"/>
+<rectangle x1="-4.05" y1="3.4" x2="-3.55" y2="3.9" layer="51"/>
+<smd name="1" x="-3.8" y="-3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="2" x="-0.6" y="-3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="3" x="1.6" y="-3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="4" x="3.8" y="-3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="5" x="3.8" y="3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="6" x="1.6" y="3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="7" x="-0.6" y="3.5" dx="1.2" dy="1.8" layer="1"/>
+<smd name="8" x="-3.8" y="3.5" dx="1.2" dy="1.8" layer="1"/>
+<text x="-3.81" y="0.635" size="1.27" layer="25">&gt;NAME</text>
+<text x="-3.81" y="-1.905" size="1.27" layer="27">&gt;VALUE</text>
+</package>
+<package name="RELAY_G6KU-2G-Y">
+<description>&lt;b&gt;Low Signal Relay&lt;/b&gt;&lt;p&gt;
+oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
+<wire x1="-5" y1="3.3" x2="-4.5" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-4.5" y1="3.3" x2="-3.1" y2="3.3" width="0.254" layer="51"/>
+<wire x1="-3.1" y1="3.3" x2="-1.3" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-1.3" y1="3.3" x2="0.1" y2="3.3" width="0.254" layer="51"/>
+<wire x1="0.1" y1="3.3" x2="0.9" y2="3.3" width="0.254" layer="21"/>
+<wire x1="0.9" y1="3.3" x2="2.3" y2="3.3" width="0.254" layer="51"/>
+<wire x1="2.3" y1="3.3" x2="3.1" y2="3.3" width="0.254" layer="21"/>
+<wire x1="3.1" y1="3.3" x2="4.6" y2="3.3" width="0.254" layer="51"/>
+<wire x1="5" y1="3.3" x2="5" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="5" y1="-3.3" x2="4.6" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="4.6" y1="-3.3" x2="3.1" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="3.1" y1="-3.3" x2="2.3" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="2.3" y1="-3.3" x2="0.9" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="0.9" y1="-3.3" x2="0.1" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="0.1" y1="-3.3" x2="-1.3" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="-1.3" y1="-3.3" x2="-3" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="-3" y1="-3.3" x2="-4.5" y2="-3.3" width="0.254" layer="51"/>
+<wire x1="-5" y1="-3.3" x2="-5" y2="3.3" width="0.254" layer="21"/>
+<wire x1="-5" y1="-3.3" x2="-4.5" y2="-3.3" width="0.254" layer="21"/>
+<wire x1="5" y1="3.3" x2="4.6" y2="3.3" width="0.254" layer="21"/>
+<rectangle x1="-4.05" y1="2.45" x2="-3.55" y2="3.25" layer="51"/>
+<rectangle x1="-0.85" y1="2.45" x2="-0.35" y2="3.25" layer="51"/>
+<rectangle x1="1.35" y1="2.45" x2="1.85" y2="3.25" layer="51"/>
+<rectangle x1="3.55" y1="2.45" x2="4.05" y2="3.25" layer="51"/>
+<rectangle x1="3.55" y1="-3.25" x2="4.05" y2="-2.45" layer="51"/>
+<rectangle x1="1.35" y1="-3.25" x2="1.85" y2="-2.45" layer="51"/>
+<rectangle x1="-0.85" y1="-3.25" x2="-0.35" y2="-2.45" layer="51"/>
+<rectangle x1="-4.05" y1="-3.25" x2="-3.55" y2="-2.45" layer="51"/>
+<smd name="1" x="-3.8" y="-2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="2" x="-0.6" y="-2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="3" x="1.6" y="-2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="4" x="3.8" y="-2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="5" x="3.8" y="2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="6" x="1.6" y="2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="7" x="-0.6" y="2.85" dx="1.2" dy="1.8" layer="1"/>
+<smd name="8" x="-3.8" y="2.85" dx="1.2" dy="1.8" layer="1"/>
+<text x="-3.81" y="0.235" size="1.27" layer="25">&gt;NAME</text>
+<text x="-3.81" y="-1.505" size="1.27" layer="27">&gt;VALUE</text>
+</package>
+<package name="RELAY_G6KU-2P-Y">
+<description>&lt;b&gt;Low Signal Relay&lt;/b&gt;&lt;p&gt;
+oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
+<wire x1="-4.5" y1="3.1" x2="-2.9" y2="3.1" width="0.254" layer="51"/>
+<wire x1="-2.9" y1="3.1" x2="-1.3" y2="3.1" width="0.254" layer="21"/>
+<wire x1="3.1" y1="3.1" x2="4.5" y2="3.1" width="0.254" layer="51"/>
+<wire x1="4.9" y1="3.1" x2="4.9" y2="-3.1" width="0.254" layer="21"/>
+<wire x1="4.5" y1="-3.1" x2="3.1" y2="-3.1" width="0.254" layer="51"/>
+<wire x1="-2.9" y1="-3.1" x2="-4.5" y2="-3.1" width="0.254" layer="51"/>
+<wire x1="-4.9" y1="-3.1" x2="-4.9" y2="3.1" width="0.254" layer="21"/>
+<wire x1="0.9" y1="3.1" x2="2.3" y2="3.1" width="0.254" layer="51"/>
+<wire x1="-1.3" y1="3.1" x2="0.1" y2="3.1" width="0.254" layer="51"/>
+<wire x1="2.3" y1="-3.1" x2="0.9" y2="-3.1" width="0.254" layer="51"/>
+<wire x1="0.1" y1="-3.1" x2="-1.3" y2="-3.1" width="0.254" layer="51"/>
+<wire x1="-1.3" y1="-3.1" x2="-2.9" y2="-3.1" width="0.254" layer="21"/>
+<wire x1="0.9" y1="-3.1" x2="0.1" y2="-3.1" width="0.254" layer="21"/>
+<wire x1="3.1" y1="-3.1" x2="2.3" y2="-3.1" width="0.254" layer="21"/>
+<wire x1="3.1" y1="3.1" x2="2.3" y2="3.1" width="0.254" layer="21"/>
+<wire x1="0.9" y1="3.1" x2="0.1" y2="3.1" width="0.254" layer="21"/>
+<wire x1="4.9" y1="3.1" x2="4.5" y2="3.1" width="0.254" layer="21"/>
+<wire x1="4.9" y1="-3.1" x2="4.5" y2="-3.1" width="0.254" layer="21"/>
+<wire x1="-4.5" y1="3.1" x2="-4.9" y2="3.1" width="0.254" layer="21"/>
+<wire x1="-4.5" y1="-3.1" x2="-4.9" y2="-3.1" width="0.254" layer="21"/>
+<pad name="1" x="-3.8" y="-2.54" drill="0.85" shape="octagon"/>
+<pad name="2" x="-0.6" y="-2.54" drill="0.85" shape="octagon"/>
+<pad name="3" x="1.6" y="-2.54" drill="0.85" shape="octagon"/>
+<pad name="4" x="3.8" y="-2.54" drill="0.85" shape="octagon"/>
+<pad name="5" x="3.8" y="2.54" drill="0.85" shape="octagon"/>
+<pad name="6" x="1.6" y="2.54" drill="0.85" shape="octagon"/>
+<pad name="7" x="-0.6" y="2.54" drill="0.85" shape="octagon"/>
+<pad name="8" x="-3.8" y="2.54" drill="0.85" shape="octagon"/>
+<text x="-3.81" y="0.27" size="1.27" layer="25">&gt;NAME</text>
+<text x="-3.81" y="-1.57" size="1.27" layer="27">&gt;VALUE</text>
 </package>
 <package name="RESISTOR_0204/5">
 <description>&lt;b&gt;RESISTOR&lt;/b&gt;&lt;p&gt;
@@ -10331,7 +10572,7 @@ type V526-0, grid 2.5 mm</description>
 <pin name="1" x="15.24" y="0" length="short" direction="pas" rot="R180"/>
 <pin name="2" x="0" y="0" length="short" direction="pas"/>
 <text x="2.2606" y="4.0386" size="2.0828" layer="95" ratio="10" rot="SR0">&gt;NAME</text>
-<text x="-2.4892" y="-7.4676" size="3.4798" layer="96" ratio="10" rot="SR0">&gt;VALUE</text>
+<text x="2.5908" y="-4.9276" size="2.1844" layer="96" ratio="10" rot="SR0">&gt;VALUE</text>
 </symbol>
 <symbol name="DIODES_2N7002-7-F">
 <wire x1="-12.7" y1="5.08" x2="-12.7" y2="-10.16" width="0.4064" layer="94"/>
@@ -10699,17 +10940,6 @@ type V526-0, grid 2.5 mm</description>
 <text x="2.54" y="-0.762" size="1.524" layer="95">&gt;NAME</text>
 <text x="-0.762" y="1.397" size="1.778" layer="96">&gt;VALUE</text>
 </symbol>
-<symbol name="CON-WAGO-500_KL">
-<circle x="1.27" y="0" radius="1.27" width="0.254" layer="94"/>
-<pin name="KL" x="5.08" y="0" visible="off" length="short" direction="pas" rot="R180"/>
-<text x="0" y="0.889" size="1.778" layer="95" rot="R180">&gt;NAME</text>
-</symbol>
-<symbol name="CON-WAGO-500_KL+V">
-<circle x="1.27" y="0" radius="1.27" width="0.254" layer="94"/>
-<pin name="KL" x="5.08" y="0" visible="off" length="short" direction="pas" rot="R180"/>
-<text x="-2.54" y="-3.683" size="1.778" layer="96">&gt;VALUE</text>
-<text x="0" y="0.889" size="1.778" layer="95" rot="R180">&gt;NAME</text>
-</symbol>
 <symbol name="CRYSTAL_Q">
 <wire x1="1.016" y1="0" x2="2.54" y2="0" width="0.1524" layer="94"/>
 <wire x1="-2.54" y1="0" x2="-1.016" y2="0" width="0.1524" layer="94"/>
@@ -10736,17 +10966,6 @@ type V526-0, grid 2.5 mm</description>
 <pin name="C" x="2.54" y="0" visible="off" length="short" direction="pas" rot="R180"/>
 <text x="2.54" y="0.4826" size="1.778" layer="95">&gt;NAME</text>
 <text x="2.54" y="-2.3114" size="1.778" layer="96">&gt;VALUE</text>
-</symbol>
-<symbol name="FUSE_FUSE">
-<wire x1="-3.81" y1="-0.762" x2="3.81" y2="-0.762" width="0.254" layer="94"/>
-<wire x1="3.81" y1="0.762" x2="-3.81" y2="0.762" width="0.254" layer="94"/>
-<wire x1="3.81" y1="-0.762" x2="3.81" y2="0.762" width="0.254" layer="94"/>
-<wire x1="-3.81" y1="0.762" x2="-3.81" y2="-0.762" width="0.254" layer="94"/>
-<wire x1="-2.54" y1="0" x2="2.54" y2="0" width="0.1524" layer="94"/>
-<pin name="1" x="-5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1"/>
-<pin name="2" x="5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1" rot="R180"/>
-<text x="-3.81" y="1.397" size="1.778" layer="95">&gt;NAME</text>
-<text x="-3.81" y="-2.921" size="1.778" layer="96">&gt;VALUE</text>
 </symbol>
 <symbol name="JUMPER_JP2E">
 <wire x1="0" y1="0" x2="0" y2="1.27" width="0.1524" layer="94"/>
@@ -10807,7 +11026,7 @@ type V526-0, grid 2.5 mm</description>
 <text x="-3.81" y="1.4986" size="1.778" layer="95">&gt;NAME</text>
 <text x="-3.81" y="-3.302" size="1.778" layer="96">&gt;VALUE</text>
 </symbol>
-<symbol name="RELAY_K">
+<symbol name="RELAY_K+-">
 <wire x1="-3.81" y1="-1.905" x2="-1.905" y2="-1.905" width="0.254" layer="94"/>
 <wire x1="3.81" y1="-1.905" x2="3.81" y2="1.905" width="0.254" layer="94"/>
 <wire x1="3.81" y1="1.905" x2="1.905" y2="1.905" width="0.254" layer="94"/>
@@ -10819,19 +11038,24 @@ type V526-0, grid 2.5 mm</description>
 <wire x1="-1.905" y1="-1.905" x2="1.905" y2="1.905" width="0.1524" layer="94"/>
 <wire x1="-1.905" y1="-1.905" x2="0" y2="-1.905" width="0.254" layer="94"/>
 <wire x1="1.905" y1="1.905" x2="0" y2="1.905" width="0.254" layer="94"/>
-<pin name="1" x="0" y="5.08" visible="pad" length="short" direction="pas" rot="R270"/>
-<pin name="2" x="0" y="-5.08" visible="pad" length="short" direction="pas" rot="R90"/>
+<wire x1="-1.016" y1="2.667" x2="-0.508" y2="2.667" width="0.1524" layer="94"/>
+<wire x1="-0.762" y1="2.921" x2="-0.762" y2="2.413" width="0.1524" layer="94"/>
+<wire x1="-1.016" y1="-2.667" x2="-0.508" y2="-2.667" width="0.1524" layer="94"/>
+<pin name="+" x="0" y="5.08" visible="pad" length="short" direction="pas" rot="R270"/>
+<pin name="-" x="0" y="-5.08" visible="pad" length="short" direction="pas" rot="R90"/>
 <text x="1.27" y="2.921" size="1.778" layer="96">&gt;VALUE</text>
 <text x="1.27" y="5.08" size="1.778" layer="95">&gt;PART</text>
 </symbol>
-<symbol name="RELAY_S">
-<circle x="0" y="-1.905" radius="0.127" width="0.4064" layer="94"/>
-<wire x1="0" y1="3.175" x2="0" y2="1.905" width="0.254" layer="94"/>
-<wire x1="0" y1="-3.175" x2="0" y2="-1.905" width="0.254" layer="94"/>
-<wire x1="0" y1="-1.905" x2="-1.27" y2="1.905" width="0.254" layer="94"/>
-<pin name="P" x="0" y="-5.08" visible="pad" length="short" direction="pas" swaplevel="1" rot="R90"/>
-<pin name="S" x="0" y="5.08" visible="pad" length="short" direction="pas" swaplevel="1" rot="R270"/>
-<text x="-2.54" y="-2.54" size="1.778" layer="95" rot="R90">&gt;PART</text>
+<symbol name="RELAY_U">
+<circle x="0" y="1.27" radius="0.127" width="0.4064" layer="94"/>
+<wire x1="3.175" y1="5.08" x2="1.905" y2="5.08" width="0.254" layer="94"/>
+<wire x1="-3.175" y1="5.08" x2="-1.905" y2="5.08" width="0.254" layer="94"/>
+<wire x1="0" y1="1.27" x2="2.54" y2="5.715" width="0.254" layer="94"/>
+<wire x1="0" y1="1.27" x2="0" y2="0" width="0.254" layer="94"/>
+<pin name="O" x="5.08" y="5.08" visible="pad" length="short" direction="pas" rot="R180"/>
+<pin name="P" x="0" y="-2.54" visible="pad" length="short" direction="pas" rot="R90"/>
+<pin name="S" x="-5.08" y="5.08" visible="pad" length="short" direction="pas"/>
+<text x="2.54" y="0" size="1.778" layer="95">&gt;PART</text>
 </symbol>
 <symbol name="RESISTOR_R-EU">
 <wire x1="-2.54" y1="-0.889" x2="2.54" y2="-0.889" width="0.254" layer="94"/>
@@ -10910,6 +11134,15 @@ type V526-0, grid 2.5 mm</description>
 <text x="-1.016" y="-6.35" size="1.778" layer="95" rot="R90">&gt;NAME</text>
 <text x="1.27" y="-2.54" size="1.778" layer="97">&gt;TP_SIGNAL_NAME</text>
 </symbol>
+<symbol name="TESTPAD_TP">
+<wire x1="-0.762" y1="-0.762" x2="0" y2="0" width="0.254" layer="94"/>
+<wire x1="0" y1="0" x2="0.762" y2="-0.762" width="0.254" layer="94"/>
+<wire x1="0.762" y1="-0.762" x2="0" y2="-1.524" width="0.254" layer="94"/>
+<wire x1="0" y1="-1.524" x2="-0.762" y2="-0.762" width="0.254" layer="94"/>
+<pin name="TP" x="0" y="-2.54" visible="off" length="short" direction="in" rot="R90"/>
+<text x="-1.27" y="1.27" size="1.778" layer="95">&gt;NAME</text>
+<text x="1.27" y="-1.27" size="1.778" layer="97">&gt;TP_SIGNAL_NAME</text>
+</symbol>
 <symbol name="TESTPAD_TPR">
 <wire x1="0.762" y1="-0.762" x2="0" y2="-2.286" width="0.254" layer="94"/>
 <wire x1="0" y1="-2.286" x2="-0.762" y2="-0.762" width="0.254" layer="94"/>
@@ -10920,7 +11153,7 @@ type V526-0, grid 2.5 mm</description>
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="BOURNS_BY_ELEMENT14_BATCH_1_SRR1240-680M">
+<deviceset name="BOURNS_BY_ELEMENT14_BATCH_1_SRR1240-680M" prefix="L">
 <gates>
 <gate name="A" symbol="BOURNS_BY_ELEMENT14_BATCH_1_IND" x="-7.62" y="2.54"/>
 </gates>
@@ -11226,15 +11459,15 @@ Source: http://ww1.microchip.com/downloads/en/DeviceDoc/21952a.pdf</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="MYCOMPONENTS_594D686X0010C2T">
+<deviceset name="MYCOMPONENTS_594D686X0010C2T" prefix="C">
 <gates>
-<gate name="G$1" symbol="MYCOMPONENTS_C-EU" x="0" y="0"/>
+<gate name="A" symbol="MYCOMPONENTS_C-EU" x="0" y="0"/>
 </gates>
 <devices>
 <device name="" package="MYCOMPONENTS_594D-B">
 <connects>
-<connect gate="G$1" pin="1" pad="P$1"/>
-<connect gate="G$1" pin="2" pad="P$2"/>
+<connect gate="A" pin="1" pad="P$1"/>
+<connect gate="A" pin="2" pad="P$2"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -11242,7 +11475,7 @@ Source: http://ww1.microchip.com/downloads/en/DeviceDoc/21952a.pdf</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="MYCOMPONENTS_CDSOD323-T03C">
+<deviceset name="MYCOMPONENTS_CDSOD323-T03C" prefix="D">
 <gates>
 <gate name="G$1" symbol="MYCOMPONENTS_CDSOD323-T03" x="-2.54" y="0"/>
 </gates>
@@ -11258,15 +11491,15 @@ Source: http://ww1.microchip.com/downloads/en/DeviceDoc/21952a.pdf</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="MYCOMPONENTS_SMA6F">
+<deviceset name="MYCOMPONENTS_SMA6F" prefix="D">
 <gates>
-<gate name="G$1" symbol="MYCOMPONENTS_SMA6F" x="0" y="0"/>
+<gate name="A" symbol="MYCOMPONENTS_SMA6F" x="0" y="0"/>
 </gates>
 <devices>
 <device name="" package="MYCOMPONENTS_DO-221AC">
 <connects>
-<connect gate="G$1" pin="AN" pad="AN"/>
-<connect gate="G$1" pin="KAT" pad="KAT"/>
+<connect gate="A" pin="AN" pad="AN"/>
+<connect gate="A" pin="KAT" pad="KAT"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -11300,7 +11533,7 @@ Source: http://ww1.microchip.com/downloads/en/DeviceDoc/21952a.pdf</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="SILICONLABS_SI4735-D50">
+<deviceset name="SILICONLABS_SI4735-D50" prefix="U">
 <gates>
 <gate name="A" symbol="SILICONLABS_SI4735-D50" x="-17.78" y="0"/>
 </gates>
@@ -11557,6 +11790,34 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 </device>
 </devices>
 </deviceset>
+<deviceset name="CON-MOLEX_5566-4" prefix="X">
+<description>&lt;b&gt;Mini FIT connector 4 pol&lt;/b&gt;&lt;p&gt;
+Source: http://www.molex.com</description>
+<gates>
+<gate name="-1" symbol="CON-MOLEX_MV" x="0" y="5.08" addlevel="always"/>
+<gate name="-2" symbol="CON-MOLEX_M" x="0" y="2.54" addlevel="always"/>
+<gate name="-3" symbol="CON-MOLEX_M" x="0" y="0" addlevel="always"/>
+<gate name="-4" symbol="CON-MOLEX_M" x="0" y="-2.54" addlevel="always"/>
+</gates>
+<devices>
+<device name="" package="CON-MOLEX_5566-4">
+<connects>
+<connect gate="-1" pin="S" pad="1"/>
+<connect gate="-2" pin="S" pad="2"/>
+<connect gate="-3" pin="S" pad="3"/>
+<connect gate="-4" pin="S" pad="4"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MF" value="" constant="no"/>
+<attribute name="MPN" value="" constant="no"/>
+<attribute name="OC_FARNELL" value="unknown" constant="no"/>
+<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
 <deviceset name="CON-MOLEX_5566-8" prefix="X">
 <description>&lt;b&gt;Mini FIT connector 8 pol&lt;/b&gt;&lt;p&gt;
 Source: http://www.molex.com</description>
@@ -11588,29 +11849,6 @@ Source: http://www.molex.com</description>
 <attribute name="MPN" value="" constant="no"/>
 <attribute name="OC_FARNELL" value="unknown" constant="no"/>
 <attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="CON-WAGO-500_W237-102" prefix="X" uservalue="yes">
-<description>&lt;b&gt;WAGO SCREW CLAMP&lt;/b&gt;</description>
-<gates>
-<gate name="-1" symbol="CON-WAGO-500_KL" x="0" y="5.08" addlevel="always"/>
-<gate name="-2" symbol="CON-WAGO-500_KL+V" x="0" y="0" addlevel="always"/>
-</gates>
-<devices>
-<device name="" package="CON-WAGO-500_W237-102">
-<connects>
-<connect gate="-1" pin="KL" pad="1"/>
-<connect gate="-2" pin="KL" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="237-102" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="70K9898" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -12524,28 +12762,6 @@ high speed (Philips)</description>
 </connects>
 <technologies>
 <technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="FUSE_SH22,5" prefix="F" uservalue="yes">
-<description>&lt;b&gt;FUSE HOLDER&lt;/b&gt;&lt;p&gt; grid 22,5 mm, OGN0031 8201, Schurter (Buerklin)</description>
-<gates>
-<gate name="1" symbol="FUSE_FUSE" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="FUSE_SH22,5">
-<connects>
-<connect gate="1" pin="1" pad="1"/>
-<connect gate="1" pin="2" pad="2"/>
-</connects>
-<technologies>
-<technology name="">
-<attribute name="MF" value="SCHURTER" constant="no"/>
-<attribute name="MPN" value="0031.8201" constant="no"/>
-<attribute name="OC_FARNELL" value="1162740" constant="no"/>
-<attribute name="OC_NEWARK" value="96F8317" constant="no"/>
-</technology>
 </technologies>
 </device>
 </devices>
@@ -14474,62 +14690,192 @@ Source: www.kingbright.com</description>
 </device>
 </devices>
 </deviceset>
-<deviceset name="RELAY_G6D?*" prefix="K">
-<description>&lt;b&gt;OMRON Slim, Miniature PCB Relay&lt;/b&gt; 17.5 × 6.5 × 12.5 mm&lt;p&gt;
-with Socked&lt;br&gt;
-Source: http://ecb.omron.com.sg/pdf/relay/power/G6D.pdf</description>
+<deviceset name="RELAY_G6K" prefix="K">
+<description>&lt;b&gt;Low Signal Relay&lt;/b&gt;&lt;p&gt;
+oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
 <gates>
-<gate name="1" symbol="RELAY_K" x="-7.62" y="0"/>
-<gate name="2" symbol="RELAY_S" x="10.16" y="0"/>
+<gate name="1" symbol="RELAY_K+-" x="-7.62" y="0" addlevel="must"/>
+<gate name="2" symbol="RELAY_U" x="10.16" y="2.54" addlevel="always" swaplevel="1"/>
+<gate name="3" symbol="RELAY_U" x="10.16" y="-12.7" addlevel="always" swaplevel="1"/>
 </gates>
 <devices>
-<device name="-1A-ASI" package="RELAY_G6D">
+<device name="-2F" package="RELAY_G6K-2F">
 <connects>
-<connect gate="1" pin="1" pad="1"/>
-<connect gate="1" pin="2" pad="13"/>
-<connect gate="2" pin="P" pad="7"/>
-<connect gate="2" pin="S" pad="5"/>
+<connect gate="1" pin="+" pad="1"/>
+<connect gate="1" pin="-" pad="8"/>
+<connect gate="2" pin="O" pad="2"/>
+<connect gate="2" pin="P" pad="3"/>
+<connect gate="2" pin="S" pad="4"/>
+<connect gate="3" pin="O" pad="7"/>
+<connect gate="3" pin="P" pad="6"/>
+<connect gate="3" pin="S" pad="5"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MF" value="OMRON COMPONENTS USA" constant="no"/>
+<attribute name="MPN" value="G6K-2F DC24" constant="no"/>
+<attribute name="OC_FARNELL" value="1690427" constant="no"/>
+<attribute name="OC_NEWARK" value="36K7467" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-2F-Y" package="RELAY_G6K-2F-Y">
+<connects>
+<connect gate="1" pin="+" pad="1"/>
+<connect gate="1" pin="-" pad="8"/>
+<connect gate="2" pin="O" pad="2"/>
+<connect gate="2" pin="P" pad="3"/>
+<connect gate="2" pin="S" pad="4"/>
+<connect gate="3" pin="O" pad="7"/>
+<connect gate="3" pin="P" pad="6"/>
+<connect gate="3" pin="S" pad="5"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MF" value="OMRON COMPONENTS USA" constant="no"/>
+<attribute name="MPN" value="G6K-2F-Y DC3" constant="no"/>
+<attribute name="OC_FARNELL" value="1690316" constant="no"/>
+<attribute name="OC_NEWARK" value="89C6451" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-2G" package="RELAY_G6K-2G">
+<connects>
+<connect gate="1" pin="+" pad="1"/>
+<connect gate="1" pin="-" pad="8"/>
+<connect gate="2" pin="O" pad="2"/>
+<connect gate="2" pin="P" pad="3"/>
+<connect gate="2" pin="S" pad="4"/>
+<connect gate="3" pin="O" pad="7"/>
+<connect gate="3" pin="P" pad="6"/>
+<connect gate="3" pin="S" pad="5"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MF" value="OMRON COMPONENTS USA" constant="no"/>
+<attribute name="MPN" value="G6K-2G DC12" constant="no"/>
+<attribute name="OC_FARNELL" value="4601695" constant="no"/>
+<attribute name="OC_NEWARK" value="93B9118" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-2G-Y" package="RELAY_G6K-2G-Y">
+<connects>
+<connect gate="1" pin="+" pad="1"/>
+<connect gate="1" pin="-" pad="8"/>
+<connect gate="2" pin="O" pad="2"/>
+<connect gate="2" pin="P" pad="3"/>
+<connect gate="2" pin="S" pad="4"/>
+<connect gate="3" pin="O" pad="7"/>
+<connect gate="3" pin="P" pad="6"/>
+<connect gate="3" pin="S" pad="5"/>
 </connects>
 <technologies>
 <technology name="">
 <attribute name="MF" value="" constant="no"/>
 <attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="" constant="no"/>
-<attribute name="OC_NEWARK" value="" constant="no"/>
-</technology>
-<technology name="12VDC">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
-<technology name="24VDC">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
-</technology>
-<technology name="5VDC">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
-<attribute name="OC_FARNELL" value="9812660" constant="no"/>
+<attribute name="OC_FARNELL" value="4484794" constant="no"/>
 <attribute name="OC_NEWARK" value="unknown" constant="no"/>
 </technology>
 </technologies>
 </device>
-<device name="-04P" package="RELAY_G6D-SOCKET">
+<device name="-2P" package="RELAY_G6K-2P">
 <connects>
-<connect gate="1" pin="1" pad="1"/>
-<connect gate="1" pin="2" pad="13"/>
-<connect gate="2" pin="P" pad="7"/>
-<connect gate="2" pin="S" pad="5"/>
+<connect gate="1" pin="+" pad="1"/>
+<connect gate="1" pin="-" pad="8"/>
+<connect gate="2" pin="O" pad="2"/>
+<connect gate="2" pin="P" pad="3"/>
+<connect gate="2" pin="S" pad="4"/>
+<connect gate="3" pin="O" pad="7"/>
+<connect gate="3" pin="P" pad="6"/>
+<connect gate="3" pin="S" pad="5"/>
 </connects>
 <technologies>
 <technology name="">
-<attribute name="MF" value="" constant="no"/>
-<attribute name="MPN" value="" constant="no"/>
+<attribute name="MF" value="OMRON COMPONENTS USA" constant="no"/>
+<attribute name="MPN" value="G6K-2P DC3" constant="no"/>
+<attribute name="OC_FARNELL" value="3937276" constant="no"/>
+<attribute name="OC_NEWARK" value="89C6482" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="-2P-Y" package="RELAY_G6K-2P-Y">
+<connects>
+<connect gate="1" pin="+" pad="1"/>
+<connect gate="1" pin="-" pad="8"/>
+<connect gate="2" pin="O" pad="2"/>
+<connect gate="2" pin="P" pad="3"/>
+<connect gate="2" pin="S" pad="4"/>
+<connect gate="3" pin="O" pad="7"/>
+<connect gate="3" pin="P" pad="6"/>
+<connect gate="3" pin="S" pad="5"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MF" value="OMRON COMPONENTS USA" constant="no"/>
+<attribute name="MPN" value="G6K-2P-Y DC12" constant="no"/>
+<attribute name="OC_FARNELL" value="3937276" constant="no"/>
+<attribute name="OC_NEWARK" value="34C3464" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="U-2F-Y" package="RELAY_G6KU-2F-Y">
+<connects>
+<connect gate="1" pin="+" pad="1"/>
+<connect gate="1" pin="-" pad="8"/>
+<connect gate="2" pin="O" pad="2"/>
+<connect gate="2" pin="P" pad="3"/>
+<connect gate="2" pin="S" pad="4"/>
+<connect gate="3" pin="O" pad="7"/>
+<connect gate="3" pin="P" pad="6"/>
+<connect gate="3" pin="S" pad="5"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MF" value="OMRON COMPONENTS USA" constant="no"/>
+<attribute name="MPN" value="G6KU-2F-Y DC3" constant="no"/>
 <attribute name="OC_FARNELL" value="unknown" constant="no"/>
-<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+<attribute name="OC_NEWARK" value="89C6496" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="U-2G-Y" package="RELAY_G6KU-2G-Y">
+<connects>
+<connect gate="1" pin="+" pad="1"/>
+<connect gate="1" pin="-" pad="8"/>
+<connect gate="2" pin="O" pad="2"/>
+<connect gate="2" pin="P" pad="3"/>
+<connect gate="2" pin="S" pad="4"/>
+<connect gate="3" pin="O" pad="7"/>
+<connect gate="3" pin="P" pad="6"/>
+<connect gate="3" pin="S" pad="5"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MF" value="OMRON COMPONENTS USA" constant="no"/>
+<attribute name="MPN" value="G6KU-2G-Y DC5" constant="no"/>
+<attribute name="OC_FARNELL" value="1690320" constant="no"/>
+<attribute name="OC_NEWARK" value="89C6505" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="U-2P-Y" package="RELAY_G6KU-2P-Y">
+<connects>
+<connect gate="1" pin="+" pad="1"/>
+<connect gate="1" pin="-" pad="8"/>
+<connect gate="2" pin="O" pad="2"/>
+<connect gate="2" pin="P" pad="3"/>
+<connect gate="2" pin="S" pad="4"/>
+<connect gate="3" pin="O" pad="7"/>
+<connect gate="3" pin="P" pad="6"/>
+<connect gate="3" pin="S" pad="5"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MF" value="OMRON COMPONENTS USA" constant="no"/>
+<attribute name="MPN" value="G6KU-2P-Y DC5" constant="no"/>
+<attribute name="OC_FARNELL" value="unknown" constant="no"/>
+<attribute name="OC_NEWARK" value="35K4536" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -15639,6 +15985,394 @@ Source: http://ecb.omron.com.sg/pdf/relay/power/G6D.pdf</description>
 <description>&lt;b&gt;TEST PIN&lt;/b&gt;</description>
 <gates>
 <gate name="G$1" symbol="TESTPAD_PS" x="0" y="0"/>
+</gates>
+<devices>
+<device name="B1,27" package="TESTPAD_B1,27">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="B2,54" package="TESTPAD_B2,54">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="PAD1-13" package="TESTPAD_P1-13">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="PAD1-13Y" package="TESTPAD_P1-13Y">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="PAD1-17" package="TESTPAD_P1-17">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="PAD1-17Y" package="TESTPAD_P1-17Y">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="PAD1-20" package="TESTPAD_P1-20">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="PAD1-20Y" package="TESTPAD_P1-20Y">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP06R" package="TESTPAD_TP06R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP06SQ" package="TESTPAD_TP06SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP07R" package="TESTPAD_TP07R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP07SQ" package="TESTPAD_TP07SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP08R" package="TESTPAD_TP08R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP08SQ" package="TESTPAD_TP08SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP09R" package="TESTPAD_TP09R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP09SQ" package="TESTPAD_TP09SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP10R" package="TESTPAD_TP10R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP10SQ" package="TESTPAD_TP10SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP11R" package="TESTPAD_TP11R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP11SQ" package="TESTPAD_TP11SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP12R" package="TESTPAD_TP12R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP12SQ" package="TESTPAD_TP12SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP13R" package="TESTPAD_TP13R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP13SQ" package="TESTPAD_TP13SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP14R" package="TESTPAD_TP14R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP14SQ" package="TESTPAD_TP14SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP15R" package="TESTPAD_TP15R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP15SQ" package="TESTPAD_TP15SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP16R" package="TESTPAD_TP16R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP16SQ" package="TESTPAD_TP16SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP17R" package="TESTPAD_TP17R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP17SQ" package="TESTPAD_TP17SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP18R" package="TESTPAD_TP18R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP18SQ" package="TESTPAD_TP18SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP19R" package="TESTPAD_TP19R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP19SQ" package="TESTPAD_TP19SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP20R" package="TESTPAD_TP20R">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+<device name="TP20SQ" package="TESTPAD_TP20SQ">
+<connects>
+<connect gate="G$1" pin="TP" pad="TP"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="TP_SIGNAL_NAME" value="" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="TESTPAD_TP" prefix="TP">
+<description>&lt;b&gt;Test pad&lt;/b&gt;</description>
+<gates>
+<gate name="G$1" symbol="TESTPAD_TP" x="0" y="0"/>
 </gates>
 <devices>
 <device name="B1,27" package="TESTPAD_B1,27">
