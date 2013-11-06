@@ -13814,7 +13814,7 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 <part name="P+17" library="supply1" deviceset="+5V" device=""/>
 <part name="GND25" library="supply1" deviceset="GND" device=""/>
 <part name="GND26" library="supply1" deviceset="GND" device=""/>
-<part name="R22" library="rcl" deviceset="R-EU_" device="0204/7" value="3300"/>
+<part name="R22" library="rcl" deviceset="R-EU_" device="0204/7" value="1k"/>
 <part name="C19" library="rcl" deviceset="C-EU" device="C0805" value="22n"/>
 <part name="GND27" library="supply1" deviceset="GND" device=""/>
 </parts>
