@@ -13130,7 +13130,7 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="P+13" library="supply1" deviceset="+5V" device=""/>
 <part name="P+14" library="supply1" deviceset="+5V" device=""/>
 <part name="P+4" library="supply1" deviceset="VCC" device=""/>
-<part name="X2" library="con-molex-micro-fit-3_0" deviceset="HEADER_POS6_?" device="43045-0600"/>
+<part name="X2" library="con-molex-micro-fit-3_0" deviceset="HEADER_POS6_?" device="43045-0600" value="43045-0600"/>
 <part name="D4" library="MyComponents" deviceset="VS-30BQ100PBF" device=""/>
 <part name="D5" library="MyComponents" deviceset="VS-30BQ100PBF" device=""/>
 <part name="D6" library="MyComponents" deviceset="VS-30BQ100PBF" device=""/>
@@ -13143,7 +13143,7 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="R4" library="resistor" deviceset="R-EU_" device="R0402" value="A2-0"/>
 <part name="P+5" library="supply1" deviceset="+5V" device=""/>
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
-<part name="X3" library="con-molex-micro-fit-3_0" deviceset="HEADER_POS4_?" device="43045-0401"/>
+<part name="X3" library="con-molex-micro-fit-3_0" deviceset="HEADER_POS4_?" device="43045-0401" value="43045-0400"/>
 </parts>
 <sheets>
 <sheet>
@@ -13649,9 +13649,9 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <wire x1="-55.88" y1="104.14" x2="-55.88" y2="101.6" width="0.1524" layer="91"/>
 <wire x1="-50.8" y1="109.22" x2="-50.8" y2="104.14" width="0.1524" layer="91"/>
 <wire x1="-50.8" y1="104.14" x2="-55.88" y2="104.14" width="0.1524" layer="91"/>
-<wire x1="-55.88" y1="104.14" x2="-66.04" y2="104.14" width="0.1524" layer="91"/>
-<wire x1="-66.04" y1="104.14" x2="-66.04" y2="129.54" width="0.1524" layer="91"/>
-<wire x1="-66.04" y1="129.54" x2="-109.22" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="-55.88" y1="104.14" x2="-63.5" y2="104.14" width="0.1524" layer="91"/>
+<wire x1="-63.5" y1="104.14" x2="-63.5" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="-63.5" y1="129.54" x2="-109.22" y2="129.54" width="0.1524" layer="91"/>
 <wire x1="-109.22" y1="129.54" x2="-109.22" y2="109.22" width="0.1524" layer="91"/>
 <pinref part="U1" gate="A" pin="ADJ"/>
 <wire x1="-109.22" y1="109.22" x2="-101.6" y2="109.22" width="0.1524" layer="91"/>
