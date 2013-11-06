@@ -3940,8 +3940,8 @@ design rules under a new name.</description>
 <attribute name="SUPPLIER" value="DIODES INC." x="160.02" y="-17.018" size="1.778" layer="27" display="off"/>
 <attribute name="OC_FARNELL" value="1713823" x="160.02" y="-17.018" size="1.778" layer="27" display="off"/>
 </element>
-<element name="R3" library="resistor" package="0204/5" value="" x="12.192" y="31.75"/>
-<element name="R2" library="resistor" package="0204/5" value="" x="11.938" y="28.956"/>
+<element name="R3" library="resistor" package="0204/5" value="3k3" x="12.192" y="31.75"/>
+<element name="R2" library="resistor" package="0204/5" value="3k3" x="11.938" y="28.956"/>
 <element name="U8" library="Texas" package="SOT65P210X110-5N" value="TPS71533DCKR" x="29.972" y="59.944" rot="R180">
 <attribute name="PACKAGE" value="SC-70-5" x="-3.048" y="125.984" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="OC_NEWARK" value="77C0815" x="-3.048" y="125.984" size="1.778" layer="27" rot="R180" display="off"/>
@@ -3963,7 +3963,7 @@ design rules under a new name.</description>
 <element name="C3" library="rcl" package="C0805" value="10n" x="51.562" y="71.628" rot="R90"/>
 <element name="C2" library="rcl" package="C1206" value="4,7u" x="63.754" y="75.692" rot="R270"/>
 <element name="C1" library="rcl" package="C0805" value="100n" x="60.706" y="75.438" rot="R270"/>
-<element name="D4" library="diode" package="DO-214AC" value="" x="54.61" y="76.962"/>
+<element name="D4" library="diode" package="DO-214AC" value="B130-13-F" x="54.61" y="76.962"/>
 <element name="C7" library="rcl" package="C0805" value="100n" x="25.908" y="59.69" rot="R270"/>
 <element name="C13" library="rcl" package="C1206" value="0,47u" x="29.718" y="55.88" rot="R180"/>
 <element name="X1" library="con-berg" package="PN87520" value="" x="29.21" y="71.12" rot="R180">
@@ -4023,7 +4023,7 @@ design rules under a new name.</description>
 <element name="R14" library="resistor" package="R0402" value="A2-1" x="42.418" y="56.134" rot="R270"/>
 <element name="R17" library="resistor" package="R0402" value="A1-0" x="44.196" y="60.706" rot="R270"/>
 <element name="R15" library="resistor" package="R0402" value="A2-0" x="42.418" y="60.706" rot="R270"/>
-<element name="R12" library="resistor" package="RTRIM4G/J" value="" x="81.28" y="32.004"/>
+<element name="R12" library="resistor" package="RTRIM4G/J" value="100k" x="81.28" y="32.004"/>
 <element name="R4" library="resistor" package="0204V" value="680R" x="11.176" y="37.084" rot="R90"/>
 <element name="R5" library="resistor" package="0204V" value="680R" x="24.384" y="36.576" rot="R90"/>
 <element name="R13" library="resistor" package="0204V" value="4K7" x="81.026" y="27.178" rot="R180"/>
@@ -4040,13 +4040,13 @@ design rules under a new name.</description>
 <element name="C16" library="rcl" package="C1005" value="1u" x="84.582" y="24.638" rot="R270"/>
 <element name="C18" library="rcl" package="C1005" value="1u" x="89.408" y="31.242" rot="R180"/>
 <element name="C17" library="rcl" package="C1005" value="1u" x="88.9" y="19.304" rot="R180"/>
-<element name="Q1" library="crystal" package="TC26V" value="" x="30.734" y="3.81" rot="R270">
+<element name="Q1" library="crystal" package="TC26V" value="32.768KHz" x="30.734" y="3.81" rot="R270">
 <attribute name="OC_NEWARK" value="unknown" x="-79.756" y="-106.68" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="MPN" value="" x="-79.756" y="-106.68" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="MF" value="" x="-79.756" y="-106.68" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="OC_FARNELL" value="unknown" x="-79.756" y="-106.68" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
-<element name="Q2" library="crystal" package="TC26V" value="" x="45.466" y="21.59" rot="R90">
+<element name="Q2" library="crystal" package="TC26V" value="32.768KHz" x="45.466" y="21.59" rot="R90">
 <attribute name="OC_NEWARK" value="unknown" x="162.306" y="36.83" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MPN" value="" x="162.306" y="36.83" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MF" value="" x="162.306" y="36.83" size="1.778" layer="27" rot="R90" display="off"/>
@@ -4143,9 +4143,9 @@ design rules under a new name.</description>
 <element name="D6" library="MyComponents" package="SOD323" value="CDSOD323-T03C" x="24.638" y="48.514"/>
 <element name="C4" library="MyComponents" package="594D-B" value="594D686X0010C2T" x="61.468" y="68.834"/>
 <element name="L1" library="Bourns_By_element14_Batch_1" package="SRR1240" value="SRR1240-680M" x="43.434" y="71.628" rot="R90"/>
-<element name="X6" library="con-molex-micro-fit-3_0" package="43045-0800" value="" x="97.282" y="66.802" rot="R90"/>
+<element name="X6" library="con-molex-micro-fit-3_0" package="43045-0800" value="43045-0800" x="97.282" y="66.802" rot="R90"/>
 <element name="D11" library="MyComponents" package="SOD323" value="CDSOD323-T03C" x="43.942" y="13.462"/>
-<element name="X5" library="con-molex-micro-fit-3_0" package="43045-0400" value="" x="4.826" y="62.992" rot="R270">
+<element name="X5" library="con-molex-micro-fit-3_0" package="43045-0400" value="43045-0400" x="4.826" y="62.992" rot="R270">
 <attribute name="MATERIAL" value="" x="4.826" y="62.992" size="1.778" layer="27" rot="R270" display="off"/>
 </element>
 <element name="CON1" library="con-harting" package="CON26" value="" x="4.318" y="24.638" rot="R90">

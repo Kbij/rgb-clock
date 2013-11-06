@@ -22437,8 +22437,8 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="G1" library="battery" deviceset="CR2032H" device=""/>
 <part name="U6" library="Maxim_By_element14_Batch_1" deviceset="DS1338Z-33+" device=""/>
 <part name="U14" library="Diodes" deviceset="2N7002-7-F" device=""/>
-<part name="R3" library="resistor" deviceset="R-EU_" device="0204/5"/>
-<part name="R2" library="resistor" deviceset="R-EU_" device="0204/5"/>
+<part name="R3" library="resistor" deviceset="R-EU_" device="0204/5" value="3k3"/>
+<part name="R2" library="resistor" deviceset="R-EU_" device="0204/5" value="3k3"/>
 <part name="U8" library="Texas" deviceset="TPS71533DCKR" device=""/>
 <part name="U5" library="Texas" deviceset="LM2675M-5.0" device=""/>
 <part name="D1" library="diode" deviceset="MUR150RL" device="" value="MUR480ERLG"/>
@@ -22446,7 +22446,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="C3" library="rcl" deviceset="C-EU" device="C0805" value="10n"/>
 <part name="C2" library="rcl" deviceset="C-EU" device="C1206" value="4,7u"/>
 <part name="C1" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
-<part name="D4" library="diode" deviceset="DIODE-" device="DO-214AC"/>
+<part name="D4" library="diode" deviceset="DIODE-" device="DO-214AC" value="B130-13-F"/>
 <part name="GND1" library="supply1" deviceset="GND" device=""/>
 <part name="GND2" library="supply1" deviceset="GND" device=""/>
 <part name="GND3" library="supply1" deviceset="GND" device=""/>
@@ -22506,7 +22506,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="R17" library="resistor" deviceset="R-EU_" device="R0402" value="A1-0"/>
 <part name="R15" library="resistor" deviceset="R-EU_" device="R0402" value="A2-0"/>
 <part name="GND34" library="supply1" deviceset="GND" device=""/>
-<part name="R12" library="resistor" deviceset="R-TRIMM" device="4G/J"/>
+<part name="R12" library="resistor" deviceset="R-TRIMM" device="4G/J" value="100k"/>
 <part name="GND36" library="supply1" deviceset="GND" device=""/>
 <part name="R4" library="resistor" deviceset="R-EU_" device="0204/2V" value="680R"/>
 <part name="R5" library="resistor" deviceset="R-EU_" device="0204/2V" value="680R"/>
@@ -22528,8 +22528,8 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="C17" library="rcl" deviceset="C-EU" device="C1005" value="1u"/>
 <part name="GND40" library="supply1" deviceset="GND" device=""/>
 <part name="+3V15" library="supply1" deviceset="+3V3" device=""/>
-<part name="Q1" library="crystal" deviceset="CRYSTAL" device="TC26V"/>
-<part name="Q2" library="crystal" deviceset="CRYSTAL" device="TC26V"/>
+<part name="Q1" library="crystal" deviceset="CRYSTAL" device="TC26V" value="32.768KHz"/>
+<part name="Q2" library="crystal" deviceset="CRYSTAL" device="TC26V" value="32.768KHz"/>
 <part name="IC1" library="Microchip" deviceset="MCP23017" device="SO"/>
 <part name="GND21" library="supply1" deviceset="GND" device=""/>
 <part name="X3" library="con-lumberg" deviceset="1503_09" device=""/>
@@ -22574,11 +22574,11 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="D6" library="MyComponents" deviceset="CDSOD323-T03C" device=""/>
 <part name="C4" library="MyComponents" deviceset="594D686X0010C2T" device=""/>
 <part name="L1" library="Bourns_By_element14_Batch_1" deviceset="SRR1240-680M" device=""/>
-<part name="X6" library="con-molex-micro-fit-3_0" deviceset="HEADER_POS8_?" device="43045-0800"/>
+<part name="X6" library="con-molex-micro-fit-3_0" deviceset="HEADER_POS8_?" device="43045-0800" value="43045-0800"/>
 <part name="D11" library="MyComponents" deviceset="CDSOD323-T03C" device=""/>
 <part name="GND14" library="supply1" deviceset="GND" device=""/>
 <part name="GND15" library="supply1" deviceset="GND" device=""/>
-<part name="X5" library="con-molex-micro-fit-3_0" deviceset="HEADER_POS4_?" device="43045-0401"/>
+<part name="X5" library="con-molex-micro-fit-3_0" deviceset="HEADER_POS4_?" device="43045-0401" value="43045-0400"/>
 <part name="CON1" library="con-harting" deviceset="CON26" device=""/>
 </parts>
 <sheets>
@@ -23990,7 +23990,27 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 </sheet>
 </sheets>
 <errors>
+<approved hash="104,1,20.32,63.5,U3,VCCA,N$8,,,"/>
+<approved hash="104,1,20.32,60.96,U3,VCCB,+3V3,,,"/>
+<approved hash="104,1,-15.24,5.08,U4,VCC,+3V3,,,"/>
+<approved hash="104,1,269.24,99.06,U13,VDD,+3V3,,,"/>
+<approved hash="104,1,269.24,73.66,U13,VSS,N$57,,,"/>
+<approved hash="104,1,81.28,-78.74,U6,VCC,+3V3,,,"/>
+<approved hash="104,1,81.28,-81.28,U6,VBAT,N$16,,,"/>
+<approved hash="104,1,142.24,149.86,U8,IN,+5V,,,"/>
+<approved hash="104,1,10.16,154.94,U5,VIN,VCC,,,"/>
 <approved hash="202,1,10.16,144.78,U5,ON/~OFF,,,,"/>
+<approved hash="104,1,195.58,106.68,U9,VCC,+3V3,,,"/>
+<approved hash="104,1,195.58,71.12,U10,VCC,+3V3,,,"/>
+<approved hash="104,1,195.58,15.24,U11,VCC,+3V3,,,"/>
+<approved hash="104,1,195.58,-20.32,U12,VCC,+3V3,,,"/>
+<approved hash="104,1,292.1,30.48,IC1,VDD,+3V3,,,"/>
+<approved hash="104,1,292.1,-10.16,IC1,VSS,GND,,,"/>
+<approved hash="104,1,-17.78,-66.04,U2,VCC,+3V3,,,"/>
+<approved hash="104,1,157.48,60.96,U7,GND2,GND,,,"/>
+<approved hash="104,1,157.48,63.5,U7,GND1,GND,,,"/>
+<approved hash="104,1,157.48,78.74,U7,VD,+3V3,,,"/>
+<approved hash="104,1,157.48,81.28,U7,VA,+3V3,,,"/>
 <approved hash="208,1,33.02,68.58,+3V3,sup,,,,"/>
 <approved hash="208,1,-20.32,10.16,+3V3,sup,,,,"/>
 <approved hash="208,1,177.8,149.86,+3V3,out,,,,"/>
@@ -24009,6 +24029,11 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <approved hash="208,1,180.34,-17.78,+3V3,sup,,,,"/>
 <approved hash="208,1,180.34,17.78,+3V3,sup,,,,"/>
 <approved hash="208,1,-12.7,-60.96,+3V3,sup,,,,"/>
+<approved hash="115,1,-78.2743,107.167,X1,,,,,"/>
+<approved hash="115,1,-54.9431,-68.1905,JP1,,,,,"/>
+<approved hash="115,1,446.888,15.4347,X6,,,,,"/>
+<approved hash="115,1,-65.8876,154.745,X5,,,,,"/>
+<approved hash="115,1,-63.5,49.3353,CON1,,,,,"/>
 </errors>
 </schematic>
 </drawing>
