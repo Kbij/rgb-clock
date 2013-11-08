@@ -13791,8 +13791,8 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 <part name="GND21" library="supply1" deviceset="GND" device=""/>
 <part name="GND22" library="supply1" deviceset="GND" device=""/>
 <part name="D1" library="diode" deviceset="MUR150RL" device="" value="MUR480ERLG"/>
-<part name="R24" library="resistor" deviceset="R-EU_" device="R0402" value="A1-1"/>
-<part name="R23" library="resistor" deviceset="R-EU_" device="R0402" value="A1-1"/>
+<part name="R24" library="resistor" deviceset="R-EU_" device="R0402" value="SDA"/>
+<part name="R23" library="resistor" deviceset="R-EU_" device="R0402" value="SCL"/>
 <part name="CON1" library="con-harting" deviceset="CON16" device=""/>
 <part name="P+12" library="supply1" deviceset="VCC" device=""/>
 <part name="D5" library="MyComponents" deviceset="VS-30BQ100PBF" device=""/>
@@ -14521,7 +14521,7 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 <pinref part="D5" gate="G$1" pin="A"/>
 </segment>
 </net>
-<net name="+3V3" class="0">
+<net name="+3V3" class="1">
 <segment>
 <pinref part="+3V1" gate="G$1" pin="+3V3"/>
 <wire x1="172.72" y1="147.32" x2="172.72" y2="144.78" width="0.1524" layer="91"/>
