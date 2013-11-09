@@ -88,12 +88,10 @@
 <wire x1="100" y1="0" x2="100" y2="80" width="0" layer="20"/>
 <wire x1="100" y1="80" x2="0" y2="80" width="0" layer="20"/>
 <wire x1="0" y1="80" x2="0" y2="0" width="0" layer="20"/>
-<dimension x1="0" y1="0" x2="68.58" y2="0" x3="34.29" y3="-2.54" textsize="1.778" layer="1"/>
 <hole x="3.81" y="3.81" drill="3.2"/>
 <hole x="66.04" y="3.81" drill="3.2"/>
 <hole x="3.81" y="55.88" drill="3.2"/>
 <hole x="64.77" y="55.88" drill="3.2"/>
-<dimension x1="0" y1="0" x2="0" y2="58.42" x3="-11.43" y3="29.21" textsize="1.778" layer="1"/>
 </plain>
 <libraries>
 <library name="NXP_By_element14_Batch_1">

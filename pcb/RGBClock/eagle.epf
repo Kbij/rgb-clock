@@ -358,8 +358,8 @@ Type="Schematic Editor"
 Loc="334 295 933 694"
 State=1
 Number=1
-File="Leddriverboard.sch"
-View="-68.0763 -76.577 320.746 118.144"
+File="Mainboard.sch"
+View="-95.6105 -126.065 473.467 190.736"
 WireWidths=" 0 0.3048 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0.4064 0.1524"
 PadDiameters=" 0.254 0.3048 0.4064 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0"
 PadDrills=" 0.5 0.6 0.7 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6 2 2.2 2.8 3.2 0.8"
@@ -398,7 +398,6 @@ ArcDirection=0
 AddLevel=2
 PadsSameType=0
 Layer=91
-Views=" 1: -68.0763 -76.577 320.746 118.144"
 Sheet=1
 
 [Win_2]
@@ -406,8 +405,8 @@ Type="Board Editor"
 Loc="174 136 1226 945"
 State=1
 Number=2
-File="Leddriverboard.brd"
-View="13.4709 -3.17797 48.3004 25.2507"
+File="Mainboard.brd"
+View="-25.5417 -9.04232 120.7 95.3027"
 WireWidths=" 0 0.254 0.3048 0.6096 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0.4064 1.016 0.8128"
 PadDiameters=" 0.254 0.3048 0.4064 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0"
 PadDrills=" 0.5 0.6 0.7 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6 2 2.2 2.8 3.2 0.8"
@@ -445,7 +444,7 @@ SwapLevel=0
 ArcDirection=0
 AddLevel=2
 PadsSameType=0
-Layer=1
+Layer=16
 
 [Win_3]
 Type="Control Panel"
