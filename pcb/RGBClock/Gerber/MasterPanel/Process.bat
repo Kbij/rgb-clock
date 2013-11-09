@@ -1,0 +1,1 @@
+C:\Python27\gerbmerge.bat D:\UserData\Koen\Documents\Wekker\svn\trunk\pcb\RGBClock\Gerber\MasterPanel\MasterPanel.cfg D:\UserData\Koen\Documents\Wekker\svn\trunk\pcb\RGBClock\Gerber\MasterPanel\MasterPanel.Layout
