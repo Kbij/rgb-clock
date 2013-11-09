@@ -84,10 +84,10 @@
 </layers>
 <board>
 <plain>
-<wire x1="0" y1="0" x2="100" y2="0" width="0" layer="20"/>
-<wire x1="100" y1="0" x2="100" y2="80" width="0" layer="20"/>
-<wire x1="100" y1="80" x2="0" y2="80" width="0" layer="20"/>
-<wire x1="0" y1="80" x2="0" y2="0" width="0" layer="20"/>
+<wire x1="0" y1="0" x2="69" y2="0" width="0" layer="20"/>
+<wire x1="69" y1="0" x2="69" y2="58.5" width="0" layer="20"/>
+<wire x1="69" y1="58.5" x2="0" y2="58.5" width="0" layer="20"/>
+<wire x1="0" y1="58.5" x2="0" y2="0" width="0" layer="20"/>
 <hole x="3.81" y="3.81" drill="3.2"/>
 <hole x="66.04" y="3.81" drill="3.2"/>
 <hole x="3.81" y="55.88" drill="3.2"/>
