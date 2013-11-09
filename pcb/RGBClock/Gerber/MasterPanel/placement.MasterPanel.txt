@@ -1,0 +1,3 @@
+Mainboard 0.100 0.100
+Displayboard 0.100 3.312
+Leddriverboard 0.100 5.678
