@@ -22537,7 +22537,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="C6" library="rcl" deviceset="C-EU" device="C1005" value="22p"/>
 <part name="C10" library="rcl" deviceset="C-EU" device="C1005" value="22p"/>
 <part name="C5" library="rcl" deviceset="C-EU" device="C1005" value="1n"/>
-<part name="TP1" library="testpad" deviceset="PTR1" device="PAD1-13"/>
+<part name="ANT" library="testpad" deviceset="PTR1" device="PAD1-13"/>
 <part name="C12" library="rcl" deviceset="C-EU" device="C1005" value="22n"/>
 <part name="+3V16" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND35" library="supply1" deviceset="GND" device=""/>
@@ -22764,7 +22764,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <instance part="C6" gate="G$1" x="129.54" y="43.18" rot="R180"/>
 <instance part="C10" gate="G$1" x="149.86" y="43.18" rot="R180"/>
 <instance part="C5" gate="G$1" x="101.6" y="76.2"/>
-<instance part="TP1" gate="G$1" x="101.6" y="86.36" rot="R180"/>
+<instance part="ANT" gate="G$1" x="101.6" y="86.36" rot="R180"/>
 <instance part="C12" gate="G$1" x="165.1" y="83.82" smashed="yes" rot="R270">
 <attribute name="NAME" x="169.164" y="81.661" size="1.778" layer="95"/>
 <attribute name="VALUE" x="169.164" y="84.201" size="1.778" layer="96"/>
@@ -23763,7 +23763,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 </net>
 <net name="N$58" class="0">
 <segment>
-<pinref part="TP1" gate="G$1" pin="TP"/>
+<pinref part="ANT" gate="G$1" pin="TP"/>
 <pinref part="C5" gate="G$1" pin="1"/>
 <wire x1="101.6" y1="83.82" x2="101.6" y2="78.74" width="0.1524" layer="91"/>
 </segment>
