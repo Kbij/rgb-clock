@@ -13694,7 +13694,7 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <pinref part="C2" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="N$25" class="0">
+<net name="N$25" class="2">
 <segment>
 <pinref part="D1" gate="1" pin="A"/>
 <wire x1="-144.78" y1="93.98" x2="-144.78" y2="40.64" width="0.1524" layer="91"/>
