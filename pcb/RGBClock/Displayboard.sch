@@ -13687,17 +13687,17 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 <variantdefs>
 </variantdefs>
 <classes>
-<class number="0" name="default" width="0.2" drill="0">
-<clearance class="0" value="0.2"/>
+<class number="0" name="default" width="0.254" drill="0">
+<clearance class="0" value="0.254"/>
 </class>
-<class number="1" name="Normal Bcc" width="0.1524" drill="0">
-<clearance class="1" value="0.2"/>
+<class number="1" name="Normal Bcc" width="0.254" drill="0">
+<clearance class="1" value="0.254"/>
 </class>
 <class number="2" name="Big Vcc" width="0.762" drill="0">
-<clearance class="2" value="0.2"/>
+<clearance class="2" value="0.254"/>
 </class>
-<class number="3" name="LED Current" width="0.1524" drill="0">
-<clearance class="3" value="0.2"/>
+<class number="3" name="LED Current" width="0.381" drill="0">
+<clearance class="3" value="0.254"/>
 </class>
 </classes>
 <parts>
