@@ -19101,8 +19101,9 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 <smd name="24" x="-4.7625" y="5.08" dx="0.3048" dy="0.6096" layer="1" rot="R180"/>
 <text x="-4.1275" y="-0.635" size="1.27" layer="25">&gt;NAME</text>
 <text x="-4.1275" y="2.54" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="-5.56" y1="-2.07" x2="2.96" y2="4.56" layer="1"/>
 <rectangle x1="1.39" y1="4.22" x2="2.42" y2="4.92" layer="1"/>
+<rectangle x1="-5.08" y1="-1.905" x2="2.54" y2="4.445" layer="1"/>
+<rectangle x1="-5.08" y1="-1.905" x2="2.54" y2="4.445" layer="39"/>
 </package>
 </packages>
 <symbols>
