@@ -14885,7 +14885,7 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 <pinref part="C2" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="N$25" class="0">
+<net name="N$25" class="2">
 <segment>
 <pinref part="D1" gate="1" pin="A"/>
 <wire x1="-15.24" y1="121.92" x2="-15.24" y2="68.58" width="0.1524" layer="91"/>
