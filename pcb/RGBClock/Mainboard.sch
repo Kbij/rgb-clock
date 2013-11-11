@@ -19101,9 +19101,6 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 <smd name="24" x="-4.7625" y="5.08" dx="0.3048" dy="0.6096" layer="1" rot="R180"/>
 <text x="-4.1275" y="-0.635" size="1.27" layer="25">&gt;NAME</text>
 <text x="-4.1275" y="2.54" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="1.39" y1="4.22" x2="2.42" y2="4.92" layer="1"/>
-<rectangle x1="-5.08" y1="-1.905" x2="2.54" y2="4.445" layer="1"/>
-<rectangle x1="-5.08" y1="-1.905" x2="2.54" y2="4.445" layer="39"/>
 </package>
 </packages>
 <symbols>
@@ -22407,17 +22404,17 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <variantdefs>
 </variantdefs>
 <classes>
-<class number="0" name="default" width="0.2" drill="0">
-<clearance class="0" value="0.2"/>
+<class number="0" name="default" width="0.254" drill="0">
+<clearance class="0" value="0.254"/>
 </class>
-<class number="1" name="Normal Bcc" width="0.1524" drill="0">
-<clearance class="1" value="0.2"/>
+<class number="1" name="Normal Bcc" width="0.254" drill="0">
+<clearance class="1" value="0.254"/>
 </class>
 <class number="2" name="Big Vcc" width="0.762" drill="0">
-<clearance class="2" value="0.2"/>
+<clearance class="2" value="0.254"/>
 </class>
-<class number="3" name="LED Current" width="0.1524" drill="0">
-<clearance class="3" value="0.2"/>
+<class number="3" name="LED Current" width="0.381" drill="0">
+<clearance class="3" value="0.254"/>
 </class>
 </classes>
 <parts>
