@@ -23462,7 +23462,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <junction x="396.24" y="-17.78"/>
 </segment>
 </net>
-<net name="N$25" class="0">
+<net name="N$2" class="0">
 <segment>
 <wire x1="121.92" y1="83.82" x2="111.76" y2="83.82" width="0.1524" layer="91"/>
 <wire x1="111.76" y1="83.82" x2="111.76" y2="50.8" width="0.1524" layer="91"/>
@@ -23475,7 +23475,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <pinref part="U6" gate="A" pin="GPO3/[DCLK]"/>
 </segment>
 </net>
-<net name="N$26" class="0">
+<net name="N$32" class="0">
 <segment>
 <wire x1="157.48" y1="76.2" x2="165.1" y2="76.2" width="0.1524" layer="91"/>
 <wire x1="165.1" y1="76.2" x2="165.1" y2="50.8" width="0.1524" layer="91"/>
