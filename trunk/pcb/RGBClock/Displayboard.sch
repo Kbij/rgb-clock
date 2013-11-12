@@ -10420,15 +10420,9 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <packages>
 <package name="CON16">
 <description>&lt;b&gt;CONNECTOR&lt;/b&gt;</description>
-<wire x1="-10.16" y1="9.525" x2="-2.54" y2="8.763" width="0.1524" layer="21"/>
 <wire x1="10.16" y1="-4.1656" x2="-10.16" y2="-4.1656" width="0.1524" layer="21"/>
-<wire x1="-2.54" y1="8.763" x2="1.27" y2="9.525" width="0.1524" layer="21"/>
-<wire x1="1.27" y1="9.525" x2="6.35" y2="7.62" width="0.1524" layer="21"/>
-<wire x1="6.35" y1="7.62" x2="10.16" y2="9.525" width="0.1524" layer="21"/>
 <wire x1="-10.16" y1="-3.4798" x2="-10.16" y2="-4.1656" width="0.1524" layer="21"/>
 <wire x1="10.16" y1="-3.4798" x2="10.16" y2="-4.1656" width="0.1524" layer="21"/>
-<wire x1="10.16" y1="3.5052" x2="10.16" y2="9.525" width="0.1524" layer="21"/>
-<wire x1="-10.16" y1="3.5052" x2="-10.16" y2="9.525" width="0.1524" layer="21"/>
 <wire x1="-9.3218" y1="-2.3368" x2="-8.4582" y2="-2.3368" width="0.1524" layer="21"/>
 <wire x1="-8.4582" y1="-2.3368" x2="-8.89" y2="-3.175" width="0.1524" layer="21"/>
 <wire x1="-8.89" y1="-3.175" x2="-9.3218" y2="-2.3368" width="0.1524" layer="21"/>
@@ -10485,7 +10479,6 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <pad name="16" x="8.89" y="1.27" drill="0.9144" shape="octagon"/>
 <text x="-9.525" y="6.0198" size="1.778" layer="25" ratio="10">&gt;NAME</text>
 <text x="-11.303" y="-1.905" size="1.524" layer="21" ratio="10">1</text>
-<text x="-9.525" y="4.064" size="1.27" layer="21" ratio="10">R-Cable 16P</text>
 <text x="-10.16" y="-6.35" size="1.27" layer="27">&gt;VALUE</text>
 <rectangle x1="-9.144" y1="-2.7686" x2="-8.636" y2="-2.5146" layer="21"/>
 <rectangle x1="-9.271" y1="-2.5146" x2="-8.89" y2="-2.3876" layer="21"/>
@@ -10672,6 +10665,8 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <wire x1="-0.46" y1="-2.87" x2="-1.59" y2="-2.87" width="0.127" layer="21"/>
 <wire x1="-1.59" y1="-2.87" x2="-1.59" y2="2.72" width="0.127" layer="21"/>
 <wire x1="-0.46" y1="2.71" x2="-0.46" y2="-2.87" width="0.127" layer="21"/>
+<text x="-1.27" y="-5.08" size="1.27" layer="21">&gt;VALUE</text>
+<text x="-1.27" y="3.81" size="0.8128" layer="21">&gt;NAME</text>
 </package>
 </packages>
 <symbols>
