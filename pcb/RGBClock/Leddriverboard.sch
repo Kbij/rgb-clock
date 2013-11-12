@@ -10209,6 +10209,8 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <wire x1="-0.46" y1="-2.87" x2="-1.59" y2="-2.87" width="0.127" layer="21"/>
 <wire x1="-1.59" y1="-2.87" x2="-1.59" y2="2.72" width="0.127" layer="21"/>
 <wire x1="-0.46" y1="2.71" x2="-0.46" y2="-2.87" width="0.127" layer="21"/>
+<text x="-1.27" y="-5.08" size="1.27" layer="21">&gt;VALUE</text>
+<text x="-1.27" y="3.81" size="0.8128" layer="21">&gt;NAME</text>
 </package>
 </packages>
 <symbols>
