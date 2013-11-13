@@ -350,7 +350,6 @@ UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/DiodesInc/Diodes.lbr"
 UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/Silicon Labs/SiliconLabs.lbr"
 UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/element14/Bourns_By_element14_Batch_1.lbr"
 UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/Vishay/Vishay_By_element14_Batch_1.lbr"
-UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/MyComponents/MyComponents.lbr"
 UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/NXP/NXP_By_element14_Batch_1.lbr"
 
 [Win_1]
@@ -405,7 +404,7 @@ Loc="334 295 933 694"
 State=1
 Number=1
 File="Displayboard.sch"
-View="-55.9533 -171.974 552.024 186.713"
+View="81.3822 -36.8656 374.581 136.112"
 WireWidths=" 0 0.3048 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0.4064 0.1524"
 PadDiameters=" 0.254 0.3048 0.4064 0.6096 0.8128 1.016 1.27 1.4224 1.6764 1.778 1.9304 2.1844 2.54 3.81 6.4516 0"
 PadDrills=" 0.5 0.6 0.7 0.9 1 1.1 1.2 1.3 1.4 1.5 1.6 2 2.2 2.8 3.2 0.8"
@@ -444,12 +443,12 @@ ArcDirection=0
 AddLevel=2
 PadsSameType=0
 Layer=91
-Views=" 1: -55.9533 -171.974 552.024 186.713"
+Views=" 1: 81.3822 -36.8656 374.581 136.112"
 Sheet=1
 
 [Win_3]
 Type="Control Panel"
-Loc="62 88 1195 873"
+Loc="93 97 1226 882"
 State=2
 Number=0
 
