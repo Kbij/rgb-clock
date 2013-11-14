@@ -22451,10 +22451,10 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="+3V1" library="supply1" deviceset="+3V3" device=""/>
 <part name="+3V2" library="supply1" deviceset="+3V3" device=""/>
 <part name="+3V3" library="supply1" deviceset="+3V3" device=""/>
-<part name="U12" library="Texas" deviceset="DRV612PW" device=""/>
+<part name="U13" library="Texas" deviceset="DRV612PW" device=""/>
 <part name="G1" library="battery" deviceset="CR2032H" device=""/>
 <part name="U5" library="Maxim_By_element14_Batch_1" deviceset="DS1338Z-33+" device=""/>
-<part name="U13" library="Diodes" deviceset="2N7002-7-F" device=""/>
+<part name="U14" library="Diodes" deviceset="2N7002-7-F" device=""/>
 <part name="R3" library="resistor" deviceset="R-EU_" device="0204/5" value="3k3"/>
 <part name="R2" library="resistor" deviceset="R-EU_" device="0204/5" value="3k3"/>
 <part name="U7" library="Texas" deviceset="TPS71533DCKR" device=""/>
@@ -22476,7 +22476,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
 <part name="GND9" library="supply1" deviceset="GND" device=""/>
 <part name="GND11" library="supply1" deviceset="GND" device=""/>
-<part name="C13" library="rcl" deviceset="C-EU" device="C1206" value="0,47u"/>
+<part name="C14" library="rcl" deviceset="C-EU" device="C0805" value="0,47u"/>
 <part name="P+5" library="supply1" deviceset="VCC" device=""/>
 <part name="P+1" library="supply1" deviceset="VCC" device=""/>
 <part name="P+3" library="supply1" deviceset="VCC" device=""/>
@@ -22491,8 +22491,8 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="+3V6" library="supply1" deviceset="+3V3" device=""/>
 <part name="+3V7" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND22" library="supply1" deviceset="GND" device=""/>
-<part name="U14" library="Diodes" deviceset="2N7002-7-F" device=""/>
 <part name="U15" library="Diodes" deviceset="2N7002-7-F" device=""/>
+<part name="U16" library="Diodes" deviceset="2N7002-7-F" device=""/>
 <part name="D9" library="diode" deviceset="1N4148" device="DO35-7"/>
 <part name="D10" library="diode" deviceset="1N4148" device="DO35-7"/>
 <part name="GND23" library="supply1" deviceset="GND" device=""/>
@@ -22530,14 +22530,14 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="R10" library="resistor" deviceset="R-EU_" device="0204/2V" value="47K"/>
 <part name="R11" library="resistor" deviceset="R-EU_" device="0204/2V" value="47K"/>
 <part name="GND38" library="supply1" deviceset="GND" device=""/>
-<part name="C8" library="rcl" deviceset="C-EU" device="C1005" value="2u2"/>
 <part name="C9" library="rcl" deviceset="C-EU" device="C1005" value="2u2"/>
-<part name="C14" library="rcl" deviceset="C-EU" device="C1005" value="2u2"/>
-<part name="C15" library="rcl" deviceset="C-EU" device="C1005" value="2u2"/>
-<part name="C16" library="rcl" deviceset="C-EU" device="C1005" value="1u"/>
+<part name="C10" library="rcl" deviceset="C-EU" device="C1005" value="2u2"/>
+<part name="C16" library="rcl" deviceset="C-EU" device="C1005" value="2u2"/>
+<part name="C17" library="rcl" deviceset="C-EU" device="C1005" value="2u2"/>
+<part name="C19" library="rcl" deviceset="C-EU" device="C1005" value="1u"/>
 <part name="GND39" library="supply1" deviceset="GND" device=""/>
-<part name="C18" library="rcl" deviceset="C-EU" device="C1005" value="1u"/>
-<part name="C17" library="rcl" deviceset="C-EU" device="C1005" value="1u"/>
+<part name="C21" library="rcl" deviceset="C-EU" device="C1005" value="1u"/>
+<part name="C20" library="rcl" deviceset="C-EU" device="C1005" value="1u"/>
 <part name="GND40" library="supply1" deviceset="GND" device=""/>
 <part name="Q1" library="crystal" deviceset="CRYSTAL" device="TC26V" value="32.768KHz"/>
 <part name="Q2" library="crystal" deviceset="CRYSTAL" device="TC26V" value="32.768KHz"/>
@@ -22545,14 +22545,14 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="GND21" library="supply1" deviceset="GND" device=""/>
 <part name="X3" library="con-lumberg" deviceset="1503_09" device=""/>
 <part name="X4" library="con-lumberg" deviceset="1503_09" device=""/>
-<part name="C6" library="rcl" deviceset="C-EU" device="C1005" value="22p"/>
-<part name="C10" library="rcl" deviceset="C-EU" device="C1005" value="22p"/>
-<part name="C5" library="rcl" deviceset="C-EU" device="C1005" value="1n"/>
+<part name="C6" library="rcl" deviceset="C-EU" device="C0402" value="22p"/>
+<part name="C8" library="rcl" deviceset="C-EU" device="C0402" value="22p"/>
+<part name="C4" library="rcl" deviceset="C-EU" device="C0402" value="1n"/>
 <part name="ANT" library="testpad" deviceset="PTR1" device="PAD1-13"/>
-<part name="C12" library="rcl" deviceset="C-EU" device="C1005" value="22n"/>
+<part name="C12" library="rcl" deviceset="C-EU" device="C0805" value="22n"/>
 <part name="+3V16" library="supply1" deviceset="+3V3" device=""/>
 <part name="GND35" library="supply1" deviceset="GND" device=""/>
-<part name="C11" library="rcl" deviceset="C-EU" device="C1005" value="100n"/>
+<part name="C11" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
 <part name="GND37" library="supply1" deviceset="GND" device=""/>
 <part name="GND41" library="supply1" deviceset="GND" device=""/>
 <part name="GND42" library="supply1" deviceset="GND" device=""/>
@@ -22573,7 +22573,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="TP5" library="testpad" deviceset="TP" device="TP07SQ"/>
 <part name="TP6" library="testpad" deviceset="TP" device="TP07SQ"/>
 <part name="TP7" library="testpad" deviceset="TP" device="TP07SQ"/>
-<part name="U16" library="Diodes" deviceset="2N7002-7-F" device=""/>
+<part name="U17" library="Diodes" deviceset="2N7002-7-F" device=""/>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
 <part name="K4" library="relay" deviceset="G6K" device="-2F"/>
 <part name="D11" library="diode" deviceset="1N4148" device="DO35-7"/>
@@ -22583,7 +22583,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="U6" library="SiliconLabs" deviceset="SI4735-D50" device=""/>
 <part name="D6" library="MyComponents" deviceset="CDSOD323-T03C" device=""/>
 <part name="D7" library="MyComponents" deviceset="CDSOD323-T03C" device=""/>
-<part name="C4" library="MyComponents" deviceset="594D686X0010C2T" device=""/>
+<part name="C5" library="MyComponents" deviceset="594D686X0010C2T" device=""/>
 <part name="L1" library="Bourns_By_element14_Batch_1" deviceset="SRR1240-680M" device=""/>
 <part name="X5" library="con-molex-micro-fit-3_0" deviceset="HEADER_POS8_?" device="43045-0800" value="43045-0800"/>
 <part name="D5" library="MyComponents" deviceset="CDSOD323-T03C" device=""/>
@@ -22591,15 +22591,15 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="GND15" library="supply1" deviceset="GND" device=""/>
 <part name="X2" library="con-molex-micro-fit-3_0" deviceset="HEADER_POS4_?" device="43045-0401" value="43045-0400"/>
 <part name="CON1" library="con-harting" deviceset="CON26" device=""/>
-<part name="U17" library="Texas" deviceset="TPS71533DCKR" device=""/>
-<part name="C19" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
+<part name="U12" library="Texas" deviceset="TPS71533DCKR" device=""/>
+<part name="C15" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
 <part name="P+11" library="supply1" deviceset="+5V" device=""/>
 <part name="GND16" library="supply1" deviceset="GND" device=""/>
 <part name="GND17" library="supply1" deviceset="GND" device=""/>
 <part name="GND47" library="supply1" deviceset="GND" device=""/>
-<part name="C20" library="rcl" deviceset="C-EU" device="C1206" value="0,47u"/>
+<part name="C18" library="rcl" deviceset="C-EU" device="C0805" value="0,47u"/>
 <part name="P+12" library="supply1" deviceset="V+" device=""/>
-<part name="C21" library="rcl" deviceset="C-EU" device="C1005" value="100n"/>
+<part name="C13" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
 <part name="P+13" library="supply1" deviceset="V+" device=""/>
 <part name="GND48" library="supply1" deviceset="GND" device=""/>
 <part name="P+17" library="supply1" deviceset="V+" device=""/>
@@ -22634,13 +22634,13 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <instance part="+3V1" gate="G$1" x="185.42" y="162.56"/>
 <instance part="+3V2" gate="G$1" x="33.02" y="71.12"/>
 <instance part="+3V3" gate="G$1" x="-20.32" y="12.7"/>
-<instance part="U12" gate="A" x="287.02" y="81.28" smashed="yes">
+<instance part="U13" gate="A" x="287.02" y="81.28" smashed="yes">
 <attribute name="NAME" x="274.0406" y="105.6386" size="2.0828" layer="95" ratio="10" rot="SR0"/>
 <attribute name="VALUE" x="275.6154" y="50.3936" size="2.0828" layer="96" ratio="10" rot="SR0"/>
 </instance>
 <instance part="G1" gate="1" x="63.5" y="-99.06" rot="R90"/>
 <instance part="U5" gate="A" x="99.06" y="-83.82"/>
-<instance part="U13" gate="A" x="363.22" y="30.48"/>
+<instance part="U14" gate="A" x="363.22" y="30.48"/>
 <instance part="R3" gate="G$1" x="-35.56" y="40.64" smashed="yes" rot="R90">
 <attribute name="NAME" x="-36.83" y="44.2214" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="-36.83" y="36.322" size="1.778" layer="96" rot="R180"/>
@@ -22674,7 +22674,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <instance part="GND8" gate="1" x="139.7" y="124.46"/>
 <instance part="GND9" gate="1" x="132.08" y="124.46"/>
 <instance part="GND11" gate="1" x="185.42" y="124.46"/>
-<instance part="C13" gate="G$1" x="185.42" y="139.7"/>
+<instance part="C14" gate="G$1" x="185.42" y="139.7"/>
 <instance part="P+5" gate="VCC" x="-45.72" y="165.1"/>
 <instance part="P+1" gate="VCC" x="-35.56" y="10.16"/>
 <instance part="P+3" gate="VCC" x="30.48" y="10.16"/>
@@ -22692,8 +22692,8 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <instance part="+3V6" gate="G$1" x="-35.56" y="50.8"/>
 <instance part="+3V7" gate="G$1" x="-43.18" y="50.8"/>
 <instance part="GND22" gate="1" x="342.9" y="17.78"/>
-<instance part="U14" gate="A" x="363.22" y="5.08"/>
-<instance part="U15" gate="A" x="363.22" y="-20.32"/>
+<instance part="U15" gate="A" x="363.22" y="5.08"/>
+<instance part="U16" gate="A" x="363.22" y="-20.32"/>
 <instance part="D9" gate="G$1" x="388.62" y="12.7" smashed="yes" rot="R90">
 <attribute name="NAME" x="388.1374" y="15.24" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="385.8514" y="7.62" size="1.778" layer="96" rot="R90"/>
@@ -22755,20 +22755,20 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <instance part="R10" gate="G$1" x="180.34" y="-25.4" rot="R270"/>
 <instance part="R11" gate="G$1" x="180.34" y="-35.56" rot="R270"/>
 <instance part="GND38" gate="1" x="121.92" y="-25.4"/>
-<instance part="C8" gate="G$1" x="142.24" y="5.08" smashed="yes" rot="R90">
+<instance part="C9" gate="G$1" x="142.24" y="5.08" smashed="yes" rot="R90">
 <attribute name="NAME" x="148.336" y="2.159" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="148.336" y="9.779" size="1.778" layer="96" rot="R180"/>
 </instance>
-<instance part="C9" gate="G$1" x="142.24" y="-30.48" smashed="yes" rot="R90">
+<instance part="C10" gate="G$1" x="142.24" y="-30.48" smashed="yes" rot="R90">
 <attribute name="NAME" x="148.336" y="-33.401" size="1.778" layer="95" rot="R180"/>
 <attribute name="VALUE" x="148.336" y="-25.781" size="1.778" layer="96" rot="R180"/>
 </instance>
-<instance part="C14" gate="G$1" x="246.38" y="99.06"/>
-<instance part="C15" gate="G$1" x="246.38" y="78.74"/>
-<instance part="C16" gate="G$1" x="256.54" y="96.52"/>
+<instance part="C16" gate="G$1" x="246.38" y="99.06"/>
+<instance part="C17" gate="G$1" x="246.38" y="78.74"/>
+<instance part="C19" gate="G$1" x="256.54" y="96.52"/>
 <instance part="GND39" gate="1" x="264.16" y="53.34"/>
-<instance part="C18" gate="G$1" x="264.16" y="66.04" rot="R180"/>
-<instance part="C17" gate="G$1" x="261.62" y="109.22" rot="R180"/>
+<instance part="C21" gate="G$1" x="264.16" y="66.04" rot="R180"/>
+<instance part="C20" gate="G$1" x="261.62" y="109.22" rot="R180"/>
 <instance part="GND40" gate="1" x="261.62" y="104.14"/>
 <instance part="Q1" gate="G$1" x="96.52" y="-63.5"/>
 <instance part="Q2" gate="G$1" x="127" y="50.8" smashed="yes">
@@ -22780,8 +22780,8 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <instance part="X3" gate="G$1" x="116.84" y="-15.24" rot="MR0"/>
 <instance part="X4" gate="G$1" x="358.14" y="91.44"/>
 <instance part="C6" gate="G$1" x="116.84" y="43.18" rot="R180"/>
-<instance part="C10" gate="G$1" x="137.16" y="43.18" rot="R180"/>
-<instance part="C5" gate="G$1" x="88.9" y="76.2"/>
+<instance part="C8" gate="G$1" x="137.16" y="43.18" rot="R180"/>
+<instance part="C4" gate="G$1" x="88.9" y="76.2"/>
 <instance part="ANT" gate="G$1" x="88.9" y="86.36" rot="R180"/>
 <instance part="C12" gate="G$1" x="154.94" y="83.82" smashed="yes" rot="R270">
 <attribute name="NAME" x="159.004" y="81.661" size="1.778" layer="95"/>
@@ -22816,7 +22816,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <instance part="TP5" gate="G$1" x="223.52" y="73.66"/>
 <instance part="TP6" gate="G$1" x="-20.32" y="27.94"/>
 <instance part="TP7" gate="G$1" x="-20.32" y="20.32" rot="R180"/>
-<instance part="U16" gate="A" x="363.22" y="-48.26"/>
+<instance part="U17" gate="A" x="363.22" y="-48.26"/>
 <instance part="GND10" gate="1" x="342.9" y="-60.96"/>
 <instance part="K4" gate="1" x="396.24" y="-40.64"/>
 <instance part="K4" gate="2" x="421.64" y="-40.64" rot="MR0"/>
@@ -22831,7 +22831,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <instance part="U6" gate="A" x="121.92" y="71.12"/>
 <instance part="D6" gate="G$1" x="154.94" y="-2.54"/>
 <instance part="D7" gate="G$1" x="154.94" y="-38.1"/>
-<instance part="C4" gate="A" x="96.52" y="134.62"/>
+<instance part="C5" gate="A" x="96.52" y="134.62"/>
 <instance part="L1" gate="A" x="60.96" y="154.94"/>
 <instance part="X5" gate="G$1" x="449.58" y="12.7"/>
 <instance part="D5" gate="G$1" x="86.36" y="60.96" smashed="yes">
@@ -22842,15 +22842,15 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <instance part="GND15" gate="1" x="104.14" y="63.5"/>
 <instance part="X2" gate="G$1" x="-68.58" y="157.48" rot="R180"/>
 <instance part="CON1" gate="A" x="-63.5" y="50.8" rot="MR180"/>
-<instance part="U17" gate="A" x="231.14" y="147.32"/>
-<instance part="C19" gate="G$1" x="203.2" y="139.7"/>
+<instance part="U12" gate="A" x="231.14" y="147.32"/>
+<instance part="C15" gate="G$1" x="203.2" y="139.7"/>
 <instance part="P+11" gate="1" x="203.2" y="162.56"/>
 <instance part="GND16" gate="1" x="210.82" y="124.46"/>
 <instance part="GND17" gate="1" x="203.2" y="124.46"/>
 <instance part="GND47" gate="1" x="256.54" y="124.46"/>
-<instance part="C20" gate="G$1" x="256.54" y="139.7"/>
+<instance part="C18" gate="G$1" x="256.54" y="139.7"/>
 <instance part="P+12" gate="1" x="256.54" y="162.56"/>
-<instance part="C21" gate="G$1" x="170.18" y="104.14"/>
+<instance part="C13" gate="G$1" x="170.18" y="104.14"/>
 <instance part="P+13" gate="1" x="170.18" y="111.76"/>
 <instance part="GND48" gate="1" x="170.18" y="96.52"/>
 <instance part="P+17" gate="1" x="195.58" y="76.2"/>
@@ -22902,7 +22902,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <wire x1="132.08" y1="134.62" x2="132.08" y2="127" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="C13" gate="G$1" pin="2"/>
+<pinref part="C14" gate="G$1" pin="2"/>
 <pinref part="GND11" gate="1" pin="GND"/>
 <wire x1="185.42" y1="134.62" x2="185.42" y2="127" width="0.1524" layer="91"/>
 </segment>
@@ -22930,19 +22930,19 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <junction x="71.12" y="-106.68"/>
 </segment>
 <segment>
-<pinref part="U13" gate="A" pin="S"/>
+<pinref part="U14" gate="A" pin="S"/>
 <pinref part="GND22" gate="1" pin="GND"/>
 <wire x1="345.44" y1="25.4" x2="342.9" y2="25.4" width="0.1524" layer="91"/>
 <wire x1="342.9" y1="25.4" x2="342.9" y2="20.32" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="U14" gate="A" pin="S"/>
+<pinref part="U15" gate="A" pin="S"/>
 <pinref part="GND23" gate="1" pin="GND"/>
 <wire x1="345.44" y1="0" x2="342.9" y2="0" width="0.1524" layer="91"/>
 <wire x1="342.9" y1="0" x2="342.9" y2="-5.08" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="U15" gate="A" pin="S"/>
+<pinref part="U16" gate="A" pin="S"/>
 <pinref part="GND24" gate="1" pin="GND"/>
 <wire x1="345.44" y1="-25.4" x2="342.9" y2="-25.4" width="0.1524" layer="91"/>
 <wire x1="342.9" y1="-25.4" x2="342.9" y2="-30.48" width="0.1524" layer="91"/>
@@ -22990,21 +22990,21 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <pinref part="R9" gate="G$1" pin="2"/>
 </segment>
 <segment>
-<pinref part="C18" gate="G$1" pin="1"/>
+<pinref part="C21" gate="G$1" pin="1"/>
 <pinref part="GND39" gate="1" pin="GND"/>
 <wire x1="264.16" y1="63.5" x2="264.16" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="U12" gate="A" pin="GND_2"/>
+<pinref part="U13" gate="A" pin="GND_2"/>
 <wire x1="264.16" y1="60.96" x2="264.16" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="264.16" y1="58.42" x2="264.16" y2="55.88" width="0.1524" layer="91"/>
 <wire x1="269.24" y1="60.96" x2="264.16" y2="60.96" width="0.1524" layer="91"/>
-<pinref part="U12" gate="A" pin="GND"/>
+<pinref part="U13" gate="A" pin="GND"/>
 <wire x1="269.24" y1="58.42" x2="264.16" y2="58.42" width="0.1524" layer="91"/>
 <junction x="264.16" y="60.96"/>
 <junction x="264.16" y="58.42"/>
 </segment>
 <segment>
 <pinref part="GND40" gate="1" pin="GND"/>
-<pinref part="C17" gate="G$1" pin="1"/>
+<pinref part="C20" gate="G$1" pin="1"/>
 </segment>
 <segment>
 <pinref part="IC1" gate="G$1" pin="VSS"/>
@@ -23040,7 +23040,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <pinref part="GND41" gate="1" pin="GND"/>
 </segment>
 <segment>
-<pinref part="C10" gate="G$1" pin="1"/>
+<pinref part="C8" gate="G$1" pin="1"/>
 <pinref part="GND42" gate="1" pin="GND"/>
 </segment>
 <segment>
@@ -23066,7 +23066,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <segment>
 <pinref part="GND7" gate="1" pin="GND"/>
 <wire x1="96.52" y1="132.08" x2="96.52" y2="127" width="0.1524" layer="91"/>
-<pinref part="C4" gate="A" pin="2"/>
+<pinref part="C5" gate="A" pin="2"/>
 </segment>
 <segment>
 <pinref part="GND6" gate="1" pin="GND"/>
@@ -23075,7 +23075,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <pinref part="X2" gate="G$1" pin="1"/>
 </segment>
 <segment>
-<pinref part="U16" gate="A" pin="S"/>
+<pinref part="U17" gate="A" pin="S"/>
 <pinref part="GND10" gate="1" pin="GND"/>
 <wire x1="345.44" y1="-53.34" x2="342.9" y2="-53.34" width="0.1524" layer="91"/>
 <wire x1="342.9" y1="-53.34" x2="342.9" y2="-58.42" width="0.1524" layer="91"/>
@@ -23116,23 +23116,23 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <junction x="-78.74" y="55.88"/>
 </segment>
 <segment>
-<pinref part="C19" gate="G$1" pin="2"/>
+<pinref part="C15" gate="G$1" pin="2"/>
 <pinref part="GND17" gate="1" pin="GND"/>
 <wire x1="203.2" y1="134.62" x2="203.2" y2="127" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="C20" gate="G$1" pin="2"/>
+<pinref part="C18" gate="G$1" pin="2"/>
 <pinref part="GND47" gate="1" pin="GND"/>
 <wire x1="256.54" y1="134.62" x2="256.54" y2="127" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="U17" gate="A" pin="GND"/>
+<pinref part="U12" gate="A" pin="GND"/>
 <pinref part="GND16" gate="1" pin="GND"/>
 <wire x1="213.36" y1="137.16" x2="210.82" y2="137.16" width="0.1524" layer="91"/>
 <wire x1="210.82" y1="137.16" x2="210.82" y2="127" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="C21" gate="G$1" pin="2"/>
+<pinref part="C13" gate="G$1" pin="2"/>
 <pinref part="GND48" gate="1" pin="GND"/>
 </segment>
 </net>
@@ -23158,7 +23158,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 </segment>
 <segment>
 <pinref part="U7" gate="A" pin="OUT"/>
-<pinref part="C13" gate="G$1" pin="1"/>
+<pinref part="C14" gate="G$1" pin="1"/>
 <wire x1="177.8" y1="149.86" x2="185.42" y2="149.86" width="0.1524" layer="91"/>
 <wire x1="185.42" y1="149.86" x2="185.42" y2="142.24" width="0.1524" layer="91"/>
 <pinref part="+3V1" gate="G$1" pin="+3V3"/>
@@ -23256,7 +23256,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <wire x1="96.52" y1="154.94" x2="109.22" y2="154.94" width="0.1524" layer="91"/>
 <junction x="96.52" y="154.94"/>
 <junction x="83.82" y="154.94"/>
-<pinref part="C4" gate="A" pin="1"/>
+<pinref part="C5" gate="A" pin="1"/>
 <pinref part="L1" gate="A" pin="1"/>
 </segment>
 <segment>
@@ -23276,9 +23276,9 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 </segment>
 <segment>
 <pinref part="P+11" gate="1" pin="+5V"/>
-<pinref part="C19" gate="G$1" pin="1"/>
+<pinref part="C15" gate="G$1" pin="1"/>
 <wire x1="203.2" y1="160.02" x2="203.2" y2="149.86" width="0.1524" layer="91"/>
-<pinref part="U17" gate="A" pin="IN"/>
+<pinref part="U12" gate="A" pin="IN"/>
 <wire x1="203.2" y1="149.86" x2="203.2" y2="142.24" width="0.1524" layer="91"/>
 <wire x1="203.2" y1="149.86" x2="213.36" y2="149.86" width="0.1524" layer="91"/>
 <junction x="203.2" y="149.86"/>
@@ -23452,7 +23452,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 </net>
 <net name="N$22" class="0">
 <segment>
-<pinref part="U13" gate="A" pin="D"/>
+<pinref part="U14" gate="A" pin="D"/>
 <wire x1="381" y1="30.48" x2="396.24" y2="30.48" width="0.1524" layer="91"/>
 <wire x1="396.24" y1="30.48" x2="396.24" y2="38.1" width="0.1524" layer="91"/>
 <pinref part="D8" gate="G$1" pin="A"/>
@@ -23464,7 +23464,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 </net>
 <net name="N$23" class="0">
 <segment>
-<pinref part="U14" gate="A" pin="D"/>
+<pinref part="U15" gate="A" pin="D"/>
 <wire x1="381" y1="5.08" x2="396.24" y2="5.08" width="0.1524" layer="91"/>
 <wire x1="396.24" y1="5.08" x2="396.24" y2="7.62" width="0.1524" layer="91"/>
 <pinref part="D9" gate="G$1" pin="A"/>
@@ -23476,7 +23476,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 </net>
 <net name="N$24" class="0">
 <segment>
-<pinref part="U15" gate="A" pin="D"/>
+<pinref part="U16" gate="A" pin="D"/>
 <wire x1="381" y1="-20.32" x2="396.24" y2="-20.32" width="0.1524" layer="91"/>
 <wire x1="396.24" y1="-20.32" x2="396.24" y2="-17.78" width="0.1524" layer="91"/>
 <pinref part="D10" gate="G$1" pin="A"/>
@@ -23504,7 +23504,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <wire x1="144.78" y1="76.2" x2="165.1" y2="76.2" width="0.1524" layer="91"/>
 <wire x1="165.1" y1="76.2" x2="165.1" y2="50.8" width="0.1524" layer="91"/>
 <pinref part="Q2" gate="G$1" pin="2"/>
-<pinref part="C10" gate="G$1" pin="2"/>
+<pinref part="C8" gate="G$1" pin="2"/>
 <wire x1="137.16" y1="50.8" x2="129.54" y2="50.8" width="0.1524" layer="91"/>
 <wire x1="165.1" y1="50.8" x2="137.16" y2="50.8" width="0.1524" layer="91"/>
 <wire x1="137.16" y1="48.26" x2="137.16" y2="50.8" width="0.1524" layer="91"/>
@@ -23542,7 +23542,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <wire x1="220.98" y1="106.68" x2="223.52" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="223.52" y1="106.68" x2="228.6" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="228.6" y1="15.24" x2="228.6" y2="101.6" width="0.1524" layer="91"/>
-<pinref part="C14" gate="G$1" pin="1"/>
+<pinref part="C16" gate="G$1" pin="1"/>
 <wire x1="228.6" y1="101.6" x2="228.6" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="246.38" y1="101.6" x2="228.6" y2="101.6" width="0.1524" layer="91"/>
 <junction x="228.6" y="101.6"/>
@@ -23560,7 +23560,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <wire x1="231.14" y1="71.12" x2="246.38" y2="71.12" width="0.1524" layer="91"/>
 <wire x1="231.14" y1="71.12" x2="231.14" y2="-20.32" width="0.1524" layer="91"/>
 <junction x="231.14" y="71.12"/>
-<pinref part="C15" gate="G$1" pin="2"/>
+<pinref part="C17" gate="G$1" pin="2"/>
 <wire x1="246.38" y1="73.66" x2="246.38" y2="71.12" width="0.1524" layer="91"/>
 <pinref part="U11" gate="A" pin="Z"/>
 <wire x1="231.14" y1="-20.32" x2="220.98" y2="-20.32" width="0.1524" layer="91"/>
@@ -23576,7 +23576,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <pinref part="U11" gate="A" pin="Y"/>
 <wire x1="180.34" y1="-30.48" x2="195.58" y2="-30.48" width="0.1524" layer="91"/>
 <wire x1="180.34" y1="-30.48" x2="157.48" y2="-30.48" width="0.1524" layer="91"/>
-<pinref part="C9" gate="G$1" pin="2"/>
+<pinref part="C10" gate="G$1" pin="2"/>
 <pinref part="D7" gate="G$1" pin="P$2"/>
 <wire x1="157.48" y1="-30.48" x2="147.32" y2="-30.48" width="0.1524" layer="91"/>
 <junction x="157.48" y="-30.48"/>
@@ -23589,7 +23589,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <pinref part="R8" gate="G$1" pin="2"/>
 <pinref part="R9" gate="G$1" pin="1"/>
 <junction x="180.34" y="5.08"/>
-<pinref part="C8" gate="G$1" pin="2"/>
+<pinref part="C9" gate="G$1" pin="2"/>
 <wire x1="180.34" y1="5.08" x2="157.48" y2="5.08" width="0.1524" layer="91"/>
 <pinref part="D6" gate="G$1" pin="P$2"/>
 <wire x1="157.48" y1="5.08" x2="147.32" y2="5.08" width="0.1524" layer="91"/>
@@ -23609,7 +23609,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 </net>
 <net name="N$38" class="0">
 <segment>
-<pinref part="U12" gate="A" pin="~MUTE"/>
+<pinref part="U13" gate="A" pin="~MUTE"/>
 <wire x1="269.24" y1="78.74" x2="254" y2="78.74" width="0.1524" layer="91"/>
 <wire x1="254" y1="78.74" x2="254" y2="7.62" width="0.1524" layer="91"/>
 <pinref part="IC1" gate="G$1" pin="GPB0"/>
@@ -23653,7 +23653,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <pinref part="X4" gate="G$1" pin="3"/>
 <wire x1="337.82" y1="96.52" x2="353.06" y2="96.52" width="0.1524" layer="91"/>
 <wire x1="337.82" y1="96.52" x2="337.82" y2="91.44" width="0.1524" layer="91"/>
-<pinref part="U12" gate="A" pin="OUT_R"/>
+<pinref part="U13" gate="A" pin="OUT_R"/>
 <wire x1="337.82" y1="91.44" x2="304.8" y2="91.44" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -23667,65 +23667,65 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <segment>
 <pinref part="R13" gate="G$1" pin="1"/>
 <wire x1="307.34" y1="104.14" x2="307.34" y2="99.06" width="0.1524" layer="91"/>
-<pinref part="U12" gate="A" pin="GAIN"/>
+<pinref part="U13" gate="A" pin="GAIN"/>
 <wire x1="307.34" y1="99.06" x2="304.8" y2="99.06" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$48" class="0">
 <segment>
 <pinref part="R6" gate="G$1" pin="1"/>
-<pinref part="C8" gate="G$1" pin="1"/>
+<pinref part="C9" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="N$50" class="0">
 <segment>
 <pinref part="R7" gate="G$1" pin="1"/>
-<pinref part="C9" gate="G$1" pin="1"/>
+<pinref part="C10" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="N$53" class="0">
 <segment>
-<pinref part="U12" gate="A" pin="-IN_L"/>
+<pinref part="U13" gate="A" pin="-IN_L"/>
 <wire x1="246.38" y1="86.36" x2="269.24" y2="86.36" width="0.1524" layer="91"/>
-<pinref part="C14" gate="G$1" pin="2"/>
+<pinref part="C16" gate="G$1" pin="2"/>
 <wire x1="246.38" y1="86.36" x2="246.38" y2="93.98" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$55" class="0">
 <segment>
-<pinref part="U12" gate="A" pin="-IN_R"/>
+<pinref part="U13" gate="A" pin="-IN_R"/>
 <wire x1="246.38" y1="83.82" x2="269.24" y2="83.82" width="0.1524" layer="91"/>
-<pinref part="C15" gate="G$1" pin="1"/>
+<pinref part="C17" gate="G$1" pin="1"/>
 <wire x1="246.38" y1="81.28" x2="246.38" y2="83.82" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$54" class="0">
 <segment>
-<pinref part="U12" gate="A" pin="CP"/>
-<pinref part="C16" gate="G$1" pin="2"/>
+<pinref part="U13" gate="A" pin="CP"/>
+<pinref part="C19" gate="G$1" pin="2"/>
 <wire x1="269.24" y1="91.44" x2="256.54" y2="91.44" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$56" class="0">
 <segment>
-<pinref part="C16" gate="G$1" pin="1"/>
+<pinref part="C19" gate="G$1" pin="1"/>
 <wire x1="256.54" y1="99.06" x2="264.16" y2="99.06" width="0.1524" layer="91"/>
 <wire x1="264.16" y1="99.06" x2="264.16" y2="93.98" width="0.1524" layer="91"/>
-<pinref part="U12" gate="A" pin="CN"/>
+<pinref part="U13" gate="A" pin="CN"/>
 <wire x1="264.16" y1="93.98" x2="269.24" y2="93.98" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$57" class="0">
 <segment>
-<pinref part="U12" gate="A" pin="VSS"/>
-<pinref part="C18" gate="G$1" pin="2"/>
+<pinref part="U13" gate="A" pin="VSS"/>
+<pinref part="C21" gate="G$1" pin="2"/>
 <wire x1="269.24" y1="73.66" x2="264.16" y2="73.66" width="0.1524" layer="91"/>
 <wire x1="264.16" y1="73.66" x2="264.16" y2="71.12" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$18" class="0">
 <segment>
-<pinref part="U13" gate="A" pin="G"/>
+<pinref part="U14" gate="A" pin="G"/>
 <wire x1="345.44" y1="30.48" x2="332.74" y2="30.48" width="0.1524" layer="91"/>
 <wire x1="332.74" y1="30.48" x2="332.74" y2="45.72" width="0.1524" layer="91"/>
 <wire x1="332.74" y1="45.72" x2="256.54" y2="45.72" width="0.1524" layer="91"/>
@@ -23736,7 +23736,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 </net>
 <net name="N$19" class="0">
 <segment>
-<pinref part="U14" gate="A" pin="G"/>
+<pinref part="U15" gate="A" pin="G"/>
 <wire x1="345.44" y1="5.08" x2="330.2" y2="5.08" width="0.1524" layer="91"/>
 <wire x1="330.2" y1="5.08" x2="330.2" y2="43.18" width="0.1524" layer="91"/>
 <wire x1="330.2" y1="43.18" x2="259.08" y2="43.18" width="0.1524" layer="91"/>
@@ -23749,7 +23749,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <segment>
 <wire x1="261.62" y1="40.64" x2="327.66" y2="40.64" width="0.1524" layer="91"/>
 <wire x1="327.66" y1="40.64" x2="327.66" y2="-20.32" width="0.1524" layer="91"/>
-<pinref part="U15" gate="A" pin="G"/>
+<pinref part="U16" gate="A" pin="G"/>
 <wire x1="327.66" y1="-20.32" x2="345.44" y2="-20.32" width="0.1524" layer="91"/>
 <wire x1="261.62" y1="40.64" x2="261.62" y2="27.94" width="0.1524" layer="91"/>
 <pinref part="IC1" gate="G$1" pin="GPA1"/>
@@ -23779,20 +23779,20 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <pinref part="X4" gate="G$1" pin="4"/>
 <wire x1="353.06" y1="91.44" x2="342.9" y2="91.44" width="0.1524" layer="91"/>
 <wire x1="342.9" y1="91.44" x2="342.9" y2="93.98" width="0.1524" layer="91"/>
-<pinref part="U12" gate="A" pin="OUT_L"/>
+<pinref part="U13" gate="A" pin="OUT_L"/>
 <wire x1="342.9" y1="93.98" x2="304.8" y2="93.98" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$58" class="0">
 <segment>
 <pinref part="ANT" gate="G$1" pin="TP"/>
-<pinref part="C5" gate="G$1" pin="1"/>
+<pinref part="C4" gate="G$1" pin="1"/>
 <wire x1="88.9" y1="83.82" x2="88.9" y2="78.74" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$59" class="0">
 <segment>
-<pinref part="C5" gate="G$1" pin="2"/>
+<pinref part="C4" gate="G$1" pin="2"/>
 <pinref part="U6" gate="A" pin="FMI"/>
 <pinref part="D5" gate="G$1" pin="P$2"/>
 <wire x1="88.9" y1="71.12" x2="109.22" y2="71.12" width="0.1524" layer="91"/>
@@ -23967,7 +23967,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <pinref part="K4" gate="1" pin="-"/>
 <wire x1="388.62" y1="-45.72" x2="396.24" y2="-45.72" width="0.1524" layer="91"/>
 <wire x1="396.24" y1="-45.72" x2="396.24" y2="-48.26" width="0.1524" layer="91"/>
-<pinref part="U16" gate="A" pin="D"/>
+<pinref part="U17" gate="A" pin="D"/>
 <wire x1="396.24" y1="-48.26" x2="381" y2="-48.26" width="0.1524" layer="91"/>
 <junction x="396.24" y="-45.72"/>
 </segment>
@@ -23997,7 +23997,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <wire x1="264.16" y1="30.48" x2="264.16" y2="38.1" width="0.1524" layer="91"/>
 <wire x1="264.16" y1="38.1" x2="325.12" y2="38.1" width="0.1524" layer="91"/>
 <wire x1="325.12" y1="38.1" x2="325.12" y2="-48.26" width="0.1524" layer="91"/>
-<pinref part="U16" gate="A" pin="G"/>
+<pinref part="U17" gate="A" pin="G"/>
 <wire x1="325.12" y1="-48.26" x2="345.44" y2="-48.26" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -24064,8 +24064,8 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 </net>
 <net name="3V3A" class="0">
 <segment>
-<pinref part="U17" gate="A" pin="OUT"/>
-<pinref part="C20" gate="G$1" pin="1"/>
+<pinref part="U12" gate="A" pin="OUT"/>
+<pinref part="C18" gate="G$1" pin="1"/>
 <wire x1="248.92" y1="149.86" x2="256.54" y2="149.86" width="0.1524" layer="91"/>
 <wire x1="256.54" y1="149.86" x2="256.54" y2="142.24" width="0.1524" layer="91"/>
 <pinref part="P+12" gate="1" pin="V+"/>
@@ -24073,7 +24073,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 </segment>
 <segment>
 <pinref part="P+13" gate="1" pin="V+"/>
-<pinref part="C21" gate="G$1" pin="1"/>
+<pinref part="C13" gate="G$1" pin="1"/>
 <wire x1="170.18" y1="109.22" x2="170.18" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="170.18" y1="106.68" x2="165.1" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="165.1" y1="106.68" x2="165.1" y2="81.28" width="0.1524" layer="91"/>
@@ -24081,9 +24081,9 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <wire x1="165.1" y1="81.28" x2="144.78" y2="81.28" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="C17" gate="G$1" pin="2"/>
+<pinref part="C20" gate="G$1" pin="2"/>
 <wire x1="261.62" y1="116.84" x2="261.62" y2="114.3" width="0.1524" layer="91"/>
-<pinref part="U12" gate="A" pin="VDD"/>
+<pinref part="U13" gate="A" pin="VDD"/>
 <wire x1="269.24" y1="114.3" x2="269.24" y2="99.06" width="0.1524" layer="91"/>
 <wire x1="261.62" y1="114.3" x2="269.24" y2="114.3" width="0.1524" layer="91"/>
 <junction x="261.62" y="114.3"/>
