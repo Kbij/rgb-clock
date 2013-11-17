@@ -13117,13 +13117,13 @@ Source: http://www.murata.com .. GRM43DR72E224KW01.pdf</description>
 <part name="U1" library="Texas" deviceset="LP3878MR-ADJ" device=""/>
 <part name="P+3" library="supply1" deviceset="+5V" device=""/>
 <part name="GND16" library="supply1" deviceset="GND" device=""/>
-<part name="C1" library="rcl" deviceset="C-EU" device="C1206" value="4u7"/>
-<part name="C2" library="rcl" deviceset="C-EU" device="C1608" value="10n"/>
-<part name="C3" library="rcl" deviceset="C-EU" device="C1608" value="680p"/>
+<part name="C1" library="rcl" deviceset="C-EU" device="C0805" value="4u7"/>
+<part name="C2" library="rcl" deviceset="C-EU" device="C0805" value="10n"/>
+<part name="C3" library="rcl" deviceset="C-EU" device="C0805" value="680p"/>
 <part name="R1" library="resistor" deviceset="R-EU_" device="R0603" value="4.02k"/>
 <part name="R2" library="resistor" deviceset="R-EU_" device="R0603" value="1k"/>
 <part name="GND20" library="supply1" deviceset="GND" device=""/>
-<part name="C4" library="rcl" deviceset="C-EU" device="C2012" value="10u"/>
+<part name="C4" library="rcl" deviceset="C-EU" device="C0805" value="10u"/>
 <part name="GND21" library="supply1" deviceset="GND" device=""/>
 <part name="GND22" library="supply1" deviceset="GND" device=""/>
 <part name="D1" library="diode" deviceset="MUR150RL" device="" value="MUR480ERLG"/>
