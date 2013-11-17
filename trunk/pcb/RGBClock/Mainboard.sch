@@ -10792,71 +10792,6 @@ at 30/07/2012 11:04:18</description>
 </deviceset>
 </devicesets>
 </library>
-<library name="battery">
-<description>&lt;b&gt;Lithium Batteries and NC Accus&lt;/b&gt;&lt;p&gt;
-&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
-<packages>
-<package name="CR2032H">
-<description>&lt;b&gt;LI BATTERY&lt;/b&gt; Varta</description>
-<wire x1="-0.635" y1="8.255" x2="0.635" y2="8.255" width="0.254" layer="21"/>
-<wire x1="0" y1="8.89" x2="0" y2="7.62" width="0.254" layer="21"/>
-<wire x1="-0.635" y1="-8.89" x2="0.635" y2="-8.89" width="0.254" layer="21"/>
-<wire x1="-3.556" y1="11.049" x2="-6.604" y2="11.049" width="0.1524" layer="51"/>
-<wire x1="-6.604" y1="11.049" x2="-6.604" y2="-2.54" width="0.1524" layer="21"/>
-<wire x1="6.604" y1="-2.54" x2="6.604" y2="11.049" width="0.1524" layer="21"/>
-<wire x1="-6.604" y1="-2.54" x2="-1.27" y2="-2.54" width="0.1524" layer="21"/>
-<wire x1="-1.27" y1="3.175" x2="-1.27" y2="-2.54" width="0.1524" layer="21"/>
-<wire x1="-1.27" y1="3.175" x2="1.27" y2="3.175" width="0.1524" layer="21"/>
-<wire x1="1.27" y1="-2.54" x2="1.27" y2="3.175" width="0.1524" layer="21"/>
-<wire x1="1.27" y1="-2.54" x2="6.604" y2="-2.54" width="0.1524" layer="21"/>
-<wire x1="-6.698" y1="7.5979" x2="10.033" y2="0" width="0.1524" layer="21" curve="227.397154"/>
-<wire x1="3.556" y1="11.049" x2="-3.556" y2="11.049" width="0.1524" layer="21"/>
-<wire x1="6.477" y1="11.049" x2="3.556" y2="11.049" width="0.1524" layer="51"/>
-<wire x1="6.6203" y1="7.6668" x2="10.0331" y2="0" width="0.1524" layer="21" curve="-49.440271"/>
-<pad name="+@1" x="-5.08" y="10.795" drill="1.1176" diameter="2.54" shape="octagon"/>
-<pad name="+" x="5.08" y="10.795" drill="1.1176" diameter="2.54" shape="octagon"/>
-<pad name="-" x="0" y="-6.985" drill="1.1176" diameter="2.54" shape="octagon"/>
-<text x="-2.54" y="11.43" size="1.27" layer="25" ratio="10">&gt;NAME</text>
-<text x="5.08" y="-1.905" size="1.27" layer="27" ratio="10" rot="R90">&gt;VALUE</text>
-<text x="-2.921" y="-5.08" size="1.27" layer="21" ratio="10">Lit.3V</text>
-</package>
-</packages>
-<symbols>
-<symbol name="1V2+2">
-<wire x1="-1.905" y1="0.635" x2="-1.905" y2="0" width="0.4064" layer="94"/>
-<wire x1="-2.54" y1="0" x2="-1.905" y2="0" width="0.1524" layer="94"/>
-<wire x1="-1.905" y1="0" x2="-1.905" y2="-0.635" width="0.4064" layer="94"/>
-<wire x1="-0.635" y1="2.54" x2="-0.635" y2="0" width="0.4064" layer="94"/>
-<wire x1="-0.635" y1="0" x2="2.54" y2="0" width="0.1524" layer="94"/>
-<wire x1="-0.635" y1="0" x2="-0.635" y2="-2.54" width="0.4064" layer="94"/>
-<text x="-2.54" y="3.175" size="1.778" layer="95">&gt;NAME</text>
-<text x="-2.54" y="-5.08" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="+" x="5.08" y="0" visible="pad" length="short" direction="pas" rot="R180"/>
-<pin name="-" x="-5.08" y="0" visible="pad" length="short" direction="pas"/>
-<pin name="+@1" x="2.54" y="0" visible="off" length="point" direction="pas" rot="R180"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="CR2032H" prefix="G">
-<description>&lt;b&gt;LI BATTERY&lt;/b&gt; Varta</description>
-<gates>
-<gate name="1" symbol="1V2+2" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="CR2032H">
-<connects>
-<connect gate="1" pin="+" pad="+"/>
-<connect gate="1" pin="+@1" pad="+@1"/>
-<connect gate="1" pin="-" pad="-"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 <library name="Diodes">
 <packages>
 <package name="SOT103P240X110-3N">
@@ -17429,6 +17364,23 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <text x="-2.032" y="-2.032" size="0.8128" layer="21" rot="R90">&gt;VALUE</text>
 <text x="2.54" y="-2.032" size="0.8128" layer="21" rot="R90">&gt;NAME</text>
 </package>
+<package name="HU2032-LF">
+<wire x1="-0.575" y1="7.385" x2="0.695" y2="7.385" width="0.254" layer="21"/>
+<wire x1="0.06" y1="8.02" x2="0.06" y2="6.75" width="0.254" layer="21"/>
+<pad name="+@1" x="-1.27" y="13.185" drill="1.1176" diameter="2.54" shape="octagon"/>
+<pad name="+" x="1.25" y="13.145" drill="1.1176" diameter="2.54" shape="octagon"/>
+<pad name="-" x="0" y="-13.73" drill="1.1176" diameter="2.54" shape="octagon"/>
+<text x="-2.48" y="10.56" size="1.27" layer="25" ratio="10">&gt;NAME</text>
+<text x="5.14" y="-2.775" size="1.27" layer="27" ratio="10" rot="R90">&gt;VALUE</text>
+<text x="-2.861" y="-5.95" size="1.27" layer="21" ratio="10">Lit.3V</text>
+<circle x="0" y="-0.4" radius="10" width="0.127" layer="21"/>
+<wire x1="-3.4" y1="-14.5" x2="3.6" y2="-14.5" width="0.127" layer="21"/>
+<wire x1="-3.4" y1="14" x2="3.5" y2="14" width="0.127" layer="21"/>
+<wire x1="-3.4" y1="14" x2="-3.4" y2="9" width="0.127" layer="21"/>
+<wire x1="3.5" y1="14" x2="3.6" y2="9" width="0.127" layer="21"/>
+<wire x1="-3.4" y1="-14.5" x2="-3.4" y2="-9.8" width="0.127" layer="21"/>
+<wire x1="3.6" y1="-14.5" x2="3.6" y2="-9.8" width="0.127" layer="21"/>
+</package>
 </packages>
 <symbols>
 <symbol name="SMA6F">
@@ -17493,6 +17445,19 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <pin name="1" x="0" y="5.08" visible="off" length="short" direction="pas" swaplevel="1" rot="R270"/>
 <pin name="2" x="0" y="-2.54" visible="off" length="short" direction="pas" swaplevel="1" rot="R90"/>
 </symbol>
+<symbol name="BATT-2">
+<wire x1="-1.905" y1="0.635" x2="-1.905" y2="0" width="0.4064" layer="94"/>
+<wire x1="-2.54" y1="0" x2="-1.905" y2="0" width="0.1524" layer="94"/>
+<wire x1="-1.905" y1="0" x2="-1.905" y2="-0.635" width="0.4064" layer="94"/>
+<wire x1="-0.635" y1="2.54" x2="-0.635" y2="0" width="0.4064" layer="94"/>
+<wire x1="-0.635" y1="0" x2="2.54" y2="0" width="0.1524" layer="94"/>
+<wire x1="-0.635" y1="0" x2="-0.635" y2="-2.54" width="0.4064" layer="94"/>
+<text x="-2.54" y="3.175" size="1.778" layer="95">&gt;NAME</text>
+<text x="-2.54" y="-5.08" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="+" x="5.08" y="0" visible="pad" length="short" direction="pas" rot="R180"/>
+<pin name="-" x="-5.08" y="0" visible="pad" length="short" direction="pas"/>
+<pin name="+@1" x="2.54" y="0" visible="off" length="point" direction="pas" rot="R180"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="SMA6F" prefix="D">
@@ -17536,6 +17501,23 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <connects>
 <connect gate="A" pin="1" pad="P$1"/>
 <connect gate="A" pin="2" pad="P$2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="HU2032-LF" prefix="B">
+<gates>
+<gate name="G$1" symbol="BATT-2" x="0" y="-7.62"/>
+</gates>
+<devices>
+<device name="" package="HU2032-LF">
+<connects>
+<connect gate="G$1" pin="+" pad="+"/>
+<connect gate="G$1" pin="+@1" pad="+@1"/>
+<connect gate="G$1" pin="-" pad="-"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -22442,7 +22424,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="GND12" library="supply1" deviceset="GND" device=""/>
 <part name="U3" library="Texas" deviceset="P82B96DR" device=""/>
 <part name="GND13" library="supply1" deviceset="GND" device=""/>
-<part name="R1" library="rcl" deviceset="R-EU_" device="0204/7" value="160"/>
+<part name="R1" library="rcl" deviceset="R-EU_" device="0204/7" value="3K48"/>
 <part name="LED1" library="led" deviceset="LED" device="5MM" value="5mm Led"/>
 <part name="GND25" library="supply1" deviceset="GND" device=""/>
 <part name="GND26" library="supply1" deviceset="GND" device=""/>
@@ -22452,7 +22434,6 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="+3V2" library="supply1" deviceset="+3V3" device=""/>
 <part name="+3V3" library="supply1" deviceset="+3V3" device=""/>
 <part name="U13" library="Texas" deviceset="DRV612PW" device=""/>
-<part name="G1" library="battery" deviceset="CR2032H" device=""/>
 <part name="U5" library="Maxim_By_element14_Batch_1" deviceset="DS1338Z-33+" device=""/>
 <part name="U14" library="Diodes" deviceset="2N7002-7-F" device=""/>
 <part name="R3" library="resistor" deviceset="R-EU_" device="0204/5" value="3k3"/>
@@ -22530,10 +22511,10 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="R10" library="resistor" deviceset="R-EU_" device="0204/2V" value="47K"/>
 <part name="R11" library="resistor" deviceset="R-EU_" device="0204/2V" value="47K"/>
 <part name="GND38" library="supply1" deviceset="GND" device=""/>
-<part name="C9" library="rcl" deviceset="C-EU" device="C1005" value="2u2"/>
-<part name="C10" library="rcl" deviceset="C-EU" device="C1005" value="2u2"/>
-<part name="C16" library="rcl" deviceset="C-EU" device="C1005" value="2u2"/>
-<part name="C17" library="rcl" deviceset="C-EU" device="C1005" value="2u2"/>
+<part name="C9" library="rcl" deviceset="C-EU" device="C0805" value="2u2"/>
+<part name="C10" library="rcl" deviceset="C-EU" device="C0805" value="2u2"/>
+<part name="C16" library="rcl" deviceset="C-EU" device="C0805" value="2u2"/>
+<part name="C17" library="rcl" deviceset="C-EU" device="C0805" value="2u2"/>
 <part name="C19" library="rcl" deviceset="C-EU" device="C1005" value="1u"/>
 <part name="GND39" library="supply1" deviceset="GND" device=""/>
 <part name="C21" library="rcl" deviceset="C-EU" device="C1005" value="1u"/>
@@ -22609,6 +22590,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <part name="P+20" library="supply1" deviceset="V+" device=""/>
 <part name="P+14" library="supply1" deviceset="V+" device=""/>
 <part name="P+16" library="supply1" deviceset="V+" device=""/>
+<part name="B1" library="MyComponents" deviceset="HU2032-LF" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -22638,7 +22620,6 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <attribute name="NAME" x="274.0406" y="105.6386" size="2.0828" layer="95" ratio="10" rot="SR0"/>
 <attribute name="VALUE" x="275.6154" y="50.3936" size="2.0828" layer="96" ratio="10" rot="SR0"/>
 </instance>
-<instance part="G1" gate="1" x="63.5" y="-99.06" rot="R90"/>
 <instance part="U5" gate="A" x="99.06" y="-83.82"/>
 <instance part="U14" gate="A" x="363.22" y="30.48"/>
 <instance part="R3" gate="G$1" x="-35.56" y="40.64" smashed="yes" rot="R90">
@@ -22860,6 +22841,7 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <instance part="P+20" gate="1" x="195.58" y="114.3"/>
 <instance part="P+14" gate="1" x="180.34" y="20.32"/>
 <instance part="P+16" gate="1" x="180.34" y="-15.24"/>
+<instance part="B1" gate="G$1" x="63.5" y="-99.06" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -22922,12 +22904,12 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <wire x1="81.28" y1="-96.52" x2="78.74" y2="-96.52" width="0.1524" layer="91"/>
 <wire x1="78.74" y1="-96.52" x2="78.74" y2="-106.68" width="0.1524" layer="91"/>
 <wire x1="78.74" y1="-106.68" x2="71.12" y2="-106.68" width="0.1524" layer="91"/>
-<pinref part="G1" gate="1" pin="-"/>
 <wire x1="71.12" y1="-106.68" x2="63.5" y2="-106.68" width="0.1524" layer="91"/>
 <wire x1="63.5" y1="-106.68" x2="63.5" y2="-104.14" width="0.1524" layer="91"/>
 <pinref part="GND19" gate="1" pin="GND"/>
 <wire x1="71.12" y1="-106.68" x2="71.12" y2="-114.3" width="0.1524" layer="91"/>
 <junction x="71.12" y="-106.68"/>
+<pinref part="B1" gate="G$1" pin="-"/>
 </segment>
 <segment>
 <pinref part="U14" gate="A" pin="S"/>
@@ -23427,9 +23409,9 @@ This library includes the former libraries ribcon.lbr and ribcon4.lbr.&lt;p&gt;
 <net name="N$16" class="0">
 <segment>
 <pinref part="U5" gate="A" pin="VBAT"/>
-<pinref part="G1" gate="1" pin="+"/>
 <wire x1="81.28" y1="-81.28" x2="63.5" y2="-81.28" width="0.1524" layer="91"/>
 <wire x1="63.5" y1="-81.28" x2="63.5" y2="-93.98" width="0.1524" layer="91"/>
+<pinref part="B1" gate="G$1" pin="+"/>
 </segment>
 </net>
 <net name="N$15" class="0">

@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="50" unitdist="mil" unit="mil" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
@@ -13799,7 +13799,7 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 <part name="GND12" library="supply1" deviceset="GND" device=""/>
 <part name="P+8" library="supply1" deviceset="+5V" device=""/>
 <part name="C5" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
-<part name="C7" library="rcl" deviceset="C-EU" device="C1206" value="0,47u"/>
+<part name="C7" library="rcl" deviceset="C-EU" device="C0805" value="0,47u"/>
 <part name="C12" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
 <part name="C14" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
 <part name="C8" library="rcl" deviceset="C-EU" device="C0805" value="0.47u"/>
@@ -13825,14 +13825,14 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 <part name="GND18" library="supply1" deviceset="GND" device=""/>
 <part name="GND19" library="supply1" deviceset="GND" device=""/>
 <part name="C18" library="rcl" deviceset="C-EU" device="C0805" value="0.47u"/>
-<part name="C15" library="rcl" deviceset="C-EU" device="C2012" value="10u"/>
-<part name="C1" library="rcl" deviceset="C-EU" device="C1206" value="4u7"/>
-<part name="C2" library="rcl" deviceset="C-EU" device="C1608" value="10n"/>
-<part name="C3" library="rcl" deviceset="C-EU" device="C1608" value="680p"/>
+<part name="C15" library="rcl" deviceset="C-EU" device="C0805" value="10u"/>
+<part name="C1" library="rcl" deviceset="C-EU" device="C0805" value="4u7"/>
+<part name="C2" library="rcl" deviceset="C-EU" device="C0805" value="10n"/>
+<part name="C3" library="rcl" deviceset="C-EU" device="C0805" value="680p"/>
 <part name="R1" library="resistor" deviceset="R-EU_" device="R0603" value="4.02k"/>
 <part name="R2" library="resistor" deviceset="R-EU_" device="R0603" value="1k"/>
 <part name="GND20" library="supply1" deviceset="GND" device=""/>
-<part name="C4" library="rcl" deviceset="C-EU" device="C2012" value="10u"/>
+<part name="C4" library="rcl" deviceset="C-EU" device="C0805" value="10u"/>
 <part name="GND21" library="supply1" deviceset="GND" device=""/>
 <part name="GND22" library="supply1" deviceset="GND" device=""/>
 <part name="D1" library="diode" deviceset="MUR150RL" device="" value="MUR480ERLG"/>
@@ -13993,8 +13993,8 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 <instance part="GND18" gate="1" x="109.22" y="114.3"/>
 <instance part="GND19" gate="1" x="172.72" y="114.3"/>
 <instance part="C18" gate="G$1" x="256.54" y="-76.2" smashed="yes" rot="R180">
-<attribute name="NAME" x="262.636" y="-76.581" size="1.778" layer="95" rot="R180"/>
-<attribute name="VALUE" x="265.176" y="-71.501" size="1.778" layer="96" rot="R180"/>
+<attribute name="NAME" x="262.636" y="-71.501" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="263.906" y="-76.581" size="1.778" layer="96" rot="R180"/>
 </instance>
 <instance part="C15" gate="G$1" x="218.44" y="-20.32"/>
 <instance part="C1" gate="G$1" x="0" y="129.54"/>
