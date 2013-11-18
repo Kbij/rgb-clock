@@ -22,7 +22,7 @@
 <layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="28" name="bValues" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
+<layer number="29" name="tStop" color="7" fill="3" visible="yes" active="yes"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
 <layer number="32" name="bCream" color="7" fill="5" visible="no" active="yes"/>
@@ -3911,7 +3911,7 @@ design rules under a new name.</description>
 <attribute name="MPN" value="TXS0102DCUR" x="69.596" y="-32.004" size="1.778" layer="27" display="off"/>
 <attribute name="SUPPLIER" value="Texas Instruments" x="69.596" y="-32.004" size="1.778" layer="27" display="off"/>
 <attribute name="OC_FARNELL" value="1703315" x="69.596" y="-32.004" size="1.778" layer="27" display="off"/>
-<attribute name="NAME" x="12.5476" y="35.56" size="1.27" layer="25" ratio="10" rot="SR0"/>
+<attribute name="NAME" x="12.5476" y="35.306" size="1.27" layer="25" ratio="10" rot="SR0"/>
 </element>
 <element name="U3" library="Texas" package="SOIC127P600X175-8N" value="P82B96DR" x="18.288" y="49.53" smashed="yes">
 <attribute name="PACKAGE" value="SOIC-8" x="64.008" y="-3.81" size="1.778" layer="27" display="off"/>
@@ -4046,7 +4046,7 @@ design rules under a new name.</description>
 <attribute name="MPN" value="NX3L1G384GW" x="113.03" y="-84.074" size="1.778" layer="27" display="off"/>
 <attribute name="SUPPLIER" value="NXP " x="113.03" y="-84.074" size="1.778" layer="27" display="off"/>
 <attribute name="OC_FARNELL" value="2164820" x="113.03" y="-84.074" size="1.778" layer="27" display="off"/>
-<attribute name="NAME" x="59.0296" y="5.207" size="1.27" layer="25" ratio="10" rot="SR0"/>
+<attribute name="NAME" x="57.7596" y="5.207" size="1.27" layer="25" ratio="10" rot="SR0"/>
 </element>
 <element name="U10" library="NXP_By_element14_Batch_1" package="SOT65P212X110-5N" value="NX3L1G384GW" x="43.942" y="3.556" smashed="yes">
 <attribute name="PACKAGE" value="TSSOP-5(SOT)" x="122.682" y="-84.074" size="1.778" layer="27" display="off"/>
