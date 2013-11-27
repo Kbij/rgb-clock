@@ -47,9 +47,10 @@ void Config::loadXML()
 	LOG(INFO) << "Reading settings file: " << FLAGS_configfile;
     ticpp::Document configXML(FLAGS_configfile);
 
-    configXML.LoadFile();
     try
     {
+        configXML.LoadFile();
+
         ticpp::Element *settings = configXML.FirstChildElement("settings");
 
         getAddress(settings, "rtc_addr", mSystemConfig.mRtc);
