@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<settings>
+	<rtc_addr>104</rtc_addr>
+	<radio_addr>99</radio_addr>
+	<clockunit name="Koen">
+		<light_addr>64</light_addr>
+		<keyboard_addr>90</keyboard_addr>
+		<amplifier_addr>108</amplifier_addr>
+		<lcd_addr>32</lcd_addr>
+		<lightsensor_addr>41</lightsensor_addr>
+	</clockunit>
+</settings>
