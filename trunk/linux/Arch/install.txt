@@ -1,0 +1,12 @@
+1) Install I2CTools
+pacman -S i2c-tools
+
+2) Copy files from "/etc/modules-load.d" svn repository to "/etc/modules-load.d" on target
+
+3) Load modules: systemctl restart systemd-modules-load.service
+
+4) Start NTPD: systemctl start ntp
+
+5) Set timezone: timedatectl set-timezone Europe/Brussels
+
+
