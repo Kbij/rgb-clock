@@ -21,22 +21,20 @@ Config::Config():
 	mConfiguredUnits(),
 	mSystemConfig()
 {
-	// TODO Auto-generated constructor stub
 	loadXML();
 }
 
 Config::~Config() {
-	// TODO Auto-generated destructor stub
 }
 
 //bool getAddress(ticpp::Iterator<ticpp::Element>& unit, const std::string& name, uint8_t& addressValue)
-bool getAddress(ticpp::Element* element, const std::string& name, uint8_t& addressValue)
+bool getInteger(ticpp::Element* element, const std::string& name, uint8_t& value)
 {
-	ticpp::Element *addressElement = element->FirstChildElement(name, true);
-	if ( addressElement != nullptr )
+	ticpp::Element *integerElement = element->FirstChildElement(name, true);
+	if ( integerElement != nullptr )
 	{
-		std::string addressString = addressElement->GetText();
-		addressValue = std::stoi(addressString);
+		std::string integerString = integerElement->GetText();
+		value = std::stoi(integerString);
 		return true;
 	}
 	return false;
@@ -53,8 +51,10 @@ void Config::loadXML()
 
         ticpp::Element *settings = configXML.FirstChildElement("settings");
 
-        getAddress(settings, "rtc_addr", mSystemConfig.mRtc);
-        getAddress(settings, "radio_addr", mSystemConfig.mRadio);
+        getInteger(settings, "hw_revision", mSystemConfig.mHardwareRevision);
+        getInteger(settings, "rtc_addr", mSystemConfig.mRtc);
+        getInteger(settings, "radio_addr", mSystemConfig.mRadio);
+        getInteger(settings, "radio_addr", mSystemConfig.mCentralIO);
 
         ticpp::Iterator<ticpp::Element>  unit(settings->FirstChildElement("clockunit"), "clockunit");
         while ( unit != unit.end() )
@@ -63,11 +63,11 @@ void Config::loadXML()
         	unit->GetAttribute("name", &unitSettings.mName);
         	LOG(INFO) << "Unit found: " << unitSettings.mName;
 
-        	getAddress(unit.Get(), "light_addr", unitSettings.mLight);
-            getAddress(unit.Get(), "keyboard_addr", unitSettings.mKeyboard);
-            getAddress(unit.Get(), "amplifier_addr", unitSettings.mAmplifier);
-            getAddress(unit.Get(), "lcd_addr", unitSettings.mLCD);
-            getAddress(unit.Get(), "lightsensor_addr", unitSettings.mLightSensor);
+        	getInteger(unit.Get(), "light_addr", unitSettings.mLight);
+        	getInteger(unit.Get(), "keyboard_addr", unitSettings.mKeyboard);
+        	getInteger(unit.Get(), "amplifier_addr", unitSettings.mAmplifier);
+        	getInteger(unit.Get(), "lcd_addr", unitSettings.mLCD);
+        	getInteger(unit.Get(), "lightsensor_addr", unitSettings.mLightSensor);
 
         	mConfiguredUnits[unitSettings.mName] = unitSettings;
         	// advance to next item
