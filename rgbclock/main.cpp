@@ -4,6 +4,7 @@
 #include "lib/I2C.h"
 #include "lib/FMReceiver.h"
 #include "lib/RTC.h"
+#include "lib/MainboardControl.h"
 #include "Light.h"
 #include "AlarmClock.h"
 #include "Config.h"
@@ -192,7 +193,7 @@ int main (int argc, char* argv[])
 	{
 		Hardware::I2C i2c;
 		Hardware::RTC rtc(i2c, systemConfig.mRtc);
-
+		Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO);
 		Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio);
 
 		do{
