@@ -6,6 +6,21 @@
  */
 
 #include "MainboardControl.h"
+namespace
+{
+const uint8_t RL_U17 = 0;
+const uint8_t RL_U16 = 2;
+const uint8_t RL_U15 = 4;
+const uint8_t RL_U14 = 8;
+
+const uint8_t MUTE      = 0;
+const uint8_t RADIO_IN  = 2;
+const uint8_t AUX_IN    = 4;
+const uint8_t RADIO_RST = 8;
+const uint8_t WATCHDOG  = 10;
+
+
+}
 
 namespace Hardware {
 
@@ -28,5 +43,20 @@ void MainboardControl::keyboardPressed(const std::vector<Hardware::KeyInfo>& key
 	}
 
 }
+void MainboardControl::mute(bool mute)
+{
 
+}
+void MainboardControl::resetTuner()
+{
+
+}
+void MainboardControl::selectInput(InputSelection input)
+{
+
+}
+void MainboardControl::signalWatchdog()
+{
+
+}
 } /* namespace Hardware */
