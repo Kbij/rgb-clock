@@ -13,6 +13,11 @@
 
 
 namespace Hardware {
+enum class InputSelection
+{
+	RadioIn,
+	Auxin
+};
 
 class MainboardControl:  public Hardware::KeyboardObserverIf {
 public:
@@ -20,6 +25,12 @@ public:
 	virtual ~MainboardControl();
 
 	void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, KeyboardState state);
+
+	void mute(bool mute);
+	void resetTuner();
+	void selectInput(InputSelection input);
+	void signalWatchdog();
+
 private:
 	IOExpander mIO;
 	const uint8_t mHwRevision;
