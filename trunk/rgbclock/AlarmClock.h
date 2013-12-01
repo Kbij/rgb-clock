@@ -13,6 +13,8 @@
 #include "lib/KeyboardObserverIf.h"
 #include "lib/Radio.h"
 #include "lib/ClockDisplay.h"
+#include "lib/MainboardControl.h"
+#include "lib/WatchdogFeederIf.h"
 #include "Config.h"
 #include <stdint.h>
 #include <atomic>
@@ -20,6 +22,7 @@
 namespace Hardware
 {
 class I2C;
+class MainboardControl;
 }
 
 namespace App
@@ -28,12 +31,12 @@ namespace App
 class AlarmManager;
 class Light;
 
-class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf {
+class AlarmClock : public Hardware::KeyboardObserverIf, public Hardware::WatchdogFeederIf, public App::AlarmObserverIf {
 
 
 
 public:
-	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, const UnitConfig& unitConfig);
+	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig);
 	virtual ~AlarmClock();
 
 	void registerLight(Light *light);
@@ -62,6 +65,7 @@ private:
 	Hardware::Keyboard mKeyboard;
 	Hardware::Radio mRadio;
 	AlarmManager& mAlarmManager;
+    Hardware::MainboardControl &mMainboardControl;
 	Hardware::ClockDisplay mDisplay;
 	Light *mLight;
 	std::atomic<ClockState> mClockState;

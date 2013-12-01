@@ -14,6 +14,7 @@
 #include <string>
 #include <array>
 #include <map>
+#include <mutex>
 
 namespace Hardware
 {

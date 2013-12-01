@@ -9,6 +9,7 @@
 #include "Light.h"
 #include "AlarmManager.h"
 #include "lib/FMReceiver.h"
+#include "lib/MainboardControl.h"
 
 #include <glog/logging.h>
 
@@ -16,11 +17,12 @@ namespace App {
 const int SNOOZE_TIME = 1 * 60; // Snooze interval: 9min
 const int ALARM_TIME = 2 * 60; // Alarm time: 30 min
 
-AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, const UnitConfig& unitConfig) :
+AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig) :
 	mUnitConfig(unitConfig),
 	mKeyboard(i2c, unitConfig.mKeyboard),
 	mRadio(i2c, unitConfig.mAmplifier, fmReceiver),
 	mAlarmManager(alarmManager),
+	mMainboardControl(mainboardControl),
 	mDisplay(i2c, mKeyboard, mAlarmManager, unitConfig),
 	mLight(nullptr),
 	mClockState(ClockState::clkNormal),
@@ -32,6 +34,7 @@ AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, Al
 	mDisplay.signalClockState(mClockState);
 	mKeyboard.registerKeyboardObserver(this);
 	mKeyboard.registerKeyboardObserver(&mRadio);
+	mKeyboard.registerKeyboardObserver(&mMainboardControl);
 	mRadio.registerRadioObserver(&mDisplay);
 	mAlarmManager.registerAlarmObserver(this);
 }
@@ -40,8 +43,9 @@ AlarmClock::~AlarmClock()
 {
 	mAlarmManager.unRegisterAlarmObserver(this);
 
+	mKeyboard.unRegisterKeyboardObserver(&mMainboardControl);
+	mKeyboard.unRegisterKeyboardObserver(&mRadio);
 	mKeyboard.unRegisterKeyboardObserver(this);
-	mKeyboard.registerKeyboardObserver(&mRadio);
 	mRadio.unRegisterRadioObserver(&mDisplay);
 }
 

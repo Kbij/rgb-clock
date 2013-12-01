@@ -8,6 +8,7 @@
 #include "FMReceiver.h"
 #include "RadioObserverIf.h"
 #include "SI4735.h"
+#include "MainboardControl.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -17,9 +18,10 @@
 namespace Hardware
 {
 
-FMReceiver::FMReceiver(I2C &i2c, uint8_t address) :
+FMReceiver::FMReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl &mainboardControl) :
 		mI2C(i2c),
 		mAddress(address),
+		mMainboardControl(mainboardControl),
 		mPowerCounter(0),
 		mPowerMutex(),
 		mPowerState(PowerState::Unknown),
@@ -32,7 +34,10 @@ FMReceiver::FMReceiver(I2C &i2c, uint8_t address) :
 		mRadioObservers(),
 		mRadioObserversMutex()
 {
+	mMainboardControl.resetTuner();
 	powerOff();
+	mMainboardControl.selectInput(InputSelection::RadioIn);
+
     std::lock_guard<std::mutex> lk_guard(mPowerMutex);
     mPowerCounter = 0;
 
@@ -137,8 +142,8 @@ bool FMReceiver::internalPowerOn()
     mReceivingRDSInfo.clearAll(true);
 	startReadThread();
 	return true;
-
 }
+
 bool FMReceiver::internalPowerOff()
 {
 	LOG(INFO) << "Internal PowerOff";
