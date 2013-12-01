@@ -16,7 +16,7 @@ Light::Light(Hardware::I2C &i2c, uint8_t address) :
 		mState(State::PwrOff),
 		mRGBLed(i2c, address),
 		mLuminance(1000),
-		mLastLong(time(nullptr)),
+		mLastLong(time(0)),
 		mDimDown(true),
 		mLedMutex(),
 	    mDimmerThread(nullptr),

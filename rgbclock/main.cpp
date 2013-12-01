@@ -26,6 +26,7 @@
 DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
 DEFINE_string(pidfile,"","Pid file when running as Daemon");
 DEFINE_bool(i2cstatistics, false, "Print I2C statistics");
+DEFINE_bool(disablewatchdog, false, "Disable the watchdog");
 
 
 void signal_handler(int sig);
@@ -193,8 +194,8 @@ int main (int argc, char* argv[])
 	{
 		Hardware::I2C i2c;
 		Hardware::RTC rtc(i2c, systemConfig.mRtc);
-		Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO);
-		Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio);
+		Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
+		Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio, mainboardControl);
 
 		do{
 			for (const auto& configUnit : configuredUnits)
@@ -203,7 +204,7 @@ int main (int argc, char* argv[])
 				{
 					LOG(INFO) << "Creating clock unit: " << configUnit.first;
 					// Unit not found; create a unit
-					startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, alarmManager, configUnit.second));
+					startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, alarmManager, mainboardControl, configUnit.second));
 				}
 
 				if (!startedUnits[configUnit.first]->hasRegisteredLight())

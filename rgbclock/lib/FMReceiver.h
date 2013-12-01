@@ -19,6 +19,7 @@
 namespace Hardware
 {
 class Radio;
+class MainboardControl;
 
 enum class PowerState
 {
@@ -31,7 +32,7 @@ enum class PowerState
 
 class FMReceiver {
 public:
-	FMReceiver(I2C &i2c, uint8_t address);
+	FMReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl &mainboardControl);
 	virtual ~FMReceiver();
 	friend Radio;
 private:
@@ -65,6 +66,7 @@ private:
 
 	I2C &mI2C;
 	const uint8_t mAddress;
+    Hardware::MainboardControl &mMainboardControl;
 	int mPowerCounter;
 	std::mutex mPowerMutex;
 	PowerState mPowerState;
