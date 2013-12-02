@@ -36,6 +36,8 @@ RgbLed::RgbLed(I2C &i2c, uint8_t address) :
 
 RgbLed::~RgbLed() {
 	pwrOff();
+
+	LOG(INFO) << "RgbLed destructor exit";
 }
 
 bool RgbLed::pwrOn()

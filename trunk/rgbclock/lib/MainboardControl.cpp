@@ -6,6 +6,11 @@
  */
 
 #include "MainboardControl.h"
+//#include <stdio.h>
+#include <fcntl.h>
+#include <linux/watchdog.h>
+#include <sys/ioctl.h>
+
 namespace
 {
 const uint8_t RL_U17 = 0;
@@ -19,7 +24,7 @@ const uint8_t AUX_IN    = 4;
 const uint8_t RADIO_RST = 8;
 const uint8_t WATCHDOG  = 10;
 
-
+const int WATCHDOG_SLEEP = 10;
 }
 
 namespace Hardware {
@@ -31,20 +36,32 @@ MainboardControl::MainboardControl(I2C &i2c, uint8_t hwrevision, uint8_t address
 		mRelaisBus(0),
 		mMainBus(0),
 		mBusMutex(),
+		mWatchdogFeeders(),
+		mFeederMutex(),
 		mWatchdogHandle(0),
 		mWatchdogThread(nullptr),
 		mWatchdogThreadRunning(false)
 {
-	init();
-	if (mWatchdogEnabled)
+	if (!enableWatchdog)
 	{
-		startWatchdogThread();
+		LOG(INFO) << "Watchdog is disabled";
 	}
+	init();
+    startWatchdogThread();
 }
 
 MainboardControl::~MainboardControl()
 {
 	stopWatchdogThread();
+
+	if (mWatchdogHandle > 0)
+	{
+		LOG(INFO) << "Disable watchdog";
+	    write(mWatchdogHandle, "V", 1);
+
+        close(mWatchdogHandle);
+	}
+	LOG(INFO) << "MainboardControl destructor exit";
 }
 
 void MainboardControl::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, KeyboardState state)
@@ -63,18 +80,23 @@ void MainboardControl::keyboardPressed(const std::vector<Hardware::KeyInfo>& key
 
 void MainboardControl::promiseWatchdog(WatchdogFeederIf *watchdogFeeder, int timeoutMiliseconds)
 {
-	if (mWatchdogEnabled)
-	{
-		startWatchdogThread();
-	}
+    if (watchdogFeeder)
+    {
+//    	LOG(INFO) << "Receiving a promise from '" << watchdogFeeder->name() << "', timeout: " << timeoutMiliseconds;
+    	LOG(INFO) << "Receiving a promise, timeout: " << timeoutMiliseconds;
+        std::lock_guard<std::mutex> lk_guard(mFeederMutex);
+        mWatchdogFeeders[watchdogFeeder].mPromiseTimeout = timeoutMiliseconds;
+        mWatchdogFeeders[watchdogFeeder].mCurrentTimeout = timeoutMiliseconds;
+    }
 }
 
 void MainboardControl::removePromise(WatchdogFeederIf *watchdogFeeder)
 {
-	if (mWatchdogEnabled)
-	{
-		startWatchdogThread();
-	}
+    if (watchdogFeeder)
+    {
+        std::lock_guard<std::mutex> lk_guard(mFeederMutex);
+        mWatchdogFeeders.erase(watchdogFeeder);
+    }
 }
 
 void MainboardControl::mute(bool mute)
@@ -138,11 +160,19 @@ void MainboardControl::selectInput(InputSelection input)
 	mIO.writeB(mMainBus.to_ulong());
 }
 
-void MainboardControl::signalWatchdog()
+void MainboardControl::signalWatchdog(WatchdogFeederIf *watchdogFeeder)
 {
 	if (mHwRevision == 1)
 	{
 		return;
+	}
+
+	std::lock_guard<std::mutex> lk_guard(mFeederMutex);
+
+	if (mWatchdogFeeders.find(watchdogFeeder) != mWatchdogFeeders.end())
+	{
+		//LOG(INFO) << "Watchdog timer reset";
+		mWatchdogFeeders[watchdogFeeder].mCurrentTimeout = mWatchdogFeeders[watchdogFeeder].mPromiseTimeout;
 	}
 
 /*
@@ -190,15 +220,6 @@ void MainboardControl::signalWatchdog()
  */
 }
 
-void MainboardControl::stopWatchdog()
-{
-	if (mWatchdogHandle > 0)
-	{
-		LOG(INFO) << "Disable watchdog";
-	    write(mWatchdogHandle, "V", 1);
-	}
-}
-
 void MainboardControl::init()
 {
 	mIO.directionA(IOExpander::DataDirection::dirOut);
@@ -211,6 +232,23 @@ void MainboardControl::init()
 	mMainBus[AUX_IN] = 0;
 	mMainBus[RADIO_RST] = 0;
 	mIO.writeB(mMainBus.to_ulong());
+
+	if (mWatchdogEnabled)
+	{
+	    if ((mWatchdogHandle = open("/dev/watchdog", O_RDWR | O_NOCTTY)) < 0) {
+	    	LOG(ERROR) << "Error: Couldn't open watchdog device!";
+	    	mWatchdogHandle = 0;
+	    }
+
+	}
+
+    if (mWatchdogHandle > 0)
+    {
+    	int timeout;
+        //ioctl(mWatchdogHandle, WDIOC_SETTIMEOUT, &timeout);
+        ioctl(mWatchdogHandle, WDIOC_GETTIMEOUT, &timeout);
+        LOG(INFO) << "Watchdog timeout: " << timeout;
+    }
 }
 
 void MainboardControl::startWatchdogThread()
@@ -240,9 +278,23 @@ void MainboardControl::watchdogThread()
 {
 	   while (mWatchdogThreadRunning)
 	   {
-		   std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-
+		   std::this_thread::sleep_for(std::chrono::milliseconds(WATCHDOG_SLEEP));
+		   std::lock_guard<std::mutex> lk_guard(mFeederMutex);
+		   for (auto& feeder: mWatchdogFeeders)
+		   {
+			   feeder.second.mCurrentTimeout -= WATCHDOG_SLEEP;
+			   if (feeder.second.mCurrentTimeout < 0)
+			   {
+//	   				LOG(ERROR) << "Watchdog feeder (" << feeder.first->name() << ") didn't kept his promise; watchdog will kick in....";
+				   LOG(ERROR) << "Watchdog feeder didn't kept his promise; watchdog will kick in....";
+				   mWatchdogThreadRunning = false;
+			   }
+		   }
+		   //LOG(INFO) << "Feeding watchdog";
+		   if (mWatchdogThreadRunning && (mWatchdogHandle > 0))
+		   {
+			   ioctl(mWatchdogHandle, WDIOC_KEEPALIVE, 0);
+		   }
 	   }
 }
 

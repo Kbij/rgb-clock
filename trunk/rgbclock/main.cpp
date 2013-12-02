@@ -53,19 +53,10 @@ void signal_handler(int sig)
     }
 }
 
-void daemonize()
+void registerSignals()
 {
-    int pid, sid, i;
-    char str[10];
     struct sigaction newSigAction;
     sigset_t newSigSet;
-
-    /* Check if parent process id is set */
-    if (getppid() == 1)
-    {
-        /* PPID exists, therefore we are already a daemon */
-        return;
-    }
 
     /* Set signal mask - signals we want to block */
     sigemptyset(&newSigSet);
@@ -84,6 +75,19 @@ void daemonize()
     sigaction(SIGHUP, &newSigAction, NULL);     /* catch hangup signal */
     sigaction(SIGTERM, &newSigAction, NULL);    /* catch term signal */
     sigaction(SIGINT, &newSigAction, NULL);     /* catch interrupt signal */
+}
+
+void daemonize()
+{
+    int pid, sid, i;
+    char str[10];
+
+    /* Check if parent process id is set */
+    if (getppid() == 1)
+    {
+        /* PPID exists, therefore we are already a daemon */
+        return;
+    }
 
     /* Fork*/
     pid = fork();
@@ -100,7 +104,6 @@ void daemonize()
     	LOG(INFO) << "Child process created: " <<  pid;
         exit(EXIT_SUCCESS);
     }
-
 
     /* Get a new process group */
     sid = setsid();
@@ -164,6 +167,8 @@ int main (int argc, char* argv[])
 	google::SetUsageMessage(usage);
 	google::ParseCommandLineFlags(&argc, &argv, true);
 
+	registerSignals();
+
 	if (FLAGS_daemon)
 	{
 		daemonize();
@@ -177,8 +182,6 @@ int main (int argc, char* argv[])
 		// No errorfree load; exit the application
 		return -1;
 	}
-
-	App::AlarmManager alarmManager(config);
 
 	std::map<std::string, std::unique_ptr<App::AlarmClock>> startedUnits;
 	std::map<std::string, std::unique_ptr<App::Light>> startedLights;
@@ -196,8 +199,10 @@ int main (int argc, char* argv[])
 		Hardware::RTC rtc(i2c, systemConfig.mRtc);
 		Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
 		Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio, mainboardControl);
+		App::AlarmManager alarmManager(config, mainboardControl);
 
 		do{
+/*
 			for (const auto& configUnit : configuredUnits)
 			{
 				if (startedUnits.find(configUnit.first) == startedUnits.end())
@@ -223,7 +228,7 @@ int main (int argc, char* argv[])
 					startedUnits[configUnit.first]->registerLight(startedLights[configUnit.first].get());
 				}
 			}
-
+*/
 			// Sleep for 3 seconds; check for disconnected hardware after this time
 			std::this_thread::sleep_for( std::chrono::milliseconds(10000) );
 
@@ -231,7 +236,7 @@ int main (int argc, char* argv[])
 			{
 				i2c.printStatistics();
 			}
-
+/*
 			// Now run thru the connected devices; and see if they are still connected
 			// Start with the clock devices
 			auto unit_it = startedUnits.begin();
@@ -277,7 +282,7 @@ int main (int argc, char* argv[])
 				light_it++;
 			}
 
-
+*/
 		} while (runMain);
 
 	}
@@ -287,6 +292,7 @@ int main (int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
+	LOG(INFO) << "Exit application";
 
 	close(pidFilehandle);
 	return EXIT_SUCCESS;

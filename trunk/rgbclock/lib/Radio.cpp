@@ -40,6 +40,7 @@ Radio::~Radio()
 {
 	LOG(INFO) << "Radio destructor";
 	stopMaintenanceThread();
+	LOG(INFO) << "Radio destructor exit";
 }
 
 void Radio::registerRadioObserver(RadioObserverIf *observer)

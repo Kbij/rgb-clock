@@ -75,9 +75,10 @@ ClockDisplay::ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alar
 
 ClockDisplay::~ClockDisplay()
 {
-	LOG(INFO) << "Display destructor";
+	LOG(INFO) << "ClockDisplay destructor";
 	mKeyboard.unRegisterKeyboardObserver(this);
 	stopRefreshThread();
+	LOG(INFO) << "ClockDisplay destructor exit";
 }
 
 void ClockDisplay::showClock()

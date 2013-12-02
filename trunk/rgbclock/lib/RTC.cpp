@@ -89,7 +89,11 @@ RTC::RTC(I2C &i2c, uint8_t address):
 
 RTC::~RTC()
 {
+	LOG(INFO) << "RTC destructor";
+
 	stopRTCUpdateThread();
+
+	LOG(INFO) << "RTC destructor exit";
 }
 
 bool RTC::ntpSynchronized()
@@ -176,20 +180,26 @@ void RTC::stopRTCUpdateThread()
 void RTC::rtcThread()
 {
 	// sleep interval in minutes at boot
-	int sleepIntervalMin = 5;
+	int secondsInterval = 5 * 60; //5 min
+	int secondsPassed = 0;
     while (mRTCThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::minutes(sleepIntervalMin));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        ++secondsPassed;
 
-        if (ntpSynchronized())
+        if (secondsPassed > secondsInterval)
         {
-			LOG(INFO) << "NTP Synchronised, writing RTC";
+        	secondsPassed = 0;
+            if (ntpSynchronized())
+            {
+    			LOG(INFO) << "NTP Synchronised, writing RTC";
 
-        	sleepIntervalMin = 4320; // Every 3 days
-        	mI2C.blockI2C();
-        	runCmd("hwclock -w", true);
-        	mI2C.unBlockI2C();
+    			secondsInterval = 3 * 24 * 60 * 60; // Every 3 days
+            	mI2C.blockI2C();
+            	runCmd("hwclock -w", true);
+            	mI2C.unBlockI2C();
+            }
         }
 
     }

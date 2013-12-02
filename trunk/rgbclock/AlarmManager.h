@@ -7,6 +7,7 @@
 
 #ifndef ALARMMANAGER_H_
 #define ALARMMANAGER_H_
+#include "lib/WatchdogFeederIf.h"
 
 #include <set>
 #include <vector>
@@ -18,6 +19,10 @@
 #include <map>
 #include <sstream>
 #include <iomanip>
+
+namespace Hardware {
+class MainboardControl;
+}
 
 namespace App {
 
@@ -145,10 +150,10 @@ struct Alarm
 };
 
 using AlarmList = std::vector<Alarm>;
-class AlarmManager {
+class AlarmManager: public Hardware::WatchdogFeederIf {
 
 public:
-	AlarmManager(const Config& config);
+	AlarmManager(const Config& config, Hardware::MainboardControl &mainboardControl);
 	virtual ~AlarmManager();
 
 	void registerAlarmObserver(AlarmObserverIf* observer);
@@ -161,6 +166,7 @@ public:
 
 	std::string nextUnitName(std::string currentUnitName);
 
+	virtual std::string name();
 private:
 	struct NextAlarm
 	{
@@ -185,6 +191,7 @@ private:
 
 	void alarmThread();
 
+    Hardware::MainboardControl &mMainboardControl;
 	AlarmList mAlarmList;
 	std::set<AlarmObserverIf*> mAlarmObservers;
 	std::string mCurrentEditor;

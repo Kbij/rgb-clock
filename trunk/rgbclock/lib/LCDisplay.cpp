@@ -68,6 +68,7 @@ LCDisplay::~LCDisplay()
 {
 	//delete mGraphicRam;
 	//mGraphicRam = nullptr;
+	LOG(INFO) << "LCDisplay destructor exit";
 }
 
 void LCDisplay::initStandard()
