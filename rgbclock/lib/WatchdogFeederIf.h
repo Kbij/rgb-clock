@@ -7,6 +7,8 @@
 
 #ifndef WATCHDOGFEEDERIF_H_
 #define WATCHDOGFEEDERIF_H_
+#include <string>
+
 
 namespace Hardware {
 
@@ -14,6 +16,8 @@ class WatchdogFeederIf {
 
 public:
 	virtual ~WatchdogFeederIf() {};
+
+	virtual std::string name() = 0;
 };
 
 } /* namespace Hardware */

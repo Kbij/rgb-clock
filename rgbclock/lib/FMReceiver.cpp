@@ -47,6 +47,7 @@ FMReceiver::FMReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl &ma
 FMReceiver::~FMReceiver()
 {
 	powerOff();
+	LOG(INFO) << "FMReceiver destructor exit";
 }
 
 void FMReceiver::registerRadioObserver(RadioObserverIf *observer)

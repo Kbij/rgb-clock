@@ -19,12 +19,14 @@
 #include <thread>
 
 namespace Hardware {
+class WatchdogFeederIf;
+
 enum class InputSelection
 {
 	RadioIn,
 	Auxin
 };
-class WatchdogFeederIf;
+
 struct FeederInfo
 {
 	int mPromiseTimeout;
@@ -44,7 +46,7 @@ public:
 	void mute(bool mute);
 	void resetTuner();
 	void selectInput(InputSelection input);
-	void signalWatchdog();
+	void signalWatchdog(WatchdogFeederIf *watchdogFeeder);
 
 private:
 	void init();
@@ -60,6 +62,7 @@ private:
 	std::bitset<8> mMainBus;
 	std::mutex mBusMutex;
 	std::map<WatchdogFeederIf*, FeederInfo> mWatchdogFeeders;
+    std::mutex mFeederMutex;
 	int mWatchdogHandle;
     std::thread* mWatchdogThread;
     std::atomic_bool mWatchdogThreadRunning;

@@ -45,8 +45,7 @@ Keyboard::~Keyboard()
 {
 	LOG(INFO) << "Keyboard destructor";
 	stopReadThread();
-	LOG(INFO) << "Keyboard destructor 2";
-
+	LOG(INFO) << "Keyboard destructor exit";
 }
 
 void Keyboard::registerKeyboardObserver(KeyboardObserverIf *observer)

@@ -9,6 +9,7 @@
 #include "AlarmObserverIf.h"
 
 #include "Config.h"
+#include "lib/MainboardControl.h"
 
 #include "tinyxml/ticpp.h"
 
@@ -22,7 +23,8 @@ DEFINE_string(alarmfile,"alarms.xml","XML file containing the definition of alar
 
 namespace App {
 
-AlarmManager::AlarmManager(const Config& config):
+AlarmManager::AlarmManager(const Config& config, Hardware::MainboardControl &mainboardControl):
+		mMainboardControl(mainboardControl),
 		mAlarmList(),
 		mAlarmObservers(),
 		mCurrentEditor(),
@@ -36,6 +38,7 @@ AlarmManager::AlarmManager(const Config& config):
 {
 	loadAlarms();
 	startAlarmThread();
+	mMainboardControl.promiseWatchdog(this, 2000);
 }
 
 AlarmManager::~AlarmManager()
@@ -125,6 +128,11 @@ std::string AlarmManager::nextUnitName(std::string currentUnitName)
 		return "";
 	}
 
+}
+
+std::string AlarmManager::name()
+{
+	return "AlarmManager";
 }
 
 bool fileExists(std::string fileName)
@@ -340,6 +348,8 @@ void AlarmManager::alarmThread()
     {
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::seconds(1));
+        mMainboardControl.signalWatchdog(this);
+
     	std::lock_guard<std::mutex> lk_guard(mAlarmsMutex);
     	if (mCurrentEditor == "")
     	{
