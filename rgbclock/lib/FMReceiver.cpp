@@ -35,6 +35,8 @@ FMReceiver::FMReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl &ma
 		mRadioObserversMutex()
 {
 	mMainboardControl.resetTuner();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
 	powerOff();
 	mMainboardControl.selectInput(InputSelection::RadioIn);
 

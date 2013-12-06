@@ -35,18 +35,21 @@ public:
 	FMReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl &mainboardControl);
 	virtual ~FMReceiver();
 	friend Radio;
+    bool powerOn();
+    bool tuneFrequency(double frequency);
+
 private:
 	void registerRadioObserver(RadioObserverIf *observer);
     void unRegisterRadioObserver(RadioObserverIf *observer);
 
-    bool powerOn();
+//    bool powerOn();
 	bool powerOff();
 
 	bool internalPowerOn();
 	bool internalPowerOff();
 
 	bool seekUp(int timeout);
-	bool tuneFrequency(double frequency);
+//	bool tuneFrequency(double frequency);
 	RDSInfo getRDSInfo();
 
 	void readRDSInfo();

@@ -14,15 +14,15 @@
 namespace
 {
 const uint8_t RL_U17 = 0;
-const uint8_t RL_U16 = 2;
-const uint8_t RL_U15 = 4;
-const uint8_t RL_U14 = 8;
+const uint8_t RL_U16 = 1;
+const uint8_t RL_U15 = 2;
+const uint8_t RL_U14 = 3;
 
 const uint8_t MUTE      = 0;
-const uint8_t RADIO_IN  = 2;
-const uint8_t AUX_IN    = 4;
-const uint8_t RADIO_RST = 8;
-const uint8_t WATCHDOG  = 10;
+const uint8_t RADIO_IN  = 1;
+const uint8_t AUX_IN    = 2;
+const uint8_t RADIO_RST = 3;
+const uint8_t WATCHDOG  = 4;
 
 const int WATCHDOG_SLEEP = 10;
 }
