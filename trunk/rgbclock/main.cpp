@@ -197,10 +197,13 @@ int main (int argc, char* argv[])
 	{
 		Hardware::I2C i2c;
 		Hardware::RTC rtc(i2c, systemConfig.mRtc);
-		Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
+		Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, 32, !FLAGS_disablewatchdog);
 		Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio, mainboardControl);
-		App::AlarmManager alarmManager(config, mainboardControl);
-
+	//	App::AlarmManager alarmManager(config, mainboardControl);
+		if (fmReceiver.powerOn())
+		{
+			fmReceiver.tuneFrequency(94.5);
+		}
 		do{
 /*
 			for (const auto& configUnit : configuredUnits)
