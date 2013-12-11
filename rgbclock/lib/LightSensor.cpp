@@ -58,7 +58,6 @@ void LightSensor::stopReadThread()
 
     if (mReadThread)
     {
-        // wait for alarm maintenance thread to finish and delete maintenance thread object
     	mReadThread->join();
 
         delete mReadThread;
@@ -68,7 +67,7 @@ void LightSensor::stopReadThread()
 
 void LightSensor::readThread()
 {
-    while (mReadThreadRunning == true)
+    while (mReadThreadRunning)
     {
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
