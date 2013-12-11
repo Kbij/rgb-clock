@@ -48,6 +48,8 @@ public:
 	void selectInput(InputSelection input);
 	void signalWatchdog(WatchdogFeederIf *watchdogFeeder);
 
+//	void testSetRelay(int pos, bool enable);
+
 private:
 	void init();
 	void stopWatchdog();
@@ -60,7 +62,7 @@ private:
 	const bool mWatchdogEnabled;
 	std::bitset<8> mRelaisBus;
 	std::bitset<8> mMainBus;
-	std::mutex mBusMutex;
+	std::recursive_mutex mBusMutex;
 	std::map<WatchdogFeederIf*, FeederInfo> mWatchdogFeeders;
     std::mutex mFeederMutex;
 	int mWatchdogHandle;

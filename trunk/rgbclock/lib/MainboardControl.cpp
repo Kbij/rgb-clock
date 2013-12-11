@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <linux/watchdog.h>
 #include <sys/ioctl.h>
+#include <string>
 
 namespace
 {
@@ -25,6 +26,23 @@ const uint8_t RADIO_RST = 3;
 const uint8_t WATCHDOG  = 4;
 
 const int WATCHDOG_SLEEP = 10;
+}
+namespace
+{
+std::string inputToString(Hardware::InputSelection input)
+{
+	switch (input)
+	{
+	case Hardware::InputSelection::RadioIn:
+		return "Radio";
+		break;
+	case Hardware::InputSelection::Auxin:
+		return "Aux";
+		break;
+	}
+
+	return "";
+}
 }
 
 namespace Hardware {
@@ -107,9 +125,9 @@ void MainboardControl::mute(bool mute)
 	}
 
 	LOG(INFO) << "Mute audio:" << mute;
-    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+    std::lock_guard<std::recursive_mutex> lk_guard(mBusMutex);
 
-	mMainBus.set(MUTE) = !mute;
+	mMainBus[MUTE] = !mute;
 	mIO.writeB(mMainBus.to_ulong());
 }
 
@@ -121,7 +139,7 @@ void MainboardControl::resetTuner()
 	}
 
 	LOG(INFO) << "Reset Tuner";
-    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+    std::lock_guard<std::recursive_mutex> lk_guard(mBusMutex);
 
 	mMainBus[RADIO_RST] = 0;
 	mIO.writeB(mMainBus.to_ulong());
@@ -138,8 +156,9 @@ void MainboardControl::selectInput(InputSelection input)
 		return;
 	}
 
-	LOG(INFO) << "Select audio input";
-    std::lock_guard<std::mutex> lk_guard(mBusMutex);
+	LOG(INFO) << "Select audio input: " << inputToString(input);
+	std::lock_guard<std::recursive_mutex> lk_guard(mBusMutex);
+	mute(true);
 
 	// Disable all first
 	mMainBus[RADIO_IN] = 1;
@@ -158,6 +177,8 @@ void MainboardControl::selectInput(InputSelection input)
 	}
 
 	mIO.writeB(mMainBus.to_ulong());
+	mute(false);
+
 }
 
 void MainboardControl::signalWatchdog(WatchdogFeederIf *watchdogFeeder)
@@ -219,7 +240,13 @@ void MainboardControl::signalWatchdog(WatchdogFeederIf *watchdogFeeder)
         return 0;
  */
 }
-
+/*
+void MainboardControl::testSetRelay(int pos, bool enable)
+{
+	mRelaisBus[pos] = enable;
+	mIO.writeA(mRelaisBus.to_ulong());
+}
+*/
 void MainboardControl::init()
 {
 	mIO.directionA(IOExpander::DataDirection::dirOut);
