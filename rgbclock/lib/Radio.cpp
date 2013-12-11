@@ -7,6 +7,7 @@
 
 #include "Radio.h"
 #include "FMReceiver.h"
+#include "I2C.h"
 #include <glog/logging.h>
 #include <iostream>
 #include <cmath>
