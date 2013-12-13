@@ -72,7 +72,7 @@ void LCDBacklight::backLightThread()
         }
         else
         {
-            mPwmDriver.pwmValue(PwmLedDriver::PwmChannel::Channel1, lux);
+            mPwmDriver.pwmValue(PwmLedDriver::PwmChannel::Channel1, 500+lux);
         }
     }
 }
