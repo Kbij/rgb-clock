@@ -5,6 +5,9 @@
 #include "lib/FMReceiver.h"
 #include "lib/RTC.h"
 #include "lib/MainboardControl.h"
+#include "lib/IOExpander.h"
+#include "lib/LCDisplay.h"
+#include "lib/LCDBacklight.h"
 #include "Light.h"
 #include "AlarmClock.h"
 #include "Config.h"
@@ -44,6 +47,7 @@ void signal_handler(int sig)
 			break;
 		case SIGINT:
 		case SIGTERM:
+		case SIGKILL:
 			LOG(INFO) << "Daemon exiting";
 			runMain = false;
 			break;
@@ -64,6 +68,7 @@ void registerSignals()
     sigaddset(&newSigSet, SIGTSTP);  /* ignore Tty stop signals */
     sigaddset(&newSigSet, SIGTTOU);  /* ignore Tty background writes */
     sigaddset(&newSigSet, SIGTTIN);  /* ignore Tty background reads */
+    sigaddset(&newSigSet, SIGKILL);  /* Netbeans terminate process */
     sigprocmask(SIG_BLOCK, &newSigSet, NULL);   /* Block the above specified signals */
 
     /* Set up a signal handler */
@@ -166,6 +171,8 @@ int main (int argc, char* argv[])
 	usage += argv[0];
 	google::SetUsageMessage(usage);
 	google::ParseCommandLineFlags(&argc, &argv, true);
+	LOG(INFO) << "Raspberry Pi Ultimate Alarm Clock";
+	LOG(INFO) << "=================================";
 
 	registerSignals();
 
@@ -188,24 +195,22 @@ int main (int argc, char* argv[])
 
 	const std::map<std::string, App::UnitConfig>& configuredUnits = config.configuredUnits();
 	const App::SystemConfig& systemConfig = config.systemConfig();
-
-	LOG(INFO) << "Raspberry Pi Ultimate Alarm Clock";
-	LOG(INFO) << "=================================";
 	LOG(INFO) << "Number of configured units: " << configuredUnits.size();
 
 	try
 	{
 		Hardware::I2C i2c;
+
+		// Reset all PCA9685's
+		i2c.writeByteSync(0x00, 0x06); // General Call Address, Send SWRST data byte 1):
+
 		Hardware::RTC rtc(i2c, systemConfig.mRtc);
 		Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, 32, !FLAGS_disablewatchdog);
 		Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio, mainboardControl);
-	//	App::AlarmManager alarmManager(config, mainboardControl);
-		if (fmReceiver.powerOn())
-		{
-			fmReceiver.tuneFrequency(94.5);
-		}
+		App::AlarmManager alarmManager(config, mainboardControl);
+
 		do{
-/*
+
 			for (const auto& configUnit : configuredUnits)
 			{
 				if (startedUnits.find(configUnit.first) == startedUnits.end())
@@ -231,15 +236,15 @@ int main (int argc, char* argv[])
 					startedUnits[configUnit.first]->registerLight(startedLights[configUnit.first].get());
 				}
 			}
-*/
-			// Sleep for 3 seconds; check for disconnected hardware after this time
-			std::this_thread::sleep_for( std::chrono::milliseconds(10000) );
+
+			// Sleep for 10 seconds; check for disconnected hardware after this time
+			std::this_thread::sleep_for( std::chrono::seconds(10) );
 
 			if (FLAGS_i2cstatistics)
 			{
 				i2c.printStatistics();
 			}
-/*
+
 			// Now run thru the connected devices; and see if they are still connected
 			// Start with the clock devices
 			auto unit_it = startedUnits.begin();
@@ -285,8 +290,37 @@ int main (int argc, char* argv[])
 				light_it++;
 			}
 
-*/
+
 		} while (runMain);
+
+		LOG(INFO) << "Exit application, cleaning up ...";
+
+		// Delete the clock units
+		auto unit_it = startedUnits.begin();
+		while (unit_it != startedUnits.end())
+		{
+			// Need to remove the clock unit; first find (if any) the light unit, and unregister
+			auto lightUnit = startedLights.find(unit_it->first);
+			if (lightUnit != startedLights.end())
+			{
+				LOG(INFO) << "The Clock unit had a registered light; unregistering the light";
+				unit_it->second->unRegisterLight(lightUnit->second.get());
+			}
+
+			LOG(INFO) << "Deleting the clock unit";
+			startedUnits.erase(unit_it);
+			unit_it++;
+		}
+
+		// Do the same with the light devices
+		auto light_it = startedLights.begin();
+		while (light_it != startedLights.end())
+		{
+			LOG(INFO) << "Deleting the light";
+			startedLights.erase(light_it);
+
+			light_it++;
+		}
 
 	}
 	catch (std::string &ex)

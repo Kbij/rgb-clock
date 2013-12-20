@@ -13,11 +13,7 @@ namespace Hardware
 {
 LightSensor::LightSensor(I2C &i2c, uint8_t address) :
 		mI2C(i2c),
-		mAddress(address),
-		mLux(),
-		mIntensityMutex(),
-		mReadThread(nullptr),
-		mReadThreadRunning(false)
+		mAddress(address)
 {
 	mI2C.registerAddress(address, "Light Sensor");
 	init();
@@ -25,13 +21,18 @@ LightSensor::LightSensor(I2C &i2c, uint8_t address) :
 
 LightSensor::~LightSensor()
 {
-	stopReadThread();
 }
 
 double LightSensor::lux()
 {
-    std::lock_guard<std::mutex> lk_guard(mIntensityMutex);
-	return mLux;
+    uint16_t channel0;
+    uint16_t channel1;
+
+    mI2C.readWordSync(mAddress, 0xAC, channel0);
+    mI2C.readWordSync(mAddress, 0xAE, channel1);
+    VLOG(2) << "Channel 0: " << (int) channel0;
+    VLOG(2) << "Channel 1: " << (int) channel1;
+    return calculateLux(channel0, channel1);
 }
 
 bool LightSensor::init()
@@ -39,51 +40,10 @@ bool LightSensor::init()
 	// Startup the device
 	mI2C.writeByteSync(mAddress, 0x03);
 
-	// Thread will wait for 500ms before the first read
-	startReadThread();
 	return true;
 }
 
-void LightSensor::startReadThread()
-{
-	mReadThreadRunning = true;
-
-    // create read thread object and start read thread
-	mReadThread = new std::thread(&LightSensor::readThread, this);
-}
-
-void LightSensor::stopReadThread()
-{
-	mReadThreadRunning = false;
-
-    if (mReadThread)
-    {
-    	mReadThread->join();
-
-        delete mReadThread;
-        mReadThread = nullptr;
-    }
-}
-
-void LightSensor::readThread()
-{
-    while (mReadThreadRunning)
-    {
-        // default sleep interval
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        //LOG(INFO) << "Measuring light intensity";
-        uint16_t channel0;
-        uint16_t channel1;
-
-        mI2C.readWordSync(mAddress, 0xAC, channel0);
-        mI2C.readWordSync(mAddress, 0xAE, channel1);
-        VLOG(2) << "Channel 0: " << (int) channel0;
-        VLOG(2) << "Channel 1: " << (int) channel1;
-        calculateLux(channel0, channel1);
-    }
-}
-
-void LightSensor::calculateLux(uint16_t channel0, uint16_t channel1)
+double LightSensor::calculateLux(uint16_t channel0, uint16_t channel1)
 {
 /* Calculation from datasheet:
  * For 0 < CH1/CH0 <= 0.50:    Lux = 0.0304 x CH0 − 0.062 x CH0 x ((CH1/CH0)1.4)
@@ -116,10 +76,7 @@ void LightSensor::calculateLux(uint16_t channel0, uint16_t channel1)
 	{
 		lux = 0;
 	}
-    //LOG(INFO) << "lux: " << lux;
 
-    std::lock_guard<std::mutex> lk_guard(mIntensityMutex);
-
-    mLux = lux;
+    return lux;
 }
 }

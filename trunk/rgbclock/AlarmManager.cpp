@@ -170,7 +170,7 @@ void AlarmManager::loadAlarms()
 	        	ticpp::Element *unitElement = alarm->FirstChildElement("unit", false);
 	        	if ( unitElement != nullptr )
 	        	{
-	        		alarmSettings.mUnit = unitElement->GetText();
+	        		alarmSettings.mUnit = unitElement->GetText(false);// Do not throw when no text is filled in
 	        	}
 
 	        	ticpp::Element *hourElement = alarm->FirstChildElement("hour", true);

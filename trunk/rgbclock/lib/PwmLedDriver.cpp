@@ -22,8 +22,6 @@ PwmLedDriver::PwmLedDriver(I2C &i2c, uint8_t address):
 {
 	mI2C.registerAddress(address, "PWM");
 
-	// Reset PCA9685
-	mI2C.writeByteSync(0x00, 0x06); // General Call Address, Send SWRST data byte 1):
 	init();
 }
 
@@ -68,7 +66,6 @@ void PwmLedDriver::pwmValue(PwmChannel channel, uint16_t value)
 	buffer.push_back(0x00); // Channel LedOn, byte 1 value
 	buffer.push_back(offTime & 0xFF); // Channel LedOff, byte 0 value
 	buffer.push_back((offTime >> 8) & 0x0F); // Channel LedOff, byte 1 value
-
 	mI2C.writeDataSync(mAddress, buffer);
 }
 

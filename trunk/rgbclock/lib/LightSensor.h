@@ -24,19 +24,9 @@ public:
 
 private:
 	bool init();
-	void startReadThread();
-	void stopReadThread();
-	void readThread();
-	void calculateLux(uint16_t ch0, uint16_t ch1);
+	double calculateLux(uint16_t ch0, uint16_t ch1);
 	I2C &mI2C;
 	const uint8_t mAddress;
-
-	double mLux;
-	std::mutex mIntensityMutex;
-    std::thread* mReadThread;
-    std::atomic_bool mReadThreadRunning;
-
-
 };
 }
 #endif /* LIGHTSENSOR_H_ */

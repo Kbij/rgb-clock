@@ -108,6 +108,12 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.956519331.771961594.1121735565.1196635864" name="main_hwtest.cpp" rcbsApplicability="disable" resourcePath="main_hwtest.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.392577676.1424594080">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.392577676.1424594080" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.392577676"/>
+					</fileInfo>
+					<sourceEntries>
+						<entry excluding="main_hwtest.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
