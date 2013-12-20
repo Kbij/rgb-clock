@@ -64,15 +64,14 @@ void LCDBacklight::backLightThread()
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         auto lux = mLightSensor.lux();
 
-        LOG(INFO) << "Measured Lux: " << lux;
         if (mUserActivityTimer > 0)
         {
         	--mUserActivityTimer;
-        	mPwmDriver.pwmValue(PwmLedDriver::PwmChannel::Channel1, 2000);
+        	mPwmDriver.pwmValue(PwmLedDriver::PwmChannel::Channel1, 2500);
         }
         else
         {
-            mPwmDriver.pwmValue(PwmLedDriver::PwmChannel::Channel1, 500+lux);
+            mPwmDriver.pwmValue(PwmLedDriver::PwmChannel::Channel1, 500+(lux*2));
         }
     }
 }

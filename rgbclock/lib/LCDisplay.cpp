@@ -17,8 +17,6 @@ namespace
 const uint8_t RS = 0;
 const uint8_t RW = 1;
 const uint8_t E = 2;
-const uint8_t E2 = 3;
-const uint8_t RELAY = 4;
 
 const uint32_t CHANGED_BIT = 0x80000000;
 }
@@ -66,8 +64,6 @@ LCDisplay::LCDisplay(I2C &i2c, uint8_t address):
 
 LCDisplay::~LCDisplay()
 {
-	//delete mGraphicRam;
-	//mGraphicRam = nullptr;
 	LOG(INFO) << "LCDisplay destructor exit";
 }
 
@@ -183,13 +179,6 @@ void LCDisplay::rectangle(uint8_t col1, uint8_t row1, uint8_t col2, uint8_t row2
 		rawVLine(col2, row1, row2, set);
 	}
 	refreshDisplay();
-}
-
-void LCDisplay::setRelay(bool set)
-{
-    std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
-    mControlBus.set(RELAY, set);
-	mIO.writeB(mControlBus.to_ulong());
 }
 
 void LCDisplay::init()
@@ -342,7 +331,7 @@ void LCDisplay::writeData(uint8_t byte)
 	mIO.writeA(byte);
 
 	// Write data to display
-	mControlBus.flip(E2);
+	mControlBus.flip(E);
 	mIO.writeB(mControlBus.to_ulong());
 }
 
@@ -354,7 +343,7 @@ void LCDisplay::writeControl(uint8_t byte)
 	mIO.writeA(byte);
 
 	// Write data to display
-	mControlBus.flip(E2);
+	mControlBus.flip(E);
 
 	mIO.writeB(mControlBus.to_ulong());
 }
@@ -365,7 +354,7 @@ uint8_t LCDisplay::readControl()
 
 	setRSRWBits(0, 1); // RS=0, RW = 1
 
-	mControlBus.flip(E2);
+	mControlBus.flip(E);
 	mIO.writeB(mControlBus.to_ulong());
 
 	uint8_t byte;
@@ -388,7 +377,7 @@ uint8_t LCDisplay::readData()
 	setRSRWBits(1, 1); // RS=0, RW = 1
 
 
-	mControlBus.flip(E2);
+	mControlBus.flip(E);
 	mIO.writeB(mControlBus.to_ulong());
 
 	uint8_t byte;

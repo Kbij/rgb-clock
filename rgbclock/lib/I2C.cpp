@@ -84,7 +84,7 @@ bool I2C::writeByteSync(uint8_t address, uint8_t byte)
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
-			LOG(ERROR) << "Failed writing data: " << strerror(errno);
+			LOG(ERROR) << "Failed writing data (address: '" << (int) address << "'): " << strerror(errno);
 		}
 		mI2CWriteError = true;
 
@@ -148,7 +148,7 @@ bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
-			LOG(ERROR) << "Failed setting register address ("<< std::hex << (int) reg << "): " << strerror(errno) << std::dec;
+			LOG(ERROR) << "Failed setting register address (addr: " << (int) address << std::hex << ", reg: 0x" << (int) reg << "): " << strerror(errno) << std::dec;
 		}
 		mI2CWriteError = true;
 
@@ -262,7 +262,7 @@ bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeDa
 	// Set the port options and set the address of the device we wish to speak to
 	if (ioctl(i2cFile, I2C_SLAVE, address) < 0)
 	{
-		if (!mI2CWriteError) // If first occurrence
+	//	if (!mI2CWriteError) // If first occurrence
 		{
 			LOG(ERROR) << "Failed setting address: " << strerror(errno);
 		}
@@ -276,9 +276,9 @@ bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeDa
 	{
 		if ((write(i2cFile, writeData.data(), writeData.size())) != static_cast<int>(writeData.size()) )
 		{
-			if (!mI2CWriteError) // If first occurrence
+		//	if (!mI2CWriteError) // If first occurrence
 			{
-				LOG(ERROR) << "Failed writing data: " << strerror(errno);
+				LOG(ERROR) << "Failed writing data (address: '" << (int) address << "'): " << strerror(errno);
 			}
 			mI2CWriteError = true;
 

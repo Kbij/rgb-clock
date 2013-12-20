@@ -11,7 +11,7 @@
 #include "RadioObserverIf.h"
 #include "KeyboardObserverIf.h"
 #include "RDSInfo.h"
-#include "LightSensor.h"
+#include "LCDBacklight.h"
 #include "Radio.h"
 #include <string>
 #include <time.h>
@@ -115,7 +115,7 @@ private:
 
 
 	LCDisplay mLCDisplay;
-	LightSensor mLightSensor;
+	LCDBacklight mBackLight;
 	Keyboard& mKeyboard;
 	App::AlarmManager& mAlarmManager;
 

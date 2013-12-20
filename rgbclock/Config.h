@@ -20,6 +20,7 @@ struct UnitConfig
 	uint8_t mKeyboard;
 	uint8_t mAmplifier;
 	uint8_t mLightSensor;
+	uint8_t mBackLight;
 	uint8_t mLCD;
 };
 

@@ -54,8 +54,10 @@ void Config::loadXML()
         getInteger(settings, "hw_revision", mSystemConfig.mHardwareRevision);
         getInteger(settings, "rtc_addr", mSystemConfig.mRtc);
         getInteger(settings, "radio_addr", mSystemConfig.mRadio);
-        getInteger(settings, "radio_addr", mSystemConfig.mCentralIO);
-
+        if (mSystemConfig.mHardwareRevision > 1)
+        {
+        	getInteger(settings, "centralio_addr", mSystemConfig.mCentralIO);
+        }
         ticpp::Iterator<ticpp::Element>  unit(settings->FirstChildElement("clockunit"), "clockunit");
         while ( unit != unit.end() )
         {
@@ -67,8 +69,11 @@ void Config::loadXML()
         	getInteger(unit.Get(), "keyboard_addr", unitSettings.mKeyboard);
         	getInteger(unit.Get(), "amplifier_addr", unitSettings.mAmplifier);
         	getInteger(unit.Get(), "lcd_addr", unitSettings.mLCD);
-        	getInteger(unit.Get(), "lightsensor_addr", unitSettings.mLightSensor);
-
+            if (mSystemConfig.mHardwareRevision > 1)
+            {
+            	getInteger(unit.Get(), "lightsensor_addr", unitSettings.mLightSensor);
+        		getInteger(unit.Get(), "backlight_addr", unitSettings.mBackLight);
+            }
         	mConfiguredUnits[unitSettings.mName] = unitSettings;
         	// advance to next item
         	++unit;

@@ -44,7 +44,7 @@ namespace Hardware
 {
 ClockDisplay::ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alarmManager, const App::UnitConfig& unitConfig) :
 	mLCDisplay(i2c, unitConfig.mLCD),
-	mLightSensor(i2c, unitConfig.mLightSensor),
+	mBackLight(i2c, unitConfig.mBackLight, unitConfig.mLightSensor),
 	mKeyboard(keyboard),
 	mAlarmManager(alarmManager),
 	mDisplayState(DisplayState::stNormal),
@@ -166,7 +166,8 @@ void ClockDisplay::radioStateUpdate(RadioInfo radioInfo)
 
 void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, Hardware::KeyboardState state)
 {
-	mLCDisplay.setRelay(keyboardInfo[KEY_5].mPressed);
+	mBackLight.signalUserActivity();
+
 
 	if (keyboardInfo[KEY_1].mLongPress && !(keyboardInfo[KEY_1].mRepeat))
 	{
