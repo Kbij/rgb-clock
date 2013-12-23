@@ -148,7 +148,7 @@ bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
-			LOG(ERROR) << "Failed setting register address (addr: " << (int) address << std::hex << ", reg: 0x" << (int) reg << "): " << strerror(errno) << std::dec;
+			LOG(ERROR) << "Failed setting register address (addr: " << (int) address << std::hex << ", reg: 0x" << (int) reg << ", " << mAddressStatistics[address].mName << "): " << strerror(errno) << std::dec;
 		}
 		mI2CWriteError = true;
 
@@ -278,7 +278,7 @@ bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeDa
 		{
 		//	if (!mI2CWriteError) // If first occurrence
 			{
-				LOG(ERROR) << "Failed writing data (address: '" << (int) address << "'): " << strerror(errno);
+				LOG(ERROR) << "Failed writing data (address: " << (int) address << ", " << mAddressStatistics[address].mName << "): " << strerror(errno);
 			}
 			mI2CWriteError = true;
 
