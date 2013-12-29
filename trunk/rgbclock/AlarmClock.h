@@ -68,6 +68,7 @@ private:
     Hardware::MainboardControl &mMainboardControl;
 	Hardware::ClockDisplay mDisplay;
 	Light *mLight;
+	std::recursive_mutex mLightMutex;
 	std::atomic<ClockState> mClockState;
     std::thread* mAlarmMaintenanceThread;
     std::atomic_bool mAlarmMaintenanceThreadRunning;
