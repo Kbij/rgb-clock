@@ -296,31 +296,10 @@ int main (int argc, char* argv[])
 		LOG(INFO) << "Exit application, cleaning up ...";
 
 		// Delete the clock units
-		auto unit_it = startedUnits.begin();
-		while (unit_it != startedUnits.end())
-		{
-			// Need to remove the clock unit; first find (if any) the light unit, and unregister
-			auto lightUnit = startedLights.find(unit_it->first);
-			if (lightUnit != startedLights.end())
-			{
-				LOG(INFO) << "The Clock unit had a registered light; unregistering the light";
-				unit_it->second->unRegisterLight(lightUnit->second.get());
-			}
-
-			LOG(INFO) << "Deleting the clock unit";
-			startedUnits.erase(unit_it);
-			unit_it++;
-		}
+		startedUnits.clear();
 
 		// Do the same with the light devices
-		auto light_it = startedLights.begin();
-		while (light_it != startedLights.end())
-		{
-			LOG(INFO) << "Deleting the light";
-			startedLights.erase(light_it);
-
-			light_it++;
-		}
+		startedLights.clear();
 
 	}
 	catch (std::string &ex)
