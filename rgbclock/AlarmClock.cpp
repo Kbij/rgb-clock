@@ -82,7 +82,7 @@ void AlarmClock::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardI
 {
 	if ((mClockState == ClockState::clkAlarm) || (mClockState == ClockState::clkSnooze))
 	{
-		if (keyboardInfo[KEY_1].mShortPressed)
+		if (keyboardInfo[KEY_LEFT].mShortPressed)
 		{
 			mClockState = ClockState::clkNormal;
 			mDisplay.signalClockState(mClockState);

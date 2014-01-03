@@ -10,14 +10,15 @@
 #include <stdint.h>
 #include <vector>
 
-const uint8_t KEY_1         = 0;
+const uint8_t KEY_LEFT      = 0;
 const uint8_t KEY_CENTRAL_L = 1;
-const uint8_t KEY_3         = 4;
-const uint8_t KEY_4         = 3;
-const uint8_t KEY_5         = 2;
-const uint8_t KEY_CENTRAL_R = 5;
-const uint8_t KEY_UP        = 6;
-const uint8_t KEY_DOWN      = 7;
+const uint8_t KEY_CENTRAL_R = 2;
+const uint8_t KEY_UP        = 3;
+const uint8_t KEY_DOWN      = 4;
+const uint8_t KEY_REL1      = 5;
+const uint8_t KEY_REL2      = 6;
+const uint8_t KEY_REL3      = 7;
+const uint8_t KEY_REL4      = 8;
 
 namespace Hardware
 {
