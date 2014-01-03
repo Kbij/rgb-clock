@@ -15,10 +15,11 @@
 namespace Hardware
 {
 
-Radio::Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver):
+Radio::Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver, double frequency):
 	mI2C(i2c),
 	mAplifierAddress(amplifierAddress),
 	mFMReceiver(fmReceiver),
+	mFrequency(frequency),
 	mMaskRegister(0),
 	mControlRegister(0),
 	mVolume(20),
@@ -118,7 +119,7 @@ bool Radio::powerOn()
 	LOG(INFO) << "Radio On";
 	if (mFMReceiver.powerOn())
 	{
-		mFMReceiver.tuneFrequency(94.5);
+		mFMReceiver.tuneFrequency(mFrequency);
 	}
 
 	mState = RadioState::PwrOn;
