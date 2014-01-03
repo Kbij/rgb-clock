@@ -30,6 +30,7 @@ struct SystemConfig
 	uint8_t mRtc;
 	uint8_t mRadio;
 	uint8_t mCentralIO;
+	double mFrequency;
 };
 
 

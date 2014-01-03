@@ -27,7 +27,7 @@ class ClockDisplay;
 
 class Radio : public Hardware::KeyboardObserverIf {
 public:
-	Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver);
+	Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver, double frequency);
 	virtual ~Radio();
 
 	void registerRadioObserver(RadioObserverIf *observer);
@@ -59,6 +59,7 @@ private:
 	I2C &mI2C;
 	const uint8_t mAplifierAddress;
 	FMReceiver &mFMReceiver;
+	const double mFrequency;
 	ClockDisplay *mClockDisplay;
 	uint8_t mMaskRegister;
 	uint8_t mControlRegister;

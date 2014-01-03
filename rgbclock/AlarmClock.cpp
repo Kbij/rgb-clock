@@ -17,10 +17,10 @@ namespace App {
 const int SNOOZE_TIME = 1 * 60; // Snooze interval: 9min
 const int ALARM_TIME = 2 * 60; // Alarm time: 30 min
 
-AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig) :
+AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, double frequency, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig) :
 	mUnitConfig(unitConfig),
 	mKeyboard(i2c, unitConfig.mKeyboard),
-	mRadio(i2c, unitConfig.mAmplifier, fmReceiver),
+	mRadio(i2c, unitConfig.mAmplifier, fmReceiver, frequency),
 	mAlarmManager(alarmManager),
 	mMainboardControl(mainboardControl),
 	mDisplay(i2c, mKeyboard, mAlarmManager, unitConfig),

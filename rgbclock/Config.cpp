@@ -40,6 +40,19 @@ bool getInteger(ticpp::Element* element, const std::string& name, uint8_t& value
 	return false;
 }
 
+bool getDouble(ticpp::Element* element, const std::string& name, double& value, double defaultVal)
+{
+	ticpp::Element *doubleElement = element->FirstChildElement(name, false);
+	value = defaultVal;
+	if ( doubleElement != nullptr )
+	{
+		std::string doubleString = doubleElement->GetText();
+		value = std::stod(doubleString);
+		return true;
+	}
+	return false;
+}
+
 void Config::loadXML()
 {
 	LOG(INFO) << "Reading settings file: " << FLAGS_configfile;
@@ -54,6 +67,7 @@ void Config::loadXML()
         getInteger(settings, "hw_revision", mSystemConfig.mHardwareRevision);
         getInteger(settings, "rtc_addr", mSystemConfig.mRtc);
         getInteger(settings, "radio_addr", mSystemConfig.mRadio);
+        getDouble(settings, "frequency", mSystemConfig.mFrequency, 94.5);
         if (mSystemConfig.mHardwareRevision > 1)
         {
         	getInteger(settings, "centralio_addr", mSystemConfig.mCentralIO);

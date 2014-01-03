@@ -217,7 +217,7 @@ int main (int argc, char* argv[])
 				{
 					LOG(INFO) << "Creating clock unit: " << configUnit.first;
 					// Unit not found; create a unit
-					startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, alarmManager, mainboardControl, configUnit.second));
+					startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, systemConfig.mFrequency, alarmManager, mainboardControl, configUnit.second));
 				}
 
 				if (!startedUnits[configUnit.first]->hasRegisteredLight())
