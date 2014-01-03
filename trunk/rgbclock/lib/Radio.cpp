@@ -82,7 +82,7 @@ void Radio::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, 
 
 	if (state == KeyboardState::stNormal)
 	{
-		if (keyboardInfo[KEY_1].mShortPressed)
+		if (keyboardInfo[KEY_LEFT].mShortPressed)
 		{
 			switch (mState)
 			{

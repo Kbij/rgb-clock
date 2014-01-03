@@ -89,10 +89,12 @@ void MainboardControl::keyboardPressed(const std::vector<Hardware::KeyInfo>& key
 		return;
 	}
 
-	if (keyboardInfo[KEY_UP].mShortPressed || keyboardInfo[KEY_UP].mLongPress)
-	{
-		//mIO.writeB()
-	}
+	mRelaisBus[RL_U17] = keyboardInfo[KEY_REL1].mShortPressed || keyboardInfo[KEY_REL1].mLongPress;
+	mRelaisBus[RL_U16] = keyboardInfo[KEY_REL2].mShortPressed || keyboardInfo[KEY_REL2].mLongPress;
+	mRelaisBus[RL_U15] = keyboardInfo[KEY_REL3].mShortPressed || keyboardInfo[KEY_REL3].mLongPress;
+	mRelaisBus[RL_U14] = keyboardInfo[KEY_REL4].mShortPressed || keyboardInfo[KEY_REL4].mLongPress;
+
+	mIO.writeA(mRelaisBus.to_ulong());
 
 }
 

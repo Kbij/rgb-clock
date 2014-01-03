@@ -169,7 +169,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 	mBackLight.signalUserActivity();
 
 
-	if (keyboardInfo[KEY_1].mLongPress && !(keyboardInfo[KEY_1].mRepeat))
+	if (keyboardInfo[KEY_LEFT].mLongPress && !(keyboardInfo[KEY_LEFT].mRepeat))
 	{
 		if (state == KeyboardState::stNormal)
 		{
