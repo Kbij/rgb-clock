@@ -4,7 +4,7 @@ Description=RGB Clock
 [Service]
 Type=simple
 PIDFile=/var/run/rgbclock.pid
-ExecStart=/usr/sbin/rgbclock -daemon true -pidfile /var/run/rgbclock.pid  -log_dir /var/log/rgbclock
+ExecStart=/usr/sbin/rgbclock -daemon true -pidfile /var/run/rgbclock.pid  -log_dir /var/log/rgbclock --disablewatchdog=1 --alarmfile=/root/alarms.xml --configfile=/root/settings.xml
 User=root
 
 [Install]
