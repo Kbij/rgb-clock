@@ -9,6 +9,7 @@
 #define KEYBOARD_H_
 #include "I2C.h"
 #include "KeyboardObserverIf.h"
+#include "WatchdogFeederIf.h"
 #include <stdint.h>
 #include <mutex>
 #include <atomic>
