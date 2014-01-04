@@ -21,7 +21,7 @@ std::string binary(uint16_t number, uint8_t width)
 }
 const int LONG_MASK = 0x80;
 const int LONG_MASKREPEAT = 0x100;
-
+const int MONITORED_KEYS = 9;
 
 Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 	mI2C(i2c),
@@ -36,7 +36,7 @@ Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 	mKeyboardObserversMutex()
 {
 	mI2C.registerAddress(address, "MPR121");
-	mKeyHistory.resize(8,0); // Monitoring 8 Keys
+	mKeyHistory.resize(MONITORED_KEYS,0); // Monitoring 9 Keys
 	init();
 	startReadThread();
 }
@@ -152,9 +152,6 @@ void Keyboard::init()
       mI2C.writeRegByteSync(mAddress, ELE2_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
       mI2C.writeRegByteSync(mAddress, ELE3_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
       mI2C.writeRegByteSync(mAddress, ELE3_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-
-	  // TODO: enable setting these channels to capsense or GPIO
-	  // for now they are all capsense
       mI2C.writeRegByteSync(mAddress, ELE4_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
       mI2C.writeRegByteSync(mAddress, ELE4_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
       mI2C.writeRegByteSync(mAddress, ELE5_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
@@ -257,20 +254,25 @@ void Keyboard::readThread()
     {
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        uint8_t byte0;
+        uint8_t byte = 0;
 
-        mAttached = mAttached & mI2C.readByteSync(mAddress, ELE0_ELE7_TOUCH_STATUS, byte0);
+        mAttached = mAttached & mI2C.readByteSync(mAddress, ELE8_ELE11_ELEPROX_TOUCH_STATUS, byte);
+        uint16_t keybValue = byte;
+        keybValue <<= 8;
 
-        std::vector<Hardware::KeyInfo> keyboardInfo(8); // 8 Keys);
+        mAttached = mAttached & mI2C.readByteSync(mAddress, ELE0_ELE7_TOUCH_STATUS, byte);
+        keybValue |= byte;
+
+        std::vector<Hardware::KeyInfo> keyboardInfo(MONITORED_KEYS);
         bool stateChange = false;
 
-        for (int i = 0; i < 8; ++i)
+        for (int i = 0; i < MONITORED_KEYS; ++i)
         {
 
         	mKeyHistory[i] <<= 1;// Shift history 1 to the left
-        	mKeyHistory[i] |= (byte0 & 0x01); // add 1 bit to the history
+        	mKeyHistory[i] |= (keybValue & 0x01); // add 1 bit to the history
 
-        	byte0 >>= 1; // Shift the current values 1 to the right
+        	keybValue >>= 1; // Shift the current values 1 to the right
 
     		keyboardInfo[i].mShortPressed = false;
     		keyboardInfo[i].mReleased = false;
