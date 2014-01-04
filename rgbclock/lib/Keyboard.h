@@ -18,10 +18,11 @@
 
 namespace Hardware
 {
+class MainboardControl;
 
-class Keyboard {
+class Keyboard: public Hardware::WatchdogFeederIf {
 public:
-	Keyboard(I2C &i2c, uint8_t address);
+	Keyboard(I2C &i2c, uint8_t address, Hardware::MainboardControl &mainboardControl);
 	virtual ~Keyboard();
 
 	void registerKeyboardObserver(KeyboardObserverIf *observer);
@@ -30,6 +31,8 @@ public:
     void keyboardState(KeyboardState state);
 
     bool isAttached();
+
+    std::string feederName() const;
 private:
 	void init();
 	void startReadThread();
@@ -39,6 +42,7 @@ private:
 	I2C &mI2C;
 	std::atomic_bool mAttached;
 	const uint8_t mAddress;
+    Hardware::MainboardControl &mMainboardControl;
 	std::recursive_mutex mKeyboardStateMutex;
 	KeyboardState mKeyboardState;
 	std::vector<uint16_t> mKeyHistory;

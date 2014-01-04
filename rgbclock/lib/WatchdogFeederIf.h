@@ -17,7 +17,7 @@ class WatchdogFeederIf {
 public:
 	virtual ~WatchdogFeederIf() {};
 
-	virtual std::string name() = 0;
+	virtual std::string feederName() const = 0;
 };
 
 } /* namespace Hardware */

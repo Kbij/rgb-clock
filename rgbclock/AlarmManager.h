@@ -166,7 +166,7 @@ public:
 
 	std::string nextUnitName(std::string currentUnitName);
 
-	virtual std::string name();
+	virtual std::string feederName() const;
 private:
 	struct NextAlarm
 	{

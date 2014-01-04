@@ -19,7 +19,7 @@ const int ALARM_TIME = 2 * 60; // Alarm time: 30 min
 
 AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, double frequency, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig) :
 	mUnitConfig(unitConfig),
-	mKeyboard(i2c, unitConfig.mKeyboard),
+	mKeyboard(i2c, unitConfig.mKeyboard, mainboardControl),
 	mRadio(i2c, unitConfig.mAmplifier, fmReceiver, frequency),
 	mAlarmManager(alarmManager),
 	mMainboardControl(mainboardControl),
