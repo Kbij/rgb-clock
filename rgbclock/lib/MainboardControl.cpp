@@ -97,7 +97,6 @@ void MainboardControl::keyboardPressed(const std::vector<Hardware::KeyInfo>& key
 	mRelaisBus[RL_U14] = keyboardInfo[KEY_REL4].mPressed;
 
 	mIO.writeA(mRelaisBus.to_ulong());
-	LOG(INFO) << "Relaisbus: " << mRelaisBus;
 }
 
 void MainboardControl::promiseWatchdog(WatchdogFeederIf *watchdogFeeder, int timeoutMiliseconds)
@@ -105,6 +104,7 @@ void MainboardControl::promiseWatchdog(WatchdogFeederIf *watchdogFeeder, int tim
     if (watchdogFeeder)
     {
     	LOG(INFO) << "Receiving a promise from '" << watchdogFeeder->feederName() << "', timeout: " << timeoutMiliseconds;
+
         std::lock_guard<std::mutex> lk_guard(mFeederMutex);
         mWatchdogFeeders[watchdogFeeder].mPromiseTimeout = timeoutMiliseconds;
         mWatchdogFeeders[watchdogFeeder].mCurrentTimeout = timeoutMiliseconds;
@@ -115,7 +115,9 @@ void MainboardControl::removePromise(WatchdogFeederIf *watchdogFeeder)
 {
     if (watchdogFeeder)
     {
-        std::lock_guard<std::mutex> lk_guard(mFeederMutex);
+    	LOG(INFO) << "Removing promise from '" << watchdogFeeder->feederName();
+
+    	std::lock_guard<std::mutex> lk_guard(mFeederMutex);
         mWatchdogFeeders.erase(watchdogFeeder);
     }
 }

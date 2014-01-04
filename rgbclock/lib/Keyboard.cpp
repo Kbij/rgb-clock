@@ -259,7 +259,7 @@ void Keyboard::readThread()
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-	mMainboardControl.promiseWatchdog(this, 100);
+	mMainboardControl.promiseWatchdog(this, 500);
 
     while (mReadThreadRunning == true)
     {
