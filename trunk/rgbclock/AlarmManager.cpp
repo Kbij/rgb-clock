@@ -130,7 +130,7 @@ std::string AlarmManager::nextUnitName(std::string currentUnitName)
 
 }
 
-std::string AlarmManager::name()
+std::string AlarmManager::feederName() const
 {
 	return "AlarmManager";
 }

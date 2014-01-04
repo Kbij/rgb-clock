@@ -6,6 +6,7 @@
  */
 
 #include "Keyboard.h"
+#include "MainboardControl.h"
 #include <glog/logging.h>
 #include "MPR121.h"
 #include <bitset>
@@ -23,10 +24,11 @@ const int LONG_MASK = 0x80;
 const int LONG_MASKREPEAT = 0x100;
 const int MONITORED_KEYS = 9;
 
-Keyboard::Keyboard(I2C &i2c, uint8_t address) :
+Keyboard::Keyboard(I2C &i2c, uint8_t address, Hardware::MainboardControl &mainboardControl) :
 	mI2C(i2c),
 	mAttached(true), // We assume it is attached
 	mAddress(address),
+	mMainboardControl(mainboardControl),
 	mKeyboardStateMutex(),
 	mKeyboardState(KeyboardState::stNormal),
 	mKeyHistory(0),
@@ -36,7 +38,7 @@ Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 	mKeyboardObserversMutex()
 {
 	mI2C.registerAddress(address, "MPR121");
-	mKeyHistory.resize(MONITORED_KEYS,0); // Monitoring 9 Keys
+	mKeyHistory.resize(MONITORED_KEYS, 0); // Monitoring 9 Keys
 	init();
 	startReadThread();
 }
@@ -44,6 +46,8 @@ Keyboard::Keyboard(I2C &i2c, uint8_t address) :
 Keyboard::~Keyboard()
 {
 	LOG(INFO) << "Keyboard destructor";
+	mMainboardControl.removePromise(this);
+
 	stopReadThread();
 	LOG(INFO) << "Keyboard destructor exit";
 }
@@ -77,6 +81,11 @@ void Keyboard::keyboardState(KeyboardState state)
 bool Keyboard::isAttached()
 {
 	return mAttached;
+}
+
+std::string Keyboard::feederName() const
+{
+	return "Keyboard";
 }
 
 void Keyboard::init()
@@ -250,10 +259,14 @@ void Keyboard::readThread()
 {
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
+	mMainboardControl.promiseWatchdog(this, 100);
+
     while (mReadThreadRunning == true)
     {
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        mMainboardControl.signalWatchdog(this);
+
         uint8_t byte = 0;
 
         mAttached = mAttached & mI2C.readByteSync(mAddress, ELE8_ELE11_ELEPROX_TOUCH_STATUS, byte);
