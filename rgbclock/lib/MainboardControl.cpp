@@ -115,7 +115,7 @@ void MainboardControl::removePromise(WatchdogFeederIf *watchdogFeeder)
 {
     if (watchdogFeeder)
     {
-    	LOG(INFO) << "Removing promise from '" << watchdogFeeder->feederName();
+    	LOG(INFO) << "Removing promise from '" << watchdogFeeder->feederName() << "'";
 
     	std::lock_guard<std::mutex> lk_guard(mFeederMutex);
         mWatchdogFeeders.erase(watchdogFeeder);
