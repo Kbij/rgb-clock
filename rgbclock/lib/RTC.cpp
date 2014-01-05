@@ -76,7 +76,9 @@ RTC::RTC(I2C &i2c, uint8_t address):
 		if (rtcValidDateTime())
 		{
 			LOG(INFO) << "Synchronising hwclock with DS1307";
+        	mI2C.blockI2C();
 			runCmd("hwclock -s --debug", true);
+        	mI2C.unBlockI2C();
 		}
 	}
 	else
@@ -148,7 +150,10 @@ void RTC::showNTPStatus()
 
 bool RTC::rtcValidDateTime()
 {
+	mI2C.blockI2C();
 	std::string rtcStatus =  runCmd("hwclock -r", true);
+	mI2C.unBlockI2C();
+
 	if ((rtcStatus.find("invalid") != std::string::npos) || (rtcStatus.find("error") != std::string::npos))
 	{
 		return false;
