@@ -78,6 +78,8 @@ ClockDisplay::~ClockDisplay()
 	LOG(INFO) << "ClockDisplay destructor";
 	mKeyboard.unRegisterKeyboardObserver(this);
 	stopRefreshThread();
+	mLCDisplay.clearGraphicDisplay();
+
 	LOG(INFO) << "ClockDisplay destructor exit";
 }
 
