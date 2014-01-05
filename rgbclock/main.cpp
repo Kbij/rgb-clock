@@ -213,27 +213,33 @@ int main (int argc, char* argv[])
 
 			for (const auto& configUnit : configuredUnits)
 			{
-				if (startedUnits.find(configUnit.first) == startedUnits.end())
+				if (i2c.probeAddress(configUnit.second.mKeyboard))
 				{
-					LOG(INFO) << "Creating clock unit: " << configUnit.first;
-					// Unit not found; create a unit
-					startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, systemConfig.mFrequency, alarmManager, mainboardControl, configUnit.second));
-				}
-
-				if (!startedUnits[configUnit.first]->hasRegisteredLight())
-				{ // It has no registered light
-					LOG(INFO) << "Unit found, without light registered";
-
-					// Is there a light present for this unit ?
-					auto lightUnit = startedLights.find(configUnit.first);
-					if (lightUnit == startedLights.end())
+					if (startedUnits.find(configUnit.first) == startedUnits.end())
 					{
-						LOG(INFO) << "Found no existing light; creating: " << configUnit.first;
-						startedLights[configUnit.first] = std::unique_ptr<App::Light>(new App::Light(i2c, configUnit.second.mLight));
+						LOG(INFO) << "Creating clock unit: " << configUnit.first;
+						// Unit not found; create a unit
+						startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, systemConfig.mFrequency, alarmManager, mainboardControl, configUnit.second));
 					}
 
-					LOG(INFO) << "Registering the light";
-					startedUnits[configUnit.first]->registerLight(startedLights[configUnit.first].get());
+					if (i2c.probeAddress(configUnit.second.mLight))
+					{
+						if (!startedUnits[configUnit.first]->hasRegisteredLight())
+						{ // It has no registered light
+							LOG(INFO) << "Unit found, without light registered";
+
+							// Is there a light present for this unit ?
+							auto lightUnit = startedLights.find(configUnit.first);
+							if (lightUnit == startedLights.end())
+							{
+								LOG(INFO) << "Found no existing light; creating: " << configUnit.first;
+								startedLights[configUnit.first] = std::unique_ptr<App::Light>(new App::Light(i2c, configUnit.second.mLight));
+							}
+
+							LOG(INFO) << "Registering the light";
+							startedUnits[configUnit.first]->registerLight(startedLights[configUnit.first].get());
+						}
+					}
 				}
 			}
 
