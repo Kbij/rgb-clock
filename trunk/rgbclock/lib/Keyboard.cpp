@@ -267,14 +267,10 @@ void Keyboard::readThread()
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         mMainboardControl.signalWatchdog(this);
 
-        uint8_t byte = 0;
+        uint16_t keybValue = 0;
 
-        mAttached = mAttached & mI2C.readByteSync(mAddress, ELE8_ELE11_ELEPROX_TOUCH_STATUS, byte);
-        uint16_t keybValue = byte;
-        keybValue <<= 8;
-
-        mAttached = mAttached & mI2C.readByteSync(mAddress, ELE0_ELE7_TOUCH_STATUS, byte);
-        keybValue |= byte;
+        // Must read high and low byte in one read
+        mAttached = mAttached & mI2C.readWordSync(mAddress, ELE0_ELE7_TOUCH_STATUS, keybValue);
 
         std::vector<Hardware::KeyInfo> keyboardInfo(MONITORED_KEYS);
         bool stateChange = false;
