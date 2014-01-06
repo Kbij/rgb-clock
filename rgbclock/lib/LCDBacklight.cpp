@@ -62,7 +62,7 @@ void LCDBacklight::backLightThread()
     {
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        auto lux = 0;//mLightSensor.lux();
+        auto lux = mLightSensor.lux();
 
         if (mUserActivityTimer > 0)
         {
