@@ -18,7 +18,7 @@ std::string runCmd(const std::string& cmd, bool log)
 
     if (!pipe)
     {
-    	LOG(ERROR) << "Unable to run Cmd: " << cmd;
+    	std::cout << "Unable to run Cmd: " << cmd << std::endl;
     	return "";
     }
 
@@ -34,7 +34,7 @@ std::string runCmd(const std::string& cmd, bool log)
     pclose(pipe);
     if (log)
     {
-    	LOG(INFO) << "Run Cmd: " << cmd;
+    	std::cout << "Run Cmd: " << cmd << std::endl;
         std::istringstream resultStream(result);
         std::string line;
         while (std::getline(resultStream, line))
@@ -55,15 +55,15 @@ RTC::RTC(I2C &i2c, uint8_t address):
 	mRTCThreadRunning(false)
 {
 
-	LOG(INFO) << "Checking time accuracy";
+	std::cout << "Checking time accuracy" << std::endl;
 
 	if (!ntpSynchronized())
 	{
-		LOG(INFO) << "Accessing RTC Clock";
+		std::cout <<  "Accessing RTC Clock" << std::endl;
 		std::ifstream ifile("/sys/bus/i2c/devices/1-0068");
 		if (!ifile)
 		{
-			LOG(INFO) << "DS1307 not registered, registering...";
+			std::cout << "DS1307 not registered, registering..." << std::endl;
 		  // RTC Device not registered on I2C bus
 			std::ofstream newDevice("/sys/class/i2c-adapter/i2c-1/new_device");
 			if (newDevice)
@@ -75,7 +75,7 @@ RTC::RTC(I2C &i2c, uint8_t address):
 
 		if (rtcValidDateTime())
 		{
-			LOG(INFO) << "Synchronising hwclock with DS1307";
+			std::cout << "Synchronising hwclock with DS1307" << std::endl;
         	mI2C.blockI2C();
 			runCmd("hwclock -s --debug", true);
         	mI2C.unBlockI2C();
@@ -83,7 +83,7 @@ RTC::RTC(I2C &i2c, uint8_t address):
 	}
 	else
 	{
-		LOG(INFO) << "Time synchronized with ntp server";
+		std::cout << "Time synchronized with ntp server" << std::endl;
 	}
 
 	startRTCUpdateThread();
@@ -119,8 +119,8 @@ bool RTC::ntpSynchronized()
 
     	    if (columns.size() > 7)
     	    {
-				LOG(INFO) << "Synchronised with: " << columns[0];
-				LOG(INFO) << "Delay: " << columns[7] << "msec";
+//				LOG(INFO) << "Synchronised with: " << columns[0];
+//				LOG(INFO) << "Delay: " << columns[7] << "msec";
 				std::istringstream input(columns[7]);
 				double delay;
 				if (!(input >> delay))
@@ -170,6 +170,7 @@ void RTC::startRTCUpdateThread()
 
 	mRTCThread = new std::thread(&RTC::rtcThread, this);
 }
+
 void RTC::stopRTCUpdateThread()
 {
 	mRTCThreadRunning = false;
@@ -198,6 +199,7 @@ void RTC::rtcThread()
         	secondsPassed = 0;
             if (ntpSynchronized())
             {
+            	// Min 5 minutes after start: glog already initialised
     			LOG(INFO) << "NTP Synchronised, writing RTC";
 
     			secondsInterval = 3 * 24 * 60 * 60; // Every 3 days
