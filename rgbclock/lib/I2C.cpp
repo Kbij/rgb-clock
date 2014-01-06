@@ -14,6 +14,7 @@
 #include <sys/ioctl.h>
 #include <string>
 #include <iomanip>
+#include <iostream>
 
 namespace Hardware
 {
@@ -40,7 +41,7 @@ I2C::I2C() :
 	}
 	else
 	{
-		LOG(INFO) << "I2C operational" ;
+		std::cout << "I2C operational" << std::endl;
 	}
 	close(i2cFile);
 #endif
