@@ -14,6 +14,7 @@
 #include <thread>
 #include <glog/logging.h>
 #include <algorithm>
+#include <pthread.h>
 
 namespace Hardware
 {
@@ -483,6 +484,8 @@ void FMReceiver::stopReadThread()
 }
 void FMReceiver::readThread()
 {
+	pthread_setname_np(pthread_self(), "FM Receiver");
+
     while (mReadThreadRunning == true)
     {
         // default sleep interval

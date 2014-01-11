@@ -8,6 +8,7 @@
 #include "Light.h"
 #include <glog/logging.h>
 #include <time.h>
+#include <pthread.h>
 
 namespace App
 {
@@ -197,6 +198,8 @@ void Light::stopDimmerThread()
 
 void Light::dimmerThread()
 {
+	pthread_setname_np(pthread_self(), "Dimmer");
+
 	int sleepInterval = 1;
 	int deltaLuminance = 20;
 	int targetLuminance = 0;

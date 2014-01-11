@@ -17,6 +17,7 @@
 #include <gflags/gflags.h>
 #include <string>
 #include <fstream>
+#include <pthread.h>
 
 DEFINE_string(alarmfile,"alarms.xml","XML file containing the definition of alarms");
 
@@ -344,6 +345,8 @@ int minutesUntilFired(const Alarm& alarm)
 
 void AlarmManager::alarmThread()
 {
+	pthread_setname_np(pthread_self(), "AlarmManager");
+
     while (mAlarmThreadRunning == true)
     {
         // default sleep interval

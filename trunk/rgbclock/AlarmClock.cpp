@@ -10,8 +10,8 @@
 #include "AlarmManager.h"
 #include "lib/FMReceiver.h"
 #include "lib/MainboardControl.h"
-
 #include <glog/logging.h>
+#include <pthread.h>
 
 namespace App {
 const int SNOOZE_TIME = 1 * 60; // Snooze interval: 9min
@@ -190,6 +190,8 @@ void AlarmClock::stopAlarmMaintenanceThread()
 
 void AlarmClock::alarmMaintenanceThread()
 {
+	pthread_setname_np(pthread_self(), "AlarmClock");
+
 	   while (mAlarmMaintenanceThreadRunning)
 	   {
 		   std::this_thread::sleep_for(std::chrono::seconds(1));

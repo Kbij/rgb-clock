@@ -10,6 +10,7 @@
 #include <glog/logging.h>
 #include "MPR121.h"
 #include <bitset>
+#include <pthread.h>
 
 namespace Hardware
 {
@@ -257,6 +258,8 @@ void Keyboard::stopReadThread()
 
 void Keyboard::readThread()
 {
+	pthread_setname_np(pthread_self(), "Keyboard");
+
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
 	mMainboardControl.promiseWatchdog(this, 500);

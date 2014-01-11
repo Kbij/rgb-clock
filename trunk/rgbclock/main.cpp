@@ -23,7 +23,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <memory>
-
+#include <pthread.h>
 
 
 DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
@@ -169,6 +169,7 @@ int main (int argc, char* argv[])
     // Don't use any glog functions @constructor time of RTC
 	Hardware::I2C i2c;
     Hardware::RTC rtc(i2c, 0x68);
+	pthread_setname_np(pthread_self(), "Main RgbClock");
 
 	google::InitGoogleLogging("RGBClock");
 

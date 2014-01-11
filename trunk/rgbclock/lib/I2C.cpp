@@ -15,6 +15,7 @@
 #include <string>
 #include <iomanip>
 #include <iostream>
+#include <pthread.h>
 
 namespace Hardware
 {
@@ -443,6 +444,8 @@ void I2C::stopStatisticsThread()
 
 void I2C::statisticsThread()
 {
+	pthread_setname_np(pthread_self(), "I2C Statistics");
+
     while (mStatisticsThreadRunning == true)
     {
         // default sleep interval
