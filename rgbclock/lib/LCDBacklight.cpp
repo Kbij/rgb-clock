@@ -8,6 +8,7 @@
 #include "LCDBacklight.h"
 #include "I2C.h"
 #include <glog/logging.h>
+#include <pthread.h>
 
 namespace
 {
@@ -58,6 +59,8 @@ void LCDBacklight::stopBackLightThread()
 
 void LCDBacklight::backLightThread()
 {
+	pthread_setname_np(pthread_self(), "Backlight");
+
     while (mBackLightThreadRunning)
     {
         // default sleep interval

@@ -14,6 +14,7 @@
 #include <glog/logging.h>
 #include <iostream>
 #include <iomanip>
+#include <pthread.h>
 
 const int LINESPACING = 8;
 const int LINE1 = 0;
@@ -933,6 +934,7 @@ void ClockDisplay::refreshThread()
 {
 	int prevMin = -1;
 	int prevSec = -1;
+	pthread_setname_np(pthread_self(), "ClockDisplay");
 
     while (mRefreshThreadRunning == true)
     {

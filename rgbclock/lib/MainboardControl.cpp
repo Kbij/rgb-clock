@@ -12,6 +12,7 @@
 #include <linux/watchdog.h>
 #include <sys/ioctl.h>
 #include <string>
+#include <pthread.h>
 
 namespace
 {
@@ -257,6 +258,8 @@ void MainboardControl::stopWatchdogThread()
 
 void MainboardControl::watchdogThread()
 {
+	pthread_setname_np(pthread_self(), "Watchdog");
+
 	   while (mWatchdogThreadRunning)
 	   {
 		   std::this_thread::sleep_for(std::chrono::milliseconds(WATCHDOG_SLEEP));

@@ -11,6 +11,7 @@
 #include <glog/logging.h>
 #include <iostream>
 #include <cmath>
+#include <pthread.h>
 
 namespace Hardware
 {
@@ -41,7 +42,10 @@ Radio::Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver, double 
 Radio::~Radio()
 {
 	LOG(INFO) << "Radio destructor";
-	stopMaintenanceThread();
+	if (mState == RadioState::PwrOn)
+	{
+		powerOff();
+	}
 	LOG(INFO) << "Radio destructor exit";
 }
 
@@ -282,6 +286,8 @@ void Radio::stopMaintenanceThread()
 
 void Radio::maintenanceThread()
 {
+	pthread_setname_np(pthread_self(), "Radio");
+
 	   while (mMaintenanceThreadRunning)
 	   {
 		   std::this_thread::sleep_for(std::chrono::seconds(1));

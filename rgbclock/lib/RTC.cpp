@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <glog/logging.h>
 #include <fstream>
+#include <pthread.h>
 
 std::string runCmd(const std::string& cmd, bool log)
 {
@@ -185,6 +186,8 @@ void RTC::stopRTCUpdateThread()
 }
 void RTC::rtcThread()
 {
+	pthread_setname_np(pthread_self(), "RTC");
+
 	// sleep interval in minutes at boot
 	int secondsInterval = 5 * 60; //5 min
 	int secondsPassed = 0;
