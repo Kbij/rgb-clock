@@ -9,74 +9,45 @@
 #include <string>
 #include <iostream>
 #include <stdio.h>
+#include <gflags/gflags.h>
 #include <glog/logging.h>
-#include <fstream>
 #include <pthread.h>
 
-std::string runCmd(const std::string& cmd, bool log)
-{
-    FILE* pipe = popen(cmd.c_str(), "r");
-
-    if (!pipe)
-    {
-    	std::cout << "Unable to run Cmd: " << cmd << std::endl;
-    	return "";
-    }
-
-    char buffer[128];
-    std::string result = "";
-    while(!feof(pipe))
-    {
-    	if (fgets(buffer, 128, pipe) != NULL)
-    	{
-    		result += buffer;
-    	}
-    }
-    pclose(pipe);
-    if (log)
-    {
-    	std::cout << "Run Cmd: " << cmd << std::endl;
-        std::istringstream resultStream(result);
-        std::string line;
-        while (std::getline(resultStream, line))
-        {
-        	LOG(INFO) << line;
-        }
-
-    }
-
-    return result;
-}
+DEFINE_string(rtcStartupFile,"/var/log/rgbclock/rtcstartup.log","Log file containing the RTC startup.");
 
 namespace Hardware
 {
 RTC::RTC(I2C &i2c, uint8_t address):
 	mI2C(i2c),
 	mRTCThread(),
-	mRTCThreadRunning(false)
+	mRTCThreadRunning(false),
+	mRTCStartupLog()
 {
-
-	std::cout << "Checking time accuracy" << std::endl;
+	mRTCStartupLog.open(FLAGS_rtcStartupFile);
+	mRTCStartupLog << "Checking time accuracy" << std::endl;
 
 	if (!ntpSynchronized())
 	{
-		std::cout <<  "Accessing RTC Clock" << std::endl;
+		mRTCStartupLog << "Accessing RTC Clock" << std::endl;
 		std::ifstream ifile("/sys/bus/i2c/devices/1-0068");
 		if (!ifile)
 		{
-			std::cout << "DS1307 not registered, registering..." << std::endl;
-		  // RTC Device not registered on I2C bus
+			mRTCStartupLog << "DS1307 not registered, registering..."<< std::endl;
+		   // RTC Device not registered on I2C bus
 			std::ofstream newDevice("/sys/class/i2c-adapter/i2c-1/new_device");
 			if (newDevice)
 			{
 				newDevice << "ds1307 " << std::to_string(address);
 			}
 			newDevice.close();
+
+			// Wait a little bit; give the module time to load
+			std::this_thread::sleep_for(std::chrono::seconds(2));
 		}
 
 		if (rtcValidDateTime())
 		{
-			std::cout << "Synchronising hwclock with DS1307" << std::endl;
+			mRTCStartupLog << "Synchronising hwclock with DS1307" << std::endl;
         	mI2C.blockI2C();
 			runCmd("hwclock -s --debug", true);
         	mI2C.unBlockI2C();
@@ -84,10 +55,12 @@ RTC::RTC(I2C &i2c, uint8_t address):
 	}
 	else
 	{
-		std::cout << "Time synchronized with ntp server" << std::endl;
+		mRTCStartupLog << "Time synchronized with ntp server" << std::endl;
 	}
 
 	startRTCUpdateThread();
+
+	mRTCStartupLog.close();
 }
 
 RTC::~RTC()
@@ -120,8 +93,16 @@ bool RTC::ntpSynchronized()
 
     	    if (columns.size() > 7)
     	    {
-//				LOG(INFO) << "Synchronised with: " << columns[0];
-//				LOG(INFO) << "Delay: " << columns[7] << "msec";
+    	        if (mRTCStartupLog.is_open())
+    	    	{
+    	    		mRTCStartupLog << "Synchronised with: " << columns[0] << std::endl;
+    	    		mRTCStartupLog << "Delay: " << columns[7] << "msec" << std::endl;
+    	    	}
+    	        else
+    	        {
+    	        	LOG(INFO) << "Synchronised with: " << columns[0];
+    	        	LOG(INFO) << "Delay: " << columns[7] << "msec";
+    	        }
 				std::istringstream input(columns[7]);
 				double delay;
 				if (!(input >> delay))
@@ -163,6 +144,61 @@ bool RTC::rtcValidDateTime()
 	{
 		return true;
 	}
+}
+std::string RTC::runCmd(const std::string& cmd, bool log)
+{
+    FILE* pipe = popen(cmd.c_str(), "r");
+
+    if (!pipe)
+    {
+    	if (mRTCStartupLog.is_open())
+		{
+			mRTCStartupLog << "Unable to run Cmd: " << cmd << std::endl;
+		}
+    	else
+    	{
+    		LOG(ERROR) << "Unable to run Cmd: " << cmd << std::endl;
+    	}
+    	return "";
+    }
+
+    char buffer[128];
+    std::string result = "";
+    while(!feof(pipe))
+    {
+    	if (fgets(buffer, 128, pipe) != NULL)
+    	{
+    		result += buffer;
+    	}
+    }
+    pclose(pipe);
+    if (log)
+    {
+    	if (mRTCStartupLog.is_open())
+		{
+			mRTCStartupLog << "Run Cmd: " << cmd << std::endl;
+		}
+    	else
+    	{
+    		LOG(ERROR) << "Run Cmd: " << cmd << std::endl;
+    	}
+        std::istringstream resultStream(result);
+        std::string line;
+        while (std::getline(resultStream, line))
+        {
+        	if (mRTCStartupLog.is_open())
+    		{
+    			mRTCStartupLog << line << std::endl;
+    		}
+        	else
+        	{
+        		LOG(INFO) << line;
+        	}
+        }
+
+    }
+
+    return result;
 }
 
 void RTC::startRTCUpdateThread()
@@ -207,7 +243,7 @@ void RTC::rtcThread()
 
     			secondsInterval = 3 * 24 * 60 * 60; // Every 3 days
             	mI2C.blockI2C();
-            	runCmd("hwclock -w", true);
+            	runCmd("hwclock --systohc", true);
             	mI2C.unBlockI2C();
             }
         }

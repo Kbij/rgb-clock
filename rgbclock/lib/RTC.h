@@ -10,6 +10,7 @@
 #include "I2C.h"
 #include <atomic>
 #include <thread>
+#include <fstream>
 
 namespace Hardware
 {
@@ -24,6 +25,8 @@ public:
 private:
 	// Is the RTC clock set to a valid date/time ?
 	bool rtcValidDateTime();
+	std::string runCmd(const std::string& cmd, bool log);
+
 	void startRTCUpdateThread();
 	void stopRTCUpdateThread();
 	void rtcThread();
@@ -31,6 +34,7 @@ private:
 	I2C &mI2C;
     std::thread* mRTCThread;
     std::atomic_bool mRTCThreadRunning;
+    std::ofstream mRTCStartupLog;
 
 };
 }
