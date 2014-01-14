@@ -40,10 +40,7 @@ I2C::I2C() :
 		ex += strerror(errno);
 		throw ex;
 	}
-	else
-	{
-		std::cout << "I2C operational" << std::endl;
-	}
+
 	close(i2cFile);
 #endif
 }
