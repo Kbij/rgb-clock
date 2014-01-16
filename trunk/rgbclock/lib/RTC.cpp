@@ -35,13 +35,12 @@ RTC::RTC(I2C &i2c, uint8_t address):
 	if (!ntpSynchronized())
 	{
 		mRTCStartupLog << "Accessing RTC Clock" << std::endl;
+		struct std::tm utcTime = RTC::readRTCTime();
 
-
-		if (rtcValidDateTime())
+		if (rtcValidDateTime(utcTime))
 		{
 			mRTCStartupLog << "Synchronising hwclock with DS1307" << std::endl;
-			//writeRTCTime()
-
+			setSystemTime(utcTime);
 		}
 	}
 	else
@@ -184,10 +183,9 @@ uint8_t intToBcd(uint8_t value)
 	return (value / 10 << 4) + (value % 10);
 }
 
-bool RTC::rtcValidDateTime()
+bool RTC::rtcValidDateTime(struct std::tm utcTime)
 {
-	struct std::tm  tm = readRTCTime();
-	return (tm.tm_year > 2000) && (tm.tm_year < 2100);
+	return (utcTime.tm_year > 2000) && (utcTime.tm_year < 2100);
 }
 
 
@@ -196,15 +194,15 @@ struct std::tm RTC::readRTCTime()
 
 	std::vector<uint8_t> response(7); // Vector with size 7
 	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({0}), response);
-	std::cout << "Reading RTC Data" << std::endl;
-	/*
-	for (auto byte: response)
+
+	if (mRTCStartupLog.is_open())
 	{
-		std::cout << (int) bcdToInt(byte) << ",";
+		mRTCStartupLog << "Reading RTC Data" << std::endl;
 	}
-	*/
-	std::cout << std::endl;
-//	std::time_t time;
+	else
+	{
+		LOG(INFO) << "Reading RTC Data";
+	}
 
 	struct std::tm result;
 	result.tm_sec = bcdToInt(response[0] & 0x7F); // ignore bit 7
@@ -215,7 +213,14 @@ struct std::tm RTC::readRTCTime()
 	result.tm_mon  = bcdToInt(response[5]);
 	result.tm_year =  bcdToInt(response[6]) + 100;
 
-	std::cout << "RTC time read: " << std::asctime(&result) << std::endl;
+	if (mRTCStartupLog.is_open())
+	{
+		mRTCStartupLog << "RTC time read: " << std::asctime(&result) << std::endl;
+	}
+	else
+	{
+		LOG(INFO) << "RTC time read: " << std::asctime(&result);
+	}
 	return result;
 }
 
@@ -229,9 +234,7 @@ void RTC::writeRTCTime()
 	std::time_t utcTime = timegm(utc);
 	struct tm * setTime = localtime(&utcTime);
 	std::cout << "Local time: " << std::asctime(setTime) << std::endl;
-//	utc->tm_hour = utc->tm_hour -1;
 
-//    std::cout << "New time: " << std::asctime(utc) << std::endl;
 
 	std::time_t setTime2 = mktime( setTime );
 	std::cout << "setTime: " << std::ctime(&setTime2) << std::endl;
@@ -239,9 +242,22 @@ void RTC::writeRTCTime()
 	struct timeval val;
 	val.tv_sec = setTime2;
 	val.tv_usec = 0;
-	//settimeofday(&val, nullptr); // SetTime uses local time
-	//std::tm* std::gmtime( t );
+}
 
+void RTC::setSystemTime(struct std::tm utcTime)
+{
+	std::cout << "Current UTC time: " << std::asctime(utcTime) << std::endl;
+	std::time_t utcTime = timegm(utc);
+	struct tm * setTime = localtime(&utcTime1);
+	std::cout << "Local time: " << std::asctime(setTime) << std::endl;
+
+
+	std::time_t setTime2 = mktime( setTime );
+	std::cout << "setTime: " << std::ctime(&setTime2) << std::endl;
+
+	struct timeval val;
+	val.tv_sec = setTime2;
+	val.tv_usec = 0;
 }
 
 
