@@ -25,10 +25,11 @@ public:
 
 private:
 	// Is the RTC clock set to a valid date/time ?
-	bool rtcValidDateTime();
+	bool rtcValidDateTime(struct std::tm utcTime);
 	std::string runCmd(const std::string& cmd, bool log);
 	struct std::tm readRTCTime();
 	void writeRTCTime();
+	void setSystemTime(struct std::tm utcTime);
 
 	void startRTCUpdateThread();
 	void stopRTCUpdateThread();
