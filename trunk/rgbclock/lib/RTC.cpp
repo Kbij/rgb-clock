@@ -12,6 +12,10 @@
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <pthread.h>
+#include <vector>
+#include <ctime>
+#include <iomanip>
+#include <sys/time.h>
 
 DEFINE_string(rtcStartupFile,"/var/log/rgbclock/rtcstartup.log","Log file containing the RTC startup.");
 
@@ -19,38 +23,25 @@ namespace Hardware
 {
 RTC::RTC(I2C &i2c, uint8_t address):
 	mI2C(i2c),
+	mAddress(address),
 	mRTCThread(),
 	mRTCThreadRunning(false),
 	mRTCStartupLog()
 {
 	mRTCStartupLog.open(FLAGS_rtcStartupFile);
 	mRTCStartupLog << "Checking time accuracy" << std::endl;
-
+	readRTCTime();
+	writeRTCTime();
 	if (!ntpSynchronized())
 	{
 		mRTCStartupLog << "Accessing RTC Clock" << std::endl;
-		std::ifstream ifile("/sys/bus/i2c/devices/1-0068");
-		if (!ifile)
-		{
-			mRTCStartupLog << "DS1307 not registered, registering..."<< std::endl;
-		   // RTC Device not registered on I2C bus
-			std::ofstream newDevice("/sys/class/i2c-adapter/i2c-1/new_device");
-			if (newDevice)
-			{
-				newDevice << "ds1307 " << std::to_string(address);
-			}
-			newDevice.close();
 
-			// Wait a little bit; give the module time to load
-			std::this_thread::sleep_for(std::chrono::seconds(2));
-		}
 
 		if (rtcValidDateTime())
 		{
 			mRTCStartupLog << "Synchronising hwclock with DS1307" << std::endl;
-        	mI2C.blockI2C();
-			runCmd("hwclock -s --debug", true);
-        	mI2C.unBlockI2C();
+			//writeRTCTime()
+
 		}
 	}
 	else
@@ -71,7 +62,61 @@ RTC::~RTC()
 
 	LOG(INFO) << "RTC destructor exit";
 }
+std::string RTC::runCmd(const std::string& cmd, bool log)
+{
+    FILE* pipe = popen(cmd.c_str(), "r");
 
+    if (!pipe)
+    {
+    	if (mRTCStartupLog.is_open())
+		{
+			mRTCStartupLog << "Unable to run Cmd: " << cmd << std::endl;
+		}
+    	else
+    	{
+    		LOG(ERROR) << "Unable to run Cmd: " << cmd << std::endl;
+    	}
+    	return "";
+    }
+
+    char buffer[128];
+    std::string result = "";
+    while(!feof(pipe))
+    {
+    	if (fgets(buffer, 128, pipe) != NULL)
+    	{
+    		result += buffer;
+    	}
+    }
+    pclose(pipe);
+    if (log)
+    {
+    	if (mRTCStartupLog.is_open())
+		{
+			mRTCStartupLog << "Run Cmd: " << cmd << std::endl;
+		}
+    	else
+    	{
+    		LOG(ERROR) << "Run Cmd: " << cmd << std::endl;
+    	}
+        std::istringstream resultStream(result);
+        std::string line;
+        while (std::getline(resultStream, line))
+        {
+        	if (mRTCStartupLog.is_open())
+    		{
+    			mRTCStartupLog << line << std::endl;
+    		}
+        	else
+        	{
+        		LOG(INFO) << line;
+        	}
+        }
+
+    }
+
+    return result;
+}
 bool RTC::ntpSynchronized()
 {
 	std::string ntpStatus =  runCmd("ntpq -p", false);
@@ -130,76 +175,75 @@ void RTC::showNTPStatus()
 	runCmd("ntpq -p", true);
 }
 
+uint8_t bcdToInt(uint8_t bcd)
+{
+	return (bcd & 0x0F) + ((bcd >> 4)*10);
+}
+uint8_t intToBcd(uint8_t value)
+{
+	return (value / 10 << 4) + (value % 10);
+}
+
 bool RTC::rtcValidDateTime()
 {
-	mI2C.blockI2C();
-	std::string rtcStatus =  runCmd("hwclock -r", true);
-	mI2C.unBlockI2C();
-
-	if ((rtcStatus.find("invalid") != std::string::npos) || (rtcStatus.find("error") != std::string::npos))
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+	struct std::tm  tm = readRTCTime();
+	return (tm.tm_year > 2000) && (tm.tm_year < 2100);
 }
-std::string RTC::runCmd(const std::string& cmd, bool log)
+
+
+struct std::tm RTC::readRTCTime()
 {
-    FILE* pipe = popen(cmd.c_str(), "r");
 
-    if (!pipe)
-    {
-    	if (mRTCStartupLog.is_open())
-		{
-			mRTCStartupLog << "Unable to run Cmd: " << cmd << std::endl;
-		}
-    	else
-    	{
-    		LOG(ERROR) << "Unable to run Cmd: " << cmd << std::endl;
-    	}
-    	return "";
-    }
+	std::vector<uint8_t> response(7); // Vector with size 7
+	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({0}), response);
+	std::cout << "Reading RTC Data" << std::endl;
+	/*
+	for (auto byte: response)
+	{
+		std::cout << (int) bcdToInt(byte) << ",";
+	}
+	*/
+	std::cout << std::endl;
+//	std::time_t time;
 
-    char buffer[128];
-    std::string result = "";
-    while(!feof(pipe))
-    {
-    	if (fgets(buffer, 128, pipe) != NULL)
-    	{
-    		result += buffer;
-    	}
-    }
-    pclose(pipe);
-    if (log)
-    {
-    	if (mRTCStartupLog.is_open())
-		{
-			mRTCStartupLog << "Run Cmd: " << cmd << std::endl;
-		}
-    	else
-    	{
-    		LOG(ERROR) << "Run Cmd: " << cmd << std::endl;
-    	}
-        std::istringstream resultStream(result);
-        std::string line;
-        while (std::getline(resultStream, line))
-        {
-        	if (mRTCStartupLog.is_open())
-    		{
-    			mRTCStartupLog << line << std::endl;
-    		}
-        	else
-        	{
-        		LOG(INFO) << line;
-        	}
-        }
+	struct std::tm result;
+	result.tm_sec = bcdToInt(response[0] & 0x7F); // ignore bit 7
+	result.tm_min = bcdToInt(response[1]);
+	result.tm_hour = bcdToInt(response[2]);
+	result.tm_wday = bcdToInt(response[3]) - 1;
+	result.tm_mday = bcdToInt(response[4]);
+	result.tm_mon  = bcdToInt(response[5]);
+	result.tm_year =  bcdToInt(response[6]) + 100;
 
-    }
-
-    return result;
+	std::cout << "RTC time read: " << std::asctime(&result) << std::endl;
+	return result;
 }
+
+void RTC::writeRTCTime()
+{
+	std::time_t t = std::time(nullptr);
+	std::cout << "Current (local) time: " << std::ctime(&t) << std::endl;
+	std::tm *utc = gmtime ( &t );
+
+	std::cout << "Current UTC time: " << std::asctime(utc) << std::endl;
+	std::time_t utcTime = timegm(utc);
+	struct tm * setTime = localtime(&utcTime);
+	std::cout << "Local time: " << std::asctime(setTime) << std::endl;
+//	utc->tm_hour = utc->tm_hour -1;
+
+//    std::cout << "New time: " << std::asctime(utc) << std::endl;
+
+	std::time_t setTime2 = mktime( setTime );
+	std::cout << "setTime: " << std::ctime(&setTime2) << std::endl;
+
+	struct timeval val;
+	val.tv_sec = setTime2;
+	val.tv_usec = 0;
+	//settimeofday(&val, nullptr); // SetTime uses local time
+	//std::tm* std::gmtime( t );
+
+}
+
 
 void RTC::startRTCUpdateThread()
 {

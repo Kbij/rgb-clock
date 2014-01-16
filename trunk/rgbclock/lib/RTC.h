@@ -11,6 +11,7 @@
 #include <atomic>
 #include <thread>
 #include <fstream>
+#include <ctime>
 
 namespace Hardware
 {
@@ -26,12 +27,15 @@ private:
 	// Is the RTC clock set to a valid date/time ?
 	bool rtcValidDateTime();
 	std::string runCmd(const std::string& cmd, bool log);
+	struct std::tm readRTCTime();
+	void writeRTCTime();
 
 	void startRTCUpdateThread();
 	void stopRTCUpdateThread();
 	void rtcThread();
 
 	I2C &mI2C;
+	const uint8_t mAddress;
     std::thread* mRTCThread;
     std::atomic_bool mRTCThreadRunning;
     std::ofstream mRTCStartupLog;
