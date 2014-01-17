@@ -157,7 +157,7 @@ void AlarmManager::loadAlarms()
 
 	    	mAlarmList.clear();
 
-	        ticpp::Iterator<ticpp::Element>  alarm(alarms->FirstChildElement("alarm"), "alarm");
+	        ticpp::Iterator<ticpp::Element>  alarm(alarms->FirstChildElement("alarm", false), "alarm");
 	        while ( alarm != alarm.end() )
 	        {
 	        	Alarm alarmSettings;
