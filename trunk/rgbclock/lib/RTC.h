@@ -31,6 +31,8 @@ private:
 	void writeRTCTime();
 	void setSystemTime(struct std::tm utcTime);
 
+	void log(const std::string& message);
+
 	void startRTCUpdateThread();
 	void stopRTCUpdateThread();
 	void rtcThread();
