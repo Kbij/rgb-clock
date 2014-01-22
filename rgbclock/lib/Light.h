@@ -20,9 +20,6 @@
 namespace Hardware
 {
 class I2C;
-}
-
-namespace App {
 
 enum class State {
 	PwrOn,
@@ -33,9 +30,9 @@ enum class State {
 	FastDown
 };
 
-class Light : public Hardware::KeyboardObserverIf {
+class Light : public KeyboardObserverIf {
 public:
-	Light(Hardware::I2C &i2c, uint8_t address);
+	Light(I2C &i2c, uint8_t address);
 	virtual ~Light();
 
 	void pwrOn();
@@ -59,7 +56,7 @@ private:
 	void stopDimmerThread();
 	void dimmerThread();
 	std::atomic<State> mState;
-	Hardware::RgbLed mRGBLed;
+	RgbLed mRGBLed;
 	std::atomic_int mLuminance;
 	time_t mLastLong;
 	bool mDimDown;
@@ -68,5 +65,5 @@ private:
     std::atomic_bool mDimmerThreadRunning;
 };
 
-} /* namespace App */
+} /* namespace Hardware */
 #endif /* LIGHT_H_ */
