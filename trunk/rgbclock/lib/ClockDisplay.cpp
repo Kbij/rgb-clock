@@ -43,9 +43,9 @@ const int POS_VOLUME = 148;
 
 namespace Hardware
 {
-ClockDisplay::ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alarmManager, const App::UnitConfig& unitConfig) :
+ClockDisplay::ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alarmManager, uint8_t hwrevision, const App::UnitConfig& unitConfig) :
 	mLCDisplay(i2c, unitConfig.mLCD),
-	mBackLight(i2c, unitConfig.mBackLight, unitConfig.mLightSensor),
+	mBackLight(i2c, hwrevision, unitConfig.mBackLight, unitConfig.mLightSensor),
 	mKeyboard(keyboard),
 	mAlarmManager(alarmManager),
 	mDisplayState(DisplayState::stNormal),

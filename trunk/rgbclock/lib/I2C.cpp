@@ -238,7 +238,7 @@ bool I2C::readWordSync(uint8_t address, uint8_t reg, uint16_t& word)
 	{
 		if (!mI2CWriteError) // If first occurrence
 		{
-			LOG(ERROR) << "Failed setting register address: " << strerror(errno);
+			LOG(ERROR) << "Failed setting register address (addr: " << (int) address << std::hex << ", reg: 0x" << (int) reg << ", " << mAddressStatistics[address].mName << "): " << strerror(errno) << std::dec;
 		}
 		mI2CWriteError = true;
 

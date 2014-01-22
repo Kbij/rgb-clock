@@ -83,9 +83,9 @@ void Config::loadXML()
         	getInteger(unit.Get(), "keyboard_addr", unitSettings.mKeyboard);
         	getInteger(unit.Get(), "amplifier_addr", unitSettings.mAmplifier);
         	getInteger(unit.Get(), "lcd_addr", unitSettings.mLCD);
-            if (mSystemConfig.mHardwareRevision > 1)
+        	getInteger(unit.Get(), "lightsensor_addr", unitSettings.mLightSensor);
+        	if (mSystemConfig.mHardwareRevision > 1)
             {
-            	getInteger(unit.Get(), "lightsensor_addr", unitSettings.mLightSensor);
         		getInteger(unit.Get(), "backlight_addr", unitSettings.mBackLight);
             }
         	mConfiguredUnits[unitSettings.mName] = unitSettings;
