@@ -10,10 +10,10 @@
 #include <time.h>
 #include <pthread.h>
 
-namespace App
+namespace Hardware
 {
 
-Light::Light(Hardware::I2C &i2c, uint8_t address) :
+Light::Light(I2C &i2c, uint8_t address) :
 		mState(State::PwrOff),
 		mRGBLed(i2c, address),
 		mLuminance(1000),
@@ -72,9 +72,9 @@ void Light::pwrToggle()
 	}
 }
 
-void Light::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, Hardware::KeyboardState state)
+void Light::keyboardPressed(const std::vector<KeyInfo>& keyboardInfo, KeyboardState state)
 {
-	if (state != Hardware::KeyboardState::stNormal)
+	if (state != KeyboardState::stNormal)
 	{
 		return;
 	}
@@ -288,4 +288,4 @@ void Light::dimmerThread()
    LOG(INFO) << "Thread Exit";
 
 }
-} /* namespace App */
+} /* namespace Hardware */

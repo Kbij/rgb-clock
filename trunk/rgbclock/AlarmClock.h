@@ -22,24 +22,20 @@ namespace Hardware
 {
 class I2C;
 class MainboardControl;
+class Light;
 }
 
 namespace App
 {
-
 class AlarmManager;
-class Light;
 
 class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf {
-
-
-
 public:
 	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver &fmReceiver, const SystemConfig &systemConfig, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig);
 	virtual ~AlarmClock();
 
-	void registerLight(Light *light);
-	void unRegisterLight(Light *light);
+	void registerLight(Hardware::Light *light);
+	void unRegisterLight(Hardware::Light *light);
 
 	void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, Hardware::KeyboardState state);
 
@@ -66,7 +62,7 @@ private:
 	AlarmManager& mAlarmManager;
     Hardware::MainboardControl &mMainboardControl;
 	Hardware::ClockDisplay mDisplay;
-	Light *mLight;
+	Hardware::Light *mLight;
 	std::recursive_mutex mLightMutex;
 	std::atomic<ClockState> mClockState;
     std::thread* mAlarmMaintenanceThread;

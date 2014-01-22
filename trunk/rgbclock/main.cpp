@@ -8,7 +8,7 @@
 #include "lib/IOExpander.h"
 #include "lib/LCDisplay.h"
 #include "lib/LCDBacklight.h"
-#include "Light.h"
+#include "lib/Light.h"
 #include "AlarmClock.h"
 #include "Config.h"
 #include "AlarmManager.h"
@@ -196,7 +196,7 @@ int main (int argc, char* argv[])
 	}
 
 	std::map<std::string, std::unique_ptr<App::AlarmClock>> startedUnits;
-	std::map<std::string, std::unique_ptr<App::Light>> startedLights;
+	std::map<std::string, std::unique_ptr<Hardware::Light>> startedLights;
 
 	const std::map<std::string, App::UnitConfig>& configuredUnits = config.configuredUnits();
 	const App::SystemConfig& systemConfig = config.systemConfig();
@@ -235,7 +235,7 @@ int main (int argc, char* argv[])
 							if (lightUnit == startedLights.end())
 							{
 								LOG(INFO) << "Found no existing light; creating: " << configUnit.first;
-								startedLights[configUnit.first] = std::unique_ptr<App::Light>(new App::Light(i2c, configUnit.second.mLight));
+								startedLights[configUnit.first] = std::unique_ptr<Hardware::Light>(new Hardware::Light(i2c, configUnit.second.mLight));
 							}
 
 							LOG(INFO) << "Registering the light";

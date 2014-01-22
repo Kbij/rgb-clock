@@ -6,7 +6,7 @@
  */
 
 #include "AlarmClock.h"
-#include "Light.h"
+#include "lib/Light.h"
 #include "AlarmManager.h"
 #include "lib/FMReceiver.h"
 #include "lib/MainboardControl.h"
@@ -56,7 +56,7 @@ AlarmClock::~AlarmClock()
 	}
 }
 
-void AlarmClock::registerLight(Light *light)
+void AlarmClock::registerLight(Hardware::Light *light)
 {
 	std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
 
@@ -67,7 +67,7 @@ void AlarmClock::registerLight(Light *light)
 	}
 }
 
-void AlarmClock::unRegisterLight(Light *light)
+void AlarmClock::unRegisterLight(Hardware::Light *light)
 {
 	std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
 
