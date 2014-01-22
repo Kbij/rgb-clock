@@ -72,7 +72,10 @@ MainboardControl::MainboardControl(I2C &i2c, uint8_t hwrevision, uint8_t address
 
 MainboardControl::~MainboardControl()
 {
-	mIO.writeA(0); // release relais
+	if (mHwRevision > 1)
+	{
+		mIO.writeA(0); // release relais
+	}
 	stopWatchdogThread();
 
 	if (mWatchdogHandle > 0)
@@ -188,11 +191,6 @@ void MainboardControl::selectInput(InputSelection input)
 
 void MainboardControl::signalWatchdog(WatchdogFeederIf *watchdogFeeder)
 {
-	if (mHwRevision == 1)
-	{
-		return;
-	}
-
 	std::lock_guard<std::mutex> lk_guard(mFeederMutex);
 
 	if (mWatchdogFeeders.find(watchdogFeeder) != mWatchdogFeeders.end())
@@ -204,16 +202,19 @@ void MainboardControl::signalWatchdog(WatchdogFeederIf *watchdogFeeder)
 
 void MainboardControl::init()
 {
-	mIO.directionA(IOExpander::DataDirection::dirOut);
-	mIO.directionB(IOExpander::DataDirection::dirOut);
+	if (mHwRevision > 1)
+	{
+		mIO.directionA(IOExpander::DataDirection::dirOut);
+		mIO.directionB(IOExpander::DataDirection::dirOut);
 
-	mIO.writeA(mRelaisBus.to_ulong());
+		mIO.writeA(mRelaisBus.to_ulong());
 
-	mMainBus[MUTE] = 0;
-	mMainBus[RADIO_IN] = 0;
-	mMainBus[AUX_IN] = 0;
-	mMainBus[RADIO_RST] = 0;
-	mIO.writeB(mMainBus.to_ulong());
+		mMainBus[MUTE] = 0;
+		mMainBus[RADIO_IN] = 0;
+		mMainBus[AUX_IN] = 0;
+		mMainBus[RADIO_RST] = 0;
+		mIO.writeB(mMainBus.to_ulong());
+	}
 
 	if (mWatchdogEnabled)
 	{

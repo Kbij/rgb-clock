@@ -16,19 +16,24 @@ namespace
 }
 namespace Hardware {
 
-LCDBacklight::LCDBacklight(I2C &i2c, uint8_t pwmAddress, uint8_t lightSensorAddress):
-		mPwmDriver(i2c, pwmAddress),
+LCDBacklight::LCDBacklight(I2C &i2c, uint8_t hwrevision, uint8_t pwmAddress, uint8_t lightSensorAddress):
+		mPwmDriver(nullptr),
 		mLightSensor(i2c, lightSensorAddress),
 		mUserActivityTimer(0),
 		mBackLightThread(),
 		mBackLightThreadRunning(false)
 
 {
+	if (hwrevision >1)
+	{
+		mPwmDriver = std::move(std::unique_ptr<PwmLedDriver>(new PwmLedDriver(i2c, pwmAddress)));
+	}
 	startBackLightThread();
 }
 
 LCDBacklight::~LCDBacklight()
 {
+	LOG(INFO) << "Backlight destructor";
 	stopBackLightThread();
 }
 
@@ -66,16 +71,27 @@ void LCDBacklight::backLightThread()
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         auto lux = mLightSensor.lux();
+        auto pwmValue = lux;
 
         if (mUserActivityTimer > 0)
         {
         	--mUserActivityTimer;
-        	mPwmDriver.pwmValue(PwmLedDriver::PwmChannel::Channel1, 2500);
+            pwmValue = 2500;
         }
         else
         {
-            mPwmDriver.pwmValue(PwmLedDriver::PwmChannel::Channel1, 500+(lux*2));
+            pwmValue = 500+(lux*2);
         }
+
+    	if (mPwmDriver)
+    	{
+        	mPwmDriver->pwmValue(PwmLedDriver::PwmChannel::Channel1, pwmValue);
+    	}
+    	else
+    	{
+    		LOG(INFO) << "Measured lux: " << lux << ", PwmValue: " << pwmValue;
+    	}
+
     }
 }
 } /* namespace Hardware */

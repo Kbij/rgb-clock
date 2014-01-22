@@ -14,13 +14,14 @@
 #include <mutex>
 #include <atomic>
 #include <thread>
+#include <memory>
 
 namespace Hardware {
 class I2C;
 
 class LCDBacklight {
 public:
-	LCDBacklight(I2C &i2c, uint8_t pwmAddress, uint8_t lightSensorAddress);
+	LCDBacklight(I2C &i2c, uint8_t hwrevision, uint8_t pwmAddress, uint8_t lightSensorAddress);
 	virtual ~LCDBacklight();
 
 	void signalUserActivity();
@@ -29,7 +30,7 @@ private:
 	void stopBackLightThread();
 	void backLightThread();
 
-	PwmLedDriver mPwmDriver;
+	std::unique_ptr<PwmLedDriver> mPwmDriver;
 	LightSensor mLightSensor;
 	std::atomic_int mUserActivityTimer;
 

@@ -72,7 +72,7 @@ class Keyboard;
 
 class ClockDisplay : public RadioObserverIf, public Hardware::KeyboardObserverIf {
 public:
-	ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alarmManager, const App::UnitConfig& unitConfig);
+	ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alarmManager, uint8_t hwrevision, const App::UnitConfig& unitConfig);
 	virtual ~ClockDisplay();
 
 	void showClock();

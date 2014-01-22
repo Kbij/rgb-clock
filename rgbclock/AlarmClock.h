@@ -35,7 +35,7 @@ class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserve
 
 
 public:
-	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, double frequency, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig);
+	AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver &fmReceiver, const SystemConfig &systemConfig, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig);
 	virtual ~AlarmClock();
 
 	void registerLight(Light *light);
