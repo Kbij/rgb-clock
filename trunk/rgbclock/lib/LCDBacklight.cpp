@@ -89,7 +89,7 @@ void LCDBacklight::backLightThread()
     	}
     	else
     	{
-    		LOG(INFO) << "Measured lux: " << lux << ", PwmValue: " << pwmValue;
+    		//LOG(INFO) << "Measured lux: " << lux << ", PwmValue: " << pwmValue;
     	}
 
     }

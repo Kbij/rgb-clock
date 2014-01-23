@@ -12,6 +12,7 @@
 
 namespace Hardware
 {
+const int MIN_DIMMER_INTENSITY = 20;
 
 Light::Light(I2C &i2c, uint8_t address) :
 		mState(State::PwrOff),
@@ -103,14 +104,12 @@ void Light::keyboardPressed(const std::vector<KeyInfo>& keyboardInfo, KeyboardSt
 			{
 				mLuminance -= 20;
 
-				if (mLuminance < 0)
+				if (mLuminance <= MIN_DIMMER_INTENSITY)
 				{
-					mLuminance = 0;
+					mLuminance = MIN_DIMMER_INTENSITY;
 				    std::lock_guard<std::mutex> lk_guard(mLedMutex);
 
 					mRGBLed.luminance(mLuminance);
-					mRGBLed.pwrOff();
-					mState = State::PwrOff;
 				}
 			}
 			else
@@ -124,7 +123,6 @@ void Light::keyboardPressed(const std::vector<KeyInfo>& keyboardInfo, KeyboardSt
 		    std::lock_guard<std::mutex> lk_guard(mLedMutex);
 
 			mRGBLed.luminance(mLuminance);
-			mRGBLed.write();
 		}
 		if (mState == State::PwrOff)
 		{
@@ -168,7 +166,6 @@ void Light::initiateSlowUp()
     std::lock_guard<std::mutex> lk_guard(mLedMutex);
 
 	mRGBLed.luminance(mLuminance);
-	mRGBLed.write();
 	mRGBLed.pwrOn();
 	mState = State::SlowUp;
 	startDimmerThread();
@@ -255,7 +252,6 @@ void Light::dimmerThread()
 		   std::lock_guard<std::mutex> lk_guard(mLedMutex);
 
 		   mRGBLed.luminance(mLuminance);
-		   mRGBLed.write();
 	   }
 	   else
 	   {
@@ -275,7 +271,6 @@ void Light::dimmerThread()
 			   std::lock_guard<std::mutex> lk_guard(mLedMutex);
 
 			   mRGBLed.luminance(mLuminance);
-			   mRGBLed.write();
 		   }
 	   }
    }
