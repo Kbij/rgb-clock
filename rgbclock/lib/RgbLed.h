@@ -9,6 +9,7 @@
 #define RGBLED_H_
 #include "I2C.h"
 #include <stdint.h>
+#include "lib/PwmLedDriver.h"
 
 namespace Hardware
 {
@@ -20,26 +21,19 @@ public:
 	bool pwrOn();
 	bool pwrOff();
 
-	void intensity(uint16_t value);
-	void red(uint16_t value);
-	void green(uint16_t value);
-	void blue(uint16_t value);
-
 	void hue(uint16_t value);
 	void saturation(uint16_t value);
 	void luminance(uint16_t value);
 
-	void write();
 
 	bool isAttached();
 private:
-	bool init();
 	void hslToRgb();
 	double hue2rgb(double p, double q, double t);
+	void write();
 
-	I2C &mI2C;
-	const uint8_t mAddress;
-	uint16_t mIntensity;
+	PwmLedDriver mPwmLedDriver;
+
 	uint16_t mRed;
 	uint16_t mGreen;
 	uint16_t mBlue;
