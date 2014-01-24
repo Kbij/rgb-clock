@@ -75,17 +75,7 @@ public:
 	ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alarmManager, uint8_t hwrevision, const App::UnitConfig& unitConfig);
 	virtual ~ClockDisplay();
 
-	void showClock();
-	void hideClock();
 
-	void showVolume();
-	void hideVolume();
-
-	void showSignal();
-	void hideSignal();
-
-	void showRDSInfo();
-	void hideRDSInfo();
 
 	void signalClockState(App::ClockState state);
 
@@ -96,6 +86,7 @@ public:
 
 
 private:
+
 	void updateEditDisplay();
 	void writeAlarm(int line, const App::Alarm& alarm);
 
@@ -126,9 +117,7 @@ private:
     std::atomic_bool mRefreshThreadRunning;
     std::atomic_bool mForceRefresh;
     std::recursive_mutex mRadioInfoMutex;
-    std::atomic_bool mRDSVisible;
-    std::atomic_bool mVolumeVisible;
-    std::atomic_bool mSignalVisible;
+    std::atomic_bool mRadioOn;
     std::string mRDSStationName;
     std::string mRDSText;
     int mRDSTextPos;

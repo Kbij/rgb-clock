@@ -122,12 +122,14 @@ struct Alarm
 
 		return result + "]";
 	}
+
 	std::string to_string_long() const
 	{
 		std::string result;
 		result = "Unit: " + mUnit + ": " + std::to_string(mHour) + ":" + std::to_string(mMinutes) + ", OneTime: " + std::to_string(mOneTime) +  ", Days: " + daysString() + ", Volume: " + std::to_string(mVolume);
 		return result;
 	}
+
 	std::string to_string_short() const
 	{
 		std::string result;
@@ -203,8 +205,6 @@ private:
 	std::mutex mNextAlarmMapMutex;
 
 	const Config& mConfig;
-
-
 
 };
 
