@@ -16,6 +16,7 @@
 #include <iomanip>
 #include <pthread.h>
 
+namespace {
 const int LINESPACING = 8;
 const int LINE1 = 0;
 const int LINE2 = LINESPACING;
@@ -39,7 +40,7 @@ const int POS_DAY_FR = 126;
 const int POS_DAY_SA = 132;
 
 const int POS_VOLUME = 148;
-
+}
 
 namespace Hardware
 {
@@ -55,9 +56,7 @@ ClockDisplay::ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alar
 	mRefreshThreadRunning(false),
 	mForceRefresh(false),
 	mRadioInfoMutex(),
-	mRDSVisible(false),
-	mVolumeVisible(false),
-	mSignalVisible(false),
+	mRadioOn(false),
 	mRDSStationName(),
 	mRDSText(),
 	mRDSTextPos(0),
@@ -82,46 +81,6 @@ ClockDisplay::~ClockDisplay()
 	mLCDisplay.clearGraphicDisplay();
 
 	LOG(INFO) << "ClockDisplay destructor exit";
-}
-
-void ClockDisplay::showClock()
-{
-
-}
-
-void ClockDisplay::hideClock()
-{
-
-}
-
-void ClockDisplay::showVolume()
-{
-	mVolumeVisible = true;
-}
-
-void ClockDisplay::hideVolume()
-{
-	mVolumeVisible = false;
-}
-
-void ClockDisplay::showSignal()
-{
-	mSignalVisible = true;
-}
-
-void ClockDisplay::hideSignal()
-{
-	mSignalVisible = false;
-}
-
-void ClockDisplay::showRDSInfo()
-{
-	mRDSVisible = true;
-}
-
-void ClockDisplay::hideRDSInfo()
-{
-	mRDSVisible = false;
 }
 
 void ClockDisplay::signalClockState(App::ClockState state)
@@ -152,19 +111,9 @@ void ClockDisplay::radioRdsUpdate(RDSInfo rdsInfo)
 void ClockDisplay::radioStateUpdate(RadioInfo radioInfo)
 {
     std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
-	if (radioInfo.mState == RadioState::PwrOn)
-	{
-		showRDSInfo();
-		showVolume();
-		showSignal();
-		mVolume = radioInfo.mVolume;
-	}
-	if (radioInfo.mState == RadioState::PwrOff)
-	{
-		hideRDSInfo();
-		hideVolume();
-		hideSignal();
-	}
+
+	mVolume = radioInfo.mVolume;
+	mRadioOn = radioInfo.mState == RadioState::PwrOn;
 }
 
 void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, Hardware::KeyboardState state)
@@ -966,50 +915,28 @@ void ClockDisplay::refreshThread()
 
     		}
 
-
-    	    if (mRDSVisible)
+    		if (mRadioOn)
     		{
     	    	if (timeInfo->tm_sec != prevSec)
     	    	{
         	    	drawRDS();
     	    	}
+    	    	drawVolume();
+    	    	drawSignal();
     		}
-    	    else
-    	    {
-    	    	eraseRDS();
-    	    }
+    		else
+    		{
+    			eraseRDS();
+    			eraseVolume();
+    			eraseSignal();
+    		}
+
 
     		prevMin = timeInfo->tm_min;
     		prevSec = timeInfo->tm_sec;
 
-    	    if (mVolumeVisible)
-    	    {
-    	    	drawVolume();
-    	    }
-    	    else
-    	    {
-    	    	eraseVolume();
-    	    }
-    	    if (mSignalVisible)
-    	    {
-    	    	drawSignal();
-    	    }
-    	    else
-    	    {
-    	    	eraseSignal();
-    	    }
-
 			// update Alarm info
     	    updateAlarmInfo();
-
-    /*
-    		double lux = mLightSensor.lux();
-    		std::stringstream stream;
-
-    		stream << "Measured Lux: " << lux;
-    		showRDSInfo(stream.str());
-    		*/
-
         }
     }
 }

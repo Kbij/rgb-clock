@@ -299,7 +299,6 @@ int minutesUntilFired(const Alarm& alarm)
 	{
 		return -1; // alarm not active
 	}
-//	LOG(INFO) << "Calculating difference for alarm: " << alarm.to_string_long();
 	time_t rawTime;
 	struct tm* timeInfo;
 
@@ -311,16 +310,12 @@ int minutesUntilFired(const Alarm& alarm)
 
 	int nowMinutes = timeInfo->tm_hour * 60 + timeInfo->tm_min;
 	int almMinutes = alarm.mHour * 60 + alarm.mMinutes;
-//	LOG(INFO) << "nowMinutes: " << nowMinutes;
-//	LOG(INFO) << "almMinutes: " << almMinutes;
-//	LOG(INFO) << "nextDay: " << nextDay;
 
-	// if not(today || tomorow)
+
 	if (!alarm.mOneTime)
 	{
 		if ( !((alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes > nowMinutes)) || (alarm.mDays[Day(nextDay)])) )
 		{
-//			LOG(INFO) << "Not today, and not tomorrow";
 			return -1;
 		}
 	}
@@ -329,7 +324,6 @@ int minutesUntilFired(const Alarm& alarm)
 	if (alarm.mOneTime && (almMinutes < nowMinutes))
 	{
 		almMinutes += 24 * 60; // add 1 day
-//		LOG(INFO) << "Onetime alarm, almMinutes < nowMinutes, almMinutes: " << almMinutes;
 	}
 	else
 	{
@@ -339,7 +333,6 @@ int minutesUntilFired(const Alarm& alarm)
 		}
 	}
 
-//	LOG(INFO) << "Result: " << (almMinutes - nowMinutes);
 	return almMinutes - nowMinutes;
 }
 

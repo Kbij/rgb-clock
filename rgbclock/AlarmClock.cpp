@@ -7,15 +7,18 @@
 
 #include "AlarmClock.h"
 #include "lib/Light.h"
-#include "AlarmManager.h"
 #include "lib/FMReceiver.h"
 #include "lib/MainboardControl.h"
+#include "AlarmManager.h"
 #include <glog/logging.h>
 #include <pthread.h>
 
-namespace App {
+namespace {
 const int SNOOZE_TIME = 1 * 60; // Snooze interval: 9min
 const int ALARM_TIME = 2 * 60; // Alarm time: 30 min
+}
+
+namespace App {
 
 AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::FMReceiver & fmReceiver, const SystemConfig &systemConfig, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig) :
 	mUnitConfig(unitConfig),
@@ -199,39 +202,38 @@ void AlarmClock::alarmMaintenanceThread()
 
 		   switch(mClockState)
 		   {
-		   case ClockState::clkNormal:
-			   break;
-		   case ClockState::clkAlarm:
-		   {
-			   if (mAlarmCounter >= ALARM_TIME)
+			   case ClockState::clkNormal:
+				   break;
+			   case ClockState::clkAlarm:
 			   {
-					mClockState = ClockState::clkNormal;
-					mDisplay.signalClockState(mClockState);
+				   if (mAlarmCounter >= ALARM_TIME)
+				   {
+						mClockState = ClockState::clkNormal;
+						mDisplay.signalClockState(mClockState);
 
-					mKeyboard.keyboardState(Hardware::KeyboardState::stNormal);
-					mRadio.powerOff();
+						mKeyboard.keyboardState(Hardware::KeyboardState::stNormal);
+						mRadio.powerOff();
 
-					std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
+						std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
 
-					if (mLight)
-					{
-						mLight->pwrOff();
-					}
+						if (mLight)
+						{
+							mLight->pwrOff();
+						}
 
-				   mAlarmMaintenanceThreadRunning = false;
+					   mAlarmMaintenanceThreadRunning = false;
+				   }
+				   break;
 			   }
-			   break;
-		   }
-		   case ClockState::clkSnooze:
-		   {
-			   if (mAlarmCounter >= SNOOZE_TIME)
+			   case ClockState::clkSnooze:
 			   {
-				   startAlarm();
+				   if (mAlarmCounter >= SNOOZE_TIME)
+				   {
+					   startAlarm();
+				   }
+
+				   break;
 			   }
-
-			   break;
-		   }
-
 		   }
 	   }
 
