@@ -75,16 +75,12 @@ public:
 	ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alarmManager, uint8_t hwrevision, const App::UnitConfig& unitConfig);
 	virtual ~ClockDisplay();
 
-
-
 	void signalClockState(App::ClockState state);
 
     void radioRdsUpdate(RDSInfo rdsInfo);
     void radioStateUpdate(RadioInfo radioInfo);
 
 	void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, Hardware::KeyboardState state);
-
-
 private:
 
 	void updateEditDisplay();

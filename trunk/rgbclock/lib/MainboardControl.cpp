@@ -28,9 +28,7 @@ const uint8_t RADIO_RST = 3;
 const uint8_t WATCHDOG  = 4;
 
 const int WATCHDOG_SLEEP = 10;
-}
-namespace
-{
+
 std::string inputToString(Hardware::InputSelection input)
 {
 	switch (input)
@@ -195,7 +193,6 @@ void MainboardControl::signalWatchdog(WatchdogFeederIf *watchdogFeeder)
 
 	if (mWatchdogFeeders.find(watchdogFeeder) != mWatchdogFeeders.end())
 	{
-		//LOG(INFO) << "Watchdog timer reset";
 		mWatchdogFeeders[watchdogFeeder].mCurrentTimeout = mWatchdogFeeders[watchdogFeeder].mPromiseTimeout;
 	}
 }
@@ -222,7 +219,6 @@ void MainboardControl::init()
 	    	LOG(ERROR) << "Error: Couldn't open watchdog device!";
 	    	mWatchdogHandle = 0;
 	    }
-
 	}
 
     if (mWatchdogHandle > 0)
@@ -274,7 +270,7 @@ void MainboardControl::watchdogThread()
 				   mWatchdogThreadRunning = false;
 			   }
 		   }
-		   //LOG(INFO) << "Feeding watchdog";
+
 		   if (mWatchdogThreadRunning && (mWatchdogHandle > 0))
 		   {
 			   ioctl(mWatchdogHandle, WDIOC_KEEPALIVE, 0);

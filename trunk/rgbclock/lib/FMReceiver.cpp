@@ -401,7 +401,6 @@ bool FMReceiver::waitForCTS()
 	bool cts = false;
 	while ((retries < MAX_RETRIES) && !cts)
 	{
-		//std::cout << "Read CTS" << std::endl;
 		std::this_thread::sleep_for( std::chrono::milliseconds(100));
 		cts = readCTS();
 		++retries;
