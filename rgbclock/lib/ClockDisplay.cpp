@@ -931,7 +931,6 @@ void ClockDisplay::refreshThread()
     			eraseSignal();
     		}
 
-
     		prevMin = timeInfo->tm_min;
     		prevSec = timeInfo->tm_sec;
 

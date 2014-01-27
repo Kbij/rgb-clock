@@ -14,8 +14,8 @@
 #include <pthread.h>
 
 namespace {
-const int SNOOZE_TIME = 1 * 60; // Snooze interval: 9min
-const int ALARM_TIME = 2 * 60; // Alarm time: 30 min
+const int SNOOZE_TIME = 9 * 60; // Snooze interval: 9min
+const int ALARM_TIME = 30 * 60; // Alarm time: 30 min
 }
 
 namespace App {
@@ -119,8 +119,6 @@ void AlarmClock::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardI
 			mAlarmCounter = 0;
 		}
 	}
-
-
 }
 
 void AlarmClock::alarmNotify(int volume)

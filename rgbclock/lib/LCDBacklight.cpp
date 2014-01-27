@@ -87,11 +87,6 @@ void LCDBacklight::backLightThread()
     	{
         	mPwmDriver->pwmValue(PwmLedDriver::PwmChannel::Channel1, pwmValue);
     	}
-    	else
-    	{
-    		//LOG(INFO) << "Measured lux: " << lux << ", PwmValue: " << pwmValue;
-    	}
-
     }
 }
 } /* namespace Hardware */
