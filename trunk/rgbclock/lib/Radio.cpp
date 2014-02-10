@@ -107,6 +107,7 @@ void Radio::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, 
 bool Radio::slowPowerOn(int volume)
 {
     std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
+	LOG(INFO) << "Radio slow power on";
 
     mTargetVolume = volume;
 	mVolume = 0;
@@ -292,7 +293,7 @@ void Radio::maintenanceThread()
 
 	   while (mMaintenanceThreadRunning)
 	   {
-		   std::this_thread::sleep_for(std::chrono::seconds(1));
+		   std::this_thread::sleep_for(std::chrono::seconds(2));
 
 		   if (mVolume < mTargetVolume)
 		   {

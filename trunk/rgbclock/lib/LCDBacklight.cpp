@@ -12,7 +12,7 @@
 
 namespace
 {
-	const uint16_t USERACTIVITY_TIMER = 30;
+	const uint16_t USERACTIVITY_TIMER = 10;
 }
 namespace Hardware {
 
@@ -80,7 +80,7 @@ void LCDBacklight::backLightThread()
         }
         else
         {
-            pwmValue = 500+(lux*2);
+            pwmValue = 200+(lux*20);
         }
 
     	if (mPwmDriver)

@@ -44,7 +44,8 @@ AlarmManager::AlarmManager(const Config& config, Hardware::MainboardControl &mai
 
 AlarmManager::~AlarmManager()
 {
-
+	mMainboardControl.removePromise(this);
+	stopAlarmThread();
 }
 
 void AlarmManager::registerAlarmObserver(AlarmObserverIf* observer)
@@ -295,6 +296,8 @@ void AlarmManager::stopAlarmThread()
 
 int minutesUntilFired(const Alarm& alarm)
 {
+//	LOG(INFO) << "minutes until fired for: " << alarm.to_string_long();
+
 	if (!alarm.mEnabled)
 	{
 		return -1; // alarm not active
@@ -304,7 +307,6 @@ int minutesUntilFired(const Alarm& alarm)
 
 	time(&rawTime);
 	timeInfo = localtime(&rawTime);
-
 	// nextday = if before saturday then (current day + 1) else sunday
 	int nextDay =  timeInfo->tm_wday < 6 ? (timeInfo->tm_wday + 1) : 0;
 
@@ -324,15 +326,17 @@ int minutesUntilFired(const Alarm& alarm)
 	if (alarm.mOneTime && (almMinutes < nowMinutes))
 	{
 		almMinutes += 24 * 60; // add 1 day
+//		LOG(INFO) << "almMinutes2: " << almMinutes;
 	}
 	else
 	{
-		if ((alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes < nowMinutes))  && alarm.mDays[Day(nextDay)]) // Tomorrow
+		// If not today but tommorow
+		if (!(alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes >= nowMinutes))  && alarm.mDays[Day(nextDay)]) // Tomorrow
 		{
 			almMinutes += 60 * 24; // add 1 day (in minutes)
 		}
 	}
-
+//	LOG(INFO) << "Result: " << almMinutes - nowMinutes;
 	return almMinutes - nowMinutes;
 }
 
@@ -354,12 +358,7 @@ void AlarmManager::alarmThread()
 
     		for (auto& alarm: mAlarmList)
     		{
-    			minutesUntilFired(alarm);
-        		time_t rawTime;
-        		struct tm* timeInfo;
 
-        		time(&rawTime);
-        		timeInfo = localtime(&rawTime);
         		int minutesLeft = minutesUntilFired(alarm);
         		if ((minutesLeft ==  0) && (!alarm.mSignalled))
     			{
@@ -407,6 +406,12 @@ void AlarmManager::alarmThread()
         				}
         			}
         		}
+
+        		time_t rawTime;
+        		struct tm* timeInfo;
+
+        		time(&rawTime);
+        		timeInfo = localtime(&rawTime);
 
         		// Reset the signalled flag
         		if ((alarm.mHour != timeInfo->tm_hour) || (alarm.mMinutes != timeInfo->tm_min))
