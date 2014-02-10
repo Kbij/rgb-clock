@@ -87,12 +87,15 @@ void AlarmClock::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardI
 	{
 		if (keyboardInfo[KEY_LEFT].mShortPressed)
 		{
+			if (mClockState == ClockState::clkAlarm)
+			{
+				mRadio.powerOff();
+			}
+
 			mClockState = ClockState::clkNormal;
 			mDisplay.signalClockState(mClockState);
 
 			stopAlarmMaintenanceThread();
-			mRadio.powerOff();
-
 			std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
 
 			if (mLight)
@@ -105,18 +108,21 @@ void AlarmClock::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardI
 
 		if (keyboardInfo[KEY_CENTRAL_L].mShortPressed || keyboardInfo[KEY_CENTRAL_R].mShortPressed)
 		{
-			mClockState = ClockState::clkSnooze;
-			mDisplay.signalClockState(mClockState);
-			mRadio.powerOff();
-
-			std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
-
-			if (mLight)
+			if (mClockState == ClockState::clkAlarm)
 			{
-				mLight->pwrOff();
-			}
+				mClockState = ClockState::clkSnooze;
+				mDisplay.signalClockState(mClockState);
+				mRadio.powerOff();
 
-			mAlarmCounter = 0;
+				std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
+
+				if (mLight)
+				{
+					mLight->pwrOff();
+				}
+
+				mAlarmCounter = 0;
+			}
 		}
 	}
 }

@@ -514,9 +514,20 @@ void FMReceiver::readThread()
 
     	    	}
     		}
-    		mRDSInfo.mReceiveLevel = tuneStatusResponse[4];
-            readRDSInfo();
     	}
+
+    	if (!waitForCTS()) return;  // Wait for Clear To Send
+
+    	std::vector<uint8_t> rsqStatusResponse(8); // Vector with size 8
+    	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({FM_RSQ_STATUS, 0x00}), rsqStatusResponse);
+
+    	if 	(rsqStatusResponse[0] && 0x01) // If STC
+    	{
+    		mRDSInfo.mReceiveLevel = rsqStatusResponse[4];
+    		LOG(INFO) << "Receive level: " << (int) rsqStatusResponse[4];
+    	}
+
+    	readRDSInfo();
     }
 }
 

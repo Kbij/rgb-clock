@@ -201,12 +201,14 @@ void Light::dimmerThread()
 	int deltaLuminance = 20;
 	int targetLuminance = 0;
 	int memorizedLuminance = 0;
+	const int slowUpMinutes = 10;
+
 	switch(mState)
 	{
 	case State::SlowUp:
-		sleepInterval = 100;
+		targetLuminance = 1500;
+   	    sleepInterval = (double (slowUpMinutes * 60.0 )/ double(targetLuminance)) * 1000;
 		deltaLuminance = 1;
-		targetLuminance = 4000;
 		mLuminance = 0;
 		LOG(INFO) << "RGBLed SlowUp";
 		break;

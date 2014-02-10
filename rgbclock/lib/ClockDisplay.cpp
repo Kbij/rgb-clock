@@ -104,8 +104,14 @@ void ClockDisplay::radioRdsUpdate(RDSInfo rdsInfo)
 		mRDSTextPos = 0;
 	}
 
+	// Receive Max is 127
+	// Normalize to 50
 	mReceiveLevel = rdsInfo.mReceiveLevel;
-	mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 65 * 100);
+	if (mReceiveLevel > 50)
+	{
+		mReceiveLevel = 100;
+	}
+	mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 50 * 100);
 }
 
 void ClockDisplay::radioStateUpdate(RadioInfo radioInfo)
