@@ -296,8 +296,6 @@ void AlarmManager::stopAlarmThread()
 
 int minutesUntilFired(const Alarm& alarm)
 {
-//	LOG(INFO) << "minutes until fired for: " << alarm.to_string_long();
-
 	if (!alarm.mEnabled)
 	{
 		return -1; // alarm not active
@@ -316,7 +314,8 @@ int minutesUntilFired(const Alarm& alarm)
 
 	if (!alarm.mOneTime)
 	{
-		if ( !((alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes > nowMinutes)) || (alarm.mDays[Day(nextDay)])) )
+		// Not a one time alarm. If already passed and not for tomorrow
+		if ( (alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes < nowMinutes)) && !alarm.mDays[Day(nextDay)] )
 		{
 			return -1;
 		}
@@ -326,7 +325,6 @@ int minutesUntilFired(const Alarm& alarm)
 	if (alarm.mOneTime && (almMinutes < nowMinutes))
 	{
 		almMinutes += 24 * 60; // add 1 day
-//		LOG(INFO) << "almMinutes2: " << almMinutes;
 	}
 	else
 	{
@@ -336,7 +334,7 @@ int minutesUntilFired(const Alarm& alarm)
 			almMinutes += 60 * 24; // add 1 day (in minutes)
 		}
 	}
-//	LOG(INFO) << "Result: " << almMinutes - nowMinutes;
+
 	return almMinutes - nowMinutes;
 }
 
