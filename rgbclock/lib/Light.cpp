@@ -201,7 +201,7 @@ void Light::dimmerThread()
 	int deltaLuminance = 20;
 	int targetLuminance = 0;
 	int memorizedLuminance = 0;
-	const int slowUpMinutes = 10;
+	const int slowUpMinutes = 15;
 
 	switch(mState)
 	{
