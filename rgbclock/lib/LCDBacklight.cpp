@@ -85,7 +85,7 @@ void LCDBacklight::backLightThread()
 
     	if (mPwmDriver)
     	{
-        	mPwmDriver->pwmValue(PwmLedDriver::PwmChannel::Channel1, pwmValue);
+        	mPwmDriver->pwmSingle(pwmValue);
     	}
     }
 }

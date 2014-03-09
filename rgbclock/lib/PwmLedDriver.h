@@ -15,17 +15,12 @@ class I2C;
 class PwmLedDriver {
 
 public:
-	enum class PwmChannel
-	{
-		Channel1,
-		Channel2,
-		Channel3
-	};
 	PwmLedDriver(I2C &i2c, uint8_t address);
 	virtual ~PwmLedDriver();
 
 	void powerOn(bool powerOn);
-	void pwmValue(PwmChannel channel, uint16_t value);
+	void pwmSingle(uint16_t value);
+	void pwmRGB(uint16_t red, uint16_t green, uint16_t blue);
 
 	bool isAttached();
 private:
