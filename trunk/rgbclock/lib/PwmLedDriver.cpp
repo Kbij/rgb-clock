@@ -47,7 +47,7 @@ void PwmLedDriver::powerOn(bool powerOn)
 	}
 }
 
-void PwmLedDriver::pwmValue(PwmChannel channel, uint16_t value)
+void PwmLedDriver::pwmSingle(uint16_t value)
 {
 	int16_t offTime = (4095 / MAX_RESOLUTION) * value;
 	if (value == MAX_RESOLUTION)
@@ -55,22 +55,51 @@ void PwmLedDriver::pwmValue(PwmChannel channel, uint16_t value)
 		offTime = 4095;
 	}
 	std::vector<uint8_t> buffer;
-
-	// Write the start address of the registers
-	switch (channel)
-	{
-	case PwmChannel::Channel1: buffer.push_back(0x06);
-		break;
-	case PwmChannel::Channel2: buffer.push_back(0x0A);
-		break;
-	case PwmChannel::Channel3: buffer.push_back(0x0E);
-		break;
-	}
+    buffer.push_back(0x06);
 
 	buffer.push_back(0x00); // Channel LedOn, byte 0 value
 	buffer.push_back(0x00); // Channel LedOn, byte 1 value
 	buffer.push_back(offTime & 0xFF); // Channel LedOff, byte 0 value
 	buffer.push_back((offTime >> 8) & 0x0F); // Channel LedOff, byte 1 value
+	mI2C.writeDataSync(mAddress, buffer);
+}
+
+void PwmLedDriver::pwmRGB(uint16_t red, uint16_t green, uint16_t blue)
+{
+	int16_t redOffTime = ((double)4095 / (double)MAX_RESOLUTION) * (double) red;
+	if (red == MAX_RESOLUTION)
+	{
+		redOffTime = 4095;
+	}
+	int16_t greenOffTime = ((double)4095 / (double)MAX_RESOLUTION) * (double) green;
+	if (green == MAX_RESOLUTION)
+	{
+		greenOffTime = 4095;
+	}
+	int16_t blueOffTime = ((double)4095 / (double)MAX_RESOLUTION) * (double) blue;
+	if (blue == MAX_RESOLUTION)
+	{
+		blueOffTime = 4095;
+	}
+
+	std::vector<uint8_t> buffer;
+	buffer.push_back(0x06); // Red LedOn, byte0 start Register
+
+	buffer.push_back(0x00); // Red LedOn, byte 0 value
+	buffer.push_back(0x00); // Red LedOn, byte 1 value
+	buffer.push_back(redOffTime & 0xFF); // Red LedOff, byte 0 value
+	buffer.push_back((redOffTime >> 8) & 0x0F); // Red LedOff, byte 1 value
+
+	buffer.push_back(0x00); // Green LedOn, byte 0 value
+	buffer.push_back(0x00); // Green LedOn, byte 1 value
+	buffer.push_back(greenOffTime & 0xFF); // Green LedOff, byte 0 value
+	buffer.push_back((greenOffTime >> 8) & 0x0F); // Green LedOff, byte 1 value
+
+	buffer.push_back(0x00); // Blue LedOn, byte 0 value
+	buffer.push_back(0x00); // Blue LedOn, byte 1 value
+	buffer.push_back(blueOffTime & 0xFF); // Blue LedOff, byte 0 value
+	buffer.push_back((blueOffTime >> 8) & 0x0F); // Blue LedOff, byte 1 value
+
 	mI2C.writeDataSync(mAddress, buffer);
 }
 

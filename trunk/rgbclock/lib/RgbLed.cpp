@@ -73,6 +73,17 @@ void RgbLed::luminance(uint16_t value)
 	{
 		mLum = value;
 	}
+
+	switch (mLum)
+	{
+	  case 759: mLum = 758;
+	  break;
+	  case 1175: mLum = 1174;
+	  break;
+	  case 1176: mLum = 1174;
+	  break;
+	}
+
 	hslToRgb();
 
 	write();
@@ -80,9 +91,7 @@ void RgbLed::luminance(uint16_t value)
 
 void RgbLed::write()
 {
-	mPwmLedDriver.pwmValue(PwmLedDriver::PwmChannel::Channel1, mRed);
-	mPwmLedDriver.pwmValue(PwmLedDriver::PwmChannel::Channel2, mGreen);
-	mPwmLedDriver.pwmValue(PwmLedDriver::PwmChannel::Channel3, mBlue);
+	mPwmLedDriver.pwmRGB(mRed, mGreen, mBlue);
 }
 
 bool RgbLed::isAttached()
@@ -122,6 +131,7 @@ void RgbLed::hslToRgb()
         mBlue = b * MAX_RESOLUTION;
     }
 	VLOG(1) << "HSL Converted to Red:" << (int) mRed << ", Green:"<< (int) mGreen << ", Blue:" << (int)mBlue;
+//	LOG(INFO) << "Lum: " << mLum << ", mHue: " << mHue << ", mSat: " << mSat << ", R:" << (int) mRed << ", G:"<< (int) mGreen << ", B:" << (int)mBlue;
 }
 
 double RgbLed::hue2rgb(double p, double q, double t)
