@@ -171,165 +171,166 @@ int main (int argc, char* argv[])
     {
     	Hardware::I2C i2c;
         Hardware::RTC rtc(i2c, 0x68);
-    }
-	catch (std::string &ex)
-    {
-		std::cerr << "Error creating I2C bus: " << ex << std::endl;
-    }
-    // Start the RTC clock first; need to have a valid date/time for logging
-    // Don't use any glog functions @constructor time of RTC
-/*
 
-	google::InitGoogleLogging("RGBClock");
+		// Start the RTC clock first; need to have a valid date/time for logging
+		// Don't use any glog functions @constructor time of RTC
 
-	std::string usage("Raspberry Pi Ultimate Alarm Clock. Sample usage:\n");
-	usage += argv[0];
-	google::SetUsageMessage(usage);
-	google::ParseCommandLineFlags(&argc, &argv, true);
-	LOG(INFO) << "Raspberry Pi Ultimate Alarm Clock";
-	LOG(INFO) << "=================================";
+		google::InitGoogleLogging("RGBClock");
 
-	registerSignals();
+		std::string usage("Raspberry Pi Ultimate Alarm Clock. Sample usage:\n");
+		usage += argv[0];
+		google::SetUsageMessage(usage);
+		google::ParseCommandLineFlags(&argc, &argv, true);
+		LOG(INFO) << "Raspberry Pi Ultimate Alarm Clock";
+		LOG(INFO) << "=================================";
 
-	if (FLAGS_daemon)
-	{
-		daemonize();
-	}
+		registerSignals();
 
-	// Create the config object; load the XML file with the settings
-	App::Config config;
+		if (FLAGS_daemon)
+		{
+			daemonize();
+		}
 
-	if (!config.errorFree())
-	{
-		// No errorfree load; exit the application
-		return -1;
-	}
+		// Create the config object; load the XML file with the settings
+		App::Config config;
 
-	std::map<std::string, std::unique_ptr<App::AlarmClock>> startedUnits;
-	std::map<std::string, std::unique_ptr<Hardware::Light>> startedLights;
+		if (!config.errorFree())
+		{
+			// No errorfree load; exit the application
+			return -1;
+		}
 
-	const std::map<std::string, App::UnitConfig>& configuredUnits = config.configuredUnits();
-	const App::SystemConfig& systemConfig = config.systemConfig();
-	LOG(INFO) << "Number of configured units: " << configuredUnits.size();
+		std::map<std::string, std::unique_ptr<App::AlarmClock>> startedUnits;
+		std::map<std::string, std::unique_ptr<Hardware::Light>> startedLights;
 
-	try
-	{
-		// Reset all PCA9685's
-		i2c.writeData(0x00, 0x06); // General Call Address, Send SWRST data byte 1):
+		const std::map<std::string, App::UnitConfig>& configuredUnits = config.configuredUnits();
+		const App::SystemConfig& systemConfig = config.systemConfig();
+		LOG(INFO) << "Number of configured units: " << configuredUnits.size();
 
-		Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, 32, !FLAGS_disablewatchdog);
-		Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio, mainboardControl);
-		App::AlarmManager alarmManager(config, mainboardControl);
+		try
+		{
+			// Reset all PCA9685's
+			i2c.writeData(0x00, 0x06); // General Call Address, Send SWRST data byte 1):
 
-		do{
+			Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, 32, !FLAGS_disablewatchdog);
+			Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio, mainboardControl);
+			App::AlarmManager alarmManager(config, mainboardControl);
 
-			for (const auto& configUnit : configuredUnits)
-			{
-				if (i2c.probeAddress(configUnit.second.mKeyboard))
+			do{
+
+				for (const auto& configUnit : configuredUnits)
 				{
-					if (startedUnits.find(configUnit.first) == startedUnits.end())
+					if (i2c.probeAddress(configUnit.second.mKeyboard))
 					{
-						LOG(INFO) << "Creating clock unit: " << configUnit.first;
-						// Unit not found; create a unit
-						startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, systemConfig, alarmManager, mainboardControl, configUnit.second));
-					}
+						if (startedUnits.find(configUnit.first) == startedUnits.end())
+						{
+							LOG(INFO) << "Creating clock unit: " << configUnit.first;
+							// Unit not found; create a unit
+							startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, systemConfig, alarmManager, mainboardControl, configUnit.second));
+						}
 
-					if (i2c.probeAddress(configUnit.second.mLight))
-					{
-						if (!startedUnits[configUnit.first]->hasRegisteredLight())
-						{ // It has no registered light
-							LOG(INFO) << "Unit found, without light registered";
+						if (i2c.probeAddress(configUnit.second.mLight))
+						{
+							if (!startedUnits[configUnit.first]->hasRegisteredLight())
+							{ // It has no registered light
+								LOG(INFO) << "Unit found, without light registered";
 
-							// Is there a light present for this unit ?
-							auto lightUnit = startedLights.find(configUnit.first);
-							if (lightUnit == startedLights.end())
-							{
-								LOG(INFO) << "Found no existing light; creating: " << configUnit.first;
-								startedLights[configUnit.first] = std::unique_ptr<Hardware::Light>(new Hardware::Light(i2c, configUnit.second.mLight));
+								// Is there a light present for this unit ?
+								auto lightUnit = startedLights.find(configUnit.first);
+								if (lightUnit == startedLights.end())
+								{
+									LOG(INFO) << "Found no existing light; creating: " << configUnit.first;
+									startedLights[configUnit.first] = std::unique_ptr<Hardware::Light>(new Hardware::Light(i2c, configUnit.second.mLight));
+								}
+
+								LOG(INFO) << "Registering the light";
+								startedUnits[configUnit.first]->registerLight(startedLights[configUnit.first].get());
 							}
-
-							LOG(INFO) << "Registering the light";
-							startedUnits[configUnit.first]->registerLight(startedLights[configUnit.first].get());
 						}
 					}
 				}
-			}
 
-			// Sleep for 10 seconds; check for disconnected hardware after this time
-			std::this_thread::sleep_for( std::chrono::seconds(10) );
+				// Sleep for 10 seconds; check for disconnected hardware after this time
+				std::this_thread::sleep_for( std::chrono::seconds(10) );
 
-			if (FLAGS_i2cstatistics)
-			{
-				i2c.printStatistics();
-			}
-
-			// Now run thru the connected devices; and see if they are still connected
-			// Start with the clock devices
-			auto unit_it = startedUnits.begin();
-			while (unit_it != startedUnits.end())
-			{
-				if (!unit_it->second->isAttached())
+				if (FLAGS_i2cstatistics)
 				{
-					LOG(ERROR) << "Clock unit is no longer attached: " << unit_it->first;
+					i2c.printStatistics();
+				}
 
-					// Need to remove the clock unit; first find (if any) the light unit, and unregister
-					auto lightUnit = startedLights.find(unit_it->first);
-					if (lightUnit != startedLights.end())
+				// Now run thru the connected devices; and see if they are still connected
+				// Start with the clock devices
+				auto unit_it = startedUnits.begin();
+				while (unit_it != startedUnits.end())
+				{
+					if (!unit_it->second->isAttached())
 					{
-						LOG(ERROR) << "The Clock unit had a registered light; unregistering the light";
-						unit_it->second->unRegisterLight(lightUnit->second.get());
+						LOG(ERROR) << "Clock unit is no longer attached: " << unit_it->first;
+
+						// Need to remove the clock unit; first find (if any) the light unit, and unregister
+						auto lightUnit = startedLights.find(unit_it->first);
+						if (lightUnit != startedLights.end())
+						{
+							LOG(ERROR) << "The Clock unit had a registered light; unregistering the light";
+							unit_it->second->unRegisterLight(lightUnit->second.get());
+						}
+
+						LOG(ERROR) << "Deleting the clock unit";
+						startedUnits.erase(unit_it);
+					}
+					unit_it++;
+				}
+
+
+				// Do the same with the light devices
+				auto light_it = startedLights.begin();
+				while (light_it != startedLights.end())
+				{
+					if (!light_it->second->isAttached())
+					{
+						LOG(ERROR) << "Licht unit no longer attached: " << light_it->first;
+						// Need to remove the light unit; first find (if any) the clock unit, and unregister
+						auto clockUnit = startedUnits.find(light_it->first);
+						if (clockUnit != startedUnits.end())
+						{
+							LOG(ERROR) << "Found the corresponding clock unit; unregistering light";
+							clockUnit->second->unRegisterLight(light_it->second.get());
+						}
+						LOG(ERROR) << "Deleting the light";
+						startedLights.erase(light_it);
 					}
 
-					LOG(ERROR) << "Deleting the clock unit";
-					startedUnits.erase(unit_it);
+					light_it++;
 				}
-				unit_it++;
-			}
 
+
+			} while (runMain);
+
+			LOG(INFO) << "Exit application, cleaning up ...";
+
+			// Delete the clock units
+			startedUnits.clear();
 
 			// Do the same with the light devices
-			auto light_it = startedLights.begin();
-			while (light_it != startedLights.end())
-			{
-				if (!light_it->second->isAttached())
-				{
-					LOG(ERROR) << "Licht unit no longer attached: " << light_it->first;
-					// Need to remove the light unit; first find (if any) the clock unit, and unregister
-					auto clockUnit = startedUnits.find(light_it->first);
-					if (clockUnit != startedUnits.end())
-					{
-						LOG(ERROR) << "Found the corresponding clock unit; unregistering light";
-						clockUnit->second->unRegisterLight(light_it->second.get());
-					}
-					LOG(ERROR) << "Deleting the light";
-					startedLights.erase(light_it);
-				}
+			startedLights.clear();
 
-				light_it++;
-			}
+		}
+		catch (std::string &ex)
+		{
+			LOG(ERROR) << "Exception occurred:" << ex;
+			return EXIT_FAILURE;
+		}
 
 
-		} while (runMain);
-
-		LOG(INFO) << "Exit application, cleaning up ...";
-
-		// Delete the clock units
-		startedUnits.clear();
-
-		// Do the same with the light devices
-		startedLights.clear();
-
+		close(pidFilehandle);
+		LOG(INFO) << "Exit application";
 	}
 	catch (std::string &ex)
 	{
-		LOG(ERROR) << "Exception occurred:" << ex;
-		return EXIT_FAILURE;
+		std::cerr << "Exception: " << ex << std::endl;
 	}
 
-	LOG(INFO) << "Exit application";
-
-	close(pidFilehandle);
 	return EXIT_SUCCESS;
-	*/
+
 }
 
