@@ -36,7 +36,7 @@ bool IOExpander::writeA(uint8_t byte)
 	buffer.push_back(GPIOA); // Register: GPIOA (BANK = 0)
 	buffer.push_back(byte);
 
-	return mI2C.writeDataSync(mAddress, buffer);
+	return mI2C.writeData(mAddress, buffer);
 }
 
 bool IOExpander::writeB(uint8_t byte)
@@ -45,7 +45,7 @@ bool IOExpander::writeB(uint8_t byte)
 	buffer.push_back(GPIOB); // Register: GPIOB (BANK = 0)
 	buffer.push_back(byte);
 
-	return mI2C.writeDataSync(mAddress, buffer);
+	return mI2C.writeData(mAddress, buffer);
 }
 
 bool IOExpander::directionA(DataDirection direction)
@@ -55,24 +55,24 @@ bool IOExpander::directionA(DataDirection direction)
 	{
 		initBuffer.push_back(DIRA); // Register DirA
 		initBuffer.push_back(0x00); // All Output
-		mI2C.writeDataSync(mAddress, initBuffer);
+		mI2C.writeData(mAddress, initBuffer);
 
 		initBuffer.clear();
 		initBuffer.push_back(GPPUA); // PullUp PortA
 		initBuffer.push_back(0x00); // No Pullup
-		mI2C.writeDataSync(mAddress, initBuffer);
+		mI2C.writeData(mAddress, initBuffer);
 
 	}
 	else
 	{
 		initBuffer.push_back(DIRA); // Register DirA
 		initBuffer.push_back(0xFF); // All Input
-		mI2C.writeDataSync(mAddress, initBuffer);
+		mI2C.writeData(mAddress, initBuffer);
 
 		initBuffer.clear();
 		initBuffer.push_back(GPPUA); // PullUp PortA
 		initBuffer.push_back(0xFF); // All Pullup
-		mI2C.writeDataSync(mAddress, initBuffer);
+		mI2C.writeData(mAddress, initBuffer);
 	}
 	return true;
 }
@@ -84,36 +84,36 @@ bool IOExpander::directionB(DataDirection direction)
 	{
 		initBuffer.push_back(DIRB); // Register DirB
 		initBuffer.push_back(0x00); // All Output
-		mI2C.writeDataSync(mAddress, initBuffer);
+		mI2C.writeData(mAddress, initBuffer);
 
 		initBuffer.clear();
 		initBuffer.push_back(GPPUB); // PullUp PortB
 		initBuffer.push_back(0x00); // No Pullup
-		mI2C.writeDataSync(mAddress, initBuffer);
+		mI2C.writeData(mAddress, initBuffer);
 
 	}
 	else
 	{
 		initBuffer.push_back(DIRB); // Register DirB
 		initBuffer.push_back(0xFF); // All Input
-		mI2C.writeDataSync(mAddress, initBuffer);
+		mI2C.writeData(mAddress, initBuffer);
 
 		initBuffer.clear();
 		initBuffer.push_back(GPPUB); // PullUp PortB
 		initBuffer.push_back(0xFF); // All Pullup
-		mI2C.writeDataSync(mAddress, initBuffer);
+		mI2C.writeData(mAddress, initBuffer);
 	}
 	return true;
 }
 
 bool IOExpander::readA(uint8_t& byte)
 {
-	return mI2C.readByteSync(mAddress, GPIOA, byte);
+	return mI2C.readData(mAddress, GPIOA, byte);
 }
 
 bool IOExpander::readB(uint8_t& byte)
 {
-	return mI2C.readByteSync(mAddress, GPIOB, byte);
+	return mI2C.readData(mAddress, GPIOB, byte);
 }
 
 bool IOExpander::init()
@@ -134,7 +134,7 @@ bool IOExpander::init()
 	 */
 	initBuffer.push_back(0b00100000);
 
-	result = result && mI2C.writeDataSync(mAddress, initBuffer);
+	result = result && mI2C.writeData(mAddress, initBuffer);
 
 	result = result & directionA(DataDirection::dirOut);
 	result = result & directionB(DataDirection::dirOut);

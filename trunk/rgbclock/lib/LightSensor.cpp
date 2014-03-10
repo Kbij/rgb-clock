@@ -28,8 +28,8 @@ double LightSensor::lux()
     uint16_t channel0;
     uint16_t channel1;
 
-    mI2C.readWordSync(mAddress, 0xAC, channel0);
-    mI2C.readWordSync(mAddress, 0xAE, channel1);
+    mI2C.readData(mAddress, 0xAC, channel0);
+    mI2C.readData(mAddress, 0xAE, channel1);
     VLOG(2) << "Channel 0: " << (int) channel0;
     VLOG(2) << "Channel 1: " << (int) channel1;
     return calculateLux(channel0, channel1);
@@ -38,7 +38,7 @@ double LightSensor::lux()
 bool LightSensor::init()
 {
 	// Startup the device
-	mI2C.writeByteSync(mAddress, 0x03);
+	mI2C.writeData(mAddress, 0x03);
 
 	return true;
 }

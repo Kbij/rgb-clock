@@ -209,7 +209,7 @@ RDSInfo Radio::getRDSInfo()
 void Radio::readRegisters()
 {
 	std::vector<uint8_t> response(6);
-	mI2C.writeReadDataSync(mAplifierAddress, std::vector<uint8_t>({}), response);
+	mI2C.readWriteData(mAplifierAddress, std::vector<uint8_t>({}), response);
 	LOG(INFO) << "read Registers";
 	for (auto reg: response)
 	{
@@ -231,7 +231,7 @@ void Radio::writeRegisters()
 	registers.push_back(mMaskRegister);
 	registers.push_back(mControlRegister);
 
-	mI2C.writeDataSync(mAplifierAddress, registers);
+	mI2C.writeData(mAplifierAddress, registers);
 	notifyObservers();
 }
 

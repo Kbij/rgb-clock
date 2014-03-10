@@ -16,10 +16,11 @@
 #include <iomanip>
 #include <iostream>
 #include <pthread.h>
+#include <stdio.h>
 
 namespace Hardware
 {
-const std::string i2cFileName("/dev/i2c-1");
+const std::string I2C_FILENAME("/dev/i2c-1");
 
 I2C::I2C() :
 	mI2CWriteError(false),
@@ -34,9 +35,9 @@ I2C::I2C() :
 #ifndef HOSTBUILD
 	int i2cFile;
 	// Open port for reading and writing
-	if ((i2cFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
+	if ((i2cFile = open(I2C_FILENAME.c_str(), O_RDWR)) < 0)
 	{
-		std::string  ex("Failed to open bus");
+		std::string  ex("Failed to open bus (" + I2C_FILENAME + "): ");
 		ex += strerror(errno);
 		throw ex;
 	}
@@ -52,214 +53,49 @@ I2C::~I2C()
 
 bool I2C::probeAddress(uint8_t address)
 {
-	std::lock_guard<std::mutex> lk_guard2(mBusMutex);
-	bool result = false;
-#ifndef HOSTBUILD
-	int i2cFile;
-	if ((i2cFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
-	{
-		std::string  ex("Failed to open bus");
-		ex += strerror(errno);
-		throw ex;
-	}
-
-	// Set the port options and set the address of the device we wish to speak to
-	if (ioctl(i2cFile, I2C_SLAVE, address) < 0)
-	{
-		result =  false;
-	}
-	uint8_t byte = 0;
-
-	if ((write(i2cFile, &byte, 1)) != 1)
-	{
-		result = false;
-	}
-	else
-	{
-		result = true;
-	}
-
-	close(i2cFile);
-	return result;
-#else
-	return true;
-#endif
+	std::vector<uint8_t> readData;
+	return readWriteDataWithRetry(address, std::vector<uint8_t>({0}), readData, 0);
 }
 
-bool I2C::writeByteSync(uint8_t address, uint8_t byte)
-{
-    std::lock_guard<std::mutex> lk_guard(mStatMutex);
-    mAddressStatistics[address].mByteCount += 2;
-
-	std::lock_guard<std::mutex> lk_guard2(mBusMutex);
-
-	VLOG(1) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data: 0x" << (int) byte << ";";
-
-#ifndef HOSTBUILD
-	int i2cFile;
-	if ((i2cFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
-	{
-		std::string  ex("Failed to open bus");
-		ex += strerror(errno);
-		throw ex;
-	}
-
-	// Set the port options and set the address of the device we wish to speak to
-	if (ioctl(i2cFile, I2C_SLAVE, address) < 0)
-	{
-		if (!mI2CWriteError) // If first occurrence
-		{
-			LOG(ERROR) << "Failed setting address: " << strerror(errno);
-		}
-		mI2CWriteError = true;
-
-		return false;
-	}
-	if ((write(i2cFile, &byte, 1)) != 1)
-	{
-		if (!mI2CWriteError) // If first occurrence
-		{
-			LOG(ERROR) << "Failed writing data (address: '" << (int) address << "'): " << strerror(errno);
-		}
-		mI2CWriteError = true;
-
-		return false;
-	}
-	mI2CWriteError = false;
-
-	close(i2cFile);
-	return true;
-#else
-	return true;
-#endif
-}
-
-bool I2C::writeRegByteSync(uint8_t address, uint8_t regAddr, uint8_t byte)
-{
-	return writeDataSync(address,std::vector<uint8_t>({regAddr,byte}));
-}
-
-bool I2C::writeDataSync(uint8_t address, const std::vector<uint8_t>& data)
+bool I2C::writeData(uint8_t address, uint8_t byte, int retryCount)
 {
 	std::vector<uint8_t> readData;
-
-	return writeReadDataSync(address, data, readData);
+	return readWriteDataWithRetry(address, std::vector<uint8_t>({byte}), readData, retryCount);
 }
 
-bool I2C::readByteSync(uint8_t address, uint8_t reg, uint8_t& byte)
+bool I2C::writeData(uint8_t address, const std::vector<uint8_t>& data, int retryCount)
 {
-    std::lock_guard<std::mutex> lk_guard(mStatMutex);
-    mAddressStatistics[address].mByteCount += 3;
-
-    std::lock_guard<std::mutex> lk_guard2(mBusMutex);
-
-	VLOG(1) << "Read byte I2C; Addr: 0x" << std::hex << (int) address << "; Register:" << (int) reg << ";";
-
-#ifndef HOSTBUILD
-	int i2cFile;
-	if ((i2cFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
-	{
-		std::string  ex("Failed to open bus");
-		ex += strerror(errno);
-		throw ex;
-	}
-
-	// Set the port options and set the address of the device we wish to speak to
-	if (ioctl(i2cFile, I2C_SLAVE, address) < 0)
-	{
-		if (!mI2CWriteError) // If first occurrence
-		{
-			LOG(ERROR) << "Failed setting address: " << strerror(errno);
-		}
-		mI2CWriteError = true;
-
-		close(i2cFile);
-		return false;
-	}
-
-	uint8_t data[2];
-	data[0] = reg;
-	if (write(i2cFile, data, 1) != 1)
-	{
-		if (!mI2CWriteError) // If first occurrence
-		{
-			LOG(ERROR) << "Failed setting register address (addr: " << (int) address << std::hex << ", reg: 0x" << (int) reg << ", " << mAddressStatistics[address].mName << "): " << strerror(errno) << std::dec;
-		}
-		mI2CWriteError = true;
-
-		close(i2cFile);
-		return false;
-	}
-	if (read(i2cFile, data, 1) != 1) {
-		LOG(ERROR) << "Failed reading byte: " << strerror(errno);
-	}
-	byte = data[0];
-
-	close(i2cFile);
-	return true;
-
-#else
-	return true;
-#endif
+	std::vector<uint8_t> readData;
+	return readWriteDataWithRetry(address, data, readData, retryCount);
 }
 
-bool I2C::readWordSync(uint8_t address, uint8_t reg, uint16_t& word)
+bool I2C::readData(uint8_t address, uint8_t reg, uint8_t& byte, int retryCount)
 {
-    std::lock_guard<std::mutex> lk_guard(mStatMutex);
-    mAddressStatistics[address].mByteCount += 4;
-
-    std::lock_guard<std::mutex> lk_guard2(mBusMutex);
-
-	VLOG(1) << "Read word I2C; Addr: 0x" << std::hex << (int) address << "; Register:" << (int) reg << ";";
-
-#ifndef HOSTBUILD
-	int i2cFile;
-	if ((i2cFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
-	{
-		std::string  ex("Failed to open bus");
-		ex += strerror(errno);
-		throw ex;
-	}
-	// Set the port options and set the address of the device we wish to speak to
-	if (ioctl(i2cFile, I2C_SLAVE, address) < 0)
-	{
-		if (!mI2CWriteError) // If first occurrence
-		{
-			LOG(ERROR) << "Failed setting address: " << strerror(errno);
-		}
-		mI2CWriteError = true;
-
-		return false;
-	}
-
-	uint8_t data[3];
-	data[0] = reg;
-	if (write(i2cFile, data, 1) != 1)
-	{
-		if (!mI2CWriteError) // If first occurrence
-		{
-			LOG(ERROR) << "Failed setting register address (addr: " << (int) address << std::hex << ", reg: 0x" << (int) reg << ", " << mAddressStatistics[address].mName << "): " << strerror(errno) << std::dec;
-		}
-		mI2CWriteError = true;
-
-		close(i2cFile);
-		return false;
-	}
-	if (read(i2cFile, data, 2) != 2) {
-		LOG(ERROR) << "Failed reading word: " << strerror(errno);
-	}
-	word = data[0] | (data[1] << 8);
-
-	close(i2cFile);
-	return true;
-
-#else
-	return true;
-#endif
-
+	std::vector<uint8_t> readData({0});
+	auto result = readWriteDataWithRetry(address, std::vector<uint8_t>({reg}), readData, retryCount);
+	byte = readData[0];
+	return result;
 }
 
-bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeData, std::vector<uint8_t>& readData)
+bool I2C::readData(uint8_t address, uint8_t reg, uint16_t& word, int retryCount)
+{
+	std::vector<uint8_t> readData({0,0});
+	auto result = readWriteDataWithRetry(address, std::vector<uint8_t>({reg}), readData, retryCount);
+	word = readData[0] | (readData[1] << 8);
+	return result;
+}
+
+bool I2C::readWriteData(uint8_t address, const std::vector<uint8_t>& writeData, std::vector<uint8_t>& readData, int retryCount)
+{
+	return readWriteDataWithRetry(address, writeData, readData, retryCount);
+}
+
+bool I2C::readWriteDataWithRetry(uint8_t address, const std::vector<uint8_t>& writeData, std::vector<uint8_t>& readData, int /*retryCount*/)
+{
+	return readWriteDataNoRetry(address, writeData, readData);
+}
+
+bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writeData, std::vector<uint8_t>& readData)
 {
     std::lock_guard<std::mutex> lk_guard(mStatMutex);
     mAddressStatistics[address].mByteCount += 1 + writeData.size() + readData.size();
@@ -288,7 +124,7 @@ bool I2C::writeReadDataSync(uint8_t address, const std::vector<uint8_t>& writeDa
 
 #ifndef HOSTBUILD
 	int i2cFile;
-	if ((i2cFile = open(i2cFileName.c_str(), O_RDWR)) < 0)
+	if ((i2cFile = open(I2C_FILENAME.c_str(), O_RDWR)) < 0)
 	{
 		std::string  ex("Failed to open bus");
 		ex += strerror(errno);
