@@ -91,7 +91,7 @@ std::string Keyboard::feederName() const
 
 void Keyboard::init()
 {
-	  mI2C.writeRegByteSync(mAddress, SOFT_RESET, 0x63);
+	  mI2C.writeData(mAddress, SOFT_RESET, 0x63);
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
       // These are the configuration values recommended by app note AN3944
@@ -109,16 +109,16 @@ void Keyboard::init()
 	  // As the filter is sensitive to setting changes, it is recommended
 	  // that users read AN3891 before changing the values.
 	  // In most cases these default values will work.
-      mI2C.writeRegByteSync(mAddress, MHD_RISING, 0x01);
+      mI2C.writeData(mAddress, MHD_RISING, 0x01);
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-      mI2C.writeRegByteSync(mAddress, NHD_AMOUNT_RISING, 0x01);
+      mI2C.writeData(mAddress, NHD_AMOUNT_RISING, 0x01);
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-      mI2C.writeRegByteSync(mAddress, NCL_RISING, 0x00);
+      mI2C.writeData(mAddress, NCL_RISING, 0x00);
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-      mI2C.writeRegByteSync(mAddress, FDL_RISING, 0x00);
+      mI2C.writeData(mAddress, FDL_RISING, 0x00);
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 	  // Section B
@@ -136,10 +136,10 @@ void Keyboard::init()
 	  // As the filter is sensitive to setting changes, it is recommended
 	  // that users read AN3891 before changing the values.
 	  // In most cases these default values will work.
-      mI2C.writeRegByteSync(mAddress, MHD_FALLING, 0x01);
-      mI2C.writeRegByteSync(mAddress, NHD_AMOUNT_FALLING, 0x01);
-      mI2C.writeRegByteSync(mAddress, NCL_FALLING, 0xFF);
-      mI2C.writeRegByteSync(mAddress, FDL_FALLING, 0x02);
+      mI2C.writeData(mAddress, MHD_FALLING, 0x01);
+      mI2C.writeData(mAddress, NHD_AMOUNT_FALLING, 0x01);
+      mI2C.writeData(mAddress, NCL_FALLING, 0xFF);
+      mI2C.writeData(mAddress, FDL_FALLING, 0x02);
 
 	  // Section C
 	  // Description:
@@ -154,30 +154,30 @@ void Keyboard::init()
 	  // very large electrodes the reverse is true. One easy method is
 	  // to view the deltas actually seen in a system and set the touch
 	  // at 80% and release at 70% of delta for good performance.
-      mI2C.writeRegByteSync(mAddress, ELE0_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE0_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE1_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE1_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE2_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE2_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE3_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE3_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE4_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE4_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE5_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE5_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE6_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE6_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE7_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE7_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE8_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE8_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE9_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE9_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE10_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE10_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE11_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
-      mI2C.writeRegByteSync(mAddress, ELE11_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
+      mI2C.writeData(mAddress, ELE0_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
+      mI2C.writeData(mAddress, ELE0_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
+      mI2C.writeData(mAddress, ELE1_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
+      mI2C.writeData(mAddress, ELE1_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
+      mI2C.writeData(mAddress, ELE2_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
+      mI2C.writeData(mAddress, ELE2_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
+      mI2C.writeData(mAddress, ELE3_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
+      mI2C.writeData(mAddress, ELE3_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
+      mI2C.writeData(mAddress, ELE4_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
+      mI2C.writeData(mAddress, ELE4_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
+      mI2C.writeData(mAddress, ELE5_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
+      mI2C.writeData(mAddress, ELE5_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
+      mI2C.writeData(mAddress, ELE6_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
+      mI2C.writeData(mAddress, ELE6_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
+      mI2C.writeData(mAddress, ELE7_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
+      mI2C.writeData(mAddress, ELE7_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
+      mI2C.writeData(mAddress, ELE8_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
+      mI2C.writeData(mAddress, ELE8_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
+      mI2C.writeData(mAddress, ELE9_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
+      mI2C.writeData(mAddress, ELE9_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
+      mI2C.writeData(mAddress, ELE10_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
+      mI2C.writeData(mAddress, ELE10_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
+      mI2C.writeData(mAddress, ELE11_TOUCH_THRESHOLD, TOUCH_THRESHOLD);
+      mI2C.writeData(mAddress, ELE11_RELEASE_THRESHOLD, RELEASE_THRESHOLD);
 
 	  // Section D
 	  // Description:
@@ -192,7 +192,7 @@ void Keyboard::init()
 	  // 0x01 = 2ms, 0x02 = 4 ms; and so on to 0x07 = 128 ms. Most of
 	  // the time, 0x04 results in the best compromise between power
 	  // consumption and response time.
-      mI2C.writeRegByteSync(mAddress, FILTER_CONFIG, 0x04);
+      mI2C.writeData(mAddress, FILTER_CONFIG, 0x04);
 
 	  // Section E
 	  // Description:
@@ -208,7 +208,7 @@ void Keyboard::init()
 	  // the number of electrodes and 0x00 every time a register needs
 	  // to change. In a production system, this register will only need
 	  // to be written when the mode is changed from Standby to Run or vice versa.
-      mI2C.writeRegByteSync(mAddress, ELECTRODE_CONFIG, 0x0C);
+      mI2C.writeData(mAddress, ELECTRODE_CONFIG, 0x0C);
 
 	  // Section F
 	  // Description:
@@ -273,7 +273,7 @@ void Keyboard::readThread()
         uint16_t keybValue = 0;
 
         // Must read high and low byte in one read
-        mAttached = mAttached & mI2C.readWordSync(mAddress, ELE0_ELE7_TOUCH_STATUS, keybValue);
+        mAttached = mAttached & mI2C.readData(mAddress, ELE0_ELE7_TOUCH_STATUS, keybValue);
 
         std::vector<Hardware::KeyInfo> keyboardInfo(MONITORED_KEYS);
         bool stateChange = false;

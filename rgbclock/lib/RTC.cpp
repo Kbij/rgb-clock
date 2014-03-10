@@ -167,7 +167,7 @@ bool RTC::rtcValidDateTime(struct std::tm utcTime)
 struct std::tm RTC::readRTCTime()
 {
 	std::vector<uint8_t> response(7); // Vector with size 7
-	mI2C.writeReadDataSync(mAddress, std::vector<uint8_t>({0}), response);
+	mI2C.readWriteData(mAddress, std::vector<uint8_t>({0}), response);
 
 	log("Reading RTC Data");
 
@@ -206,7 +206,7 @@ void RTC::writeRTCTime()
 	rtcData[6] = intToBcd(utc->tm_mon);
 	rtcData[7] = intToBcd(utc->tm_year - (2000 - 1900));
 
-	mI2C.writeDataSync(mAddress, rtcData);
+	mI2C.writeData(mAddress, rtcData);
 }
 
 void RTC::setSystemTime(struct std::tm utcTime)

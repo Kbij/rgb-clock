@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include <memory>
 #include <pthread.h>
+#include <iostream>
 
 
 DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
@@ -165,10 +166,19 @@ void daemonize()
 int main (int argc, char* argv[])
 {
     umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //User: r/w, Group: r, Other: r
+
+    try
+    {
+    	Hardware::I2C i2c;
+        Hardware::RTC rtc(i2c, 0x68);
+    }
+	catch (std::string &ex)
+    {
+		std::cerr << "Error creating I2C bus: " << ex << std::endl;
+    }
     // Start the RTC clock first; need to have a valid date/time for logging
     // Don't use any glog functions @constructor time of RTC
-	Hardware::I2C i2c;
-    Hardware::RTC rtc(i2c, 0x68);
+/*
 
 	google::InitGoogleLogging("RGBClock");
 
@@ -205,7 +215,7 @@ int main (int argc, char* argv[])
 	try
 	{
 		// Reset all PCA9685's
-		i2c.writeByteSync(0x00, 0x06); // General Call Address, Send SWRST data byte 1):
+		i2c.writeData(0x00, 0x06); // General Call Address, Send SWRST data byte 1):
 
 		Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, 32, !FLAGS_disablewatchdog);
 		Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio, mainboardControl);
@@ -320,5 +330,6 @@ int main (int argc, char* argv[])
 
 	close(pidFilehandle);
 	return EXIT_SUCCESS;
+	*/
 }
 

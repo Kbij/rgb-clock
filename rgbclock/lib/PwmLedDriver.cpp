@@ -61,7 +61,7 @@ void PwmLedDriver::pwmSingle(uint16_t value)
 	buffer.push_back(0x00); // Channel LedOn, byte 1 value
 	buffer.push_back(offTime & 0xFF); // Channel LedOff, byte 0 value
 	buffer.push_back((offTime >> 8) & 0x0F); // Channel LedOff, byte 1 value
-	mI2C.writeDataSync(mAddress, buffer);
+	mI2C.writeData(mAddress, buffer);
 }
 
 void PwmLedDriver::pwmRGB(uint16_t red, uint16_t green, uint16_t blue)
@@ -100,13 +100,13 @@ void PwmLedDriver::pwmRGB(uint16_t red, uint16_t green, uint16_t blue)
 	buffer.push_back(blueOffTime & 0xFF); // Blue LedOff, byte 0 value
 	buffer.push_back((blueOffTime >> 8) & 0x0F); // Blue LedOff, byte 1 value
 
-	mI2C.writeDataSync(mAddress, buffer);
+	mI2C.writeData(mAddress, buffer);
 }
 
 bool PwmLedDriver::isAttached()
 {
 	uint8_t prescaler;
-	mI2C.readByteSync(mAddress, PRESCALER_REGISTER, prescaler);
+	mI2C.readData(mAddress, PRESCALER_REGISTER, prescaler);
 
 	return (prescaler >= (PRESCALER_VALUE -1)) && (prescaler <= (PRESCALER_VALUE + 1));
 }
@@ -119,7 +119,7 @@ void PwmLedDriver::init()
 
 	initBuffer.push_back(PRESCALER_VALUE); // Value of Prescaler
 
-	mI2C.writeDataSync(mAddress, initBuffer);
+	mI2C.writeData(mAddress, initBuffer);
 
 	// Set Mode1
 	initBuffer.clear();
@@ -136,7 +136,7 @@ void PwmLedDriver::init()
 	 * 0:0: Device does not listen to All Call
 	 */
 	initBuffer.push_back(0b00100000); //MODE1 register Value
-	mI2C.writeDataSync(mAddress, initBuffer);
+	mI2C.writeData(mAddress, initBuffer);
 
 	// Set Mode2
 	initBuffer.clear();
@@ -154,7 +154,7 @@ void PwmLedDriver::init()
 	 */
 	initBuffer.push_back(0b00000000); //MODE2 register Value
 
-	mI2C.writeDataSync(mAddress, initBuffer);
+	mI2C.writeData(mAddress, initBuffer);
 }
 
 void PwmLedDriver::chipSleep()
@@ -174,7 +174,7 @@ void PwmLedDriver::chipSleep()
 	 * 0:0: Device does not listen to All Call
 	 */
 	buffer.push_back(0b00110000); //MODE1 register Value
-	mI2C.writeDataSync(mAddress, buffer);
+	mI2C.writeData(mAddress, buffer);
 }
 
 } /* namespace Hardware */
