@@ -14,6 +14,7 @@
 #include <thread>
 #include <map>
 
+
 namespace
 {
 int DEFAULT_I2C_RETRY = -1;
@@ -62,7 +63,7 @@ private:
 	void stopStatisticsThread();
 	void statisticsThread();
 
-	bool mI2CWriteError;
+	std::map<uint8_t, bool> mI2CWriteError;
 	std::mutex mBusMutex;
 	std::mutex mStatMutex;
 	std::map<uint8_t, StatData> mAddressStatistics;
