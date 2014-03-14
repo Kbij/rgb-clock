@@ -23,7 +23,7 @@ namespace Hardware
 const std::string I2C_FILENAME("/dev/i2c-1");
 
 I2C::I2C() :
-	mI2CWriteError(false),
+	mI2CWriteError(),
 	mBusMutex(),
 	mStatMutex(),
 	mAddressStatistics(),
@@ -133,11 +133,11 @@ bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writ
 	// Set the port options and set the address of the device we wish to speak to
 	if (ioctl(i2cFile, I2C_SLAVE, address) < 0)
 	{
-		if (!mI2CWriteError) // If first occurrence
+		if (!mI2CWriteError[address]) // If first occurrence
 		{
 			LOG(ERROR) << "Failed setting address: " << strerror(errno);
 		}
-		mI2CWriteError = true;
+		mI2CWriteError[address] = true;
 
 		close(i2cFile);
 		return false;
@@ -147,17 +147,17 @@ bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writ
 	{
 		if ((write(i2cFile, writeData.data(), writeData.size())) != static_cast<int>(writeData.size()) )
 		{
-			if (!mI2CWriteError) // If first occurrence
+			if (!mI2CWriteError[address]) // If first occurrence
 			{
 				LOG(ERROR) << "Failed writing data (address: " << (int) address << ", " << mAddressStatistics[address].mName << "): " << strerror(errno);
 			}
-			mI2CWriteError = true;
+			mI2CWriteError[address] = true;
 
 			close(i2cFile);
 			return false;
 		}
 	}
-	mI2CWriteError = false;
+	mI2CWriteError[address] = false;
 
 	if (readData.size() > 0)
 	{
