@@ -1,12 +1,21 @@
-1) Install I2CTools
+1) Update system
+pacman -Syu
+
+﻿2) Install I2CTools
 pacman -S i2c-tools
 
-2) Copy files from "/etc/modules-load.d" svn repository to "/etc/modules-load.d" on target
+3) Copy files from "/etc/modules-load.d" svn repository to "/etc/modules-load.d" on target
 
-3) Load modules: systemctl restart systemd-modules-load.service
+4) Load modules: systemctl restart systemd-modules-load.service
 
-4) Start NTPD: systemctl start ntp
+5) Start NTPD: systemctl enable ntpd
 
-5) Set timezone: timedatectl set-timezone Europe/Brussels
+6) Set timezone: timedatectl set-timezone Europe/Brussels
 
+7) set hostname: hostnamectl set-hostname rgbclock
 
+8) enable Wifi: systemctl enable netctl-auto@wlan0.service
+
+9) enable rgbclock: systemctl enable rgbclock.service
+
+10) set password: passwd
