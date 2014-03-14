@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<alarms>
+    <alarm>
+        <enabled>1</enabled>
+        <unit></unit>
+        <hour>6</hour>
+        <minutes>59</minutes>
+        <onetime>0</onetime>
+        <days>0111110</days>
+        <volume>50</volume>
+    </alarm>
+    <alarm>
+        <enabled>0</enabled>
+        <unit></unit>
+        <hour>6</hour>
+        <minutes>45</minutes>
+        <onetime>1</onetime>
+        <days>0000000</days>
+        <volume>40</volume>
+    </alarm>
+</alarms>
