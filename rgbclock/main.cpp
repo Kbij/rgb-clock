@@ -107,7 +107,6 @@ void daemonize()
     if (pid > 0)
     {
         /* Child created ok, so exit parent process */
-    	LOG(INFO) << "Child process created: " <<  pid;
         exit(EXIT_SUCCESS);
     }
 
@@ -166,6 +165,17 @@ void daemonize()
 int main (int argc, char* argv[])
 {
     umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //User: r/w, Group: r, Other: r
+	std::string usage("Raspberry Pi Ultimate Alarm Clock. Sample usage:\n");
+	usage += argv[0];
+	google::SetUsageMessage(usage);
+	google::ParseCommandLineFlags(&argc, &argv, true);
+
+	registerSignals();
+
+	if (FLAGS_daemon)
+	{
+		daemonize();
+	}
 
     try
     {
@@ -177,19 +187,8 @@ int main (int argc, char* argv[])
 
 		google::InitGoogleLogging("RGBClock");
 
-		std::string usage("Raspberry Pi Ultimate Alarm Clock. Sample usage:\n");
-		usage += argv[0];
-		google::SetUsageMessage(usage);
-		google::ParseCommandLineFlags(&argc, &argv, true);
 		LOG(INFO) << "Raspberry Pi Ultimate Alarm Clock";
 		LOG(INFO) << "=================================";
-
-		registerSignals();
-
-		if (FLAGS_daemon)
-		{
-			daemonize();
-		}
 
 		// Create the config object; load the XML file with the settings
 		App::Config config;
