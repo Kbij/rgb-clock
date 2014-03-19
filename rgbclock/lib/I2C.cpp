@@ -21,7 +21,7 @@
 namespace Hardware
 {
 const std::string I2C_FILENAME("/dev/i2c-1");
-
+uint8_t ADDRESS = 255;
 I2C::I2C() :
 	mI2CWriteError(),
 	mBusMutex(),
@@ -57,10 +57,16 @@ bool I2C::probeAddress(uint8_t address)
 	return readWriteDataWithRetry(address, std::vector<uint8_t>({0}), readData, 0);
 }
 
-bool I2C::writeData(uint8_t address, uint8_t byte, int retryCount)
+bool I2C::writeByte(uint8_t address, uint8_t byte, int retryCount)
 {
 	std::vector<uint8_t> readData;
 	return readWriteDataWithRetry(address, std::vector<uint8_t>({byte}), readData, retryCount);
+}
+
+bool I2C::writeRegByte(uint8_t address, uint8_t reg, uint8_t byte, int retryCount)
+{
+	std::vector<uint8_t> readData;
+	return readWriteDataWithRetry(address, std::vector<uint8_t>({reg, byte}), readData, retryCount);
 }
 
 bool I2C::writeData(uint8_t address, const std::vector<uint8_t>& data, int retryCount)
@@ -120,7 +126,7 @@ bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writ
 
 		writeLogStream << " 0x" << (int) byte;
 	}
-	VLOG(1) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data:" << writeLogStream.str() << ";";
+	LOG_IF(INFO, address==ADDRESS) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data:" << writeLogStream.str() << ";";
 
 #ifndef HOSTBUILD
 	int i2cFile;
@@ -183,7 +189,7 @@ bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writ
 
 			writeLogStream << " 0x" << (int) byte;
 		}
-		VLOG(1) << "Data read:" << writeLogStream.str() << ";";
+		LOG_IF(INFO, address==ADDRESS) << "Data read:" << writeLogStream.str() << ";";
 	}
 
 	close(i2cFile);

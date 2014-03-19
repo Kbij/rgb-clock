@@ -36,7 +36,8 @@ public:
 	virtual ~I2C();
 
 	bool probeAddress(uint8_t address);
-	bool writeData(uint8_t address, uint8_t byte, int retryCount = DEFAULT_I2C_RETRY);
+	bool writeByte(uint8_t address, uint8_t byte, int retryCount = DEFAULT_I2C_RETRY);
+	bool writeRegByte(uint8_t address, uint8_t reg, uint8_t byte, int retryCount = DEFAULT_I2C_RETRY);
 	bool writeData(uint8_t address, const std::vector<uint8_t>& data, int retryCount = DEFAULT_I2C_RETRY);
 	bool readData(uint8_t address, uint8_t reg, uint8_t& byte, int retryCount = DEFAULT_I2C_RETRY);
 	bool readData(uint8_t address, uint8_t reg, uint16_t& word, int retryCount = DEFAULT_I2C_RETRY);

@@ -38,7 +38,7 @@ double LightSensor::lux()
 bool LightSensor::init()
 {
 	// Startup the device
-	mI2C.writeData(mAddress, 0x03);
+	mI2C.writeByte(mAddress, 0x03);
 
 	return true;
 }
