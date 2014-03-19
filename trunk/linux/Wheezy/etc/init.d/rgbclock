@@ -14,57 +14,53 @@
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
-. /lib/lsb/init-functions
-
-DAEMON=/usr/bin/rgbclock/rgbclock
-PIDFILE=/var/run/rgbclock.pid
+DAEMON=/home/pi/RgbClock
+DAEMON_NAME=rgbclock
+PIDFILE=/var/run/$DAEMON_NAME.pid
 LOGDIR=/var/log/rgbclock
 
+#DAEMON_USER=root
+
 test -x $DAEMON || exit 5
+. /lib/lsb/init-functions
 
+do_start () {
+	log_daemon_msg "Starting system $DAEMON_NAME daemon"
+#--user $DAEMON_USER
+	start-stop-daemon --start --pidfile $PIDFILE  --startas $DAEMON --  -daemon true -pidfile $PIDFILE -log_dir $LOGDIR  -logbufsecs 0 -disablewatchdog -configfile /home/pi/settings.xml -alarmfile /home/pi/alarms.xml disablewatchdog
 
-LOCKFILE=/var/lock/rgbclockdate
-
-lock_rgbclockdate() {
-	if [ -x /usr/bin/lockfile-create ]; then
-		lockfile-create $LOCKFILE
-		lockfile-touch $LOCKFILE &
-		LOCKTOUCHPID="$!"
-	fi
+	log_end_msg $?
 }
 
-unlock_rgbclockdate() {
- 	if [ -x /usr/bin/lockfile-create ] ; then
-		kill $LOCKTOUCHPID
-		lockfile-remove $LOCKFILE
-	fi
+do_stop () {
+	log_daemon_msg "Stopping system $DAEMON_NAME daemon"
+	start-stop-daemon --stop --pidfile $PIDFILE --retry 10
+
+	log_end_msg $?
 }
 
 
-case $1 in
-	start)
-		log_daemon_msg "Starting RGB Clock" "rgbclock"
+case "$1" in
 
-#		lock_rgbclockdate
-  		start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --startas $DAEMON -- -daemon true -pidfile $PIDFILE -log_dir $LOGDIR
-		status=$?
-#		unlock_rgbclockdate
-		log_end_msg $status
-  		;;
-	stop)
-		log_daemon_msg "Stopping RGB Clock" "rgbclock"
-  		start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
-		log_end_msg $?
-		rm -f $PIDFILE
-  		;;
-	restart|force-reload)
-		$0 stop && sleep 2 && $0 start
-  		;;
+	start|stop)
+		do_${1}
+		;;
+
+	restart|reload|force-reload)
+		do_stop
+		do_start
+		;;
+
 	status)
-                status_of_proc -p $PIDFILE $DAEMON  "RGB Clock"  
+		status_of_proc "$DAEMON_NAME" "$DAEMON" && exit 0 || exit $?
 		;;
+
 	*)
-		echo "Usage: $0 {start|stop|restart|force-reload|status}"
-		exit 2
-		;;
+	echo "Usage: /etc/init.d/$DAEMON_NAME {start|stop|restart|status}"
+		exit 1
+	;;
+
 esac
+
+
+exit 0
