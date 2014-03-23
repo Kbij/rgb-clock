@@ -20,11 +20,12 @@ public:
 	RTC(I2C &i2c, uint8_t address);
 	virtual ~RTC();
 
-	bool ntpSynchronized();
 	void showNTPStatus();
+	bool isNTPSync();
 
 private:
 	// Is the RTC clock set to a valid date/time ?
+	bool ntpSynchronized();
 	bool rtcValidDateTime(struct std::tm utcTime);
 	std::string runCmd(const std::string& cmd, bool log);
 	struct std::tm readRTCTime();
@@ -42,6 +43,7 @@ private:
     std::thread* mRTCThread;
     std::atomic_bool mRTCThreadRunning;
     std::ofstream mRTCStartupLog;
+    std::atomic_bool mNTPSync;
 
 };
 }

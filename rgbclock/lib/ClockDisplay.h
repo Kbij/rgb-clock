@@ -69,10 +69,11 @@ enum class ClockState
 namespace Hardware
 {
 class Keyboard;
+class RTC;
 
 class ClockDisplay : public RadioObserverIf, public Hardware::KeyboardObserverIf {
 public:
-	ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alarmManager, uint8_t hwrevision, const App::UnitConfig& unitConfig);
+	ClockDisplay(I2C &i2c, RTC &rtc, Keyboard& keyboard, App::AlarmManager &alarmManager, uint8_t hwrevision, const App::UnitConfig& unitConfig);
 	virtual ~ClockDisplay();
 
 	void signalClockState(App::ClockState state);
@@ -92,6 +93,8 @@ private:
     void eraseSignal();
     void drawRDS();
     void eraseRDS();
+	void drawNTPState();
+
 
     void updateAlarmInfo();
 
@@ -101,6 +104,7 @@ private:
 	void refreshThread();
 
 
+	RTC& mRTC;
 	LCDisplay mLCDisplay;
 	LCDBacklight mBackLight;
 	Keyboard& mKeyboard;

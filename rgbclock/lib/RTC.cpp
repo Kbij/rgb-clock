@@ -18,7 +18,10 @@
 #include <sys/time.h>
 
 DEFINE_string(rtcStartupFile,"/var/log/rgbclock/rtcstartup.log","Log file containing the RTC startup.");
-
+namespace
+{
+const int NTP_INTERVAL_SECONDS = 10;
+}
 namespace Hardware
 {
 RTC::RTC(I2C &i2c, uint8_t address):
@@ -26,7 +29,8 @@ RTC::RTC(I2C &i2c, uint8_t address):
 	mAddress(address),
 	mRTCThread(),
 	mRTCThreadRunning(false),
-	mRTCStartupLog()
+	mRTCStartupLog(),
+	mNTPSync(false)
 {
 	mRTCStartupLog.open(FLAGS_rtcStartupFile);
 	mRTCStartupLog << "Checking time accuracy" << std::endl;
@@ -98,6 +102,7 @@ std::string RTC::runCmd(const std::string& cmd, bool logResult)
 
     return result;
 }
+
 bool RTC::ntpSynchronized()
 {
 	std::string ntpStatus =  runCmd("ntpq -p", false);
@@ -119,8 +124,8 @@ bool RTC::ntpSynchronized()
 
     	    if (columns.size() > 7)
     	    {
-   	    		log("Synchronised with: " + columns[0]);
-   	    		log("Delay: " + columns[7] + "msec");
+   	    		//log("Synchronised with: " + columns[0]);
+   	    		//log("Delay: " + columns[7] + "msec");
 
    	    		std::istringstream input(columns[7]);
 				double delay;
@@ -147,6 +152,11 @@ bool RTC::ntpSynchronized()
 void RTC::showNTPStatus()
 {
 	runCmd("ntpq -p", true);
+}
+
+bool RTC::isNTPSync()
+{
+	return mNTPSync;
 }
 
 uint8_t bcdToInt(uint8_t bcd)
@@ -273,13 +283,14 @@ void RTC::rtcThread()
     while (mRTCThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        ++secondsPassed;
+        std::this_thread::sleep_for(std::chrono::seconds(NTP_INTERVAL_SECONDS));
+        secondsPassed = secondsPassed + NTP_INTERVAL_SECONDS;
+        mNTPSync = ntpSynchronized();
 
         if (secondsPassed > secondsInterval)
         {
         	secondsPassed = 0;
-            if (ntpSynchronized())
+            if (mNTPSync)
             {
             	// Min 5 minutes after start
     			log("NTP Synchronised, writing RTC");

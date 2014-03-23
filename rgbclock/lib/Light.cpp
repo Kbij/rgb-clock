@@ -12,7 +12,7 @@
 
 namespace Hardware
 {
-const int MIN_DIMMER_INTENSITY = 20;
+const int MIN_DIMMER_INTENSITY = 40;
 
 Light::Light(I2C &i2c, uint8_t address) :
 		mState(State::PwrOff),
