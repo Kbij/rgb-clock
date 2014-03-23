@@ -7,6 +7,7 @@
 
 #include "ClockDisplay.h"
 #include "I2C.h"
+#include "RTC.h"
 #include "Keyboard.h"
 #include "AlarmManager.h"
 #include "Config.h"
@@ -44,7 +45,8 @@ const int POS_VOLUME = 148;
 
 namespace Hardware
 {
-ClockDisplay::ClockDisplay(I2C &i2c, Keyboard& keyboard, App::AlarmManager &alarmManager, uint8_t hwrevision, const App::UnitConfig& unitConfig) :
+ClockDisplay::ClockDisplay(I2C &i2c, RTC &rtc, Keyboard& keyboard, App::AlarmManager &alarmManager, uint8_t hwrevision, const App::UnitConfig& unitConfig) :
+	mRTC(rtc),
 	mLCDisplay(i2c, unitConfig.mLCD),
 	mBackLight(i2c, hwrevision, unitConfig.mBackLight, unitConfig.mLightSensor),
 	mKeyboard(keyboard),
@@ -751,41 +753,7 @@ void ClockDisplay::drawSignal()
 {
 	std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
 
-	if (mReceiveLevel >= 75)
-	{
-		mLCDisplay.hLine(159-3, 159, 0, true);
-	}
-	else
-	{
-		mLCDisplay.hLine(159-3, 159, 0, false);
-	}
-
-	if (mReceiveLevel >= 50)
-	{
-		mLCDisplay.hLine(159-2, 159, 1, true);
-	}
-	else
-	{
-		mLCDisplay.hLine(159-2, 159, 1, false);
-	}
-	if (mReceiveLevel >= 25)
-	{
-		mLCDisplay.hLine(159-1, 159, 2, true);
-	}
-	else
-	{
-		mLCDisplay.hLine(159-1, 159, 2, false);
-	}
-
-	if (mReceiveLevel >= 0)
-	{
-		mLCDisplay.point(159, 3, true);
-	}
-	else
-	{
-		mLCDisplay.point(159, 3, false);
-	}
-
+	mLCDisplay.drawSignal(mReceiveLevel);
 }
 
 void ClockDisplay::eraseSignal()
@@ -828,6 +796,11 @@ void ClockDisplay::eraseRDS()
 
 	std::string localRDSText(26, ' ');
 	mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
+}
+
+void ClockDisplay::drawNTPState()
+{
+	mLCDisplay.drawNTPState(mRTC.isNTPSync());
 }
 
 void ClockDisplay::updateAlarmInfo()
@@ -940,6 +913,7 @@ void ClockDisplay::refreshThread()
     		prevMin = timeInfo->tm_min;
     		prevSec = timeInfo->tm_sec;
 
+    		drawNTPState();
 			// update Alarm info
     	    updateAlarmInfo();
         }

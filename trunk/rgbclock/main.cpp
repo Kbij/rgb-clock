@@ -184,7 +184,7 @@ int main (int argc, char* argv[])
 
 		// Start the RTC clock first; need to have a valid date/time for logging
 		// Don't use any glog functions @constructor time of RTC
-
+        umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //User: r/w, Group: r, Other: r
 		google::InitGoogleLogging("RGBClock");
 
 		LOG(INFO) << "Raspberry Pi Ultimate Alarm Clock";
@@ -225,7 +225,7 @@ int main (int argc, char* argv[])
 						{
 							LOG(INFO) << "Creating clock unit: " << configUnit.first;
 							// Unit not found; create a unit
-							startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, fmReceiver, systemConfig, alarmManager, mainboardControl, configUnit.second));
+							startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, rtc, fmReceiver, systemConfig, alarmManager, mainboardControl, configUnit.second));
 						}
 
 						if (i2c.probeAddress(configUnit.second.mLight))

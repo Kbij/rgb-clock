@@ -524,7 +524,6 @@ void FMReceiver::readThread()
     	if 	(rsqStatusResponse[0] && 0x01) // If STC
     	{
     		mRDSInfo.mReceiveLevel = rsqStatusResponse[4];
-    		LOG(INFO) << "Receive level: " << (int) rsqStatusResponse[4];
     	}
 
     	readRDSInfo();

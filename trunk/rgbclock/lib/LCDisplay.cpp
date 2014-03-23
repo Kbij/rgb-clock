@@ -181,6 +181,65 @@ void LCDisplay::rectangle(uint8_t col1, uint8_t row1, uint8_t col2, uint8_t row2
 	refreshDisplay();
 }
 
+void LCDisplay::drawSignal(int8_t signal)
+{
+	if (signal >= 75)
+	{
+		rawHLine(159-3, 159, 0, true);
+	}
+	else
+	{
+		rawHLine(159-3, 159, 0, false);
+	}
+
+	if (signal >= 50)
+	{
+		rawHLine(159-2, 159, 1, true);
+	}
+	else
+	{
+		rawHLine(159-2, 159, 1, false);
+	}
+	if (signal >= 25)
+	{
+		rawHLine(159-1, 159, 2, true);
+	}
+	else
+	{
+		rawHLine(159-1, 159, 2, false);
+	}
+
+	if (signal >= 0)
+	{
+		rawPoint(159, 3, true);
+	}
+	else
+	{
+		rawPoint(159, 3, false);
+	}
+
+	refreshDisplay();
+}
+
+void LCDisplay::drawNTPState(bool ntpSync)
+{
+	if (ntpSync)
+	{
+		rawPoint(150, 2, true);
+		rawPoint(151, 3, true);
+		rawPoint(152, 2, true);
+		rawPoint(153, 1, true);
+		rawPoint(154, 0, true);
+
+		refreshDisplay();
+	}
+	else
+	{
+		// Clear; no refresh needed
+		rectangle(150, 0, 155, 3, false, true);
+	}
+}
+
 void LCDisplay::init()
 {
 	LOG(INFO) << "Init Display";
