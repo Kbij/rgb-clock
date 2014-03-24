@@ -6,3 +6,4 @@
 
 snd-bcm2835
 i2c-dev
+bcm2708_wdog
