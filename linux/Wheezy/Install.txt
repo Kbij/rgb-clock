@@ -1,0 +1,47 @@
+
+
+This page details how to setup I2C support on the Raspbian “wheezy” image from http://www.raspberrypi.org/downloads
+
+Step 1: Download the latest Raspbian “wheezy” image and burn to your SD Card following the instructions on http://elinux.org/RPi_Easy_SD_Card_Setup
+
+Step 2:  Once you have logged into your Raspberry Pi from the command line, run the following command to install i2c-tools:
+
+sudo apt-get install i2c-tools
+
+Step 3: Enable I2C and SPI protocols. I2C and SPI protocols are turned off in the wheezy distro by default, so you will need to enable them by editing the file /etc/modprobe.d/raspi-blacklist.conf :
+
+sudo nano /etc/modprobe.d/raspi-blacklist.conf
+
+In the file you will see two lines, you need to disable the blacklisting of these by adding a # character before each line:
+
+#blacklist spi-bcm2708
+#blacklist i2c-bcm2708
+
+Save your changes and exit the nano editor.
+
+Step 3: Set the Raspberry Pi to start I2C automatically at boot by editing /etc/modules :
+
+sudo nano /etc/modules
+
+Use your cursor keys to move to the last line and add a new line and then add:
+
+i2c-dev
+
+Save your changes and exit the nano editor.
+
+Step 4: To avoid having to run the I2C tools at root add the ‘pi’ user to the I2C group:
+
+sudo adduser pi i2c
+
+Step 5: Next you need to update your Raspberry Pi to ensure all the latest packages are installed:
+
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get dist-upgrade
+
+Step 6: Next reboot the Raspberry Pi:
+
+sudo reboot
+
+When your Raspberry Pi has rebooted you will now have I2C support.
+
