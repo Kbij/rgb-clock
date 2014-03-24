@@ -110,7 +110,7 @@ bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writ
 
 	if (writeData.size() == 0)
 	{
-		LOG(ERROR) << "Writing data with 0 size";
+		LOG(ERROR) << "Writing data with 0 size (address: " << (int) address << ", " << mAddressStatistics[address].mName << ")";
 		return false;
 	}
 	std::ostringstream writeLogStream;
@@ -126,7 +126,7 @@ bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writ
 
 		writeLogStream << " 0x" << (int) byte;
 	}
-	LOG_IF(INFO, address==ADDRESS) << "Writing I2C; Addr: 0x" << std::hex << (int) address << "; Data:" << writeLogStream.str() << ";";
+	LOG_IF(INFO, address==ADDRESS) << "Writing I2C (address: " << (int) address << ", " << mAddressStatistics[address].mName << "): Data:" << writeLogStream.str() << ";";
 
 #ifndef HOSTBUILD
 	int i2cFile;
@@ -141,7 +141,7 @@ bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writ
 	{
 		if (!mI2CWriteError[address]) // If first occurrence
 		{
-			LOG(ERROR) << "Failed setting address: " << strerror(errno);
+			LOG(ERROR) << "Failed setting address (address: " << (int) address << ", " << mAddressStatistics[address].mName << "):" << strerror(errno);
 		}
 		mI2CWriteError[address] = true;
 
@@ -169,7 +169,7 @@ bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writ
 	{
 		if (read(i2cFile, readData.data(), readData.size()) != static_cast<int>(readData.size()))
 		{
-			LOG(ERROR) << "Failed reading data: " << strerror(errno);
+			LOG(ERROR) << "Failed reading data (address: " << (int) address << ", " << mAddressStatistics[address].mName << "): " << strerror(errno);
 
 			close(i2cFile);
 			return false;
@@ -189,7 +189,7 @@ bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writ
 
 			writeLogStream << " 0x" << (int) byte;
 		}
-		LOG_IF(INFO, address==ADDRESS) << "Data read:" << writeLogStream.str() << ";";
+		LOG_IF(INFO, address==ADDRESS) << "Data read (address: " << (int) address << ", " << mAddressStatistics[address].mName << "):" << writeLogStream.str() << ";";
 	}
 
 	close(i2cFile);

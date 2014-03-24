@@ -278,7 +278,7 @@ void RTC::rtcThread()
 	pthread_setname_np(pthread_self(), "RTC");
 
 	// sleep interval in minutes at boot
-	int secondsInterval = 1 * 60; //5 min
+	int secondsInterval = 1 * 60; //1 min
 	int secondsPassed = 0;
     while (mRTCThreadRunning == true)
     {

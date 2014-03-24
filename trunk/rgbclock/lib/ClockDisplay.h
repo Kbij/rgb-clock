@@ -127,6 +127,8 @@ private:
     unsigned int mAlarmEditIndex;
     bool mConfirmDelete;
     App::ClockState mClockState;
+    std::atomic_bool mUpdateEditDisplay;
+
 };
 }
 #endif /* CLOCKDISPLAY_H_ */
