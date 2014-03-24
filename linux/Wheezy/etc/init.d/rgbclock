@@ -27,7 +27,7 @@ test -x $DAEMON || exit 5
 do_start () {
 	log_daemon_msg "Starting system $DAEMON_NAME daemon"
 #--user $DAEMON_USER
-	start-stop-daemon --start --pidfile $PIDFILE  --startas $DAEMON --  -daemon true -pidfile $PIDFILE -log_dir $LOGDIR  -logbufsecs 0 -disablewatchdog -configfile /home/pi/settings.xml -alarmfile /home/pi/alarms.xml disablewatchdog
+	start-stop-daemon --start --pidfile $PIDFILE  --startas $DAEMON --  -daemon true -pidfile $PIDFILE -log_dir $LOGDIR  -logbufsecs 0 -configfile /home/pi/settings.xml -alarmfile /home/pi/alarms.xml
 
 	log_end_msg $?
 }
