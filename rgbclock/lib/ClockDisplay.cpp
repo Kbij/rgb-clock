@@ -67,7 +67,8 @@ ClockDisplay::ClockDisplay(I2C &i2c, RTC &rtc, Keyboard& keyboard, App::AlarmMan
 	mUnitName(unitConfig.mName),
 	mAlarmEditIndex(0),
 	mConfirmDelete(false),
-	mClockState(App::ClockState::clkNormal)
+	mClockState(App::ClockState::clkNormal),
+	mUpdateEditDisplay(false)
 {
 	mLCDisplay.initGraphic();
 	mLCDisplay.clearGraphicDisplay();
@@ -141,7 +142,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 				mDisplayState = DisplayState::stEditAlarms;
 				mEditState = EditState::edListAlarms;
 				mEditPos = EditPos::posEnable;
-				updateEditDisplay();
+				mUpdateEditDisplay = true;
 			}
 		}
 		else
@@ -171,7 +172,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 					mEditState = EditState::edConfirmDelete;
 					mConfirmDelete = false;
 
-					updateEditDisplay();
+					mUpdateEditDisplay = true;
 					return;
 				}
 
@@ -190,7 +191,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 					// going from list alarm to edit individual alarm; clear screen
 					mLCDisplay.rectangle(0, 0, 163, 63, false, true);
 
-					updateEditDisplay();
+					mUpdateEditDisplay = true;
 					return;
 				}
 
@@ -203,7 +204,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 						mAlarmEditIndex = alarms->size();
 					}
 
-					updateEditDisplay();
+					mUpdateEditDisplay = true;
 					return;
 				}
 
@@ -214,7 +215,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 						--mAlarmEditIndex;
 					}
 
-					updateEditDisplay();
+					mUpdateEditDisplay = true;
 					return;
 				}
 			}
@@ -224,7 +225,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 				if (keyboardInfo[KEY_DOWN].mShortPressed || keyboardInfo[KEY_UP].mShortPressed )
 				{
 					mConfirmDelete = ! mConfirmDelete;
-					updateEditDisplay();
+					mUpdateEditDisplay = true;
 					return;
 				}
 				if (keyboardInfo[KEY_CENTRAL_L].mShortPressed || keyboardInfo[KEY_CENTRAL_R].mShortPressed )
@@ -237,7 +238,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 					mAlarmEditIndex = 0;
 					mEditState = EditState::edListAlarms;
 					mEditPos = EditPos::posEnable;
-					updateEditDisplay();
+					mUpdateEditDisplay = true;
 
 					return;
 				}
@@ -338,7 +339,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 						}
 					}
 
-					updateEditDisplay();
+					mUpdateEditDisplay = true;
 				}
 
 				if (keyboardInfo[KEY_CENTRAL_L].mShortPressed)
@@ -424,7 +425,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 						}
 					}
 
-					updateEditDisplay();
+					mUpdateEditDisplay = true;
 				}
 
 				if (keyboardInfo[KEY_DOWN].mShortPressed)
@@ -525,7 +526,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 						}
 					}
 
-					updateEditDisplay();
+					mUpdateEditDisplay = true;
 				}
 
 				if (keyboardInfo[KEY_UP].mShortPressed)
@@ -626,7 +627,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 						}
 					}
 
-					updateEditDisplay();
+					mUpdateEditDisplay = true;
 				}
 			}
 		}
@@ -916,6 +917,14 @@ void ClockDisplay::refreshThread()
     		drawNTPState();
 			// update Alarm info
     	    updateAlarmInfo();
+        }
+        else
+        {
+        	if (mUpdateEditDisplay)
+        	{
+        		updateEditDisplay();
+        		mUpdateEditDisplay = false;
+        	}
         }
     }
 }
