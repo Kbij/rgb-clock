@@ -17,7 +17,7 @@
 
 namespace
 {
-int DEFAULT_I2C_RETRY = -1;
+int DEFAULT_I2C_RETRY = 3;
 }
 
 namespace Hardware
