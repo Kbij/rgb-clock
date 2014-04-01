@@ -6,6 +6,7 @@
  */
 
 #include "I2C.h"
+#include "Config.h"
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include <linux/i2c-dev.h>
@@ -113,11 +114,10 @@ bool I2C::readWriteDataWithRetry(uint8_t address, const std::vector<uint8_t>& wr
 	{
 		if (retry > -1)
 		{
-			LOG_IF(INFO, (address == FLAGS_logI2CAddress) || (FLAGS_logI2CAddress == ALL_ADDRESS)) << "Retry (address: " << (int) address << ", " << mAddressStatistics[address].mName << "), retrycount =" << retry;
+			LOG(ERROR) << "Retry (address: " << (int) address << ", " << mAddressStatistics[address].mName << "), retrycount =" << retry;
 		}
 		result = readWriteDataNoRetry(address, writeData, readData);
 		++retry;
-
 	}
 	return result;
 }
@@ -230,10 +230,34 @@ void I2C::unBlockI2C()
     mBusMutex.unlock();
 }
 
+void I2C::registerAddresses(const App::Config &config)
+{
+	const std::map<std::string, App::UnitConfig>& configuredUnits = config.configuredUnits();
+	for (const auto& configUnit : configuredUnits)
+	{
+		 registerAddress(configUnit.second.mAmplifier, configUnit.second.mName +":Amplifier" );
+		 registerAddress(configUnit.second.mBackLight, configUnit.second.mName +":Backlight" );
+		 registerAddress(configUnit.second.mKeyboard, configUnit.second.mName +":Keyboard" );
+		 registerAddress(configUnit.second.mLCD, configUnit.second.mName +":LCD" );
+		 registerAddress(configUnit.second.mLight, configUnit.second.mName +":Light" );
+		 registerAddress(configUnit.second.mLightSensor, configUnit.second.mName +":LightSensor" );
+	}
+
+	const App::SystemConfig& systemConfig = config.systemConfig();
+	registerAddress(systemConfig.mCentralIO, "CentralIO" );
+	registerAddress(systemConfig.mRadio , "FMTuner" );
+	registerAddress(systemConfig.mRtc, "RTC" );
+}
+
 void I2C::registerAddress(uint8_t address, const std::string& name)
 {
     std::lock_guard<std::mutex> lk_guard(mStatMutex);
-    mAddressStatistics[address].mName = name;
+
+    if (mAddressStatistics.find(address) == mAddressStatistics.end())
+    {
+        LOG(INFO) << "Register address: " << std::hex << std::setfill('0') << std::setw(2) << (int) address << ", Name: " << name;
+        mAddressStatistics[address].mName = name;
+    }
 }
 
 void I2C::printStatistics()
