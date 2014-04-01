@@ -41,7 +41,7 @@ public:
 
 	bool errorFree();
 	const std::map<std::string, UnitConfig>& configuredUnits() const;
-	const SystemConfig& systemConfig();
+	const SystemConfig& systemConfig() const;
 
 private:
 	bool mErrorFree;
