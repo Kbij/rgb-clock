@@ -302,7 +302,6 @@ int minutesUntilFired(const Alarm& alarm)
 	}
 	time_t rawTime;
 	struct tm* timeInfo;
-
 	time(&rawTime);
 	timeInfo = localtime(&rawTime);
 	// nextday = if before saturday then (current day + 1) else sunday
@@ -311,11 +310,10 @@ int minutesUntilFired(const Alarm& alarm)
 	int nowMinutes = timeInfo->tm_hour * 60 + timeInfo->tm_min;
 	int almMinutes = alarm.mHour * 60 + alarm.mMinutes;
 
-
 	if (!alarm.mOneTime)
 	{
-		// Not a one time alarm. If already passed and not for tomorrow
-		if ( (alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes < nowMinutes)) && !alarm.mDays[Day(nextDay)] )
+		// Not a one time alarm. If (already passed or no alarm today) and not for tomorrow
+		if ( ((alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes < nowMinutes)) || !alarm.mDays[Day(timeInfo->tm_wday)]) && !alarm.mDays[Day(nextDay)] )
 		{
 			return -1;
 		}
@@ -334,7 +332,6 @@ int minutesUntilFired(const Alarm& alarm)
 			almMinutes += 60 * 24; // add 1 day (in minutes)
 		}
 	}
-
 	return almMinutes - nowMinutes;
 }
 
