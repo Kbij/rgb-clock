@@ -112,7 +112,7 @@ const std::map<std::string, UnitConfig>& Config::configuredUnits() const
 	return mConfiguredUnits;
 }
 
-const SystemConfig& Config::systemConfig()
+const SystemConfig& Config::systemConfig() const
 {
 	return mSystemConfig;
 }

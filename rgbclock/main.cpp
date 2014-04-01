@@ -192,6 +192,7 @@ int main (int argc, char* argv[])
 
 		// Create the config object; load the XML file with the settings
 		App::Config config;
+    	i2c.registerAddresses(config);
 
 		if (!config.errorFree())
 		{
