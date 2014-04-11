@@ -263,7 +263,7 @@ void Keyboard::readThread()
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
 	// Radio off can take some time (processed from in this thread)
-	mMainboardControl.promiseWatchdog(this, 3000);
+	mMainboardControl.promiseWatchdog(this, 5000);
 
     while (mReadThreadRunning == true)
     {
