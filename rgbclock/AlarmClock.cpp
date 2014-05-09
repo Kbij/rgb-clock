@@ -153,6 +153,16 @@ bool AlarmClock::isAttached()
 	return mKeyboard.isAttached();
 }
 
+void AlarmClock::alarmSnooze()
+{
+
+}
+
+void AlarmClock::alarmOff()
+{
+
+}
+
 void AlarmClock::startAlarm()
 {
 	mClockState = ClockState::clkAlarm;

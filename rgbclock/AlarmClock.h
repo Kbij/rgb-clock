@@ -15,6 +15,7 @@
 #include "lib/ClockDisplay.h"
 #include "lib/MainboardControl.h"
 #include "Config.h"
+#include "AlarmSyncListenerIf.h"
 #include <stdint.h>
 #include <atomic>
 
@@ -30,7 +31,7 @@ namespace App
 {
 class AlarmManager;
 
-class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf {
+class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf, public App::AlarmSyncListenerIf {
 public:
 	AlarmClock(Hardware::I2C &i2c, Hardware::RTC &rtc, Hardware::FMReceiver &fmReceiver, const SystemConfig &systemConfig, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig);
 	virtual ~AlarmClock();
@@ -46,7 +47,8 @@ public:
 	bool hasRegisteredLight();
 	bool isAttached();
 
-
+	void alarmSnooze();
+	void alarmOff();
 	// Prevent copy constructor
 	AlarmClock(const AlarmClock& source) = delete;
 
