@@ -17,6 +17,9 @@ public:
 
 	virtual void alarmNotify(int volume) = 0;
 	virtual std::string name() = 0;
+
+	virtual void alarmSnooze() = 0;
+	virtual void alarmOff() = 0;
 };
 
 } /* namespace App */
