@@ -204,6 +204,8 @@ private:
 	std::atomic_bool mAlarmThreadRunning;
 	std::map<std::string, NextAlarm> mNextAlarmMap;
 	std::mutex mNextAlarmMapMutex;
+	std::atomic_bool mSendAlarmSnooze;
+	std::atomic_bool mSendAlarmOff;
 
 	const Config& mConfig;
 
