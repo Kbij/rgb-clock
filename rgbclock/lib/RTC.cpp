@@ -16,6 +16,7 @@
 #include <ctime>
 #include <iomanip>
 #include <sys/time.h>
+#include <bitset>
 
 DEFINE_string(rtcStartupFile,"/var/log/rgbclock/rtcstartup.log","Log file containing the RTC startup.");
 namespace
@@ -37,11 +38,11 @@ RTC::RTC(I2C &i2c, uint8_t address):
 	if (!ntpSynchronized())
 	{
 		log("Time is not synchronised with NTP");
-		struct std::tm utcTime = RTC::readRTCTime();
+		struct std::tm utcTime = readRTCTime();
 
 		if (rtcValidDateTime(utcTime))
 		{
-			log("Synchronising systemclock with DS1307");
+			log("Synchronising systemclock with DS1338");
 			setSystemTime(utcTime);
 		}
 		else
@@ -51,6 +52,8 @@ RTC::RTC(I2C &i2c, uint8_t address):
 	}
 	else
 	{
+		log("Time read from RTC clock:");
+		readRTCTime();
 		log("Time synchronized with ntp server");
 	}
 
@@ -176,7 +179,7 @@ bool RTC::rtcValidDateTime(struct std::tm utcTime)
 
 struct std::tm RTC::readRTCTime()
 {
-	std::vector<uint8_t> response(7); // Vector with size 7
+	std::vector<uint8_t> response(8); // Vector with size 7
 	mI2C.readWriteData(mAddress, std::vector<uint8_t>({0}), response);
 
 	log("Reading RTC Data");
@@ -191,6 +194,9 @@ struct std::tm RTC::readRTCTime()
 	result.tm_year =  bcdToInt(response[6]) + (2000 - 1900);
 
 	log("RTC time read (UTC): " + std::string(std::asctime(&result)));
+	std::stringstream bitString;
+	bitString << "Control Register: " << (std::bitset<8>) response[7];
+	log(bitString.str());
 
 	return result;
 }
@@ -287,6 +293,16 @@ void RTC::rtcThread()
         secondsPassed = secondsPassed + NTP_INTERVAL_SECONDS;
         mNTPSync = ntpSynchronized();
 
+        if ((secondsPassed % 600) ==0) // every 10 min
+        {
+        	LOG(INFO) << "== Test; read time from RTC:";
+    		auto rtcTime = readRTCTime();
+
+    		if (!rtcValidDateTime(rtcTime))
+    		{
+    			LOG(ERROR) << "== Time read is not valid !!";
+    		}
+        }
         if (secondsPassed > secondsInterval)
         {
         	secondsPassed = 0;
@@ -295,7 +311,7 @@ void RTC::rtcThread()
             	// Min 5 minutes after start
     			log("NTP Synchronised, writing RTC");
 
-    			secondsInterval = 3 * 24 * 60 * 60; // Every 3 days
+    			secondsInterval = 3 * 60 * 60; // Every 3 h
     			writeRTCTime();
             }
         }
