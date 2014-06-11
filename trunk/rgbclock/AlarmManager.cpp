@@ -35,6 +35,8 @@ AlarmManager::AlarmManager(const Config& config, Hardware::MainboardControl &mai
 		mAlarmThreadRunning(false),
 		mNextAlarmMap(),
 		mNextAlarmMapMutex(),
+		mSendAlarmSnooze(false),
+		mSendAlarmOff(false),
 		mConfig(config)
 {
 	loadAlarms();
@@ -139,11 +141,11 @@ std::string AlarmManager::feederName() const
 
 void AlarmManager::sendAlarmSnooze()
 {
-
+	mSendAlarmSnooze = true;
 }
 void AlarmManager::sendAlarmOff()
 {
-
+	mSendAlarmOff = true;
 }
 
 bool fileExists(std::string fileName)
@@ -431,6 +433,28 @@ void AlarmManager::alarmThread()
     		{
 				saveAlarms();
     		}
+
+
+    		if (mSendAlarmSnooze)
+    		{
+				std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
+				for (auto& observer : mAlarmObservers)
+				{
+					observer->alarmSnooze();
+				}
+				mSendAlarmSnooze = false;
+    		}
+
+    		if (mSendAlarmOff)
+    		{
+				std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
+				for (auto& observer : mAlarmObservers)
+				{
+					observer->alarmOff();
+				}
+				mSendAlarmOff = false;
+    		}
+
     	}
     }
 }

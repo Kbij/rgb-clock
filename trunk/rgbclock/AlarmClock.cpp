@@ -87,41 +87,14 @@ void AlarmClock::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardI
 	{
 		if (keyboardInfo[KEY_LEFT].mShortPressed)
 		{
-			if (mClockState == ClockState::clkAlarm)
-			{
-				mRadio.powerOff();
-			}
-
-			mClockState = ClockState::clkNormal;
-			mDisplay.signalClockState(mClockState);
-
-			stopAlarmMaintenanceThread();
-			std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
-
-			if (mLight)
-			{
-				mLight->pwrOff();
-			}
-
-			mKeyboard.keyboardState(Hardware::KeyboardState::stNormal);
+			mAlarmManager.sendAlarmOff();
 		}
 
 		if (keyboardInfo[KEY_CENTRAL_L].mShortPressed || keyboardInfo[KEY_CENTRAL_R].mShortPressed)
 		{
 			if (mClockState == ClockState::clkAlarm)
 			{
-				mClockState = ClockState::clkSnooze;
-				mDisplay.signalClockState(mClockState);
-				mRadio.powerOff();
-
-				std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
-
-				if (mLight)
-				{
-					mLight->pwrOff();
-				}
-
-				mAlarmCounter = 0;
+				mAlarmManager.sendAlarmSnooze();
 			}
 		}
 	}
@@ -155,12 +128,46 @@ bool AlarmClock::isAttached()
 
 void AlarmClock::alarmSnooze()
 {
+	if (mClockState == ClockState::clkAlarm)
+	{
+		mClockState = ClockState::clkSnooze;
+		mDisplay.signalClockState(mClockState);
+		mRadio.powerOff();
 
+		std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
+
+		if (mLight)
+		{
+			mLight->pwrOff();
+		}
+
+		mAlarmCounter = 0;
+	}
 }
 
 void AlarmClock::alarmOff()
 {
 
+	if ((mClockState == ClockState::clkAlarm) || (mClockState == ClockState::clkSnooze))
+	{
+		if (mClockState == ClockState::clkAlarm)
+		{
+			mRadio.powerOff();
+		}
+
+		mClockState = ClockState::clkNormal;
+		mDisplay.signalClockState(mClockState);
+
+		stopAlarmMaintenanceThread();
+		std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
+
+		if (mLight)
+		{
+			mLight->pwrOff();
+		}
+
+		mKeyboard.keyboardState(Hardware::KeyboardState::stNormal);
+	}
 }
 
 void AlarmClock::startAlarm()

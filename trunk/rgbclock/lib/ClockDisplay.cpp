@@ -813,7 +813,7 @@ void ClockDisplay::updateAlarmInfo()
 			std::string nextAlarm = mAlarmManager.nextAlarm(mUnitName);
 			if (nextAlarm != "")
 			{
-				mLCDisplay.writeGraphicText(0, 0, nextAlarm, FontType::Terminal8);
+				mLCDisplay.writeGraphicText(0, 0, nextAlarm + " ", FontType::Terminal8);
 			}
 			else
 			{
