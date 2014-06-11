@@ -311,7 +311,7 @@ void RTC::rtcThread()
             	// Min 5 minutes after start
     			log("NTP Synchronised, writing RTC");
 
-    			secondsInterval = 3 * 60 * 60; // Every 3 h
+    			secondsInterval = 1 * 60 * 60; // Every 1 h
     			writeRTCTime();
             }
         }
