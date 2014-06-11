@@ -163,10 +163,11 @@ public:
 
 	AlarmList* editAlarms(std::string unitName);
 	void saveAlarms(std::string unitName);
-
 	std::string nextAlarm(std::string unitName);
-
 	std::string nextUnitName(std::string currentUnitName);
+
+	void sendAlarmSnooze();
+	void sendAlarmOff();
 
 	virtual std::string feederName() const;
 private:

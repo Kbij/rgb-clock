@@ -137,6 +137,15 @@ std::string AlarmManager::feederName() const
 	return "AlarmManager";
 }
 
+void AlarmManager::sendAlarmSnooze()
+{
+
+}
+void AlarmManager::sendAlarmOff()
+{
+
+}
+
 bool fileExists(std::string fileName)
 {
    std::ifstream infile(fileName);
@@ -379,23 +388,26 @@ void AlarmManager::alarmThread()
         			{
         				for (auto& observer : mAlarmObservers)
         				{
-							if (mNextAlarmMap.find(observer->name()) != mNextAlarmMap.end())
+        					if ((observer->name() == alarm.mUnit) || (alarm.mUnit == ""))
 							{
-								if (mNextAlarmMap[observer->name()].mIntervalMinutes > minutesLeft)
+								if (mNextAlarmMap.find(observer->name()) != mNextAlarmMap.end())
 								{
-									mNextAlarmMap[observer->name()].mIntervalMinutes = minutesLeft;
-									mNextAlarmMap[observer->name()].mHour = alarm.mHour;
-									mNextAlarmMap[observer->name()].mMinutes = alarm.mMinutes;
-								}
+									if (mNextAlarmMap[observer->name()].mIntervalMinutes > minutesLeft)
+									{
+										mNextAlarmMap[observer->name()].mIntervalMinutes = minutesLeft;
+										mNextAlarmMap[observer->name()].mHour = alarm.mHour;
+										mNextAlarmMap[observer->name()].mMinutes = alarm.mMinutes;
+									}
 
-							}
-							else
-							{
-								if (minutesLeft < ( 23 * 60))
+								}
+								else
 								{
-									mNextAlarmMap[observer->name()].mIntervalMinutes = minutesLeft;
-									mNextAlarmMap[observer->name()].mHour = alarm.mHour;
-									mNextAlarmMap[observer->name()].mMinutes = alarm.mMinutes;
+									if (minutesLeft < ( 23 * 60))
+									{
+										mNextAlarmMap[observer->name()].mIntervalMinutes = minutesLeft;
+										mNextAlarmMap[observer->name()].mHour = alarm.mHour;
+										mNextAlarmMap[observer->name()].mMinutes = alarm.mMinutes;
+									}
 								}
 							}
         				}
