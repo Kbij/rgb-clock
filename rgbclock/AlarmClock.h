@@ -15,7 +15,7 @@
 #include "lib/ClockDisplay.h"
 #include "lib/MainboardControl.h"
 #include "Config.h"
-#include "AlarmSyncListenerIf.h"
+
 #include <stdint.h>
 #include <atomic>
 
@@ -31,7 +31,7 @@ namespace App
 {
 class AlarmManager;
 
-class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf, public App::AlarmSyncListenerIf {
+class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf {
 public:
 	AlarmClock(Hardware::I2C &i2c, Hardware::RTC &rtc, Hardware::FMReceiver &fmReceiver, const SystemConfig &systemConfig, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig);
 	virtual ~AlarmClock();
