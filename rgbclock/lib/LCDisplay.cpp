@@ -39,21 +39,6 @@ LCDisplay::LCDisplay(I2C &i2c, uint8_t address):
     mFontMap[FontType::Verdana20].mHeight = 25;//27;
     mFontMap[FontType::Verdana20].mPointer = &VerdanaBold32x27;
 
-    mFontMap[FontType::Courier15].mWidth = 12;
-    mFontMap[FontType::Courier15].mSpacing = 12;
-    mFontMap[FontType::Courier15].mHeight = 17;
-    mFontMap[FontType::Courier15].mPointer = &Courier12x17;
-
-    mFontMap[FontType::Large9].mWidth = 27;
-    mFontMap[FontType::Large9].mSpacing = 27;
-    mFontMap[FontType::Large9].mHeight = 27;
-    mFontMap[FontType::Large9].mPointer = &Large9_27x27;
-
-    mFontMap[FontType::Volter].mWidth = 9;
-    mFontMap[FontType::Volter].mSpacing = 9;
-    mFontMap[FontType::Volter].mHeight = 12;
-    mFontMap[FontType::Volter].mPointer = &Volter_9x12;
-
     mFontMap[FontType::Terminal8].mWidth = 6;
     mFontMap[FontType::Terminal8].mSpacing = 6;
     mFontMap[FontType::Terminal8].mHeight = 8;

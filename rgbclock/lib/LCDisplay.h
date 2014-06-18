@@ -26,9 +26,6 @@ struct MyGraphicWord
 enum class FontType
 {
 	Verdana20,
-	Courier15,
-	Large9,
-	Volter,
 	Terminal8
 };
 
