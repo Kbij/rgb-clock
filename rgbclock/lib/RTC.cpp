@@ -293,25 +293,22 @@ void RTC::rtcThread()
         secondsPassed = secondsPassed + NTP_INTERVAL_SECONDS;
         mNTPSync = ntpSynchronized();
 
-        if ((secondsPassed % 600) ==0) // every 10 min
-        {
-        	LOG(INFO) << "== Test; read time from RTC:";
-    		auto rtcTime = readRTCTime();
-
-    		if (!rtcValidDateTime(rtcTime))
-    		{
-    			LOG(ERROR) << "== Time read is not valid !!";
-    		}
-        }
         if (secondsPassed > secondsInterval)
         {
         	secondsPassed = 0;
             if (mNTPSync)
             {
-            	// Min 5 minutes after start
+            	// Min 1 minutes after start
     			log("NTP Synchronised, writing RTC");
+            	LOG(INFO) << "Testing RTC clock; read current time from RTC:";
+        		auto rtcTime = readRTCTime();
 
-    			secondsInterval = 1 * 60 * 60; // Every 1 h
+        		if (!rtcValidDateTime(rtcTime))
+        		{
+        			LOG(ERROR) << "== Time read is not valid !!";
+        		}
+
+    			secondsInterval = 3 * 24 * 60 * 60; // Every 3 days
     			writeRTCTime();
             }
         }
