@@ -280,7 +280,6 @@ void FMReceiver::readRDSInfo()
 	    if (!rdsInfoResponse[Block_B_H] & 0x01) // If not RDSSync
 	    {
        		mRDSInfo.mText = "";
-       		//notify = true;
        		notifyObservers();
 	    	return;
 	    }
@@ -290,8 +289,8 @@ void FMReceiver::readRDSInfo()
 
 	    if (type == 0)
 	    {
-	         uint8_t segment =  rdsInfoResponse[Block_B_L] & 0b00000011;
-	         uint8_t pos = segment * 2;
+	        uint8_t segment =  rdsInfoResponse[Block_B_L] & 0b00000011;
+	        uint8_t pos = segment * 2;
 
 	 		if ((pos + 1) < static_cast<uint8_t>(mReceivingRDSInfo.mStationName.size()))
 			{
@@ -299,15 +298,13 @@ void FMReceiver::readRDSInfo()
 		 		mReceivingRDSInfo.mStationName[pos + 1] = rdsInfoResponse[Block_D_L];
 			}
 
-	         if (std::count(mReceivingRDSInfo.mStationName.begin(), mReceivingRDSInfo.mStationName.end(), ' ') < std::count(mRDSInfo.mStationName.begin(), mRDSInfo.mStationName.end(), ' ')
-	        	|| (trim(mReceivingRDSInfo.mStationName).size() > trim(mRDSInfo.mStationName).size())
-	        	|| !mRDSInfo.mValidRds)
-		      {
-	        	 mRDSInfo.mStationName = trimRight(mReceivingRDSInfo.mStationName);
-		    	 mRDSInfo.mValidRds = true;
-		         LOG(INFO) << "Station: " << mRDSInfo.mStationName;
-		         notifyObservers();
-		      }
+	        if (mReceivingRDSInfo.stationNameComplete() && (trim(mRDSInfo.mStationName) != trim(mReceivingRDSInfo.mStationName)))
+		    {
+	        	mRDSInfo.mStationName = trim(mReceivingRDSInfo.mStationName);
+		    	mRDSInfo.mValidRds = true;
+		        LOG(INFO) << "Station: " << mRDSInfo.mStationName;
+		        notifyObservers();
+		    }
 	    }
 
 	    if (type == 2)
