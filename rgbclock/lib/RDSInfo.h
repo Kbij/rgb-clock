@@ -35,14 +35,21 @@ struct RDSInfo {
 	}
 	void clearAll(bool fillSpecial = false)
 	{
-		clearStationName();
+		clearStationName(fillSpecial);
 		clearText(fillSpecial);
-
 	}
-	void clearStationName()
+
+	void clearStationName(bool fillSpecial = false)
 	{
 		mStationName = "";
-		mStationName.resize(9,' ');
+		if (fillSpecial)
+		{
+			mStationName.resize(8,EMPTY_CHAR);
+		}
+		else
+		{
+			mStationName.resize(8,' ');
+		}
 	}
 
 	void clearText(bool fillSpecial = false)
@@ -61,6 +68,11 @@ struct RDSInfo {
 	bool textComplete()
 	{
 		return mText.find(EMPTY_CHAR) == std::string::npos;
+	}
+
+	bool stationNameComplete()
+	{
+		return mStationName.find(EMPTY_CHAR) == std::string::npos;
 	}
 };
 
