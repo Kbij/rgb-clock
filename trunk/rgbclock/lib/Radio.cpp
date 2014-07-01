@@ -79,10 +79,14 @@ void Radio::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, 
 			if (keyboardInfo[KEY_UP].mShortPressed || keyboardInfo[KEY_UP].mLongPress)
 			{
 				volumeUp();
+				//if slowvolume up would be running -> stop
+				mMaintenanceThreadRunning = false;
 			}
 			if (keyboardInfo[KEY_DOWN].mShortPressed || keyboardInfo[KEY_DOWN].mLongPress)
 			{
 				volumeDown();
+				//if slowvolume up would be running -> stop
+				mMaintenanceThreadRunning = false;
 			}
 		}
 	}
