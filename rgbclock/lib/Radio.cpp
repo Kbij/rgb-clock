@@ -128,6 +128,7 @@ bool Radio::powerOn()
     std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
 
 	LOG(INFO) << "Radio On";
+	registerFMReceiver();
 	if (mFMReceiver.powerOn())
 	{
 		mFMReceiver.tuneFrequency(mFrequency);
@@ -136,7 +137,7 @@ bool Radio::powerOn()
 	mState = RadioState::PwrOn;
 	mControlRegister = 0b00010000; // PowerUp
 	writeRegisters();
-	registerFMReceiver();
+
 	return true;
 }
 
