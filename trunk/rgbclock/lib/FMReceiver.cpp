@@ -192,6 +192,14 @@ bool FMReceiver::seekUp(int timeoutSeconds)
 bool FMReceiver::tuneFrequency(double frequency)
 {
 	LOG(INFO) << "TuneFrequency: " << frequency << "Mhz";
+	std::stringstream freqStream;
+	freqStream << frequency << "Mhz";
+	mRDSInfo.mStationName = freqStream.str();
+	mRDSInfo.mText = "";
+	mRDSInfo.mValidRds = false;
+
+	notifyObservers();
+
     std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
 
 	if (!waitForCTS()) return false;
@@ -202,9 +210,8 @@ bool FMReceiver::tuneFrequency(double frequency)
 	std::vector<uint8_t> tuneFreqResponse(1); // Vector with size 1
 	mI2C.readWriteData(mAddress, std::vector<uint8_t>({FM_TUNE_FREQ, 0x00, high, low}), tuneFreqResponse);
 
-	mRDSInfo.clearAll();
-	mRDSInfo.mValidRds = false;
-	notifyObservers();
+
+
 
 	return true;
 }
