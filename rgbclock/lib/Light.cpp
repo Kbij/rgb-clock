@@ -13,6 +13,8 @@
 namespace Hardware
 {
 const int MIN_DIMMER_INTENSITY = 40;
+const int MAX_DIMMER_INTENSITY = 4000;
+const int DIMMER_STEP = 20;
 
 Light::Light(I2C &i2c, uint8_t address) :
 		mState(State::PwrOff),
@@ -39,9 +41,9 @@ void Light::pwrOn()
 {
 	if (mState == State::PwrOff)
 	{
-		if (mLuminance < 10)
+		if (mLuminance < MIN_DIMMER_INTENSITY)
 		{
-			mLuminance = 10;
+			mLuminance = MIN_DIMMER_INTENSITY;
 		}
 
 		initiateFastUp();
@@ -50,7 +52,7 @@ void Light::pwrOn()
 
 void Light::pwrSlowOn()
 {
-	initiateSlowUp();
+	initiateSlowUp(0);
 }
 
 void Light::pwrOff()
@@ -102,7 +104,7 @@ void Light::keyboardPressed(const std::vector<KeyInfo>& keyboardInfo, KeyboardSt
 
 			if (mDimDown)
 			{
-				mLuminance -= 20;
+				mLuminance -= DIMMER_STEP;
 
 				if (mLuminance <= MIN_DIMMER_INTENSITY)
 				{
@@ -114,10 +116,10 @@ void Light::keyboardPressed(const std::vector<KeyInfo>& keyboardInfo, KeyboardSt
 			}
 			else
 			{
-				mLuminance += 20;
-				if (mLuminance > 4000)
+				mLuminance += DIMMER_STEP;
+				if (mLuminance > MAX_DIMMER_INTENSITY)
 				{
-					mLuminance = 4000;
+					mLuminance = MAX_DIMMER_INTENSITY;
 				}
 			}
 		    std::lock_guard<std::mutex> lk_guard(mLedMutex);
@@ -126,7 +128,7 @@ void Light::keyboardPressed(const std::vector<KeyInfo>& keyboardInfo, KeyboardSt
 		}
 		if (mState == State::PwrOff)
 		{
-			initiateSlowUp();
+			initiateSlowUp(MIN_DIMMER_INTENSITY);
 		}
 	}
 
@@ -142,13 +144,13 @@ bool Light::isAttached()
 void Light::initiateFastUp()
 {
 	LOG(INFO) << "Init fast, lum=" << mLuminance;
-	if (mLuminance < 10)
+	if (mLuminance < MIN_DIMMER_INTENSITY)
 	{
-		mLuminance = 10;
+		mLuminance = MIN_DIMMER_INTENSITY;
 	}
 	std::lock_guard<std::mutex> lk_guard(mLedMutex);
 
-	mRGBLed.luminance(0);
+	mRGBLed.luminance(mLuminance);
 	mRGBLed.pwrOn();
 	mState = State::FastUp;
 	startDimmerThread();
@@ -160,9 +162,11 @@ void Light::initiateFastDown()
 	startDimmerThread();
 }
 
-void Light::initiateSlowUp()
+void Light::initiateSlowUp(int start)
 {
-	mLuminance = 0;
+	LOG(INFO) << "Init start, lum=" << start;
+
+	mLuminance = start;
     std::lock_guard<std::mutex> lk_guard(mLedMutex);
 
 	mRGBLed.luminance(mLuminance);
@@ -177,7 +181,7 @@ void Light::startDimmerThread()
 
 	mDimmerThreadRunning = true;
 
-	mDimmerThread = new std::thread(&Light::dimmerThread, this);
+	mDimmerThread.reset(new std::thread(&Light::dimmerThread, this));
 }
 
 void Light::stopDimmerThread()
@@ -188,8 +192,7 @@ void Light::stopDimmerThread()
     {
     	mDimmerThread->join();
 
-        delete mDimmerThread;
-        mDimmerThread = nullptr;
+        mDimmerThread.reset();
     }
 }
 
@@ -198,7 +201,7 @@ void Light::dimmerThread()
 	pthread_setname_np(pthread_self(), "Dimmer");
 
 	int sleepInterval = 1;
-	int deltaLuminance = 20;
+	int deltaLuminance = DIMMER_STEP;
 	int targetLuminance = 0;
 	int memorizedLuminance = 0;
 	const int slowUpMinutes = 15;
@@ -209,7 +212,7 @@ void Light::dimmerThread()
 		targetLuminance = 1500;
    	    sleepInterval = (double (slowUpMinutes * 60.0 )/ double(targetLuminance)) * 1000;
 		deltaLuminance = 1;
-		mLuminance = 0;
+		//mLuminance = 0;
 		LOG(INFO) << "RGBLed SlowUp";
 		break;
 	case State::SlowDown:
@@ -221,14 +224,14 @@ void Light::dimmerThread()
 		break;
 	case State::FastUp:
 		sleepInterval = 1;
-		deltaLuminance = 20;
+		deltaLuminance = DIMMER_STEP;
 		targetLuminance = mLuminance;
 		mLuminance = 0;
 		LOG(INFO) << "RGBLed FastUp";
 		break;
 	case State::FastDown:
 		sleepInterval = 1;
-		deltaLuminance = -20;
+		deltaLuminance = -DIMMER_STEP;
 		targetLuminance = 0;
 		memorizedLuminance = mLuminance;
 		LOG(INFO) << "RGBLed FastDown";

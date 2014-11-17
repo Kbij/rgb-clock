@@ -173,6 +173,11 @@ public:
 private:
 	struct NextAlarm
 	{
+		NextAlarm() :
+			mIntervalMinutes(0),
+			mHour(0),
+			mMinutes(0){};
+
 		int mIntervalMinutes;
 		int mHour;
 		int mMinutes;

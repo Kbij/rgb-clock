@@ -16,6 +16,7 @@
 #include <mutex>
 #include <atomic>
 #include <thread>
+#include <memory>
 
 namespace Hardware
 {
@@ -50,7 +51,7 @@ public:
 private:
 	void initiateFastUp();
 	void initiateFastDown();
-	void initiateSlowUp();
+	void initiateSlowUp(int start);
 
 	void startDimmerThread();
 	void stopDimmerThread();
@@ -61,7 +62,7 @@ private:
 	time_t mLastLong;
 	bool mDimDown;
 	std::mutex mLedMutex;
-    std::thread* mDimmerThread;
+    std::unique_ptr<std::thread> mDimmerThread;
     std::atomic_bool mDimmerThreadRunning;
 };
 

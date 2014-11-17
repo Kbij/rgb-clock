@@ -108,8 +108,9 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.956519331.771961594.1121735565.84723819" name="LCDisplay_threaded.h" rcbsApplicability="disable" resourcePath="lib/LCDisplay_threaded.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="main_hwtest.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="lib/LCDisplay_threaded.h|lib/LCDisplay_threaded.cpp|main_hwtest.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
