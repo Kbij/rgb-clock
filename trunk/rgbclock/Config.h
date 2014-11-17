@@ -15,6 +15,14 @@ namespace App {
 
 struct UnitConfig
 {
+	UnitConfig() :
+		mName(""),
+		mLight(0),
+		mKeyboard(0),
+		mAmplifier(0),
+		mLightSensor(0),
+		mBackLight(0),
+		mLCD(0){};
 	std::string mName;
 	uint8_t mLight;
 	uint8_t mKeyboard;
@@ -26,6 +34,14 @@ struct UnitConfig
 
 struct SystemConfig
 {
+	SystemConfig()
+	{
+		mHardwareRevision = 0;
+		mRtc = 0;
+		mRadio = 0;
+		mCentralIO = 0;
+		mFrequency = 0;
+	}
 	uint8_t mHardwareRevision;
 	uint8_t mRtc;
 	uint8_t mRadio;
