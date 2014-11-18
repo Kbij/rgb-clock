@@ -338,7 +338,7 @@ int minutesUntilFired(const Alarm& alarm)
 	else
 	{
 		// If not today but tommorow
-		if (!(alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes >= nowMinutes))  && alarm.mDays[Day(nextDay)]) // Tomorrow
+		if (!alarm.mOneTime &&  !(alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes >= nowMinutes))  && alarm.mDays[Day(nextDay)]) // Tomorrow
 		{
 			almMinutes += 60 * 24; // add 1 day (in minutes)
 		}
