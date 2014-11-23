@@ -22,7 +22,6 @@ Radio::Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver, double 
 	mAplifierAddress(amplifierAddress),
 	mFMReceiver(fmReceiver),
 	mFrequency(frequency),
-	mClockDisplay(nullptr),
 	mMaskRegister(0),
 	mControlRegister(0),
 	mVolume(20),
@@ -220,18 +219,6 @@ bool Radio::tuneFrequency(double frequency)
 RDSInfo Radio::getRDSInfo()
 {
 	return mFMReceiver.getRDSInfo();
-}
-
-void Radio::readRegisters()
-{
-	std::vector<uint8_t> response(6);
-	mI2C.readWriteData(mAplifierAddress, std::vector<uint8_t>({}), response);
-	LOG(INFO) << "read Registers";
-	for (auto reg: response)
-	{
-		LOG(INFO) << std::hex << "0x" << (int) reg;
-	}
-
 }
 
 void Radio::writeRegisters()
