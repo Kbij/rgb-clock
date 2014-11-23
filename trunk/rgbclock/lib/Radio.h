@@ -47,7 +47,6 @@ public:
 
 private:
 	bool powerOff(bool autoPowerOff);
-	void readRegisters();
 	void writeRegisters();
 	void notifyObservers();
 	void registerFMReceiver();
@@ -65,7 +64,6 @@ private:
 	const uint8_t mAplifierAddress;
 	FMReceiver &mFMReceiver;
 	const double mFrequency;
-	ClockDisplay *mClockDisplay;
 	uint8_t mMaskRegister;
 	uint8_t mControlRegister;
 	uint8_t mVolume;

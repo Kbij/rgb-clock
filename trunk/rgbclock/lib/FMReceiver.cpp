@@ -284,7 +284,7 @@ void FMReceiver::readRDSInfo()
 	    }
     	//mRDSInfo.mProgramId = (rdsInfoResponse[PI_H] << 8) | rdsInfoResponse[PI_L] ;
 
-	    if (!rdsInfoResponse[Block_B_H] & 0x01) // If not RDSSync
+	    if (!(rdsInfoResponse[Block_B_H] & 0x01)) // If not RDSSync
 	    {
        		mRDSInfo.mText = "";
        		notifyObservers();
