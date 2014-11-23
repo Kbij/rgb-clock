@@ -22,6 +22,7 @@ Radio::Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver, double 
 	mAplifierAddress(amplifierAddress),
 	mFMReceiver(fmReceiver),
 	mFrequency(frequency),
+	mClockDisplay(nullptr),
 	mMaskRegister(0),
 	mControlRegister(0),
 	mVolume(20),
