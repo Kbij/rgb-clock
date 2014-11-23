@@ -38,6 +38,7 @@ public:
 
 	void pwrOn();
 	void pwrSlowOn();
+	void pwrSlowOn(int startLum);
 	void pwrOff();
 	void pwrToggle();
 
@@ -49,13 +50,17 @@ public:
 	Light(const Light& source) = delete;
 
 private:
+	void pwrOff(bool autoPowerOff);
 	void initiateFastUp();
 	void initiateFastDown();
 	void initiateSlowUp(int start);
 
 	void startDimmerThread();
 	void stopDimmerThread();
+	void startAutoOffThread();
+	void stopAutoOffThread();
 	void dimmerThread();
+	void autoOffThread();
 	std::atomic<State> mState;
 	RgbLed mRGBLed;
 	std::atomic_int mLuminance;
@@ -64,6 +69,9 @@ private:
 	std::mutex mLedMutex;
     std::unique_ptr<std::thread> mDimmerThread;
     std::atomic_bool mDimmerThreadRunning;
+
+    std::unique_ptr<std::thread> mAutoOffThread;
+    std::atomic_bool mAutoOffThreadRunning;
 };
 
 } /* namespace Hardware */

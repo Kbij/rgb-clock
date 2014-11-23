@@ -15,6 +15,7 @@ namespace Hardware
 const int MIN_DIMMER_INTENSITY = 40;
 const int MAX_DIMMER_INTENSITY = 4000;
 const int DIMMER_STEP = 20;
+const int AUTO_OFF_MINUTES = 2;
 
 Light::Light(I2C &i2c, uint8_t address) :
 		mState(State::PwrOff),
@@ -24,7 +25,9 @@ Light::Light(I2C &i2c, uint8_t address) :
 		mDimDown(true),
 		mLedMutex(),
 	    mDimmerThread(nullptr),
-	    mDimmerThreadRunning(false)
+	    mDimmerThreadRunning(false),
+	    mAutoOffThread(nullptr),
+	    mAutoOffThreadRunning(false)
 {
 	pwrOff();
 	mRGBLed.hue(200);
@@ -35,6 +38,7 @@ Light::~Light()
 {
 	mRGBLed.pwrOff();
 	stopDimmerThread();
+	stopAutoOffThread();
 }
 
 void Light::pwrOn()
@@ -45,21 +49,36 @@ void Light::pwrOn()
 		{
 			mLuminance = MIN_DIMMER_INTENSITY;
 		}
-
 		initiateFastUp();
+		startAutoOffThread();
 	}
 }
 
 void Light::pwrSlowOn()
 {
-	initiateSlowUp(0);
+	pwrSlowOn(0);
+}
+
+void Light::pwrSlowOn(int startLum)
+{
+	initiateSlowUp(startLum);
+	startAutoOffThread();
 }
 
 void Light::pwrOff()
 {
+	pwrOff(false);
+}
+
+void Light::pwrOff(bool autoPowerOff)
+{
 	if ((mState == State::PwrOn) ||(mState == State::SlowUp))
 	{
 		initiateFastDown();
+		if (!autoPowerOff)
+		{
+			stopAutoOffThread();
+		}
 	}
 }
 
@@ -67,11 +86,13 @@ void Light::pwrToggle()
 {
 	if ((mState == State::PwrOn) ||(mState == State::SlowUp))
 	{
+		stopAutoOffThread();
 		initiateFastDown();
 	}
 	if (mState == State::PwrOff)
 	{
 	    initiateFastUp();
+	    startAutoOffThread();
 	}
 }
 
@@ -128,7 +149,7 @@ void Light::keyboardPressed(const std::vector<KeyInfo>& keyboardInfo, KeyboardSt
 		}
 		if (mState == State::PwrOff)
 		{
-			initiateSlowUp(MIN_DIMMER_INTENSITY);
+			pwrSlowOn(MIN_DIMMER_INTENSITY);
 		}
 	}
 
@@ -180,7 +201,6 @@ void Light::startDimmerThread()
 	stopDimmerThread();
 
 	mDimmerThreadRunning = true;
-
 	mDimmerThread.reset(new std::thread(&Light::dimmerThread, this));
 }
 
@@ -191,8 +211,26 @@ void Light::stopDimmerThread()
     if (mDimmerThread)
     {
     	mDimmerThread->join();
-
         mDimmerThread.reset();
+    }
+}
+
+void Light::startAutoOffThread()
+{
+	stopAutoOffThread();
+
+	mAutoOffThreadRunning = true;
+	mAutoOffThread.reset(new std::thread(&Light::autoOffThread, this));
+}
+
+void Light::stopAutoOffThread()
+{
+	mAutoOffThreadRunning = false;
+
+    if (mAutoOffThread)
+    {
+    	mAutoOffThread->join();
+    	mAutoOffThread.reset();
     }
 }
 
@@ -287,5 +325,25 @@ void Light::dimmerThread()
 
    LOG(INFO) << "Thread Exit";
 
+}
+
+void Light::autoOffThread()
+{
+	pthread_setname_np(pthread_self(), "Light AutoOff");
+
+	int countDownSeconds = AUTO_OFF_MINUTES * 60;
+	while (mAutoOffThreadRunning)
+	{
+	   std::this_thread::sleep_for(std::chrono::seconds(1));
+	   --countDownSeconds;
+	   if (countDownSeconds == 0)
+	   {
+
+		   mAutoOffThreadRunning = false;
+
+			LOG(INFO) << "Light auto off";
+			pwrOff(true);
+	   }
+	}
 }
 } /* namespace Hardware */
