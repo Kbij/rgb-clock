@@ -294,7 +294,7 @@ void Keyboard::readThread()
     		keyboardInfo[i].mPressed = (mKeyHistory[i] & 0x01);
 
     		// Key just pressed, or released
-    		stateChange |= ((mKeyHistory[i] & 0x02) == 0b01) || ((mKeyHistory[i] & 0x02) == 0b10) ;
+    		stateChange |= ((mKeyHistory[i] & 0b10) > 0) != ((mKeyHistory[i] & 0b01) >0) ;
 
         	if (!(mKeyHistory[i] & 0x01)) // if key is released
         	{
@@ -317,6 +317,7 @@ void Keyboard::readThread()
         	{
         		//LOG(INFO) << "L" << i;
         		keyboardInfo[i].mLongPress = true;
+        		stateChange = true;
         		if (mKeyHistory[i] > LONG_MASKREPEAT) // Long press repeat
         		{
             		keyboardInfo[i].mRepeat = true;
