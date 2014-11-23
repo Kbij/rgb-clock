@@ -46,6 +46,7 @@ public:
 	void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, KeyboardState state);
 
 private:
+	bool powerOff(bool autoPowerOff);
 	void readRegisters();
 	void writeRegisters();
 	void notifyObservers();
@@ -55,6 +56,10 @@ private:
 	void startMaintenanceThread();
 	void stopMaintenanceThread();
 	void maintenanceThread();
+
+	void startAutoOffThread();
+	void stopAutoOffThread();
+	void autoOffThread();
 
 	I2C &mI2C;
 	const uint8_t mAplifierAddress;
@@ -71,6 +76,8 @@ private:
     std::thread* mMaintenanceThread;
     std::atomic_bool mMaintenanceThreadRunning;
     std::atomic_int mTargetVolume;
+    std::unique_ptr<std::thread> mAutoOffThread;
+    std::atomic_bool mAutoOffThreadRunning;
 
 };
 }

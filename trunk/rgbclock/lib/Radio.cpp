@@ -15,6 +15,7 @@
 
 namespace Hardware
 {
+const int AUTO_OFF_MINUTES = 2;
 
 Radio::Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver, double frequency):
 	mI2C(i2c),
@@ -30,8 +31,9 @@ Radio::Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver, double 
 	mState(RadioState::PwrOff),
 	mMaintenanceThread(nullptr),
 	mMaintenanceThreadRunning(false),
-	mTargetVolume(0)
-
+	mTargetVolume(0),
+    mAutoOffThread(nullptr),
+    mAutoOffThreadRunning(false)
 {
 	mI2C.registerAddress(mAplifierAddress, "Amplifier");
 	// Use BTL + Shutdown
@@ -44,6 +46,7 @@ Radio::Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver, double 
 Radio::~Radio()
 {
 	LOG(INFO) << "Radio destructor";
+	stopAutoOffThread();
 	if (mState == RadioState::PwrOn)
 	{
 		powerOff();
@@ -137,15 +140,23 @@ bool Radio::powerOn()
 	mState = RadioState::PwrOn;
 	mControlRegister = 0b00010000; // PowerUp
 	writeRegisters();
-
+	startAutoOffThread();
 	return true;
 }
 
 bool Radio::powerOff()
 {
+	return powerOff(false);
+}
+
+bool Radio::powerOff(bool autoPowerOff)
+{
 	LOG(INFO) << "Radio Off";
     std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
-
+	if (!autoPowerOff)
+	{
+		stopAutoOffThread();
+	}
 
 	mState = RadioState::PwrOff;
 	mControlRegister = 0b00010001; // Shutdown
@@ -154,7 +165,6 @@ bool Radio::powerOff()
 
 	unRegisterFMReceiver();
 	stopMaintenanceThread();
-
 	return true;
 }
 
@@ -292,6 +302,27 @@ void Radio::stopMaintenanceThread()
     }
 }
 
+void Radio::startAutoOffThread()
+{
+	stopAutoOffThread();
+
+	mAutoOffThreadRunning = true;
+
+	mAutoOffThread.reset(new std::thread(&Radio::autoOffThread, this));
+}
+
+void Radio::stopAutoOffThread()
+{
+	mAutoOffThreadRunning = false;
+
+    if (mAutoOffThread)
+    {
+    	mAutoOffThread->join();
+
+    	mAutoOffThread.reset();
+    }
+}
+
 void Radio::maintenanceThread()
 {
 	pthread_setname_np(pthread_self(), "Radio");
@@ -310,5 +341,26 @@ void Radio::maintenanceThread()
 			   mMaintenanceThreadRunning = false;
 		   }
 	   }
+}
+
+void Radio::autoOffThread()
+{
+	pthread_setname_np(pthread_self(), "Radio AutoOff");
+
+	int countDownSeconds = AUTO_OFF_MINUTES * 60;
+	while (mAutoOffThreadRunning)
+	{
+	   std::this_thread::sleep_for(std::chrono::seconds(1));
+	   --countDownSeconds;
+	   if (countDownSeconds == 0)
+	   {
+		   mAutoOffThreadRunning = false;
+		   if (mState == RadioState::PwrOn)
+		   {
+			   LOG(INFO) << "Radio auto off";
+			   powerOff(true);
+		   }
+	   }
+	}
 }
 }
