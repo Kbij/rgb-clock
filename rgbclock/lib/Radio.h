@@ -36,17 +36,18 @@ public:
     bool powerOn();
     bool slowPowerOn(int volume);
 	bool powerOff();
-	void volume(int volume);
-    void volumeUp();
-    void volumeDown();
 	bool seekUp(int timeout);
 	bool tuneFrequency(double frequency);
 	RDSInfo getRDSInfo();
 
 	void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, KeyboardState state);
 
+
+
 private:
 	bool powerOff(bool autoPowerOff);
+    void volumeUp();
+    void volumeDown();
 	void writeRegisters();
 	void notifyObservers();
 	void registerFMReceiver();

@@ -38,9 +38,7 @@ public:
 
 	void pwrOn();
 	void pwrSlowOn();
-	void pwrSlowOn(int startLum);
 	void pwrOff();
-	void pwrToggle();
 
 	void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, Hardware::KeyboardState state);
 
@@ -50,7 +48,9 @@ public:
 	Light(const Light& source) = delete;
 
 private:
+	void pwrSlowOn(int startLum);
 	void pwrOff(bool autoPowerOff);
+	void pwrToggle();
 	void initiateFastUp();
 	void initiateFastDown();
 	void initiateSlowUp(int start);
@@ -67,6 +67,7 @@ private:
 	time_t mLastLong;
 	bool mDimDown;
 	std::mutex mLedMutex;
+	std::mutex mDimmerMutex;
     std::unique_ptr<std::thread> mDimmerThread;
     std::atomic_bool mDimmerThreadRunning;
 
