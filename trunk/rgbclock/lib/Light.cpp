@@ -15,7 +15,7 @@ namespace Hardware
 const int MIN_DIMMER_INTENSITY = 40;
 const int MAX_DIMMER_INTENSITY = 4000;
 const int DIMMER_STEP = 20;
-const int AUTO_OFF_MINUTES = 2;
+const int AUTO_OFF_MINUTES = 60;
 
 Light::Light(I2C &i2c, uint8_t address) :
 		mState(State::PwrOff),
@@ -24,6 +24,7 @@ Light::Light(I2C &i2c, uint8_t address) :
 		mLastLong(time(0)),
 		mDimDown(true),
 		mLedMutex(),
+		mDimmerMutex(),
 	    mDimmerThread(nullptr),
 	    mDimmerThreadRunning(false),
 	    mAutoOffThread(nullptr),
@@ -43,6 +44,8 @@ Light::~Light()
 
 void Light::pwrOn()
 {
+    std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
+
 	if (mState == State::PwrOff)
 	{
 		if (mLuminance < MIN_DIMMER_INTENSITY)
@@ -56,6 +59,8 @@ void Light::pwrOn()
 
 void Light::pwrSlowOn()
 {
+    std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
+
 	pwrSlowOn(0);
 }
 
@@ -67,12 +72,15 @@ void Light::pwrSlowOn(int startLum)
 
 void Light::pwrOff()
 {
-	pwrOff(false);
+    std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
+
+    pwrOff(false);
 }
 
 void Light::pwrOff(bool autoPowerOff)
 {
-	if ((mState == State::PwrOn) ||(mState == State::SlowUp))
+
+    if ((mState == State::PwrOn) ||(mState == State::SlowUp))
 	{
 		initiateFastDown();
 		if (!autoPowerOff)
@@ -98,6 +106,8 @@ void Light::pwrToggle()
 
 void Light::keyboardPressed(const std::vector<KeyInfo>& keyboardInfo, KeyboardState state)
 {
+    std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
+
 	if (state != KeyboardState::stNormal)
 	{
 		return;
@@ -281,6 +291,8 @@ void Light::dimmerThread()
    while (mDimmerThreadRunning)
    {
 	   std::this_thread::sleep_for(std::chrono::milliseconds(sleepInterval));
+	   std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
+
 	   mLuminance += deltaLuminance;
 
 	   if (deltaLuminance > 0)
@@ -317,6 +329,7 @@ void Light::dimmerThread()
 		   }
 	   }
    }
+   std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
 
    if (memorizedLuminance > 0)
    {
@@ -340,9 +353,10 @@ void Light::autoOffThread()
 	   {
 
 		   mAutoOffThreadRunning = false;
+		   std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
 
-			LOG(INFO) << "Light auto off";
-			pwrOff(true);
+		   LOG(INFO) << "Light auto off";
+		   pwrOff(true);
 	   }
 	}
 }

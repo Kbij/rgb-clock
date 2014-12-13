@@ -15,7 +15,7 @@
 
 namespace Hardware
 {
-const int AUTO_OFF_MINUTES = 2;
+const int AUTO_OFF_MINUTES = 60;
 
 Radio::Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver, double frequency):
 	mI2C(i2c),
@@ -110,22 +110,6 @@ void Radio::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, 
 		}
 	}
 }
-
-bool Radio::slowPowerOn(int volume)
-{
-    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
-	LOG(INFO) << "Radio slow power on";
-
-    mTargetVolume = volume;
-	mVolume = 0;
-	// Write volume first
-	writeRegisters();
-	powerOn();
-	// at last: volume up thread
-	startMaintenanceThread();
-	return true;
-}
-
 bool Radio::powerOn()
 {
     std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
@@ -141,6 +125,21 @@ bool Radio::powerOn()
 	mControlRegister = 0b00010000; // PowerUp
 	writeRegisters();
 	startAutoOffThread();
+	return true;
+}
+
+bool Radio::slowPowerOn(int volume)
+{
+    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
+	LOG(INFO) << "Radio slow power on";
+
+    mTargetVolume = volume;
+	mVolume = 0;
+	// Write volume first
+	writeRegisters();
+	powerOn();
+	// at last: volume up thread
+	startMaintenanceThread();
 	return true;
 }
 
@@ -168,14 +167,6 @@ bool Radio::powerOff(bool autoPowerOff)
 	return true;
 }
 
-void Radio::volume(int volume)
-{
-    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
-
-	mVolume = volume;
-	writeRegisters();
-}
-
 void Radio::volumeUp()
 {
     std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
@@ -196,7 +187,6 @@ void Radio::volumeDown()
 	if (mVolume > 1)
 	{
 		mVolume -= 1;
-		//LOG(INFO) << "Volume: " << (int) mVolume;
 		writeRegisters();
 	}
 }

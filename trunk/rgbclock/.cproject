@@ -31,6 +31,10 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1373416184.1394547009" name="LCDisplay_threaded.h" rcbsApplicability="disable" resourcePath="lib/LCDisplay_threaded.h" toolsToInvoke=""/>
+					<sourceEntries>
+						<entry excluding="lib/LCDisplay_threaded.h|lib/LCDisplay_threaded.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
@@ -188,8 +192,9 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.956519331.771961594.1121735565.1696432224.223065141" name="LCDisplay_threaded.h" rcbsApplicability="disable" resourcePath="lib/LCDisplay_threaded.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="main_hwtest.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="lib/LCDisplay_threaded.h|lib/LCDisplay_threaded.cpp|main_hwtest.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
