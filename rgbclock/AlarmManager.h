@@ -19,6 +19,7 @@
 #include <map>
 #include <sstream>
 #include <iomanip>
+#include <memory>
 
 namespace Hardware {
 class MainboardControl;
@@ -205,7 +206,7 @@ private:
 	std::string mCurrentEditor;
 	std::mutex mAlarmsMutex;
 	std::mutex mAlarmObserversMutex;
-    std::thread* mAlarmThread;
+    std::unique_ptr<std::thread> mAlarmThread;
 	std::atomic_bool mAlarmThreadRunning;
 	std::map<std::string, NextAlarm> mNextAlarmMap;
 	std::mutex mNextAlarmMapMutex;

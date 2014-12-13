@@ -289,7 +289,7 @@ void AlarmManager::startAlarmThread()
 {
 	mAlarmThreadRunning = true;
 
-	mAlarmThread = new std::thread(&AlarmManager::alarmThread, this);
+	mAlarmThread = std::unique_ptr<std::thread>(new std::thread(&AlarmManager::alarmThread, this));
 }
 
 void AlarmManager::stopAlarmThread()
@@ -299,9 +299,7 @@ void AlarmManager::stopAlarmThread()
     if (mAlarmThread)
     {
     	mAlarmThread->join();
-
-        delete mAlarmThread;
-        mAlarmThread = nullptr;
+        mAlarmThread.reset();
     }
 }
 

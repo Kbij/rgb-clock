@@ -237,7 +237,7 @@ void MainboardControl::startWatchdogThread()
 
 	mWatchdogThreadRunning = true;
 
-	mWatchdogThread = new std::thread(&MainboardControl::watchdogThread, this);
+	mWatchdogThread = std::unique_ptr<std::thread>(new std::thread(&MainboardControl::watchdogThread, this));
 }
 
 void MainboardControl::stopWatchdogThread()
@@ -247,9 +247,7 @@ void MainboardControl::stopWatchdogThread()
     if (mWatchdogThread)
     {
     	mWatchdogThread->join();
-
-        delete mWatchdogThread;
-        mWatchdogThread = nullptr;
+        mWatchdogThread.reset();
     }
 }
 

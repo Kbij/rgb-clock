@@ -72,7 +72,7 @@ private:
     std::recursive_mutex mRadioObserversMutex;
     std::recursive_mutex mRadioMutex;
 	RadioState mState;
-    std::thread* mMaintenanceThread;
+    std::unique_ptr<std::thread> mMaintenanceThread;
     std::atomic_bool mMaintenanceThreadRunning;
     std::atomic_int mTargetVolume;
     std::unique_ptr<std::thread> mAutoOffThread;

@@ -16,6 +16,7 @@
 #include <string>
 #include <time.h>
 #include <mutex>
+#include <memory>
 
 namespace
 {
@@ -113,7 +114,7 @@ private:
 	std::atomic<DisplayState> mDisplayState;
 	EditState mEditState;
 	EditPos mEditPos;
-    std::thread* mRefreshThread;
+    std::unique_ptr<std::thread> mRefreshThread;
     std::atomic_bool mRefreshThreadRunning;
     std::atomic_bool mForceRefresh;
     std::recursive_mutex mRadioInfoMutex;

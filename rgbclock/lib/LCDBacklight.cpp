@@ -46,7 +46,7 @@ void LCDBacklight::startBackLightThread()
 {
 	mBackLightThreadRunning = true;
 
-	mBackLightThread = new std::thread(&LCDBacklight::backLightThread, this);
+	mBackLightThread = std::unique_ptr<std::thread>(new std::thread(&LCDBacklight::backLightThread, this));
 }
 
 void LCDBacklight::stopBackLightThread()
@@ -56,9 +56,7 @@ void LCDBacklight::stopBackLightThread()
     if (mBackLightThread)
     {
     	mBackLightThread->join();
-
-        delete mBackLightThread;
-        mBackLightThread = nullptr;
+        mBackLightThread.reset();
     }
 }
 

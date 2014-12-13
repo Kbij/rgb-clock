@@ -469,7 +469,7 @@ void FMReceiver::startReadThread()
 	mReadThreadRunning = true;
 
     // create read thread object and start read thread
-	mReadThread = new std::thread(&FMReceiver::readThread, this);
+	mReadThread = std::unique_ptr<std::thread>(new std::thread(&FMReceiver::readThread, this));
 }
 
 void FMReceiver::stopReadThread()
@@ -480,9 +480,7 @@ void FMReceiver::stopReadThread()
     {
         // wait for alarm maintenance thread to finish and delete maintenance thread object
     	mReadThread->join();
-
-        delete mReadThread;
-        mReadThread = nullptr;
+        mReadThread.reset();
     }
 }
 void FMReceiver::readThread()
