@@ -17,6 +17,7 @@
 #include <bitset>
 #include <mutex>
 #include <thread>
+#include <memory>
 
 namespace Hardware {
 class WatchdogFeederIf;
@@ -66,7 +67,7 @@ private:
 	std::map<WatchdogFeederIf*, FeederInfo> mWatchdogFeeders;
     std::mutex mFeederMutex;
 	int mWatchdogHandle;
-    std::thread* mWatchdogThread;
+    std::unique_ptr<std::thread> mWatchdogThread;
     std::atomic_bool mWatchdogThreadRunning;
 
 };

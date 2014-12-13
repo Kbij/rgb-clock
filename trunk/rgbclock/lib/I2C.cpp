@@ -310,7 +310,7 @@ void I2C::startStatisticsThread()
 {
 	mStatisticsThreadRunning = true;
 
-	mStatisticsThread = new std::thread(&I2C::statisticsThread, this);
+	mStatisticsThread = std::unique_ptr<std::thread>(new std::thread(&I2C::statisticsThread, this));
 }
 
 void I2C::stopStatisticsThread()
@@ -320,9 +320,7 @@ void I2C::stopStatisticsThread()
     if (mStatisticsThread)
     {
     	mStatisticsThread->join();
-
-        delete mStatisticsThread;
-        mStatisticsThread = nullptr;
+        mStatisticsThread.reset();
     }
 }
 

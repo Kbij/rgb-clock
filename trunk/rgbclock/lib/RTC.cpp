@@ -264,7 +264,7 @@ void RTC::startRTCUpdateThread()
 {
 	mRTCThreadRunning = true;
 
-	mRTCThread = new std::thread(&RTC::rtcThread, this);
+	mRTCThread = std::unique_ptr<std::thread>(new std::thread(&RTC::rtcThread, this));
 }
 
 void RTC::stopRTCUpdateThread()
@@ -274,9 +274,7 @@ void RTC::stopRTCUpdateThread()
     if (mRTCThread)
     {
     	mRTCThread->join();
-
-        delete mRTCThread;
-        mRTCThread = nullptr;
+    	mRTCThread.reset();
     }
 }
 void RTC::rtcThread()

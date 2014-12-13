@@ -264,7 +264,7 @@ void Radio::startMaintenanceThread()
 
 	mMaintenanceThreadRunning = true;
 
-	mMaintenanceThread = new std::thread(&Radio::maintenanceThread, this);
+	mMaintenanceThread = std::unique_ptr<std::thread>(new std::thread(&Radio::maintenanceThread, this));
 }
 
 void Radio::stopMaintenanceThread()
@@ -274,9 +274,7 @@ void Radio::stopMaintenanceThread()
     if (mMaintenanceThread)
     {
     	mMaintenanceThread->join();
-
-        delete mMaintenanceThread;
-        mMaintenanceThread = nullptr;
+        mMaintenanceThread.reset();
     }
 }
 

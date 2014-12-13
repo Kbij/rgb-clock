@@ -239,7 +239,7 @@ void Keyboard::startReadThread()
 	mReadThreadRunning = true;
 
     // create read thread object and start read thread
-	mReadThread = new std::thread(&Keyboard::readThread, this);
+	mReadThread = std::unique_ptr<std::thread>(new std::thread(&Keyboard::readThread, this));
 }
 
 void Keyboard::stopReadThread()
@@ -250,9 +250,7 @@ void Keyboard::stopReadThread()
     {
         // wait for alarm maintenance thread to finish and delete maintenance thread object
     	mReadThread->join();
-
-        delete mReadThread;
-        mReadThread = nullptr;
+        mReadThread.reset();
     }
 }
 

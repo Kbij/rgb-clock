@@ -16,6 +16,8 @@
 #include <atomic>
 #include <thread>
 #include <set>
+#include <memory>
+
 namespace Hardware
 {
 class Radio;
@@ -77,7 +79,7 @@ private:
 	RDSInfo mReceivingRDSInfo;
 	std::recursive_mutex mReceiverMutex;
 	std::recursive_mutex mRdsInfoMutex;
-    std::thread* mReadThread;
+    std::unique_ptr<std::thread> mReadThread;
     std::atomic_bool mReadThreadRunning;
     std::set<RadioObserverIf*> mRadioObservers;
     std::recursive_mutex mRadioObserversMutex;

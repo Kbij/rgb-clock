@@ -13,6 +13,7 @@
 #include <atomic>
 #include <thread>
 #include <map>
+#include <memory>
 
 
 namespace
@@ -68,7 +69,7 @@ private:
 	std::mutex mStatMutex;
 	std::map<uint8_t, StatData> mAddressStatistics;
 	StatData mGeneralStatistics;
-    std::thread* mStatisticsThread;
+    std::unique_ptr<std::thread> mStatisticsThread;
     std::atomic_bool mStatisticsThreadRunning;
 
 };

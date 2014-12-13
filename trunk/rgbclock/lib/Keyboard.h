@@ -15,6 +15,7 @@
 #include <atomic>
 #include <thread>
 #include <set>
+#include <memory>
 
 namespace Hardware
 {
@@ -46,7 +47,7 @@ private:
 	std::recursive_mutex mKeyboardStateMutex;
 	KeyboardState mKeyboardState;
 	std::vector<uint16_t> mKeyHistory;
-    std::thread* mReadThread;
+    std::unique_ptr<std::thread> mReadThread;
     std::atomic_bool mReadThreadRunning;
     std::set<KeyboardObserverIf*> mKeyboardObservers;
     std::recursive_mutex mKeyboardObserversMutex;

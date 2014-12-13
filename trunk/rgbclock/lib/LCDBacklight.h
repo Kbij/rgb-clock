@@ -34,7 +34,7 @@ private:
 	LightSensor mLightSensor;
 	std::atomic_int mUserActivityTimer;
 
-    std::thread* mBackLightThread;
+    std::unique_ptr<std::thread> mBackLightThread;
     std::atomic_bool mBackLightThreadRunning;
 };
 

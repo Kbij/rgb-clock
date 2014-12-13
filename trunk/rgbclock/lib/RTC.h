@@ -40,7 +40,7 @@ private:
 
 	I2C &mI2C;
 	const uint8_t mAddress;
-    std::thread* mRTCThread;
+    std::unique_ptr<std::thread> mRTCThread;
     std::atomic_bool mRTCThreadRunning;
     std::ofstream mRTCStartupLog;
     std::atomic_bool mNTPSync;
