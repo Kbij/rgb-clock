@@ -68,6 +68,7 @@ private:
 	bool mDimDown;
 	std::mutex mLedMutex;
 	std::mutex mDimmerMutex;
+	std::mutex mThreadMutex;
     std::unique_ptr<std::thread> mDimmerThread;
     std::atomic_bool mDimmerThreadRunning;
 

@@ -25,6 +25,7 @@ Light::Light(I2C &i2c, uint8_t address) :
 		mDimDown(true),
 		mLedMutex(),
 		mDimmerMutex(),
+		mThreadMutex(),
 	    mDimmerThread(nullptr),
 	    mDimmerThreadRunning(false),
 	    mAutoOffThread(nullptr),
@@ -209,6 +210,7 @@ void Light::initiateSlowUp(int start)
 void Light::startDimmerThread()
 {
 	stopDimmerThread();
+    std::lock_guard<std::mutex> lk_guard(mThreadMutex);
 
 	mDimmerThreadRunning = true;
 	mDimmerThread.reset(new std::thread(&Light::dimmerThread, this));
@@ -216,6 +218,8 @@ void Light::startDimmerThread()
 
 void Light::stopDimmerThread()
 {
+    std::lock_guard<std::mutex> lk_guard(mThreadMutex);
+
 	mDimmerThreadRunning = false;
 
     if (mDimmerThread)
@@ -228,6 +232,7 @@ void Light::stopDimmerThread()
 void Light::startAutoOffThread()
 {
 	stopAutoOffThread();
+    std::lock_guard<std::mutex> lk_guard(mThreadMutex);
 
 	mAutoOffThreadRunning = true;
 	mAutoOffThread.reset(new std::thread(&Light::autoOffThread, this));
@@ -235,6 +240,8 @@ void Light::startAutoOffThread()
 
 void Light::stopAutoOffThread()
 {
+    std::lock_guard<std::mutex> lk_guard(mThreadMutex);
+
 	mAutoOffThreadRunning = false;
 
     if (mAutoOffThread)
