@@ -27,7 +27,7 @@ const uint8_t AUX_IN    = 2;
 const uint8_t RADIO_RST = 3;
 const uint8_t WATCHDOG  = 4;
 
-const int WATCHDOG_SLEEP = 10;
+const int WATCHDOG_SLEEP = 500;
 
 std::string inputToString(Hardware::InputSelection input)
 {
@@ -199,19 +199,16 @@ void MainboardControl::signalWatchdog(WatchdogFeederIf *watchdogFeeder)
 
 void MainboardControl::init()
 {
-	if (mHwRevision > 1)
-	{
-		mIO.directionA(IOExpander::DataDirection::dirOut);
-		mIO.directionB(IOExpander::DataDirection::dirOut);
+	mIO.directionA(IOExpander::DataDirection::dirOut);
+	mIO.directionB(IOExpander::DataDirection::dirOut);
 
-		mIO.writeA(mRelaisBus.to_ulong());
+	mIO.writeA(mRelaisBus.to_ulong());
 
-		mMainBus[MUTE] = 0;
-		mMainBus[RADIO_IN] = 0;
-		mMainBus[AUX_IN] = 0;
-		mMainBus[RADIO_RST] = 0;
-		mIO.writeB(mMainBus.to_ulong());
-	}
+	mMainBus[MUTE] = 0;
+	mMainBus[RADIO_IN] = 0;
+	mMainBus[AUX_IN] = 0;
+	mMainBus[RADIO_RST] = 0;
+	mIO.writeB(mMainBus.to_ulong());
 
 	if (mWatchdogEnabled)
 	{
@@ -226,7 +223,7 @@ void MainboardControl::init()
     	int timeout;
         //ioctl(mWatchdogHandle, WDIOC_SETTIMEOUT, &timeout);
         ioctl(mWatchdogHandle, WDIOC_GETTIMEOUT, &timeout);
-        LOG(INFO) << "Watchdog timeout: " << timeout;
+        LOG(INFO) << "Watchdog timeout (seconds): " << timeout;
     }
 }
 
@@ -236,7 +233,6 @@ void MainboardControl::startWatchdogThread()
 	stopWatchdogThread();
 
 	mWatchdogThreadRunning = true;
-
 	mWatchdogThread = std::unique_ptr<std::thread>(new std::thread(&MainboardControl::watchdogThread, this));
 }
 
@@ -273,6 +269,14 @@ void MainboardControl::watchdogThread()
 		   {
 			   ioctl(mWatchdogHandle, WDIOC_KEEPALIVE, 0);
 		   }
+		   std::lock_guard<std::recursive_mutex> lk_guard2(mBusMutex);
+
+		   mMainBus[WATCHDOG] = 0;
+		   mIO.writeB(mMainBus.to_ulong());
+		   std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+		   mMainBus[WATCHDOG] = 1;
+		   mIO.writeB(mMainBus.to_ulong());
 	   }
 }
 
