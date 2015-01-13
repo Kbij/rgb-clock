@@ -212,7 +212,7 @@ int main (int argc, char* argv[])
 			// Reset all PCA9685's
 			i2c.writeByte(0x00, 0x06); // General Call Address, Send SWRST data byte 1):
 
-			Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, 32, !FLAGS_disablewatchdog);
+			Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
 			Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio, mainboardControl);
 			App::AlarmManager alarmManager(config, mainboardControl);
 

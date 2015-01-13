@@ -68,10 +68,7 @@ void Config::loadXML()
         getInteger(settings, "rtc_addr", mSystemConfig.mRtc);
         getInteger(settings, "radio_addr", mSystemConfig.mRadio);
         getDouble(settings, "frequency", mSystemConfig.mFrequency, 94.5);
-        if (mSystemConfig.mHardwareRevision > 1)
-        {
-        	getInteger(settings, "centralio_addr", mSystemConfig.mCentralIO);
-        }
+        getInteger(settings, "centralio_addr", mSystemConfig.mCentralIO);
         ticpp::Iterator<ticpp::Element>  unit(settings->FirstChildElement("clockunit"), "clockunit");
         while ( unit != unit.end() )
         {
