@@ -25,6 +25,7 @@
 #include <memory>
 #include <pthread.h>
 #include <iostream>
+test
 
 
 DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
