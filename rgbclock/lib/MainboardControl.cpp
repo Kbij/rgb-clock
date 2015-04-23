@@ -261,6 +261,9 @@ void MainboardControl::watchdogThread()
 			   if (feeder.second.mCurrentTimeout < 0)
 			   {
 				   LOG(ERROR) << "Watchdog feeder (" << feeder.first->feederName() << ") didn't kept his promise; watchdog will kick in....";
+				   google::FlushLogFiles(google::WARNING);
+				   google::FlushLogFiles(google::INFO);
+				   google::FlushLogFiles(google::ERROR);
 				   mWatchdogThreadRunning = false;
 			   }
 		   }

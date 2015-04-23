@@ -11,6 +11,10 @@
 #include "lib/I2C.h"
 #include "lib/RgbLed.h"
 #include "lib/KeyboardObserverIf.h"
+#include "AutoPowerOffTimer.h"
+#include "AutoPowerOffDeviceIf.h"
+#include "UpDownTimer.h"
+#include "UpDownDeviceIf.h"
 
 #include <stdint.h>
 #include <mutex>
@@ -22,23 +26,17 @@ namespace Hardware
 {
 class I2C;
 
-enum class State {
-	PwrOn,
-	PwrOff,
-	SlowUp,
-	SlowDown,
-	FastUp,
-	FastDown
-};
-
-class Light : public KeyboardObserverIf {
+class Light : public KeyboardObserverIf, public AutoPowerOffDeviceIf, public UpDownDeviceIf {
 public:
 	Light(I2C &i2c, uint8_t address);
 	virtual ~Light();
 
-	void pwrOn();
-	void pwrSlowOn();
+	void pwrOn(bool slow = false);
 	void pwrOff();
+	void pwrToggle();
+
+	void up(int step);
+	void down(int step);
 
 	void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, Hardware::KeyboardState state);
 
@@ -48,32 +46,23 @@ public:
 	Light(const Light& source) = delete;
 
 private:
-	void pwrSlowOn(int startLum);
-	void pwrOff(bool autoPowerOff);
-	void pwrToggle();
 	void initiateFastUp();
 	void initiateFastDown();
-	void initiateSlowUp(int start);
+	void initiateSlowUp();
 
-	void startDimmerThread();
-	void stopDimmerThread();
-	void startAutoOffThread();
-	void stopAutoOffThread();
-	void dimmerThread();
-	void autoOffThread();
-	std::atomic<State> mState;
+	void internalPwrOn();
+	void internalPwrOff();
+	std::atomic_bool mPowerOn;
+	bool mPowerDownInitiated;
 	RgbLed mRGBLed;
-	std::atomic_int mLuminance;
+	int mCurrentLuminance;
+	int mStoredLuminance;
 	time_t mLastLong;
 	bool mDimDown;
-	std::mutex mLedMutex;
 	std::mutex mDimmerMutex;
-	std::mutex mThreadMutex;
-    std::unique_ptr<std::thread> mDimmerThread;
-    std::atomic_bool mDimmerThreadRunning;
 
-    std::unique_ptr<std::thread> mAutoOffThread;
-    std::atomic_bool mAutoOffThreadRunning;
+    UpDownTimer mUpDownTimer;
+    AutoPowerOffTimer mAutoPowerOffTimer;
 };
 
 } /* namespace Hardware */

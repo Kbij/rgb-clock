@@ -41,7 +41,7 @@ AlarmManager::AlarmManager(const Config& config, Hardware::MainboardControl &mai
 {
 	loadAlarms();
 	startAlarmThread();
-	mMainboardControl.promiseWatchdog(this, 5000);
+	mMainboardControl.promiseWatchdog(this, 6000);
 }
 
 AlarmManager::~AlarmManager()

@@ -13,25 +13,26 @@
 namespace Hardware
 {
 const int MIN_DIMMER_INTENSITY = 40;
+const int SUNRISE_DIMMER_INTENSITY = 1500;
 const int MAX_DIMMER_INTENSITY = 4000;
 const int DIMMER_STEP = 20;
 const int AUTO_OFF_MINUTES = 60;
+const int SLOWUP_MINUTES = 15;
+const int FAST_UPDOWN_SECONDS = 2;
 
 Light::Light(I2C &i2c, uint8_t address) :
-		mState(State::PwrOff),
+		mPowerOn(false),
+		mPowerDownInitiated(false),
 		mRGBLed(i2c, address),
-		mLuminance(1000),
+		mCurrentLuminance(0),
+		mStoredLuminance(SUNRISE_DIMMER_INTENSITY),
 		mLastLong(time(0)),
 		mDimDown(true),
-		mLedMutex(),
 		mDimmerMutex(),
-		mThreadMutex(),
-	    mDimmerThread(nullptr),
-	    mDimmerThreadRunning(false),
-	    mAutoOffThread(nullptr),
-	    mAutoOffThreadRunning(false)
+		mUpDownTimer(*this),
+	    mAutoPowerOffTimer(*this)
 {
-	pwrOff();
+	internalPwrOff();
 	mRGBLed.hue(200);
 	mRGBLed.saturation(4000);
 }
@@ -39,76 +40,107 @@ Light::Light(I2C &i2c, uint8_t address) :
 Light::~Light()
 {
 	mRGBLed.pwrOff();
-	stopDimmerThread();
-	stopAutoOffThread();
 }
 
-void Light::pwrOn()
+void Light::pwrOn(bool slow)
 {
-    std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
-
-	if (mState == State::PwrOff)
-	{
-		if (mLuminance < MIN_DIMMER_INTENSITY)
+	LOG(INFO) << __PRETTY_FUNCTION__ << "1";
+    mAutoPowerOffTimer.cancelAutoPowerOff();
+    mUpDownTimer.cancelDimmer();
+	bool startTimers = false;
+    {
+		std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
+		LOG(INFO) << __PRETTY_FUNCTION__ << "2";
+		if (!mPowerOn)
 		{
-			mLuminance = MIN_DIMMER_INTENSITY;
+			mPowerDownInitiated = false;
+			internalPwrOn();
+			startTimers = true;
 		}
-		initiateFastUp();
-		startAutoOffThread();
-	}
-}
+    }
 
-void Light::pwrSlowOn()
-{
-    std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
-
-	pwrSlowOn(0);
-}
-
-void Light::pwrSlowOn(int startLum)
-{
-	initiateSlowUp(startLum);
-	startAutoOffThread();
+    if (startTimers)
+    {
+		slow ? initiateSlowUp() : initiateFastUp();
+		mAutoPowerOffTimer.startAutoPowerOff(AUTO_OFF_MINUTES);
+    }
+	LOG(INFO) << __PRETTY_FUNCTION__ << "3";
 }
 
 void Light::pwrOff()
 {
-    std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
-
-    pwrOff(false);
-}
-
-void Light::pwrOff(bool autoPowerOff)
-{
-
-    if ((mState == State::PwrOn) ||(mState == State::SlowUp))
+	LOG(INFO) << __PRETTY_FUNCTION__ << "1";
+    mAutoPowerOffTimer.cancelAutoPowerOff();
+	LOG(INFO) << __PRETTY_FUNCTION__ << "2";
+	bool startTimers = false;
 	{
-		initiateFastDown();
-		if (!autoPowerOff)
+	    std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
+		if (mPowerOn && !mPowerDownInitiated)
 		{
-			stopAutoOffThread();
+			mUpDownTimer.cancelDimmer();
+			mStoredLuminance = mCurrentLuminance;
+			mPowerDownInitiated = true;
+			startTimers = true;
 		}
 	}
+	if (startTimers)
+	{
+		initiateFastDown();
+	}
+	LOG(INFO) << __PRETTY_FUNCTION__ << "3";
 }
 
 void Light::pwrToggle()
 {
-	if ((mState == State::PwrOn) ||(mState == State::SlowUp))
-	{
-		stopAutoOffThread();
-		initiateFastDown();
-	}
-	if (mState == State::PwrOff)
-	{
-	    initiateFastUp();
-	    startAutoOffThread();
-	}
+	mPowerOn ? pwrOff() : pwrOn();
+}
+
+void Light::up(int step)
+{
+//	LOG(INFO) << __PRETTY_FUNCTION__ << "1";
+    std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
+//	LOG(INFO) << __PRETTY_FUNCTION__ << "2";
+    if (mPowerOn)
+    {
+		mCurrentLuminance += step;
+		if (mCurrentLuminance > MAX_DIMMER_INTENSITY)
+		{
+			mCurrentLuminance = MAX_DIMMER_INTENSITY;
+		}
+
+		mRGBLed.luminance(mCurrentLuminance);
+    }
+//	LOG(INFO) << __PRETTY_FUNCTION__ << "3";
+}
+
+void Light::down(int step)
+{
+//	LOG(INFO) << __PRETTY_FUNCTION__ << "1";
+
+    std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
+	//LOG(INFO) << __PRETTY_FUNCTION__ << "2";
+    if (mPowerOn)
+    {
+        mCurrentLuminance -= step;
+
+    	if (mCurrentLuminance <= MIN_DIMMER_INTENSITY)
+    	{
+    		mCurrentLuminance = MIN_DIMMER_INTENSITY;
+    	}
+
+    	mRGBLed.luminance(mCurrentLuminance);
+    	if ((mCurrentLuminance <= MIN_DIMMER_INTENSITY) && mPowerDownInitiated)
+    	{
+    		mUpDownTimer.cancelDimmer();
+    		internalPwrOff();
+    	}
+    }
+//	LOG(INFO) << __PRETTY_FUNCTION__ << "3";
 }
 
 void Light::keyboardPressed(const std::vector<KeyInfo>& keyboardInfo, KeyboardState state)
 {
-    std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
-
+	// keyboard actions only invoke public methods that are protected by the DimmerMutex
 	if (state != KeyboardState::stNormal)
 	{
 		return;
@@ -126,7 +158,8 @@ void Light::keyboardPressed(const std::vector<KeyInfo>& keyboardInfo, KeyboardSt
 
 	if (keyboardInfo[KEY_CENTRAL_L].mLongPress || keyboardInfo[KEY_CENTRAL_R].mLongPress)
 	{
-		if (mState == State::PwrOn)
+
+		if (mPowerOn)
 		{
 			if (difftime(time(nullptr) , mLastLong) > 5)
 			{
@@ -134,237 +167,68 @@ void Light::keyboardPressed(const std::vector<KeyInfo>& keyboardInfo, KeyboardSt
 			}
 			mLastLong = time(nullptr);
 
-			if (mDimDown)
-			{
-				mLuminance -= DIMMER_STEP;
-
-				if (mLuminance <= MIN_DIMMER_INTENSITY)
-				{
-					mLuminance = MIN_DIMMER_INTENSITY;
-				    std::lock_guard<std::mutex> lk_guard(mLedMutex);
-
-					mRGBLed.luminance(mLuminance);
-				}
-			}
-			else
-			{
-				mLuminance += DIMMER_STEP;
-				if (mLuminance > MAX_DIMMER_INTENSITY)
-				{
-					mLuminance = MAX_DIMMER_INTENSITY;
-				}
-			}
-		    std::lock_guard<std::mutex> lk_guard(mLedMutex);
-
-			mRGBLed.luminance(mLuminance);
+			mDimDown ? down(DIMMER_STEP) : up(DIMMER_STEP);
 		}
-		if (mState == State::PwrOff)
+		else
 		{
-			pwrSlowOn(MIN_DIMMER_INTENSITY);
+			pwrOn(true);
 		}
 	}
-
 }
 
 bool Light::isAttached()
 {
-	std::lock_guard<std::mutex> lk_guard(mLedMutex);
+	std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
 
 	return mRGBLed.isAttached();
 }
 
 void Light::initiateFastUp()
 {
-	LOG(INFO) << "Init fast, lum=" << mLuminance;
-	if (mLuminance < MIN_DIMMER_INTENSITY)
+	if (mStoredLuminance < MIN_DIMMER_INTENSITY)
 	{
-		mLuminance = MIN_DIMMER_INTENSITY;
+		mStoredLuminance = MIN_DIMMER_INTENSITY;
 	}
-	std::lock_guard<std::mutex> lk_guard(mLedMutex);
+	if (mStoredLuminance > MAX_DIMMER_INTENSITY)
+	{
+		mStoredLuminance = MAX_DIMMER_INTENSITY;
+	}
 
-	mRGBLed.luminance(mLuminance);
-	mRGBLed.pwrOn();
-	mState = State::FastUp;
-	startDimmerThread();
+	// Initial powerup always starts from mStoredLuminance
+	LOG(INFO) << "Init FastUp, StoredLum=" << mStoredLuminance;
+	mUpDownTimer.initiateUp(mStoredLuminance - MIN_DIMMER_INTENSITY, 1);
+}
+
+void Light::initiateSlowUp()
+{
+	LOG(INFO) << "Init SlowUp";
+	// Initial powerup always starts from mStoredLuminance
+	mUpDownTimer.initiateUp(SUNRISE_DIMMER_INTENSITY - MIN_DIMMER_INTENSITY, SLOWUP_MINUTES * 60);
 }
 
 void Light::initiateFastDown()
 {
-	mState = State::FastDown;
-	startDimmerThread();
+	LOG(INFO) << "Init FastDown";
+	mUpDownTimer.initiateDown(mCurrentLuminance, 1);
 }
 
-void Light::initiateSlowUp(int start)
+void Light::internalPwrOn()
 {
-	LOG(INFO) << "Init start, lum=" << start;
+	LOG(INFO) << "Internal PwrOn";
 
-	mLuminance = start;
-    std::lock_guard<std::mutex> lk_guard(mLedMutex);
-
-	mRGBLed.luminance(mLuminance);
+	mCurrentLuminance = MIN_DIMMER_INTENSITY;
+	mRGBLed.luminance(mCurrentLuminance);
 	mRGBLed.pwrOn();
-	mState = State::SlowUp;
-	startDimmerThread();
+	mPowerOn = true;
 }
 
-void Light::startDimmerThread()
+void Light::internalPwrOff()
 {
-	stopDimmerThread();
-    std::lock_guard<std::mutex> lk_guard(mThreadMutex);
+	LOG(INFO) << "Internal PwrOff";
 
-	mDimmerThreadRunning = true;
-	mDimmerThread.reset(new std::thread(&Light::dimmerThread, this));
-}
-
-void Light::stopDimmerThread()
-{
-    std::lock_guard<std::mutex> lk_guard(mThreadMutex);
-
-	mDimmerThreadRunning = false;
-
-    if (mDimmerThread)
-    {
-    	mDimmerThread->join();
-        mDimmerThread.reset();
-    }
-}
-
-void Light::startAutoOffThread()
-{
-	stopAutoOffThread();
-    std::lock_guard<std::mutex> lk_guard(mThreadMutex);
-
-	mAutoOffThreadRunning = true;
-	mAutoOffThread.reset(new std::thread(&Light::autoOffThread, this));
-}
-
-void Light::stopAutoOffThread()
-{
-    std::lock_guard<std::mutex> lk_guard(mThreadMutex);
-
-	mAutoOffThreadRunning = false;
-
-    if (mAutoOffThread)
-    {
-    	mAutoOffThread->join();
-    	mAutoOffThread.reset();
-    }
-}
-
-void Light::dimmerThread()
-{
-	pthread_setname_np(pthread_self(), "Dimmer");
-
-	int sleepInterval = 1;
-	int deltaLuminance = DIMMER_STEP;
-	int targetLuminance = 0;
-	int memorizedLuminance = 0;
-	const int slowUpMinutes = 15;
-
-	switch(mState)
-	{
-	case State::SlowUp:
-		targetLuminance = 1500;
-   	    sleepInterval = (double (slowUpMinutes * 60.0 )/ double(targetLuminance)) * 1000;
-		deltaLuminance = 1;
-		//mLuminance = 0;
-		LOG(INFO) << "RGBLed SlowUp";
-		break;
-	case State::SlowDown:
-		sleepInterval = 100;
-		deltaLuminance = -1;
-		targetLuminance = 0;
-		memorizedLuminance = mLuminance;
-		LOG(INFO) << "RGBLed SlowDown";
-		break;
-	case State::FastUp:
-		sleepInterval = 1;
-		deltaLuminance = DIMMER_STEP;
-		targetLuminance = mLuminance;
-		mLuminance = 0;
-		LOG(INFO) << "RGBLed FastUp";
-		break;
-	case State::FastDown:
-		sleepInterval = 1;
-		deltaLuminance = -DIMMER_STEP;
-		targetLuminance = 0;
-		memorizedLuminance = mLuminance;
-		LOG(INFO) << "RGBLed FastDown";
-		break;
-	default: break;
-	}
-	LOG(INFO) << "Thread Start, target: " << targetLuminance;
-
-   while (mDimmerThreadRunning)
-   {
-	   std::this_thread::sleep_for(std::chrono::milliseconds(sleepInterval));
-	   std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
-
-	   mLuminance += deltaLuminance;
-
-	   if (deltaLuminance > 0)
-	   {
-		   if (mLuminance >= targetLuminance)
-		   {
-			   mLuminance = targetLuminance;
-			   mDimmerThreadRunning = false;
-			   mState = State::PwrOn;
-			   LOG(INFO) << "RGBLed PwrOn";
-		   }
-		   std::lock_guard<std::mutex> lk_guard(mLedMutex);
-
-		   mRGBLed.luminance(mLuminance);
-	   }
-	   else
-	   {
-		   if (mLuminance <= 0)
-		   {
-			   mLuminance = 0;
-			   mDimmerThreadRunning = false;
-			   mState = State::PwrOff;
-
-			   std::lock_guard<std::mutex> lk_guard(mLedMutex);
-			   mRGBLed.pwrOff();
-
-			   LOG(INFO) << "RGBLed PwrOff";
-		   }
-		   else
-		   {
-			   std::lock_guard<std::mutex> lk_guard(mLedMutex);
-
-			   mRGBLed.luminance(mLuminance);
-		   }
-	   }
-   }
-   std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
-
-   if (memorizedLuminance > 0)
-   {
-	   mLuminance = memorizedLuminance;
-   }
-
-   LOG(INFO) << "Thread Exit";
-
-}
-
-void Light::autoOffThread()
-{
-	pthread_setname_np(pthread_self(), "Light AutoOff");
-
-	int countDownSeconds = AUTO_OFF_MINUTES * 60;
-	while (mAutoOffThreadRunning)
-	{
-	   std::this_thread::sleep_for(std::chrono::seconds(1));
-	   --countDownSeconds;
-	   if (countDownSeconds == 0)
-	   {
-
-		   mAutoOffThreadRunning = false;
-		   std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
-
-		   LOG(INFO) << "Light auto off";
-		   pwrOff(true);
-	   }
-	}
+	mCurrentLuminance = 0;
+	mRGBLed.luminance(mCurrentLuminance);
+	mRGBLed.pwrOff();
+	mPowerOn = false;
 }
 } /* namespace Hardware */

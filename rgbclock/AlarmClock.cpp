@@ -184,7 +184,7 @@ void AlarmClock::startAlarm()
 
 	if (mLight)
 	{
-		mLight->pwrSlowOn();
+		mLight->pwrOn(true);
 	}
 
 }
