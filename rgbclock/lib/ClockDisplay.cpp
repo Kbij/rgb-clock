@@ -125,14 +125,14 @@ void ClockDisplay::radioStateUpdate(RadioInfo radioInfo)
 	mRadioOn = radioInfo.mState == RadioState::PwrOn;
 }
 
-void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, Hardware::KeyboardState state)
+void ClockDisplay::keyboardPressed(const KeyboardInfo& keyboardInfo)
 {
 	mBackLight.signalUserActivity();
 
 
-	if (keyboardInfo[KEY_LEFT].mLongPress && !(keyboardInfo[KEY_LEFT].mRepeat))
+	if (keyboardInfo.mKeyInfo[KEY_LEFT].mLongPress && !(keyboardInfo.mKeyInfo[KEY_LEFT].mRepeat))
 	{
-		if (state == KeyboardState::stNormal)
+		if (keyboardInfo.mState == KeyboardState::stNormal)
 		{
 			App::AlarmList* alarms = mAlarmManager.editAlarms(mUnitName);
 			if (alarms)
@@ -146,7 +146,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 			}
 		}
 		else
-			if (state == KeyboardState::stAlarmEdit)
+			if (keyboardInfo.mState == KeyboardState::stAlarmEdit)
 			{
 				mKeyboard.keyboardState(KeyboardState::stNormal);
 				mAlarmManager.saveAlarms(mUnitName);
@@ -164,7 +164,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 		{
 			if (mEditState == EditState::edListAlarms)
 			{
-				if (((keyboardInfo[KEY_CENTRAL_L].mLongPress && !keyboardInfo[KEY_CENTRAL_L].mRepeat) ||  (keyboardInfo[KEY_CENTRAL_R].mLongPress && !keyboardInfo[KEY_CENTRAL_R].mRepeat))
+				if (((keyboardInfo.mKeyInfo[KEY_CENTRAL_L].mLongPress && !keyboardInfo.mKeyInfo[KEY_CENTRAL_L].mRepeat) ||  (keyboardInfo.mKeyInfo[KEY_CENTRAL_R].mLongPress && !keyboardInfo.mKeyInfo[KEY_CENTRAL_R].mRepeat))
 					&& (mAlarmEditIndex < alarms->size()))
 				{
 					LOG(INFO) << "Confirm delete";
@@ -176,7 +176,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 					return;
 				}
 
-				if (keyboardInfo[KEY_CENTRAL_R].mShortPressed)
+				if (keyboardInfo.mKeyInfo[KEY_CENTRAL_R].mShortPressed)
 				{
 					if (mAlarmEditIndex == alarms->size()) // add a new alarm
 					{
@@ -196,7 +196,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 				}
 
 				// Up and down must be interpresed in reverse order (be consistent with the display order in the list)
-				if (keyboardInfo[KEY_DOWN].mShortPressed)
+				if (keyboardInfo.mKeyInfo[KEY_DOWN].mShortPressed)
 				{
 					++mAlarmEditIndex;
 					if (mAlarmEditIndex > alarms->size()) // last pos: new alarm
@@ -208,7 +208,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 					return;
 				}
 
-				if (keyboardInfo[KEY_UP].mShortPressed)
+				if (keyboardInfo.mKeyInfo[KEY_UP].mShortPressed)
 				{
 					if (mAlarmEditIndex > 0)
 					{
@@ -222,13 +222,13 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 
 			if (mEditState == EditState::edConfirmDelete)
 			{
-				if (keyboardInfo[KEY_DOWN].mShortPressed || keyboardInfo[KEY_UP].mShortPressed )
+				if (keyboardInfo.mKeyInfo[KEY_DOWN].mShortPressed || keyboardInfo.mKeyInfo[KEY_UP].mShortPressed )
 				{
 					mConfirmDelete = ! mConfirmDelete;
 					mUpdateEditDisplay = true;
 					return;
 				}
-				if (keyboardInfo[KEY_CENTRAL_L].mShortPressed || keyboardInfo[KEY_CENTRAL_R].mShortPressed )
+				if (keyboardInfo.mKeyInfo[KEY_CENTRAL_L].mShortPressed || keyboardInfo.mKeyInfo[KEY_CENTRAL_R].mShortPressed )
 				{
 					if (mConfirmDelete)
 					{
@@ -256,7 +256,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 
 				// When you immediately edit a alarm after it was triggered
 				alarm.mSignalled = false;
-				if (keyboardInfo[KEY_CENTRAL_R].mShortPressed)
+				if (keyboardInfo.mKeyInfo[KEY_CENTRAL_R].mShortPressed)
 				{
 					switch(mEditPos)
 					{
@@ -342,7 +342,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 					mUpdateEditDisplay = true;
 				}
 
-				if (keyboardInfo[KEY_CENTRAL_L].mShortPressed)
+				if (keyboardInfo.mKeyInfo[KEY_CENTRAL_L].mShortPressed)
 				{
 					switch(mEditPos)
 					{
@@ -428,7 +428,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 					mUpdateEditDisplay = true;
 				}
 
-				if (keyboardInfo[KEY_DOWN].mShortPressed)
+				if (keyboardInfo.mKeyInfo[KEY_DOWN].mShortPressed)
 				{
 					switch(mEditPos)
 					{
@@ -529,7 +529,7 @@ void ClockDisplay::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboar
 					mUpdateEditDisplay = true;
 				}
 
-				if (keyboardInfo[KEY_UP].mShortPressed)
+				if (keyboardInfo.mKeyInfo[KEY_UP].mShortPressed)
 				{
 					switch(mEditPos)
 					{

@@ -38,7 +38,7 @@ public:
 	void up(int step);
 	void down(int step);
 
-	void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, Hardware::KeyboardState state);
+	void keyboardPressed(const KeyboardInfo& keyboardInfo);
 
 	bool isAttached();
 

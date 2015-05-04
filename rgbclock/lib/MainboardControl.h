@@ -39,7 +39,7 @@ public:
 	MainboardControl(I2C &i2c, uint8_t hwrevision, uint8_t address, bool enableWatchdog);
 	virtual ~MainboardControl();
 
-	void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, KeyboardState state);
+	void keyboardPressed(const KeyboardInfo& keyboardInfo);
 
 	void promiseWatchdog(WatchdogFeederIf *watchdogFeeder, int timeoutMiliseconds);
 	void removePromise(WatchdogFeederIf *watchdogFeeder);

@@ -36,12 +36,17 @@ Keyboard::Keyboard(I2C &i2c, uint8_t address, Hardware::MainboardControl &mainbo
 	mReadThread(nullptr),
 	mReadThreadRunning(false),
 	mKeyboardObservers(),
-	mKeyboardObserversMutex()
+	mKeyboardObserversMutex(),
+	mKeyboardWorkerRunning(false),
+	mKeyboardWorkerThread(),
+	mKeyboardQueue(),
+	mKeyboardQueueMutex()
 {
 	mI2C.registerAddress(address, "MPR121");
 	mKeyHistory.resize(MONITORED_KEYS, 0); // Monitoring 9 Keys
 	init();
 	startReadThread();
+	startKeyboardWorkerThread();
 }
 
 Keyboard::~Keyboard()
@@ -50,6 +55,7 @@ Keyboard::~Keyboard()
 	mMainboardControl.removePromise(this);
 
 	stopReadThread();
+	stopKeyboardWorkerThread();
 	LOG(INFO) << "Keyboard destructor exit";
 }
 
@@ -256,12 +262,11 @@ void Keyboard::stopReadThread()
 
 void Keyboard::readThread()
 {
-	pthread_setname_np(pthread_self(), "Keyboard");
+	pthread_setname_np(pthread_self(), "KeyboardReader");
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-	// Radio off can take some time (processed from in this thread)
-	mMainboardControl.promiseWatchdog(this, 5000);
+	mMainboardControl.promiseWatchdog(this, 500);
 
     while (mReadThreadRunning == true)
     {
@@ -327,6 +332,7 @@ void Keyboard::readThread()
 
         if (stateChange)
         {
+        	/*
         	std::lock_guard<std::recursive_mutex> lk_guard1(mKeyboardObserversMutex);
             std::lock_guard<std::recursive_mutex> lk_guard2(mKeyboardStateMutex);
             auto initialKeyboardState = mKeyboardState;
@@ -334,10 +340,80 @@ void Keyboard::readThread()
             {
             	if (initialKeyboardState == mKeyboardState)
             	{
-                    observer->keyboardPressed(keyboardInfo, mKeyboardState);
+            		KeyboardInfo keyboard(keyboardInfo, mKeyboardState);
+                    observer->keyboardPressed(keyboard);
             	}
             }
+            */
+			std::lock_guard<std::mutex> lk_guard(mKeyboardQueueMutex);
+    		KeyboardInfo keyboard(keyboardInfo, mKeyboardState);
+        	mKeyboardQueue.push(keyboard);
+
         }
     }
 }
+
+void Keyboard::startKeyboardWorkerThread()
+{
+	mKeyboardWorkerRunning = true;
+
+    // create worker thread and start it
+	mKeyboardWorkerThread = std::unique_ptr<std::thread>(new std::thread(&Keyboard::keyboardWorkerThread, this));
+}
+
+void Keyboard::stopKeyboardWorkerThread()
+{
+	mKeyboardWorkerRunning = false;
+
+    if (mKeyboardWorkerThread)
+    {
+        // wait for alarm maintenance thread to finish and delete maintenance thread object
+    	mKeyboardWorkerThread->join();
+    	mKeyboardWorkerThread.reset();
+    }
+}
+
+void Keyboard::keyboardWorkerThread()
+{
+	pthread_setname_np(pthread_self(), "KeyboardWorker");
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+	// Radio off can take some time (processed from in this thread)
+	mMainboardControl.promiseWatchdog(this, 5000);
+
+    while (mKeyboardWorkerRunning == true)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+
+        // Lock the queue for a minimal of time
+    	int queueSize = 0;
+        {
+			std::lock_guard<std::mutex> lk_guard(mKeyboardQueueMutex);
+        	queueSize = mKeyboardQueue.size();
+        }
+    	while (queueSize > 0)
+    	{
+    		KeyboardInfo keyboardInfo;
+    		{
+    			std::lock_guard<std::mutex> lk_guard(mKeyboardQueueMutex);
+    			keyboardInfo = mKeyboardQueue.front();
+    			mKeyboardQueue.pop();
+    		}
+
+        	std::lock_guard<std::recursive_mutex> lk_guard(mKeyboardObserversMutex);
+            for (auto observer : mKeyboardObservers)
+            {
+            	observer->keyboardPressed(keyboardInfo);
+            }
+
+            {
+    			std::lock_guard<std::mutex> lk_guard(mKeyboardQueueMutex);
+            	queueSize = mKeyboardQueue.size();
+            }
+    	}
+
+    }
+}
+
 }

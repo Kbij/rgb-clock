@@ -86,17 +86,17 @@ MainboardControl::~MainboardControl()
 	LOG(INFO) << "MainboardControl destructor exit";
 }
 
-void MainboardControl::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, KeyboardState state)
+void MainboardControl::keyboardPressed(const KeyboardInfo& keyboardInfo)
 {
 	if (mHwRevision == 1)
 	{
 		return;
 	}
 
-	mRelaisBus[RL_U17] = keyboardInfo[KEY_REL1].mPressed;
-	mRelaisBus[RL_U16] = keyboardInfo[KEY_REL2].mPressed;
-	mRelaisBus[RL_U15] = keyboardInfo[KEY_REL3].mPressed;
-	mRelaisBus[RL_U14] = keyboardInfo[KEY_REL4].mPressed;
+	mRelaisBus[RL_U17] = keyboardInfo.mKeyInfo[KEY_REL1].mPressed;
+	mRelaisBus[RL_U16] = keyboardInfo.mKeyInfo[KEY_REL2].mPressed;
+	mRelaisBus[RL_U15] = keyboardInfo.mKeyInfo[KEY_REL3].mPressed;
+	mRelaisBus[RL_U14] = keyboardInfo.mKeyInfo[KEY_REL4].mPressed;
 
 	mIO.writeA(mRelaisBus.to_ulong());
 }

@@ -32,26 +32,20 @@ UpDownTimer::~UpDownTimer()
 
 void UpDownTimer::initiateUp(int target, int timeSeconds)
 {
-	LOG(INFO) << __PRETTY_FUNCTION__ << "1";
     std::lock_guard<std::mutex> lk_guard(mThreadMutex);
-	LOG(INFO) << __PRETTY_FUNCTION__ << "2";
 
 	calculate(target, timeSeconds);
 	mDown = false;
 	startDimmerThread();
-	LOG(INFO) << __PRETTY_FUNCTION__ << "3";
 }
 
 void UpDownTimer::initiateDown(int current, int timeSeconds)
 {
-	LOG(INFO) << __PRETTY_FUNCTION__ << "1";
     std::lock_guard<std::mutex> lk_guard(mThreadMutex);
-	LOG(INFO) << __PRETTY_FUNCTION__ << "2";
 
 	calculate(current, timeSeconds);
 	mDown = true;
 	startDimmerThread();
-	LOG(INFO) << __PRETTY_FUNCTION__ << "3";
 }
 
 void UpDownTimer::cancelDimmer()

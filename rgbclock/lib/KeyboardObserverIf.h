@@ -39,12 +39,24 @@ struct KeyInfo
 	bool mRepeat;
 };
 
+struct KeyboardInfo
+{
+	std::vector<KeyInfo> mKeyInfo;
+	KeyboardState mState;
+	KeyboardInfo(){};
+	KeyboardInfo(std::vector<KeyInfo> keyInfo, KeyboardState keyboardState):
+		mKeyInfo(keyInfo),
+		mState(keyboardState)
+	{
+	}
+};
+
 class KeyboardObserverIf
 {
 public:
     virtual ~KeyboardObserverIf() {};
 
-    virtual void keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, KeyboardState state) = 0;
+    virtual void keyboardPressed(const KeyboardInfo& keyboardInfo) = 0;
 };
 }
 

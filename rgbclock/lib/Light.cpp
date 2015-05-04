@@ -44,13 +44,11 @@ Light::~Light()
 
 void Light::pwrOn(bool slow)
 {
-	LOG(INFO) << __PRETTY_FUNCTION__ << "1";
     mAutoPowerOffTimer.cancelAutoPowerOff();
     mUpDownTimer.cancelDimmer();
 	bool startTimers = false;
     {
 		std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
-		LOG(INFO) << __PRETTY_FUNCTION__ << "2";
 		if (!mPowerOn)
 		{
 			mPowerDownInitiated = false;
@@ -64,14 +62,11 @@ void Light::pwrOn(bool slow)
 		slow ? initiateSlowUp() : initiateFastUp();
 		mAutoPowerOffTimer.startAutoPowerOff(AUTO_OFF_MINUTES);
     }
-	LOG(INFO) << __PRETTY_FUNCTION__ << "3";
 }
 
 void Light::pwrOff()
 {
-	LOG(INFO) << __PRETTY_FUNCTION__ << "1";
     mAutoPowerOffTimer.cancelAutoPowerOff();
-	LOG(INFO) << __PRETTY_FUNCTION__ << "2";
 	bool startTimers = false;
 	{
 	    std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
@@ -87,7 +82,6 @@ void Light::pwrOff()
 	{
 		initiateFastDown();
 	}
-	LOG(INFO) << __PRETTY_FUNCTION__ << "3";
 }
 
 void Light::pwrToggle()
@@ -97,9 +91,7 @@ void Light::pwrToggle()
 
 void Light::up(int step)
 {
-//	LOG(INFO) << __PRETTY_FUNCTION__ << "1";
     std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
-//	LOG(INFO) << __PRETTY_FUNCTION__ << "2";
     if (mPowerOn)
     {
 		mCurrentLuminance += step;
@@ -110,15 +102,12 @@ void Light::up(int step)
 
 		mRGBLed.luminance(mCurrentLuminance);
     }
-//	LOG(INFO) << __PRETTY_FUNCTION__ << "3";
 }
 
 void Light::down(int step)
 {
-//	LOG(INFO) << __PRETTY_FUNCTION__ << "1";
 
     std::lock_guard<std::mutex> lk_guard(mDimmerMutex);
-	//LOG(INFO) << __PRETTY_FUNCTION__ << "2";
     if (mPowerOn)
     {
         mCurrentLuminance -= step;
@@ -135,28 +124,27 @@ void Light::down(int step)
     		internalPwrOff();
     	}
     }
-//	LOG(INFO) << __PRETTY_FUNCTION__ << "3";
 }
 
-void Light::keyboardPressed(const std::vector<KeyInfo>& keyboardInfo, KeyboardState state)
+void Light::keyboardPressed(const KeyboardInfo& keyboardInfo)
 {
 	// keyboard actions only invoke public methods that are protected by the DimmerMutex
-	if (state != KeyboardState::stNormal)
+	if (keyboardInfo.mState != KeyboardState::stNormal)
 	{
 		return;
 	}
 
-	if (keyboardInfo[KEY_CENTRAL_L].mShortPressed || keyboardInfo[KEY_CENTRAL_R].mShortPressed)
+	if (keyboardInfo.mKeyInfo[KEY_CENTRAL_L].mShortPressed || keyboardInfo.mKeyInfo[KEY_CENTRAL_R].mShortPressed)
 	{
 		pwrToggle();
 	}
 
-	if (keyboardInfo[KEY_CENTRAL_L].mReleased || keyboardInfo[KEY_CENTRAL_R].mReleased)
+	if (keyboardInfo.mKeyInfo[KEY_CENTRAL_L].mReleased || keyboardInfo.mKeyInfo[KEY_CENTRAL_R].mReleased)
 	{
 		mDimDown = !mDimDown;
 	}
 
-	if (keyboardInfo[KEY_CENTRAL_L].mLongPress || keyboardInfo[KEY_CENTRAL_R].mLongPress)
+	if (keyboardInfo.mKeyInfo[KEY_CENTRAL_L].mLongPress || keyboardInfo.mKeyInfo[KEY_CENTRAL_R].mLongPress)
 	{
 
 		if (mPowerOn)

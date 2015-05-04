@@ -16,6 +16,7 @@
 #include <thread>
 #include <set>
 #include <memory>
+#include <queue>
 
 namespace Hardware
 {
@@ -40,6 +41,10 @@ private:
 	void stopReadThread();
 	void readThread();
 
+	void startKeyboardWorkerThread();
+	void stopKeyboardWorkerThread();
+	void keyboardWorkerThread();
+
 	I2C &mI2C;
 	std::atomic_bool mAttached;
 	const uint8_t mAddress;
@@ -52,6 +57,10 @@ private:
     std::set<KeyboardObserverIf*> mKeyboardObservers;
     std::recursive_mutex mKeyboardObserversMutex;
 
+    std::atomic_bool mKeyboardWorkerRunning;
+    std::unique_ptr<std::thread> mKeyboardWorkerThread;
+    std::queue<KeyboardInfo> mKeyboardQueue;
+    std::mutex	mKeyboardQueueMutex;
 };
 
 }

@@ -73,19 +73,19 @@ void Radio::unRegisterRadioObserver(RadioObserverIf *observer)
     }
 }
 
-void Radio::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, KeyboardState state)
+void Radio::keyboardPressed(const KeyboardInfo& keyboardInfo)
 {
-	if ((state == KeyboardState::stNormal) || (state == KeyboardState::stAlarmActive))
+	if ((keyboardInfo.mState == KeyboardState::stNormal) || (keyboardInfo.mState == KeyboardState::stAlarmActive))
 	{
 		if (mState == RadioState::PwrOn)
 		{
-			if (keyboardInfo[KEY_UP].mShortPressed || keyboardInfo[KEY_UP].mLongPress)
+			if (keyboardInfo.mKeyInfo[KEY_UP].mShortPressed || keyboardInfo.mKeyInfo[KEY_UP].mLongPress)
 			{
 				volumeUp();
 				//if slowvolume up would be running -> stop
 				mMaintenanceThreadRunning = false;
 			}
-			if (keyboardInfo[KEY_DOWN].mShortPressed || keyboardInfo[KEY_DOWN].mLongPress)
+			if (keyboardInfo.mKeyInfo[KEY_DOWN].mShortPressed || keyboardInfo.mKeyInfo[KEY_DOWN].mLongPress)
 			{
 				volumeDown();
 				//if slowvolume up would be running -> stop
@@ -94,9 +94,9 @@ void Radio::keyboardPressed(const std::vector<Hardware::KeyInfo>& keyboardInfo, 
 		}
 	}
 
-	if (state == KeyboardState::stNormal)
+	if (keyboardInfo.mState == KeyboardState::stNormal)
 	{
-		if (keyboardInfo[KEY_LEFT].mShortPressed)
+		if (keyboardInfo.mKeyInfo[KEY_LEFT].mShortPressed)
 		{
 			switch (mState)
 			{
