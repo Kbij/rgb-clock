@@ -26,7 +26,8 @@ namespace Hardware
 {
 class I2C;
 
-class Light : public KeyboardObserverIf, public AutoPowerOffDeviceIf, public UpDownDeviceIf {
+class Light : public KeyboardObserverIf, public AutoPowerOffDeviceIf, public UpDownDeviceIf
+{
 public:
 	Light(I2C &i2c, uint8_t address);
 	virtual ~Light();

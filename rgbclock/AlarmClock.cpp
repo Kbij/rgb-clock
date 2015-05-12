@@ -132,7 +132,7 @@ void AlarmClock::alarmSnooze()
 	{
 		mClockState = ClockState::clkSnooze;
 		mDisplay.signalClockState(mClockState);
-		mRadio.powerOff();
+		mRadio.pwrOff();
 
 		std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
 
@@ -152,7 +152,7 @@ void AlarmClock::alarmOff()
 	{
 		if (mClockState == ClockState::clkAlarm)
 		{
-			mRadio.powerOff();
+			mRadio.pwrOff();
 		}
 
 		mClockState = ClockState::clkNormal;
@@ -178,7 +178,7 @@ void AlarmClock::startAlarm()
 	mAlarmCounter = 0;
 
 	mKeyboard.keyboardState(Hardware::KeyboardState::stAlarmActive);
-	mRadio.slowPowerOn(mAlarmVolume);
+	mRadio.pwrOn(mAlarmVolume);
 
 	std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
 
@@ -233,7 +233,7 @@ void AlarmClock::alarmMaintenanceThread()
 						mDisplay.signalClockState(mClockState);
 
 						mKeyboard.keyboardState(Hardware::KeyboardState::stNormal);
-						mRadio.powerOff();
+						mRadio.pwrOff();
 
 						std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
 
