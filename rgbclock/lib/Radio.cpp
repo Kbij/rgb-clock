@@ -144,6 +144,10 @@ void Radio::pwrOff()
 {
 	LOG(INFO) << "Radio Off";
     std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
+    mAutoPowerOffTimer.cancelAutoPowerOff();
+    mUpDownTimer.cancelDimmer();
+
+
     mStoredVolume = mCurrentVolume;
 
 	mState = RadioState::PwrOff;
