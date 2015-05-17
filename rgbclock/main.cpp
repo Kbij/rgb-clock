@@ -25,7 +25,7 @@
 #include <memory>
 #include <pthread.h>
 #include <iostream>
-
+#include <fstream>
 
 DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
 DEFINE_string(pidfile,"","Pid file when running as Daemon");
@@ -164,7 +164,6 @@ void daemonize()
 
 int main (int argc, char* argv[])
 {
-    umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //User: r/w, Group: r, Other: r
 	std::string usage("Raspberry Pi Ultimate Alarm Clock. Sample usage:\n");
 	usage += argv[0];
 	google::SetUsageMessage(usage);
@@ -184,7 +183,6 @@ int main (int argc, char* argv[])
 
 		// Start the RTC clock first; need to have a valid date/time for logging
 		// Don't use any glog functions @constructor time of RTC
-        umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //User: r/w, Group: r, Other: r
 		google::InitGoogleLogging("RGBClock");
 
 		LOG(INFO) << "Raspberry Pi Ultimate Alarm Clock";
