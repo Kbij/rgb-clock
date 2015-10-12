@@ -41,6 +41,9 @@ const int POS_DAY_FR = 126;
 const int POS_DAY_SA = 132;
 
 const int POS_VOLUME = 148;
+
+const int EDIT_TIMEOUT_MILLISECONDS = 1 * 60 * 1000;
+const int THREAD_INTERVAL_MS = 250;
 }
 
 namespace Hardware
@@ -68,7 +71,8 @@ ClockDisplay::ClockDisplay(I2C &i2c, RTC &rtc, Keyboard& keyboard, App::AlarmMan
 	mAlarmEditIndex(0),
 	mConfirmDelete(false),
 	mClockState(App::ClockState::clkNormal),
-	mUpdateEditDisplay(false)
+	mUpdateEditDisplay(false),
+	mEditAlarmsTimer(0)
 {
 	mLCDisplay.initGraphic();
 	mLCDisplay.clearGraphicDisplay();
@@ -129,7 +133,6 @@ void ClockDisplay::keyboardPressed(const KeyboardInfo& keyboardInfo)
 {
 	mBackLight.signalUserActivity();
 
-
 	if (keyboardInfo.mKeyInfo[KEY_LEFT].mLongPress && !(keyboardInfo.mKeyInfo[KEY_LEFT].mRepeat))
 	{
 		if (keyboardInfo.mState == KeyboardState::stNormal)
@@ -148,17 +151,13 @@ void ClockDisplay::keyboardPressed(const KeyboardInfo& keyboardInfo)
 		else
 			if (keyboardInfo.mState == KeyboardState::stAlarmEdit)
 			{
-				mKeyboard.keyboardState(KeyboardState::stNormal);
-				mAlarmManager.saveAlarms(mUnitName);
-				mDisplayState = DisplayState::stNormal;
-				mEditState = EditState::edListAlarms;
-				mLCDisplay.clearGraphicDisplay();
-				mForceRefresh = true;
+				exitEditAlarms();
 			}
 	}
 
 	if (mDisplayState == DisplayState::stEditAlarms)
 	{
+		mEditAlarmsTimer = EDIT_TIMEOUT_MILLISECONDS;
 		App::AlarmList* alarms = mAlarmManager.editAlarms(mUnitName);
 		if (alarms)
 		{
@@ -724,6 +723,16 @@ void ClockDisplay::writeAlarm(int line, const App::Alarm& alarm)
 
 }
 
+void ClockDisplay::exitEditAlarms()
+{
+	mKeyboard.keyboardState(KeyboardState::stNormal);
+	mAlarmManager.saveAlarms(mUnitName);
+	mDisplayState = DisplayState::stNormal;
+	mEditState = EditState::edListAlarms;
+	mLCDisplay.clearGraphicDisplay();
+	mForceRefresh = true;
+}
+
 void ClockDisplay::drawVolume()
 {
 	std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
@@ -866,7 +875,7 @@ void ClockDisplay::refreshThread()
     while (mRefreshThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        std::this_thread::sleep_for(std::chrono::milliseconds(THREAD_INTERVAL_MS));
 
         if (mDisplayState == DisplayState::stNormal)
         {
@@ -923,6 +932,11 @@ void ClockDisplay::refreshThread()
         		updateEditDisplay();
         		mUpdateEditDisplay = false;
         	}
+        	mEditAlarmsTimer -= THREAD_INTERVAL_MS;
+			if (mEditAlarmsTimer <= 0)
+			{
+				exitEditAlarms();
+			}
         }
     }
 }

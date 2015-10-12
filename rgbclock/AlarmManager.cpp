@@ -97,9 +97,10 @@ void AlarmManager::saveAlarms(std::string unitName)
 
 std::string AlarmManager::nextAlarm(std::string unitName)
 {
-	std::lock_guard<std::mutex> lk_guard(mNextAlarmMapMutex);
+	std::lock_guard<std::mutex> lk_guard1(mNextAlarmMapMutex);
+	std::lock_guard<std::mutex> lk_guard2(mAlarmsMutex);
 
-	if (mNextAlarmMap.find(unitName) != mNextAlarmMap.end())
+	if ((mCurrentEditor == "") && (mNextAlarmMap.find(unitName) != mNextAlarmMap.end()))
 	{
 		return mNextAlarmMap[unitName].to_string();
 	}

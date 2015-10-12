@@ -87,6 +87,7 @@ private:
 
 	void updateEditDisplay();
 	void writeAlarm(int line, const App::Alarm& alarm);
+	void exitEditAlarms();
 
 	void drawVolume();
     void eraseVolume();
@@ -129,6 +130,7 @@ private:
     bool mConfirmDelete;
     App::ClockState mClockState;
     std::atomic_bool mUpdateEditDisplay;
+    std::atomic_int mEditAlarmsTimer;
 
 };
 }
