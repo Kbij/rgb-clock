@@ -1,0 +1,1 @@
+set (RGBCLOCK_PLATFORM "x86")
