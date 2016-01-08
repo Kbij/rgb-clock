@@ -1,0 +1,107 @@
+#!/bin/bash
+[ -z $BASH ] || shopt -s expand_aliases
+alias BEGINCOMMENT="if [ ]; then"
+alias ENDCOMMENT="fi"
+
+
+echo "Building RgbClock libraries"
+cwd=$(pwd)
+
+args=("$@")
+#echo arguments to the shell
+
+if [ -z ${args[0]+x} ]; then 
+         echo "Please specify one of the plaforms"; 
+         echo "arm";
+         echo "x86";
+         exit 1
+fi
+
+if [ "${args[0]}" == "arm" ]; then 
+         platform=arm
+fi
+if [ "${args[0]}" == "x86" ]; then 
+         platform=x86
+fi
+
+if [ "$platform" == "" ]; then
+         echo "Unknown platform: " ${args[0]}
+         exit 1
+fi
+echo "Building for platform: " $platform
+
+
+
+export PKG_CONFIG_PATH=$cwd/sysroot-$platform/lib/pkgconfig
+export LD_LIBRARY_PATH=$cwd/sysroot-$platform/lib
+mkdir -p ./sysroot-$platform
+sysroot=`cd ./sysroot-$platform/; pwd`
+
+echo "Sysroot: " $sysroot
+mkdir -p $sysroot
+
+
+#export PATH=$cwd/../toolchain/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux/bin:$PATH
+#echo "Path: " $PATH
+
+
+if [ "$platform" == "arm" ]; then
+         export CC=arm-linux-gnueabihf-gcc
+         export CXX=arm-linux-gnueabihf-g++
+         export AR=arm-linux-gnueabihf-ar
+         export AS=arm-linux-gnueabihf-as
+         export LD=arm-linux-gnueabihf-ld
+fi
+
+
+#Check for gflags
+if [ ! -f ./buildlibs/gflags-master/CMakeLists.txt ]; then
+    echo "Unpacking gflags"
+    unzip  ./buildlibs/gflags-master.zip -d ./buildlibs
+fi
+
+mkdir -p ./buildlibs/libgflags-$platform
+cd ./buildlibs/libgflags-$platform/
+if [ "$platform" == "arm" ]; then
+         cp ../toolchain-arm.cmake .
+         cmake ../gflags-master -DCMAKE_TOOLCHAIN_FILE=toolchain-arm.cmake -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+fi
+if [ "$platform" == "x86" ]; then
+         cmake ../gflags-master -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+fi
+make
+make install
+cd $cwd
+
+#Check for glog
+if [ ! -f ./buildlibs/glog-master/CMakeLists.txt ]; then
+    echo "Unpacking glog"
+    unzip  ./buildlibs/glog-master.zip -d ./buildlibs
+fi
+
+mkdir -p ./buildlibs/libglog-$platform
+cd ./buildlibs/libglog-$platform/
+if [ "$platform" == "arm" ]; then
+         cp ../toolchain-arm.cmake .
+         cmake ../glog-master -DCMAKE_TOOLCHAIN_FILE=toolchain-arm.cmake -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+fi
+if [ "$platform" == "x86" ]; then
+         cmake ../glog-master -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+fi
+make
+make install
+cd $cwd
+
+#Check for tinyXml
+if [ ! -f ./buildlibs/ticpp-master/CMakeLists.txt ]; then
+    echo "Unpacking tinyxml"
+    unzip  ./buildlibs/ticpp-master.zip -d ./buildlibs
+fi
+
+#mkdir -p ./buildlibs/libticpp-$platform
+cp ./buildlibs/CMakeLists-tinyxml.txt ./buildlibs/ticpp-master/CMakeLists.txt
+
+
+
+
+

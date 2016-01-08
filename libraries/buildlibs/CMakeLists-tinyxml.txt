@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 2.8)
+
+#INCLUDE_DIRECTORIES(${SYSROOT}/include)
+include_directories( ./ )
+
+file(GLOB lib_SRC
+    "./*.h"
+    "./*.cpp"
+)
+
+add_library (TinyXml ${lib_SRC})
+
