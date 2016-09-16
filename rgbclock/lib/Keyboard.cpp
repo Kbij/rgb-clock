@@ -299,9 +299,9 @@ void Keyboard::readThread()
     		// Key just pressed, or released
     		stateChange |= ((mKeyHistory[i] & 0b10) > 0) != ((mKeyHistory[i] & 0b01) >0) ;
 
-        	if (!(mKeyHistory[i] & 0x01)) // if key is released
+        	if (!(mKeyHistory[i] & 0x01)) // if key is released (least significant bit is cleared)
         	{
-        		if (mKeyHistory[i] > 0x01)
+        		if (mKeyHistory[i] > 0b110) // at least two bits set
         		{
         			if (mKeyHistory[i] < LONG_MASK) //short Pressed
             		{
