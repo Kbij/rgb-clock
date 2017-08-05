@@ -6,7 +6,7 @@
  */
 
 #include "Config.h"
-#include "tinyxml/ticpp.h"
+#include "tinyxml2.h"
 
 #include <glog/logging.h>
 #include <gflags/gflags.h>
@@ -26,7 +26,7 @@ Config::Config():
 
 Config::~Config() {
 }
-
+/*
 //bool getAddress(ticpp::Iterator<ticpp::Element>& unit, const std::string& name, uint8_t& addressValue)
 bool getInteger(ticpp::Element* element, const std::string& name, uint8_t& value)
 {
@@ -52,10 +52,11 @@ bool getDouble(ticpp::Element* element, const std::string& name, double& value, 
 	}
 	return false;
 }
-
+*/
 void Config::loadXML()
 {
 	LOG(INFO) << "Reading settings file: " << FLAGS_configfile;
+	/*
     ticpp::Document configXML(FLAGS_configfile);
 
     try
@@ -97,6 +98,7 @@ void Config::loadXML()
 	}
 
 	mErrorFree = true;
+	*/
 }
 
 bool Config::errorFree()

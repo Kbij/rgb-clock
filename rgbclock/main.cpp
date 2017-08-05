@@ -166,8 +166,8 @@ int main (int argc, char* argv[])
 {
 	std::string usage("Raspberry Pi Ultimate Alarm Clock. Sample usage:\n");
 	usage += argv[0];
-	google::SetUsageMessage(usage);
-	google::ParseCommandLineFlags(&argc, &argv, true);
+	gflags::SetUsageMessage(usage);
+	gflags::ParseCommandLineFlags(&argc, &argv, true);
 
 	registerSignals();
 

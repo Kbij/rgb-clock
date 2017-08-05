@@ -11,7 +11,7 @@
 #include "Config.h"
 #include "lib/MainboardControl.h"
 
-#include "tinyxml/ticpp.h"
+#include "tinyxml2.h"
 
 #include <glog/logging.h>
 #include <gflags/gflags.h>
@@ -160,6 +160,7 @@ void AlarmManager::loadAlarms()
 	if (fileExists(FLAGS_alarmfile))
 	{
 		LOG(INFO) << "Reading Alarm file: " << FLAGS_alarmfile;
+		/*
 	    ticpp::Document alarmsXML(FLAGS_alarmfile);
 
 	    alarmsXML.LoadFile();
@@ -223,12 +224,14 @@ void AlarmManager::loadAlarms()
 	        	// advance to next item
 	        	++alarm;
 	        }
+
 		}
 		catch (const ticpp::Exception& ex)
 		{
 			LOG(ERROR) << "Error reading alarm file: " << ex.what();
 			return;
 		}
+		*/
 	}
 	else
 	{
@@ -240,7 +243,9 @@ void AlarmManager::loadAlarms()
 
 void AlarmManager::saveAlarms()
 {
+	/*
 	TiXmlDocument doc;
+
  	TiXmlDeclaration* decl = new TiXmlDeclaration( "1.0", "UTF-8", "" );
 	doc.LinkEndChild( decl );
 
@@ -284,6 +289,7 @@ void AlarmManager::saveAlarms()
 	}
 
 	doc.SaveFile(FLAGS_alarmfile);
+	*/
 }
 
 void AlarmManager::startAlarmThread()
