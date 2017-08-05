@@ -16,16 +16,22 @@ else()
 endif()
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin-${RGBCLOCK_PLATFORM})
-set (SYSROOT ${CMAKE_CURRENT_SOURCE_DIR}/libraries/sysroot-${RGBCLOCK_PLATFORM})
-message(STATUS "Sysroot: " ${SYSROOT})
+#set (SYSROOT ${CMAKE_CURRENT_SOURCE_DIR}/libraries/sysroot-${RGBCLOCK_PLATFORM})
+#message(STATUS "Sysroot: " ${SYSROOT})
 set(BUILD_STATIC_LIBS ON)
 
+list(INSERT CMAKE_MODULE_PATH 0 "./libraries/gflags")
+message(STATUS "gflags: " ${gflags_DIR})
+
 #add_subdirectory (./libraries/buildlibs/ticpp-master)
+#Needed for the generation of the log include files
 find_package (glog 0.3.5 REQUIRED)
 add_subdirectory (./libraries/gflags)
+add_subdirectory (./libraries/glog)
+
 add_subdirectory (./libraries/tinyxml2)
 #find_package (gflags)
 #add_subdirectory (./libraries/glog)
 
-add_subdirectory (./rgbclock)
-
+add_subdirectory (./RgbLib)
+#add_subdirectory (./RgbApp)
