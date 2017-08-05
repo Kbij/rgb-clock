@@ -1,21 +1,19 @@
-cmake_minimum_required (VERSION 2.8.11)
-INCLUDE_DIRECTORIES(${SYSROOT}/include)
-INCLUDE_DIRECTORIES( ./ )
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHOSTBUILD")
-file(GLOB exe_SRC
-    "./*.h"
-    "./*.cpp"
-    "./lib/*.h"
-    "./lib/*.cpp"
-)
-link_directories(${SYSROOT}/lib)
-add_executable (RgbClock ${exe_SRC})
-#target_link_libraries(RgbClock TinyXml)
-target_link_libraries (RgbClock glog::glog)
-target_link_libraries (RgbClock gflags)
-target_link_libraries (RgbClock tinyxml2)
-#target_link_libraries(RgbClock libglog.a)
-#target_link_libraries(RgbClock libgflags.a)
+cmake_minimum_required(VERSION 2.8)
 
+INCLUDE_DIRECTORIES( ./src )
+file(GLOB app_SRC
+    "./src/*.h"
+    "./src/*.cpp"
+)
+add_executable (RgbClock ${app_SRC})
+
+target_link_libraries (RgbClock RgbClockLib)
 target_link_libraries (RgbClock pthread)
 target_link_libraries (RgbClock rt)
+
+
+
+
+
+
+

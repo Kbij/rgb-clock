@@ -34,4 +34,4 @@ add_subdirectory (./libraries/tinyxml2)
 #add_subdirectory (./libraries/glog)
 
 add_subdirectory (./RgbLib)
-#add_subdirectory (./RgbApp)
+add_subdirectory (./RgbApp)
