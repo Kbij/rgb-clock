@@ -18,7 +18,14 @@ endif()
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin-${RGBCLOCK_PLATFORM})
 set (SYSROOT ${CMAKE_CURRENT_SOURCE_DIR}/libraries/sysroot-${RGBCLOCK_PLATFORM})
 message(STATUS "Sysroot: " ${SYSROOT})
+set(BUILD_STATIC_LIBS ON)
 
-add_subdirectory (./libraries/buildlibs/ticpp-master)
+#add_subdirectory (./libraries/buildlibs/ticpp-master)
+find_package (glog 0.3.5 REQUIRED)
+add_subdirectory (./libraries/gflags)
+add_subdirectory (./libraries/tinyxml2)
+#find_package (gflags)
+#add_subdirectory (./libraries/glog)
+
 add_subdirectory (./rgbclock)
 

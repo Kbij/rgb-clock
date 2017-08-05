@@ -1,0 +1,4 @@
+#!/bin/bash
+git clone https://github.com/gflags/gflags.git ./libraries/gflags
+git clone https://github.com/google/glog.git ./libraries/glog
+git clone https://github.com/leethomason/tinyxml2.git ./libraries/tinyxml2
