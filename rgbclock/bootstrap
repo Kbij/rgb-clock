@@ -4,6 +4,11 @@ git clone https://github.com/gflags/gflags.git ./libraries/gflags
 git clone https://github.com/google/glog.git ./libraries/glog
 git clone https://github.com/leethomason/tinyxml2.git ./libraries/tinyxml2
 
+#Run configure in glog lib; so the headerfiles are generated
+cd libraries/glog
+./autogen.sh
+./configure
+cd ../..
 cd build-x86
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=toolchain-x86.cmake ..
 make
