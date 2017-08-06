@@ -28,7 +28,7 @@ message(STATUS "gflags: " ${gflags_DIR})
 find_package (glog 0.3.5 REQUIRED)
 add_subdirectory (./libraries/gflags)
 add_subdirectory (./libraries/glog)
-
+add_subdirectory (./libraries/googletest)
 add_subdirectory (./libraries/tinyxml2)
 #find_package (gflags)
 #add_subdirectory (./libraries/glog)
