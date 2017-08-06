@@ -8,6 +8,9 @@ git clone https://github.com/leethomason/tinyxml2.git ./libraries/tinyxml2
 cd libraries/glog
 ./autogen.sh
 ./configure
+make
+rm .lib/libglog.so
+
 cd ../..
 cd build-x86
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=toolchain-x86.cmake ..
