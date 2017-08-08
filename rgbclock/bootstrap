@@ -1,18 +1,56 @@
 #!/bin/bash
+alias BEGINCOMMENT="if [ ]; then"
+alias ENDCOMMENT="fi"
+cwd=$(pwd)
+
 mkdir -p libraries
+mkdir -p sysroot-x86
 git clone https://github.com/gflags/gflags.git ./libraries/gflags
 git clone https://github.com/google/glog.git ./libraries/glog
 git clone https://github.com/leethomason/tinyxml2.git ./libraries/tinyxml2
 git clone https://github.com/google/googletest.git ./libraries/googletest
 
-#Run configure in glog lib; so the headerfiles are generated
-cd libraries/glog
-./autogen.sh
-./configure
-make
-rm .lib/libglog.so
+#Build and install gflags
+cd $cwd/libraries/gflags
+mkdir -p build
+cd build
+rm -r -f *
+cmake -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-x86/ ..
+make 
+make install
+exit
 
-cd ../..
+#Build and install glog
+cd $cwd/libraries/glog
+mkdir -p build
+cd build
+rm -r -f *
+cmake -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-x86/ -DBUILD_TESTING=OFF ..
+make 
+make install
+
+#Build and install googletest
+cd $cwd/libraries/googletest
+mkdir -p build
+cd build
+rm -r -f *
+cmake -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-x86/ ..
+make 
+make install
+
+#Build and install tinyxml2
+cd $cwd/libraries/tinyxml2
+mkdir -p build
+cd build
+rm -r -f *
+cmake  -DBUILD_SHARED_LIBS:BOOL=OFF -DBUILD_STATIC_LIBS:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-x86/ ..
+make 
+make install
+
+exit
+cd $cwd
+
+
 cd build-x86
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=toolchain-x86.cmake ..
 make

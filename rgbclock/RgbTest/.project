@@ -3,6 +3,7 @@
 	<name>RgbTest</name>
 	<comment></comment>
 	<projects>
+		<project>RgbLib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

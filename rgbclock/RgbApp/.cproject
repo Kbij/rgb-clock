@@ -26,8 +26,7 @@
 								<option id="gnu.cpp.compiler.option.dialect.std.757037364" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.462838105" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RgbLib/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc}/libraries/glog/src&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc}/build-x86/libraries/gflags/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc}/sysroot-x86/include&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1827709565" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -43,16 +42,16 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1747261738" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
 								<option id="gnu.cpp.link.option.paths.1671564420" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RgbLib/Debug}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc}/build-x86/libraries/gflags&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc}/libraries/glog/.libs&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc}/sysroot-x86/lib&quot;"/>
 								</option>
 								<option id="gnu.cpp.link.option.libs.2050753285" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="RgbLib"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glog"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="gflags"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="pthread"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="rt"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glog"/>
 								</option>
-								<option id="gnu.cpp.link.option.flags.690830999" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="-static -lgflags_nothreads -shared -Wl,-Bdynamic" valueType="string"/>
+								<option id="gnu.cpp.link.option.flags.690830999" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="" valueType="string"/>
 								<option id="gnu.cpp.link.option.shared.1577210633" name="Shared (-shared)" superClass="gnu.cpp.link.option.shared" value="false" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1787783045" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

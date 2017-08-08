@@ -32,9 +32,7 @@
 								<option id="gnu.cpp.compiler.option.other.other.1347928143" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -fmax-errors=5" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.include.paths.994232862" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/RgbLib/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc}/libraries/glog/src&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc}/build-x86/libraries/gflags/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc}/libraries/tinyxml2&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc}/sysroot-x86/include&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.348228364" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
