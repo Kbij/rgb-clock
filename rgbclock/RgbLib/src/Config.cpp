@@ -12,11 +12,11 @@
 #include <gflags/gflags.h>
 #include <string>
 
-DEFINE_string(configfile,"settings.xml","XML file containing the addresses of all IC's");
 
 namespace App {
 
-Config::Config():
+Config::Config(const std::string& settingsFile):
+	mSettingsFile(settingsFile),
 	mErrorFree(false),
 	mConfiguredUnits(),
 	mSystemConfig()
@@ -26,11 +26,11 @@ Config::Config():
 
 Config::~Config() {
 }
-/*
+
 //bool getAddress(ticpp::Iterator<ticpp::Element>& unit, const std::string& name, uint8_t& addressValue)
-bool getInteger(ticpp::Element* element, const std::string& name, uint8_t& value)
+bool getInteger(tinyxml2::XMLElement* element, const std::string& name, uint8_t& value)
 {
-	ticpp::Element *integerElement = element->FirstChildElement(name, true);
+	tinyxml2::XMLElement *integerElement = element->FirstChildElement(name.c_str());
 	if ( integerElement != nullptr )
 	{
 		std::string integerString = integerElement->GetText();
@@ -40,9 +40,9 @@ bool getInteger(ticpp::Element* element, const std::string& name, uint8_t& value
 	return false;
 }
 
-bool getDouble(ticpp::Element* element, const std::string& name, double& value, double defaultVal)
+bool getDouble(tinyxml2::XMLElement* element, const std::string& name, double& value, double defaultVal)
 {
-	ticpp::Element *doubleElement = element->FirstChildElement(name, false);
+	tinyxml2::XMLElement *doubleElement = element->FirstChildElement(name.c_str());
 	value = defaultVal;
 	if ( doubleElement != nullptr )
 	{
@@ -52,53 +52,63 @@ bool getDouble(ticpp::Element* element, const std::string& name, double& value, 
 	}
 	return false;
 }
-*/
+
 void Config::loadXML()
 {
-	LOG(INFO) << "Reading settings file: " << FLAGS_configfile;
-	/*
-    ticpp::Document configXML(FLAGS_configfile);
+	LOG(INFO) << "Reading settings file: " << mSettingsFile;
+	tinyxml2::XMLDocument xmlDoc;
 
-    try
-    {
-        configXML.LoadFile();
+	try
+	{
+		tinyxml2::XMLError eResult = xmlDoc.LoadFile(mSettingsFile.c_str());
+		if (eResult != tinyxml2::XML_SUCCESS)
+		{
+			LOG(ERROR) << "Error reading xml: " << eResult;
+			return;
+		}
 
-        ticpp::Element *settings = configXML.FirstChildElement("settings");
+		tinyxml2::XMLElement* settings = xmlDoc.FirstChildElement("settings");
+		if (settings == nullptr)
+		{
+			LOG(ERROR) << "Settings not found";
+			return;
+		}
 
-        getInteger(settings, "hw_revision", mSystemConfig.mHardwareRevision);
-        getInteger(settings, "rtc_addr", mSystemConfig.mRtc);
-        getInteger(settings, "radio_addr", mSystemConfig.mRadio);
-        getDouble(settings, "frequency", mSystemConfig.mFrequency, 94.5);
-        getInteger(settings, "centralio_addr", mSystemConfig.mCentralIO);
-        ticpp::Iterator<ticpp::Element>  unit(settings->FirstChildElement("clockunit"), "clockunit");
-        while ( unit != unit.end() )
-        {
-        	UnitConfig unitSettings;
-        	unit->GetAttribute("name", &unitSettings.mName);
-        	LOG(INFO) << "Unit found: " << unitSettings.mName;
+		getInteger(settings, "hw_revision", mSystemConfig.mHardwareRevision);
+		getInteger(settings, "rtc_addr", mSystemConfig.mRtc);
+		getInteger(settings, "radio_addr", mSystemConfig.mRadio);
+		getDouble(settings, "frequency", mSystemConfig.mFrequency, 94.5);  //StuBru :-)
+		getInteger(settings, "centralio_addr", mSystemConfig.mCentralIO);
+		for (tinyxml2::XMLElement* unit = settings->FirstChildElement("clockunit"); unit != NULL; unit = unit->NextSiblingElement())
+		{
+			UnitConfig unitSettings;
+			const char* name = unit->Attribute("name");
+			if (name)
+			{
+				unitSettings.mName = name;
+	        	LOG(INFO) << "Unit found: " << unitSettings.mName;
 
-        	getInteger(unit.Get(), "light_addr", unitSettings.mLight);
-        	getInteger(unit.Get(), "keyboard_addr", unitSettings.mKeyboard);
-        	getInteger(unit.Get(), "amplifier_addr", unitSettings.mAmplifier);
-        	getInteger(unit.Get(), "lcd_addr", unitSettings.mLCD);
-        	getInteger(unit.Get(), "lightsensor_addr", unitSettings.mLightSensor);
-        	if (mSystemConfig.mHardwareRevision > 1)
-            {
-        		getInteger(unit.Get(), "backlight_addr", unitSettings.mBackLight);
-            }
-        	mConfiguredUnits[unitSettings.mName] = unitSettings;
-        	// advance to next item
-        	++unit;
-        }
+	        	getInteger(unit, "light_addr", unitSettings.mLight);
+	        	getInteger(unit, "keyboard_addr", unitSettings.mKeyboard);
+	        	getInteger(unit, "amplifier_addr", unitSettings.mAmplifier);
+	        	getInteger(unit, "lcd_addr", unitSettings.mLCD);
+	        	getInteger(unit, "lightsensor_addr", unitSettings.mLightSensor);
+	        	if (mSystemConfig.mHardwareRevision > 1)
+	            {
+	        		getInteger(unit, "backlight_addr", unitSettings.mBackLight);
+	            }
+				mConfiguredUnits[unitSettings.mName] = unitSettings;
+			}
+		}
+
 	}
-	catch (const ticpp::Exception& ex)
+	catch (const std::exception& ex)
 	{
 		LOG(ERROR) << "Error reading config file: " << ex.what();
 		return;
 	}
 
 	mErrorFree = true;
-	*/
 }
 
 bool Config::errorFree()
@@ -106,12 +116,12 @@ bool Config::errorFree()
 	return mErrorFree;
 }
 
-const std::map<std::string, UnitConfig>& Config::configuredUnits() const
+std::map<std::string, UnitConfig> Config::configuredUnits() const
 {
 	return mConfiguredUnits;
 }
 
-const SystemConfig& Config::systemConfig() const
+SystemConfig Config::systemConfig() const
 {
 	return mSystemConfig;
 }

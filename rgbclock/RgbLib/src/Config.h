@@ -52,14 +52,15 @@ struct SystemConfig
 
 class Config {
 public:
-	Config();
+	Config(const std::string& settingsFile);
 	virtual ~Config();
 
 	bool errorFree();
-	const std::map<std::string, UnitConfig>& configuredUnits() const;
-	const SystemConfig& systemConfig() const;
+	std::map<std::string, UnitConfig> configuredUnits() const;
+	SystemConfig systemConfig() const;
 
 private:
+	std::string mSettingsFile;
 	bool mErrorFree;
 	std::map<std::string, UnitConfig> mConfiguredUnits;
 	SystemConfig mSystemConfig;

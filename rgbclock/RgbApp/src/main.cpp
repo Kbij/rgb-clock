@@ -31,6 +31,7 @@ DEFINE_bool(daemon, false, "Run rgbclock as Daemon");
 DEFINE_string(pidfile,"","Pid file when running as Daemon");
 DEFINE_bool(i2cstatistics, false, "Print I2C statistics");
 DEFINE_bool(disablewatchdog, false, "Disable the watchdog");
+DEFINE_string(configfile,"settings.xml","XML file containing the addresses of all IC's");
 
 
 void signal_handler(int sig);
@@ -189,7 +190,7 @@ int main (int argc, char* argv[])
 		LOG(INFO) << "=================================";
 
 		// Create the config object; load the XML file with the settings
-		App::Config config;
+		App::Config config(FLAGS_configfile);
     	i2c.registerAddresses(config);
 
 		if (!config.errorFree())
