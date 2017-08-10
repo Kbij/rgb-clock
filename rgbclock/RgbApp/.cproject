@@ -46,6 +46,7 @@
 								</option>
 								<option id="gnu.cpp.link.option.libs.2050753285" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="RgbLib"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="tinyxml2"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glog"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="gflags"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="pthread"/>

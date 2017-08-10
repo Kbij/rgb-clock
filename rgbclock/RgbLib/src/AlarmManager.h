@@ -22,7 +22,7 @@
 #include <memory>
 
 namespace Hardware {
-class MainboardControl;
+class WatchDogIf;
 }
 
 namespace App {
@@ -156,7 +156,7 @@ using AlarmList = std::vector<Alarm>;
 class AlarmManager: public Hardware::WatchdogFeederIf {
 
 public:
-	AlarmManager(const Config& config, Hardware::MainboardControl &mainboardControl);
+	AlarmManager(const std::vector<std::string> unitList, Hardware::WatchDogIf& watchdDog);
 	virtual ~AlarmManager();
 
 	void registerAlarmObserver(AlarmObserverIf* observer);
@@ -200,7 +200,8 @@ private:
 
 	void alarmThread();
 
-    Hardware::MainboardControl &mMainboardControl;
+	std::vector<std::string> mUnitList;
+	Hardware::WatchDogIf& mWatchdDog;
 	AlarmList mAlarmList;
 	std::set<AlarmObserverIf*> mAlarmObservers;
 	std::string mCurrentEditor;
@@ -212,9 +213,6 @@ private:
 	std::mutex mNextAlarmMapMutex;
 	std::atomic_bool mSendAlarmSnooze;
 	std::atomic_bool mSendAlarmOff;
-
-	const Config& mConfig;
-
 };
 
 } /* namespace App */

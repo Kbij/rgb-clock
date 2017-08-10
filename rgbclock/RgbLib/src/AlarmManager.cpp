@@ -9,7 +9,7 @@
 #include "AlarmObserverIf.h"
 
 #include "Config.h"
-#include "lib/MainboardControl.h"
+#include "lib/WatchDogIf.h"
 
 #include "tinyxml2.h"
 
@@ -18,14 +18,16 @@
 #include <string>
 #include <fstream>
 #include <pthread.h>
+#include <algorithm>
 
 DEFINE_string(alarmfile,"alarms.xml","XML file containing the definition of alarms");
 
 
 namespace App {
 
-AlarmManager::AlarmManager(const Config& config, Hardware::MainboardControl &mainboardControl):
-		mMainboardControl(mainboardControl),
+AlarmManager::AlarmManager(const std::vector<std::string> unitList, Hardware::WatchDogIf& watchDog):
+		mUnitList(unitList),
+		mWatchdDog(watchDog),
 		mAlarmList(),
 		mAlarmObservers(),
 		mCurrentEditor(),
@@ -36,17 +38,16 @@ AlarmManager::AlarmManager(const Config& config, Hardware::MainboardControl &mai
 		mNextAlarmMap(),
 		mNextAlarmMapMutex(),
 		mSendAlarmSnooze(false),
-		mSendAlarmOff(false),
-		mConfig(config)
+		mSendAlarmOff(false)
 {
 	loadAlarms();
 	startAlarmThread();
-	mMainboardControl.promiseWatchdog(this, 6000);
+	mWatchdDog.promiseWatchdog(this, 6000);
 }
 
 AlarmManager::~AlarmManager()
 {
-	mMainboardControl.removePromise(this);
+	mWatchdDog.removePromise(this);
 	stopAlarmThread();
 }
 
@@ -64,7 +65,7 @@ void AlarmManager::unRegisterAlarmObserver(AlarmObserverIf* observer)
 {
 	if (observer)
 	{
-		std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
+		std::lock_guard<std::mutex> lk_guard(mAlarmObserversMutex);
 		mAlarmObservers.erase(observer);
 	}
 }
@@ -113,19 +114,18 @@ std::string AlarmManager::nextAlarm(std::string unitName)
 std::string AlarmManager::nextUnitName(std::string currentUnitName)
 {
 	LOG(INFO) << "Currentname: " << currentUnitName;
-	const auto& config = mConfig.configuredUnits();
-	auto current = config.find(currentUnitName);
-	if ((currentUnitName == "") || (current == config.end()))
+	auto current = std::find(mUnitList.begin(), mUnitList.end(), currentUnitName);
+	if ((currentUnitName == "") || (current == mUnitList.end()))
 	{
-		LOG(INFO) << "return first:" << mConfig.configuredUnits().begin()->first;
-		return mConfig.configuredUnits().begin()->first;
+		LOG(INFO) << "return first:" << mUnitList.front();
+		return mUnitList.front();
 	}
 
 	current++;
-	if (current != config.end())
+	if (current != mUnitList.end())
 	{
-		LOG(INFO) << "Return: " << current->first;
-		return current->first;
+		LOG(INFO) << "Return: " << (*current);
+		return (*current);
 	}
 	else
 	{
@@ -359,7 +359,7 @@ void AlarmManager::alarmThread()
     {
         // default sleep interval
         std::this_thread::sleep_for(std::chrono::seconds(1));
-        mMainboardControl.signalWatchdog(this);
+        mWatchdDog.signalWatchdog(this);
 
     	std::lock_guard<std::mutex> lk_guard(mAlarmsMutex);
     	if (mCurrentEditor == "")

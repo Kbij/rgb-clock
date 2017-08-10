@@ -121,6 +121,14 @@ std::map<std::string, UnitConfig> Config::configuredUnits() const
 	return mConfiguredUnits;
 }
 
+std::vector<std::string> Config::units() const
+{
+	std::vector<std::string> result;
+	for(auto const& unit: mConfiguredUnits)	result.push_back(unit.first);
+
+	return result;
+}
+
 SystemConfig Config::systemConfig() const
 {
 	return mSystemConfig;

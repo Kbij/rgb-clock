@@ -10,6 +10,7 @@
 #include <string>
 #include <stdint.h>
 #include <map>
+#include <vector>
 
 namespace App {
 
@@ -57,6 +58,7 @@ public:
 
 	bool errorFree();
 	std::map<std::string, UnitConfig> configuredUnits() const;
+	std::vector<std::string> units() const;
 	SystemConfig systemConfig() const;
 
 private:

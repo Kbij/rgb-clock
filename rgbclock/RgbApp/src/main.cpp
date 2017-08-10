@@ -213,7 +213,7 @@ int main (int argc, char* argv[])
 
 			Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
 			Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio, mainboardControl);
-			App::AlarmManager alarmManager(config, mainboardControl);
+			App::AlarmManager alarmManager(config.units(), mainboardControl);
 
 			do{
 

@@ -11,6 +11,7 @@
 #include "I2C.h"
 #include "IOExpander.h"
 #include "KeyboardObserverIf.h"
+#include "WatchDogIf.h"
 #include <glog/logging.h>
 
 #include <atomic>
@@ -34,22 +35,23 @@ struct FeederInfo
 	int mCurrentTimeout;
 };
 
-class MainboardControl:  public Hardware::KeyboardObserverIf {
+class MainboardControl:  public Hardware::KeyboardObserverIf, public Hardware::WatchDogIf
+{
 public:
 	MainboardControl(I2C &i2c, uint8_t hwrevision, uint8_t address, bool enableWatchdog);
 	virtual ~MainboardControl();
 
+	//KeyboardObserverIf
 	void keyboardPressed(const KeyboardInfo& keyboardInfo);
 
+	//WatchDogIf
 	void promiseWatchdog(WatchdogFeederIf *watchdogFeeder, int timeoutMiliseconds);
 	void removePromise(WatchdogFeederIf *watchdogFeeder);
+	void signalWatchdog(WatchdogFeederIf *watchdogFeeder);
 
 	void mute(bool mute);
 	void resetTuner();
 	void selectInput(InputSelection input);
-	void signalWatchdog(WatchdogFeederIf *watchdogFeeder);
-
-//	void testSetRelay(int pos, bool enable);
 
 private:
 	void init();
