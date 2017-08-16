@@ -36,6 +36,7 @@ TEST(Config, ReadConfig)
 	EXPECT_EQ(108, unitConfig["Unit1"].mAmplifier);
 	EXPECT_EQ(33, unitConfig["Unit1"].mLCD);
 	EXPECT_EQ(41, unitConfig["Unit1"].mLightSensor);
+
 	EXPECT_TRUE(config->errorFree());
 	delete config;
 }

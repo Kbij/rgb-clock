@@ -300,26 +300,23 @@ void AlarmManager::stopAlarmThread()
     }
 }
 
-int minutesUntilFired(const Alarm& alarm)
+int minutesUntilFired(const Alarm& alarm, Hardware::SystemClockIf& systemClock)
 {
 	if (!alarm.mEnabled)
 	{
 		return -1; // alarm not active
 	}
-	time_t rawTime;
-	struct tm* timeInfo;
-	time(&rawTime);
-	timeInfo = localtime(&rawTime);
+	Hardware::LocalTime time = systemClock.localTime();
 	// nextday = if before saturday then (current day + 1) else sunday
-	int nextDay =  timeInfo->tm_wday < 6 ? (timeInfo->tm_wday + 1) : 0;
+	int nextDay =  time.mWDay < 6 ? (time.mWDay + 1) : 0;
 
-	int nowMinutes = timeInfo->tm_hour * 60 + timeInfo->tm_min;
+	int nowMinutes = time.mHour * 60 + time.mMin;
 	int almMinutes = alarm.mHour * 60 + alarm.mMinutes;
 
 	if (!alarm.mOneTime)
 	{
 		// Not a one time alarm. If (already passed or no alarm today) and not for tomorrow
-		if ( ((alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes < nowMinutes)) || !alarm.mDays[Day(timeInfo->tm_wday)]) && !alarm.mDays[Day(nextDay)] )
+		if ( ((alarm.mDays[Day(time.mWDay)] && (almMinutes < nowMinutes)) || !alarm.mDays[Day(time.mWDay)]) && !alarm.mDays[Day(nextDay)] )
 		{
 			return -1;
 		}
@@ -333,7 +330,7 @@ int minutesUntilFired(const Alarm& alarm)
 	else
 	{
 		// If not today but tommorow
-		if (!alarm.mOneTime &&  !(alarm.mDays[Day(timeInfo->tm_wday)] && (almMinutes >= nowMinutes))  && alarm.mDays[Day(nextDay)]) // Tomorrow
+		if (!alarm.mOneTime &&  !(alarm.mDays[Day(time.mWDay)] && (almMinutes >= nowMinutes))  && alarm.mDays[Day(nextDay)]) // Tomorrow
 		{
 			almMinutes += 60 * 24; // add 1 day (in minutes)
 		}
@@ -360,7 +357,7 @@ void AlarmManager::alarmThread()
     		for (auto& alarm: mAlarmList)
     		{
 
-        		int minutesLeft = minutesUntilFired(alarm);
+        		int minutesLeft = minutesUntilFired(alarm, mSystemClock);
         		if ((minutesLeft ==  0) && (!alarm.mSignalled))
     			{
     				std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);

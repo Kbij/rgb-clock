@@ -10,6 +10,7 @@
 #include "glog/stl_logging.h"
 #include "glog/logging.h"
 #include "AlarmManager.h"
+#include "AlarmObserverIf.h"
 #include "lib/WatchDogIf.h"
 #include "lib/WatchdogFeederIf.h"
 #include "lib/SystemClockIf.h"
@@ -46,6 +47,21 @@ public:
 		return mTime;
 	}
 	Hardware::LocalTime mTime;
+};
+
+class AlarmObserverStub: public App::AlarmObserverIf
+{
+public:
+	AlarmObserverStub(): mName(), mAlarmNotifyVolume() {};
+	~AlarmObserverStub() {};
+
+	void alarmNotify(int volume) {mAlarmNotifyVolume = volume;}
+	std::string name() {return mName;}
+
+	void alarmSnooze() {}
+	void alarmOff() {}
+	std::string mName;
+	int mAlarmNotifyVolume;
 };
 }
 
@@ -125,5 +141,40 @@ TEST(AlarmManager, ReadingWritingAlarms)
 	EXPECT_EQ(35, alarmRead2.mVolume);
 
 	delete manager;
+	std::system("rm alarms.xml");
+}
+
+TEST(AlarmManager, ObserveOneTimeAlarm)
+{
+	std::system("rm alarms.xml");
+	WatchDogStub watchdog;
+	SystemClockStub systemClock;
+	App::AlarmManager* manager = new App::AlarmManager("alarms.xml", {"unit1"}, watchdog, systemClock);
+	AlarmObserverStub alarmObserver;
+	alarmObserver.mName = "testunit";
+	manager->registerAlarmObserver(&alarmObserver);
+
+	//Write one alarm
+	App::AlarmList* alarms = manager->editAlarms("testunit");
+	App::Alarm alarmWrite1;
+	alarmWrite1.mEnabled = true;
+	alarmWrite1.mUnit = "testunit";
+	alarmWrite1.mHour = 7;
+	alarmWrite1.mMinutes = 10;
+	alarmWrite1.mOneTime = true;
+	alarmWrite1.mVolume = 40;
+	alarms->push_back(alarmWrite1);
+	manager->saveAlarms("testunit");
+
+	EXPECT_EQ(0, alarmObserver.mAlarmNotifyVolume);
+	std::this_thread::sleep_for(std::chrono::seconds(2));
+
+	systemClock.mTime.mHour = 7;
+	systemClock.mTime.mMin = 10;
+	std::this_thread::sleep_for(std::chrono::seconds(2));
+
+	//Must have notified;
+	EXPECT_EQ(40, alarmObserver.mAlarmNotifyVolume);
+
 	std::system("rm alarms.xml");
 }
