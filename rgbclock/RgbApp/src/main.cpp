@@ -32,6 +32,7 @@ DEFINE_string(pidfile,"","Pid file when running as Daemon");
 DEFINE_bool(i2cstatistics, false, "Print I2C statistics");
 DEFINE_bool(disablewatchdog, false, "Disable the watchdog");
 DEFINE_string(configfile,"settings.xml","XML file containing the addresses of all IC's");
+DEFINE_string(alarmfile,"alarms.xml","XML file containing the definition of alarms");
 
 
 void signal_handler(int sig);
@@ -213,7 +214,7 @@ int main (int argc, char* argv[])
 
 			Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
 			Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio, mainboardControl);
-			App::AlarmManager alarmManager(config.units(), mainboardControl);
+			App::AlarmManager alarmManager(FLAGS_alarmfile, config.units(), mainboardControl);
 
 			do{
 

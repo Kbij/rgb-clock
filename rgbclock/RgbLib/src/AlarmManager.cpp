@@ -7,6 +7,7 @@
 
 #include "AlarmManager.h"
 #include "AlarmObserverIf.h"
+#include "lib/SystemClockIf.h"
 
 #include "Config.h"
 #include "lib/WatchDogIf.h"
@@ -20,14 +21,14 @@
 #include <pthread.h>
 #include <algorithm>
 
-DEFINE_string(alarmfile,"alarms.xml","XML file containing the definition of alarms");
-
 
 namespace App {
 
-AlarmManager::AlarmManager(const std::vector<std::string> unitList, Hardware::WatchDogIf& watchDog):
+AlarmManager::AlarmManager(const std::string& alarmFile, const std::vector<std::string> unitList, Hardware::WatchDogIf& watchDog, Hardware::SystemClockIf& systemClock):
+		mAlarmFile(alarmFile),
 		mUnitList(unitList),
 		mWatchdDog(watchDog),
+		mSystemClock(systemClock),
 		mAlarmList(),
 		mAlarmObservers(),
 		mCurrentEditor(),
@@ -157,85 +158,79 @@ bool fileExists(std::string fileName)
 
 void AlarmManager::loadAlarms()
 {
-	if (fileExists(FLAGS_alarmfile))
+	if (fileExists(mAlarmFile))
 	{
-		LOG(INFO) << "Reading Alarm file: " << FLAGS_alarmfile;
-		/*
-	    ticpp::Document alarmsXML(FLAGS_alarmfile);
-
-	    alarmsXML.LoadFile();
-	    try
-	    {
-	        ticpp::Element *alarms = alarmsXML.FirstChildElement("alarms");
-	    	std::lock_guard<std::mutex> lk_guard2(mAlarmsMutex);
-
-	    	mAlarmList.clear();
-
-	        ticpp::Iterator<ticpp::Element>  alarm(alarms->FirstChildElement("alarm", false), "alarm");
-	        while ( alarm != alarm.end() )
-	        {
-	        	Alarm alarmSettings;
-
-	        	ticpp::Element *enabledElement = alarm->FirstChildElement("enabled", true);
-	        	if ( enabledElement != nullptr )
-	        	{
-	        		alarmSettings.mEnabled = std::stoi(enabledElement->GetText());
-	        	}
-
-	        	ticpp::Element *unitElement = alarm->FirstChildElement("unit", false);
-	        	if ( unitElement != nullptr )
-	        	{
-	        		alarmSettings.mUnit = unitElement->GetText(false);// Do not throw when no text is filled in
-	        	}
-
-	        	ticpp::Element *hourElement = alarm->FirstChildElement("hour", true);
-	        	if ( hourElement != nullptr )
-	        	{
-	        		alarmSettings.mHour = std::stoi(hourElement->GetText());
-	        	}
-
-	        	ticpp::Element *minutesElement = alarm->FirstChildElement("minutes", true);
-	        	if ( minutesElement != nullptr )
-	        	{
-	        		alarmSettings.mMinutes = std::stoi(minutesElement->GetText());
-	        	}
-
-	        	ticpp::Element *onetimeElement = alarm->FirstChildElement("onetime", true);
-	        	if ( onetimeElement != nullptr )
-	        	{
-	        		alarmSettings.mOneTime = onetimeElement->GetText() == "1";
-	        	}
-
-	        	ticpp::Element *volumeElement = alarm->FirstChildElement("volume", true);
-	        	if ( volumeElement != nullptr )
-	        	{
-	        		alarmSettings.mVolume = std::stoi(volumeElement->GetText());
-	        	}
-
-	        	ticpp::Element *daysElement = alarm->FirstChildElement("days", true);
-	        	if ( daysElement != nullptr )
-	        	{
-	        		alarmSettings.mDays = std::bitset<7>(daysElement->GetText());
-	        	}
-
-	        	LOG(INFO) << "Alarm loaded: " << alarmSettings.to_string_long();
-	        	mAlarmList.push_back(alarmSettings);
-
-	        	// advance to next item
-	        	++alarm;
-	        }
-
-		}
-		catch (const ticpp::Exception& ex)
+		LOG(INFO) << "Reading Alarm file: " << mAlarmFile;
+		tinyxml2::XMLDocument alarmsXML;
+		tinyxml2::XMLError eResult = alarmsXML.LoadFile(mAlarmFile.c_str());
+		if (eResult != tinyxml2::XML_SUCCESS)
 		{
-			LOG(ERROR) << "Error reading alarm file: " << ex.what();
+			LOG(ERROR) << "Error reading alarm xml: " << eResult;
 			return;
 		}
-		*/
+
+		tinyxml2::XMLElement* alarms = alarmsXML.FirstChildElement("alarms");
+		if (alarms == nullptr)
+		{
+			LOG(ERROR) << "Alarms not found";
+			return;
+		}
+    	std::lock_guard<std::mutex> lk_guard2(mAlarmsMutex);
+    	mAlarmList.clear();
+		for (tinyxml2::XMLElement* alarm = alarms->FirstChildElement("alarm"); alarm != NULL; alarm = alarm->NextSiblingElement())
+		{
+			Alarm alarmSettings;
+			tinyxml2::XMLElement* enabledElement = alarm->FirstChildElement("enabled");
+        	if ( enabledElement != nullptr )
+        	{
+        		alarmSettings.mEnabled = std::stoi(enabledElement->GetText());
+        	}
+
+        	tinyxml2::XMLElement *unitElement = alarm->FirstChildElement("unit");
+        	if ( unitElement != nullptr )
+        	{
+        		alarmSettings.mUnit = unitElement->GetText();// Do not throw when no text is filled in
+        	}
+
+        	tinyxml2::XMLElement *hourElement = alarm->FirstChildElement("hour");
+        	if ( hourElement != nullptr )
+        	{
+        		alarmSettings.mHour = std::stoi(hourElement->GetText());
+        	}
+
+        	tinyxml2::XMLElement *minutesElement = alarm->FirstChildElement("minutes");
+        	if ( minutesElement != nullptr )
+        	{
+        		alarmSettings.mMinutes = std::stoi(minutesElement->GetText());
+        	}
+
+        	tinyxml2::XMLElement *onetimeElement = alarm->FirstChildElement("onetime");
+
+        	if (onetimeElement != nullptr )
+        	{
+        		std::string readValue(onetimeElement->GetText());
+        		alarmSettings.mOneTime = readValue.compare("1") == 0;
+        	}
+
+        	tinyxml2::XMLElement *volumeElement = alarm->FirstChildElement("volume");
+        	if ( volumeElement != nullptr )
+        	{
+        		alarmSettings.mVolume = std::stoi(volumeElement->GetText());
+        	}
+
+        	tinyxml2::XMLElement *daysElement = alarm->FirstChildElement("days");
+        	if ( daysElement != nullptr )
+        	{
+        		alarmSettings.mDays = std::bitset<7>(daysElement->GetText());
+        	}
+
+        	LOG(INFO) << "Alarm loaded: " << alarmSettings.to_string_long();
+        	mAlarmList.push_back(alarmSettings);
+		}
 	}
 	else
 	{
-		LOG(INFO) << "Alarm file (" << FLAGS_alarmfile << ") not found.";
+		LOG(INFO) << "Alarm file (" << mAlarmFile << ") not found.";
 	}
 
 	LOG(INFO) << mAlarmList.size() << " alarms loaded";
@@ -243,53 +238,48 @@ void AlarmManager::loadAlarms()
 
 void AlarmManager::saveAlarms()
 {
-	/*
-	TiXmlDocument doc;
+	tinyxml2::XMLDocument xmlDoc;
+	tinyxml2::XMLDeclaration* decl = xmlDoc.NewDeclaration();
+	xmlDoc.InsertFirstChild(decl);
 
- 	TiXmlDeclaration* decl = new TiXmlDeclaration( "1.0", "UTF-8", "" );
-	doc.LinkEndChild( decl );
-
-
-	TiXmlElement * alarms = new TiXmlElement("alarms");
-	doc.LinkEndChild( alarms );
+	tinyxml2::XMLNode* alarms = xmlDoc.NewElement("alarms");
+	xmlDoc.LinkEndChild(alarms);
 
 	for (const auto& alarm: mAlarmList)
 	{
-		TiXmlElement* alarmElement = new TiXmlElement("alarm");
-		//alarmElement->LinkEndChild( new TiXmlText("test"));
-		alarms->LinkEndChild( alarmElement );
+		tinyxml2::XMLNode* alarmElement = xmlDoc.NewElement("alarm");
+		alarms->InsertEndChild( alarmElement );
 
-		TiXmlElement* enabledElement = new TiXmlElement("enabled");
-		enabledElement->LinkEndChild( new TiXmlText(std::to_string(alarm.mEnabled)));
-		alarmElement->LinkEndChild(enabledElement);
+		tinyxml2::XMLElement* enabledElement = xmlDoc.NewElement("enabled");
+		enabledElement->SetText(std::to_string(alarm.mEnabled).c_str());
+		alarmElement->InsertEndChild(enabledElement);
 
-		TiXmlElement* unitElement = new TiXmlElement("unit");
-		unitElement->LinkEndChild( new TiXmlText(alarm.mUnit));
-		alarmElement->LinkEndChild(unitElement);
+		tinyxml2::XMLElement* unitElement = xmlDoc.NewElement("unit");
+		unitElement->SetText(alarm.mUnit.c_str());
+		alarmElement->InsertEndChild(unitElement);
 
-		TiXmlElement* hourElement = new TiXmlElement("hour");
-		hourElement->LinkEndChild( new TiXmlText(std::to_string(alarm.mHour)));
-		alarmElement->LinkEndChild(hourElement);
+		tinyxml2::XMLElement* hourElement = xmlDoc.NewElement("hour");
+		hourElement->SetText(std::to_string(alarm.mHour).c_str());
+		alarmElement->InsertEndChild(hourElement);
 
-		TiXmlElement* minutesElement = new TiXmlElement("minutes");
-		minutesElement->LinkEndChild( new TiXmlText(std::to_string(alarm.mMinutes)));
-		alarmElement->LinkEndChild(minutesElement);
+		tinyxml2::XMLElement* minutesElement = xmlDoc.NewElement("minutes");
+		minutesElement->SetText(std::to_string(alarm.mMinutes).c_str());
+		alarmElement->InsertEndChild(minutesElement);
 
-		TiXmlElement* onetimeElement = new TiXmlElement("onetime");
-		onetimeElement->LinkEndChild( new TiXmlText(std::to_string(alarm.mOneTime)));
-		alarmElement->LinkEndChild(onetimeElement);
+		tinyxml2::XMLElement* onetimeElement = xmlDoc.NewElement("onetime");
+		onetimeElement->SetText(std::to_string(alarm.mOneTime).c_str());
+		alarmElement->InsertEndChild(onetimeElement);
 
-		TiXmlElement* daysElement = new TiXmlElement("days");
-		daysElement->LinkEndChild( new TiXmlText(alarm.mDays.to_string()));
-		alarmElement->LinkEndChild(daysElement);
+		tinyxml2::XMLElement* daysElement = xmlDoc.NewElement("days");
+		daysElement->SetText(alarm.mDays.to_string().c_str());
+		alarmElement->InsertEndChild(daysElement);
 
-		TiXmlElement* volumeElement = new TiXmlElement("volume");
-		volumeElement->LinkEndChild( new TiXmlText(std::to_string(alarm.mVolume)));
-		alarmElement->LinkEndChild(volumeElement);
+		tinyxml2::XMLElement* volumeElement = xmlDoc.NewElement("volume");
+		volumeElement->SetText(std::to_string(alarm.mVolume).c_str());
+		alarmElement->InsertEndChild(volumeElement);
 	}
 
-	doc.SaveFile(FLAGS_alarmfile);
-	*/
+	xmlDoc.SaveFile(mAlarmFile.c_str());
 }
 
 void AlarmManager::startAlarmThread()

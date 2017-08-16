@@ -23,6 +23,7 @@
 
 namespace Hardware {
 class WatchDogIf;
+class SystemClockIf;
 }
 
 namespace App {
@@ -156,7 +157,7 @@ using AlarmList = std::vector<Alarm>;
 class AlarmManager: public Hardware::WatchdogFeederIf {
 
 public:
-	AlarmManager(const std::vector<std::string> unitList, Hardware::WatchDogIf& watchdDog);
+	AlarmManager(const std::string& alarmFile, const std::vector<std::string> unitList, Hardware::WatchDogIf& watchdDog, Hardware::SystemClockIf& systemClock);
 	virtual ~AlarmManager();
 
 	void registerAlarmObserver(AlarmObserverIf* observer);
@@ -199,9 +200,10 @@ private:
 	void stopAlarmThread();
 
 	void alarmThread();
-
+	const std::string mAlarmFile;
 	std::vector<std::string> mUnitList;
 	Hardware::WatchDogIf& mWatchdDog;
+	Hardware::SystemClockIf& mSystemClock;
 	AlarmList mAlarmList;
 	std::set<AlarmObserverIf*> mAlarmObservers;
 	std::string mCurrentEditor;
