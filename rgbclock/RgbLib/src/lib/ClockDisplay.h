@@ -18,8 +18,24 @@
 #include <mutex>
 #include <memory>
 
-namespace
+namespace App
 {
+class AlarmManager;
+struct Alarm;
+struct UnitConfig;
+
+enum class ClockState
+{
+	clkNormal,
+	clkAlarm,
+	clkSnooze
+};
+}
+namespace Hardware
+{
+class Keyboard;
+class RTC;
+
 enum class DisplayState
 {
 	stNormal,
@@ -52,25 +68,6 @@ enum class EditPos
 	posDaySa,
 	posVol
 };
-
-}
-namespace App
-{
-class AlarmManager;
-struct Alarm;
-struct UnitConfig;
-
-enum class ClockState
-{
-	clkNormal,
-	clkAlarm,
-	clkSnooze
-};
-}
-namespace Hardware
-{
-class Keyboard;
-class RTC;
 
 class ClockDisplay : public RadioObserverIf, public Hardware::KeyboardObserverIf {
 public:

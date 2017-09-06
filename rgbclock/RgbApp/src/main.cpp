@@ -9,6 +9,7 @@
 #include "lib/LCDisplay.h"
 #include "lib/LCDBacklight.h"
 #include "lib/Light.h"
+#include "lib/SystemClock.h"
 #include "AlarmClock.h"
 #include "Config.h"
 #include "AlarmManager.h"
@@ -214,7 +215,8 @@ int main (int argc, char* argv[])
 
 			Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
 			Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio, mainboardControl);
-			App::AlarmManager alarmManager(FLAGS_alarmfile, config.units(), mainboardControl);
+			Hardware::SystemClock systemClock;
+			App::AlarmManager alarmManager(FLAGS_alarmfile, config.units(), mainboardControl, systemClock);
 
 			do{
 

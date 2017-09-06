@@ -18,7 +18,6 @@ rm -r -f *
 cmake -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-x86/ ..
 make 
 make install
-exit
 
 #Build and install glog
 cd $cwd/libraries/glog
@@ -47,7 +46,7 @@ cmake  -DBUILD_SHARED_LIBS:BOOL=OFF -DBUILD_STATIC_LIBS:BOOL=ON -DBUILD_TESTS:BO
 make 
 make install
 
-exit
+
 cd $cwd
 
 

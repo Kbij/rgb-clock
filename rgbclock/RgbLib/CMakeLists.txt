@@ -11,6 +11,6 @@ add_library (RgbClockLib ${lib_SRC})
 target_include_directories(RgbClockLib PUBLIC ./src )
 target_link_libraries (RgbClockLib glog::glog)
 target_link_libraries (RgbClockLib gflags)
-target_link_libraries (RgbClockLib tinyxml2)
+target_link_libraries (RgbClockLib tinyxml2_static)
 
 
