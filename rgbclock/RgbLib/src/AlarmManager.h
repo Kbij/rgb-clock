@@ -8,6 +8,7 @@
 #ifndef ALARMMANAGER_H_
 #define ALARMMANAGER_H_
 #include "lib/WatchdogFeederIf.h"
+#include "lib/SystemClockIf.h"
 
 #include <set>
 #include <vector>
@@ -23,33 +24,20 @@
 
 namespace Hardware {
 class WatchDogIf;
-class SystemClockIf;
 }
 
 namespace App {
 
 class AlarmObserverIf;
 class Config;
-
-enum Day
-{
-	// Keep these enum values, they correspond with tm struct tm_wday enum values
-	Sunday    = 0,
-	Monday    = 1,
-	Thusday   = 2,
-	Wednesday = 3,
-	Thursday  = 4,
-	Friday    = 5,
-	Saturday  = 6
-};
-
+enum class AlarmType {Daily, OnTimeSmooth, OnTimeLoud};
 struct Alarm
 {
 	Alarm() :
 		mEnabled(true),
 		mHour(7),
 		mMinutes(0),
-		mOneTime(false),
+		mAlarmType(AlarmType::Daily),
 		mDays(),
 		mUnit(""),
 		mVolume(40),
@@ -57,98 +45,101 @@ struct Alarm
 	bool mEnabled;
 	int mHour;
 	int mMinutes;
-	bool mOneTime;
+	AlarmType mAlarmType;
 	std::bitset<7> mDays;
 	std::string mUnit;
 	int mVolume;
 	bool mSignalled;
 	std::string daysString() const
 	{
-		std::string result = "[";
-		if (mDays[Sunday])
+		std::stringstream result;
+		result << "[";
+		if (mDays[(int)Hardware::DayOfWeek::Sunday])
 		{
-			result = result + "Z";
+			result << "Z";
 		}
 		else
 		{
-			result = result + "_";
+			result << "_";
 		}
-		if (mDays[Monday])
+		if (mDays[(int)Hardware::DayOfWeek::Monday])
 		{
-			result = result + "M";
+			result << "M";
 		}
 		else
 		{
-			result = result + "_";
+			result << "_";
 		}
-		if (mDays[Thusday])
+		if (mDays[(int)Hardware::DayOfWeek::Thuesday])
 		{
-			result = result + "D";
+			result << "D";
 		}
 		else
 		{
-			result = result + "_";
+			result << "_";
 		}
-		if (mDays[Wednesday])
+		if (mDays[(int)Hardware::DayOfWeek::Wednesday])
 		{
-			result = result + "W";
+			result << "W";
 		}
 		else
 		{
-			result = result + "_";
+			result << "_";
 		}
-		if (mDays[Thursday])
+		if (mDays[(int)Hardware::DayOfWeek::Thursday])
 		{
-			result = result + "D";
+			result << "D";
 		}
 		else
 		{
-			result = result + "_";
+			result << "_";
 		}
-		if (mDays[Friday])
+		if (mDays[(int)Hardware::DayOfWeek::Friday])
 		{
-			result = result + "V";
+			result << "V";
 		}
 		else
 		{
-			result = result + "_";
+			result << "_";
 		}
-		if (mDays[Saturday])
+		if (mDays[(int)Hardware::DayOfWeek::Saturday])
 		{
-			result = result + "Z";
+			result << "Z";
 		}
 		else
 		{
-			result = result + "_";
+			result << "_";
 		}
-
-		return result + "]";
+		result << "]";
+		return result.str();
 	}
-
+	std::string typeString() const
+	{
+		switch(mAlarmType)
+		{
+			case AlarmType::Daily: return "D";
+			case AlarmType::OnTimeLoud: return "L";
+			case AlarmType::OnTimeSmooth: return "E";
+		}
+		return "";
+	}
 	std::string to_string_long() const
 	{
-		std::string result;
-		result = "Unit: " + mUnit + ": " + std::to_string(mHour) + ":" + std::to_string(mMinutes) + ", OneTime: " + std::to_string(mOneTime) +  ", Days: " + daysString() + ", Volume: " + std::to_string(mVolume);
-		return result;
+		std::stringstream result;
+		result << "Unit: " << mUnit << ": " << mHour << ":" << mMinutes << ", Type: " << typeString();
+		if (mAlarmType == AlarmType::Daily) result << ", Days: " << daysString();
+		result << ", Volume: " << mVolume;
+		return result.str();
 	}
 
 	std::string to_string_short() const
 	{
-		std::string result;
-		std::string oneTime = "";
-		std::string daysStr = "";
-		if (mOneTime)
-		{
-			oneTime = "O";
-		}
-		else
-		{
-			oneTime = "D";
-			daysStr = daysString();
-		}
+		std::stringstream result;
 
-		result = "'" + mUnit + "' " + std::to_string(mHour) + ":" + std::to_string(mMinutes) + " " + oneTime + daysStr + " " + std::to_string(mVolume);
-		return result;
+		result << "'" << mUnit << "' " << mHour << ":" << mMinutes << " " << typeString();
+		if (mAlarmType == AlarmType::Daily) result  << daysString() << " ";
+		result << mVolume;
+		return result.str();
 	}
 
 };

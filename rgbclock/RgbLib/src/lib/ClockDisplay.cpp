@@ -30,7 +30,7 @@ const int POS_HOUR_T = 50;
 const int POS_HOUR_E = 56;
 const int POS_MIN_T = 64;
 const int POS_MIN_E = 70;
-const int POS_ONETIME = 82;
+const int POS_TYPE = 82;
 const int POS_DAYS = 90;
 const int POS_DAY_SU = 95;
 const int POS_DAY_MO = 102;
@@ -291,7 +291,7 @@ void ClockDisplay::keyboardPressed(const KeyboardInfo& keyboardInfo)
 						}
 						case EditPos::posOneTime:
 						{
-							mEditPos = alarm.mOneTime ? EditPos::posVol: EditPos::posDaySu;
+							mEditPos = alarm.mAlarmType == App::AlarmType::Daily ? EditPos::posDaySu : EditPos::posVol;
 							break;
 						}
 						case EditPos::posDaySu:
@@ -419,7 +419,7 @@ void ClockDisplay::keyboardPressed(const KeyboardInfo& keyboardInfo)
 						}
 						case EditPos::posVol:
 						{
-							mEditPos = alarm.mOneTime ? EditPos::posOneTime: EditPos::posDaySa;
+							mEditPos = alarm.mAlarmType == App::AlarmType::Daily ? EditPos::posDaySa : EditPos::posOneTime;
 							break;
 						}
 					}
@@ -476,42 +476,59 @@ void ClockDisplay::keyboardPressed(const KeyboardInfo& keyboardInfo)
 						}
 						case EditPos::posOneTime:
 						{
-							alarm.mOneTime = !alarm.mOneTime;
+							switch(alarm.mAlarmType)
+							{
+								case App::AlarmType::Daily:
+								{
+									alarm.mAlarmType = App::AlarmType::OnTimeSmooth;
+									break;
+								}
+								case App::AlarmType::OnTimeSmooth:
+								{
+									alarm.mAlarmType = App::AlarmType::OnTimeLoud;
+									break;
+								}
+								case App::AlarmType::OnTimeLoud:
+								{
+									alarm.mAlarmType = App::AlarmType::Daily;
+									break;
+								}
+							}
 							break;
 						}
 						case EditPos::posDaySu:
 						{
-							alarm.mDays[App::Sunday] = !alarm.mDays[App::Sunday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Sunday] = !alarm.mDays[(int)Hardware::DayOfWeek::Sunday];
 							break;
 						}
 						case EditPos::posDayMo:;
 						{
-							alarm.mDays[App::Monday] = !alarm.mDays[App::Monday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Monday] = !alarm.mDays[(int)Hardware::DayOfWeek::Monday];
 							break;
 						}
 						case EditPos::posDayTu:;
 						{
-							alarm.mDays[App::Thusday] = !alarm.mDays[App::Thusday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Thuesday] = !alarm.mDays[(int)Hardware::DayOfWeek::Thuesday];
 							break;
 						}
 						case EditPos::posDayWe:;
 						{
-							alarm.mDays[App::Wednesday] = !alarm.mDays[App::Wednesday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Wednesday] = !alarm.mDays[(int)Hardware::DayOfWeek::Wednesday];
 							break;
 						}
 						case EditPos::posDayTh:;
 						{
-							alarm.mDays[App::Thursday] = !alarm.mDays[App::Thursday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Thursday] = !alarm.mDays[(int)Hardware::DayOfWeek::Thursday];
 							break;
 						}
 						case EditPos::posDayFr:;
 						{
-							alarm.mDays[App::Friday] = !alarm.mDays[App::Friday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Friday] = !alarm.mDays[(int)Hardware::DayOfWeek::Friday];
 							break;
 						}
 						case EditPos::posDaySa:;
 						{
-							alarm.mDays[App::Saturday] = !alarm.mDays[App::Saturday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Saturday] = !alarm.mDays[(int)Hardware::DayOfWeek::Saturday];
 							break;
 						}
 						case EditPos::posVol:
@@ -577,42 +594,59 @@ void ClockDisplay::keyboardPressed(const KeyboardInfo& keyboardInfo)
 						}
 						case EditPos::posOneTime:
 						{
-							alarm.mOneTime = !alarm.mOneTime;
+							switch(alarm.mAlarmType)
+							{
+								case App::AlarmType::Daily:
+								{
+									alarm.mAlarmType = App::AlarmType::OnTimeLoud;
+									break;
+								}
+								case App::AlarmType::OnTimeLoud:
+								{
+									alarm.mAlarmType = App::AlarmType::OnTimeSmooth;
+									break;
+								}
+								case App::AlarmType::OnTimeSmooth:
+								{
+									alarm.mAlarmType = App::AlarmType::Daily;
+									break;
+								}
+							}
 							break;
 						}
 						case EditPos::posDaySu:
 						{
-							alarm.mDays[App::Sunday] = !alarm.mDays[App::Sunday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Sunday] = !alarm.mDays[(int)Hardware::DayOfWeek::Sunday];
 							break;
 						}
 						case EditPos::posDayMo:;
 						{
-							alarm.mDays[App::Monday] = !alarm.mDays[App::Monday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Monday] = !alarm.mDays[(int)Hardware::DayOfWeek::Monday];
 							break;
 						}
 						case EditPos::posDayTu:;
 						{
-							alarm.mDays[App::Thusday] = !alarm.mDays[App::Thusday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Thuesday] = !alarm.mDays[(int)Hardware::DayOfWeek::Thuesday];
 							break;
 						}
 						case EditPos::posDayWe:;
 						{
-							alarm.mDays[App::Wednesday] = !alarm.mDays[App::Wednesday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Wednesday] = !alarm.mDays[(int)Hardware::DayOfWeek::Wednesday];
 							break;
 						}
 						case EditPos::posDayTh:;
 						{
-							alarm.mDays[App::Thursday] = !alarm.mDays[App::Thursday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Thursday] = !alarm.mDays[(int)Hardware::DayOfWeek::Thursday];
 							break;
 						}
 						case EditPos::posDayFr:;
 						{
-							alarm.mDays[App::Friday] = !alarm.mDays[App::Friday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Friday] = !alarm.mDays[(int)Hardware::DayOfWeek::Friday];
 							break;
 						}
 						case EditPos::posDaySa:;
 						{
-							alarm.mDays[App::Saturday] = !alarm.mDays[App::Saturday];
+							alarm.mDays[(int)Hardware::DayOfWeek::Saturday] = !alarm.mDays[(int)Hardware::DayOfWeek::Saturday];
 							break;
 						}
 						case EditPos::posVol:
@@ -685,7 +719,7 @@ void ClockDisplay::updateEditDisplay()
 					break;
 				case EditPos::posMinE: carretPos = POS_MIN_E;
 					break;
-				case EditPos::posOneTime: carretPos = POS_ONETIME;
+				case EditPos::posOneTime: carretPos = POS_TYPE;
 					break;
 				case EditPos::posDaySu: carretPos = POS_DAY_SU;
 					break;
@@ -717,8 +751,8 @@ void ClockDisplay::writeAlarm(int line, const App::Alarm& alarm)
 	mLCDisplay.writeGraphicText(POS_HOUR_E, line * LINESPACING, std::to_string(alarm.mHour % 10), FontType::Terminal8);
 	mLCDisplay.writeGraphicText(POS_MIN_T, line * LINESPACING, std::to_string((int) alarm.mMinutes / 10 ), FontType::Terminal8);
 	mLCDisplay.writeGraphicText(POS_MIN_E, line * LINESPACING, std::to_string(alarm.mMinutes % 10), FontType::Terminal8);
-	mLCDisplay.writeGraphicText(POS_ONETIME, line * LINESPACING, alarm.mOneTime ? "O": "D", FontType::Terminal8);
-	mLCDisplay.writeGraphicText(POS_DAYS, line * LINESPACING, alarm.mOneTime ? "[       ]":alarm.daysString(), FontType::Terminal8);
+	mLCDisplay.writeGraphicText(POS_TYPE, line * LINESPACING, alarm.typeString(), FontType::Terminal8);
+	mLCDisplay.writeGraphicText(POS_DAYS, line * LINESPACING, alarm.mAlarmType == App::AlarmType::Daily ? alarm.daysString() : "[       ]", FontType::Terminal8);
 	mLCDisplay.writeGraphicText(POS_VOLUME, line * LINESPACING, std::to_string(alarm.mVolume) + " ", FontType::Terminal8);
 
 }

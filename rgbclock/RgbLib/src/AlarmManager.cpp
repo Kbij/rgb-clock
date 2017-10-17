@@ -21,7 +21,10 @@
 #include <pthread.h>
 #include <algorithm>
 
-
+namespace
+{
+const int ALARM_CHECK_SECONDS = 1;
+}
 namespace App {
 
 AlarmManager::AlarmManager(const std::string& alarmFile, const std::vector<std::string> unitList, Hardware::WatchDogIf& watchDog, Hardware::SystemClockIf& systemClock):
@@ -204,12 +207,14 @@ void AlarmManager::loadAlarms()
         		alarmSettings.mMinutes = std::stoi(minutesElement->GetText());
         	}
 
-        	tinyxml2::XMLElement *onetimeElement = alarm->FirstChildElement("onetime");
+        	tinyxml2::XMLElement *typeElement = alarm->FirstChildElement("type");
 
-        	if (onetimeElement != nullptr )
+        	if (typeElement != nullptr )
         	{
-        		std::string readValue(onetimeElement->GetText());
-        		alarmSettings.mOneTime = readValue.compare("1") == 0;
+        		std::string readValue(typeElement->GetText());
+        		if (readValue.compare("D") == 0) alarmSettings.mAlarmType = AlarmType::Daily;
+        		if (readValue.compare("L") == 0) alarmSettings.mAlarmType = AlarmType::OnTimeLoud;
+        		if (readValue.compare("E") == 0) alarmSettings.mAlarmType = AlarmType::OnTimeSmooth;
         	}
 
         	tinyxml2::XMLElement *volumeElement = alarm->FirstChildElement("volume");
@@ -266,9 +271,9 @@ void AlarmManager::saveAlarms()
 		minutesElement->SetText(std::to_string(alarm.mMinutes).c_str());
 		alarmElement->InsertEndChild(minutesElement);
 
-		tinyxml2::XMLElement* onetimeElement = xmlDoc.NewElement("onetime");
-		onetimeElement->SetText(std::to_string(alarm.mOneTime).c_str());
-		alarmElement->InsertEndChild(onetimeElement);
+		tinyxml2::XMLElement* typeElement = xmlDoc.NewElement("type");
+		typeElement->SetText(alarm.typeString().c_str());
+		alarmElement->InsertEndChild(typeElement);
 
 		tinyxml2::XMLElement* daysElement = xmlDoc.NewElement("days");
 		daysElement->SetText(alarm.mDays.to_string().c_str());
@@ -302,39 +307,44 @@ void AlarmManager::stopAlarmThread()
 
 int minutesUntilFired(const Alarm& alarm, Hardware::SystemClockIf& systemClock)
 {
+	VLOG(1) << "Alarm: " << alarm.to_string_short() << ", calculating minutes until fired";
 	if (!alarm.mEnabled)
 	{
+		VLOG(1) << "Alarm not enabled";
 		return -1; // alarm not active
 	}
 	Hardware::LocalTime time = systemClock.localTime();
 	// nextday = if before saturday then (current day + 1) else sunday
-	int nextDay =  time.mWDay < 6 ? (time.mWDay + 1) : 0;
+	int nextDay =  time.mDay < Hardware::DayOfWeek::Saturday ? ((int)time.mDay + 1) : 0;
 
 	int nowMinutes = time.mHour * 60 + time.mMin;
 	int almMinutes = alarm.mHour * 60 + alarm.mMinutes;
+	bool oneTimeAlarm = alarm.mAlarmType == AlarmType::OnTimeLoud || alarm.mAlarmType == AlarmType::OnTimeSmooth;
 
-	if (!alarm.mOneTime)
+	if (!oneTimeAlarm)
 	{
 		// Not a one time alarm. If (already passed or no alarm today) and not for tomorrow
-		if ( ((alarm.mDays[Day(time.mWDay)] && (almMinutes < nowMinutes)) || !alarm.mDays[Day(time.mWDay)]) && !alarm.mDays[Day(nextDay)] )
+		if ( ((alarm.mDays[(int)time.mDay] && (almMinutes < nowMinutes)) || !alarm.mDays[(int)time.mDay]) && !alarm.mDays[nextDay] )
 		{
+			VLOG(1) << "Not a one time alarm. If (already passed or no alarm today) and not for tomorrow";
 			return -1;
 		}
 	}
 
 	// If a onetime alarm that will happen in less than 24h; add 24h to get a positive result
-	if (alarm.mOneTime && (almMinutes < nowMinutes))
+	if (oneTimeAlarm && (almMinutes < nowMinutes))
 	{
 		almMinutes += 24 * 60; // add 1 day
 	}
 	else
 	{
 		// If not today but tommorow
-		if (!alarm.mOneTime &&  !(alarm.mDays[Day(time.mWDay)] && (almMinutes >= nowMinutes))  && alarm.mDays[Day(nextDay)]) // Tomorrow
+		if (!oneTimeAlarm &&  !(alarm.mDays[(int)time.mDay] && (almMinutes >= nowMinutes))  && alarm.mDays[nextDay]) // Tomorrow
 		{
 			almMinutes += 60 * 24; // add 1 day (in minutes)
 		}
 	}
+	VLOG(1) << "Result: " << almMinutes - nowMinutes;
 	return almMinutes - nowMinutes;
 }
 
@@ -345,7 +355,7 @@ void AlarmManager::alarmThread()
     while (mAlarmThreadRunning == true)
     {
         // default sleep interval
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(ALARM_CHECK_SECONDS));
         mWatchdDog.signalWatchdog(this);
 
     	std::lock_guard<std::mutex> lk_guard(mAlarmsMutex);
@@ -361,16 +371,17 @@ void AlarmManager::alarmThread()
         		if ((minutesLeft ==  0) && (!alarm.mSignalled))
     			{
     				std::lock_guard<std::mutex> lk_guard2(mAlarmObserversMutex);
+    				VLOG(1) << "Fire alarm: " << alarm.to_string_long();
     				for (auto& observer : mAlarmObservers)
     				{
     					if ((observer->name() == alarm.mUnit) || (alarm.mUnit == ""))
     					{
     						LOG(INFO) << "Send notify to: " << observer->name();
-    						observer->alarmNotify(alarm.mVolume);
+    						observer->alarmNotify(alarm.mVolume, (alarm.mAlarmType == AlarmType::Daily || alarm.mAlarmType == AlarmType::OnTimeSmooth));
     					}
     				}
     				alarm.mSignalled = true;
-    				if (alarm.mOneTime)
+    				if (alarm.mAlarmType == AlarmType::OnTimeLoud || alarm.mAlarmType == AlarmType::OnTimeSmooth)
     				{
     					alarm.mEnabled = false;
     					saveAlm = true;
@@ -407,16 +418,12 @@ void AlarmManager::alarmThread()
         				}
         			}
         		}
-
-        		time_t rawTime;
-        		struct tm* timeInfo;
-
-        		time(&rawTime);
-        		timeInfo = localtime(&rawTime);
+        		Hardware::LocalTime time = mSystemClock.localTime();
 
         		// Reset the signalled flag
-        		if ((alarm.mHour != timeInfo->tm_hour) || (alarm.mMinutes != timeInfo->tm_min))
+        		if ((alarm.mHour != time.mHour) || (alarm.mMinutes != time.mMin))
         		{
+    				VLOG(1) << "Reset signalled alarm: " << alarm.to_string_long();
     				alarm.mSignalled = false;
         		}
     		}

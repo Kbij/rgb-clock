@@ -26,7 +26,7 @@ LocalTime SystemClock::localTime()
 	struct tm* timeInfo;
 	time(&rawTime);
 	timeInfo = localtime(&rawTime);
-	result.mWDay = timeInfo->tm_wday;
+	result.mDay = (DayOfWeek)timeInfo->tm_wday;
 	result.mHour = timeInfo->tm_hour;
 	result.mMin = timeInfo->tm_min;
 

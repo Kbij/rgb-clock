@@ -100,11 +100,11 @@ void AlarmClock::keyboardPressed(const Hardware::KeyboardInfo& keyboardInfo)
 	}
 }
 
-void AlarmClock::alarmNotify(int volume)
+void AlarmClock::alarmNotify(int volume, bool smooth)
 {
-	LOG(INFO) << "Received alarmNotify";
+	LOG(INFO) << "Received alarmNotify, smooth= " << smooth;
 	mAlarmVolume = volume;
-	startAlarm();
+	startAlarm(smooth);
 
 	startAlarmMaintenanceThread();
 }
@@ -170,7 +170,7 @@ void AlarmClock::alarmOff()
 	}
 }
 
-void AlarmClock::startAlarm()
+void AlarmClock::startAlarm(bool smooth)
 {
 	mClockState = ClockState::clkAlarm;
 	mDisplay.signalClockState(mClockState);
@@ -250,7 +250,7 @@ void AlarmClock::alarmMaintenanceThread()
 			   {
 				   if (mAlarmCounter >= SNOOZE_TIME)
 				   {
-					   startAlarm();
+					   startAlarm(false);
 				   }
 
 				   break;

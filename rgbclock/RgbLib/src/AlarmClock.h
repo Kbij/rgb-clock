@@ -35,13 +35,15 @@ class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserve
 public:
 	AlarmClock(Hardware::I2C &i2c, Hardware::RTC &rtc, Hardware::FMReceiver &fmReceiver, const SystemConfig &systemConfig, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig);
 	virtual ~AlarmClock();
+	// Prevent copy constructor
+	AlarmClock(const AlarmClock& source) = delete;
 
 	void registerLight(Hardware::Light *light);
 	void unRegisterLight(Hardware::Light *light);
 
 	void keyboardPressed(const Hardware::KeyboardInfo& keyboardInfo);
 
-	void alarmNotify(int volume);
+	void alarmNotify(int volume, bool smooth);
 	std::string name();
 
 	bool hasRegisteredLight();
@@ -49,11 +51,9 @@ public:
 
 	void alarmSnooze();
 	void alarmOff();
-	// Prevent copy constructor
-	AlarmClock(const AlarmClock& source) = delete;
 
 private:
-	void startAlarm();
+	void startAlarm(bool smooth);
 
 	void startAlarmMaintenanceThread();
 	void stopAlarmMaintenanceThread();

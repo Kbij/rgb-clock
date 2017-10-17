@@ -14,10 +14,10 @@ GTEST_API_ int main(int argc, char **argv)
 {
 	google::InitGoogleLogging("RgbClock Test");
 	testing::InitGoogleTest(&argc, argv);
-	testing::GTEST_FLAG(filter) = "AlarmManager.ObserveOneTimeAlarm";
+//	testing::GTEST_FLAG(filter) = "AlarmManager.ReadingWritingAlarms";
 
 	FLAGS_logtostderr=1;
-	FLAGS_v = 3;
+	//FLAGS_v = 3;
 
     int result = RUN_ALL_TESTS();
 
