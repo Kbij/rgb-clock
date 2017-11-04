@@ -184,7 +184,7 @@ void AlarmClock::startAlarm(bool smooth)
 
 	if (mLight)
 	{
-		mLight->pwrOn(true);
+		mLight->pwrOn(smooth);
 	}
 
 }

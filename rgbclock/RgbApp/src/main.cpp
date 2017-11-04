@@ -15,8 +15,8 @@
 #include "AlarmManager.h"
 
 #include <string>
-#include <glog/logging.h>
-#include <gflags/gflags.h>
+#include "glog/logging.h"
+#include "gflags/gflags.h"
 
 #include <chrono>
 #include <signal.h>

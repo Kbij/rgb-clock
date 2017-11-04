@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 INCLUDE_DIRECTORIES( ./src )
+INCLUDE_DIRECTORIES( ${SYSROOT}/include )
 file(GLOB app_SRC
     "./src/*.h"
     "./src/*.cpp"

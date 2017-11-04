@@ -111,7 +111,7 @@ void Radio::keyboardPressed(const KeyboardInfo& keyboardInfo)
 	}
 }
 
-void Radio::pwrOn(int volume)
+void Radio::pwrOn(bool smooth, int volume)
 {
     std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
 
@@ -129,7 +129,15 @@ void Radio::pwrOn(int volume)
 
 	if (volume > 0)
 	{
-		mUpDownTimer.initiateUp(volume, SLOWUP_MINUTES * 60);
+		if (smooth)
+		{
+			mUpDownTimer.initiateUp(volume, SLOWUP_MINUTES * 60);
+		}
+		else
+		{
+			mCurrentVolume = volume;
+			writeRegisters();
+		}
 	}
 	else
 	{

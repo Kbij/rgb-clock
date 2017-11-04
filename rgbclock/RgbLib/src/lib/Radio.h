@@ -38,7 +38,7 @@ public:
 	void registerRadioObserver(RadioObserverIf *observer);
     void unRegisterRadioObserver(RadioObserverIf *observer);
 
-	void pwrOn(int volume = 0);
+	void pwrOn(bool smooth = false, int volume = 0);
 	void pwrOff();
 
 	void up(int step);

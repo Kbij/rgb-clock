@@ -7,8 +7,8 @@
 
 #include "I2C.h"
 #include "Config.h"
-#include <glog/logging.h>
-#include <gflags/gflags.h>
+#include "glog/logging.h"
+#include "gflags/gflags.h"
 #include <linux/i2c-dev.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -19,6 +19,7 @@
 #include <iostream>
 #include <pthread.h>
 #include <stdio.h>
+#include <exception>
 namespace
 {
 const int ALL_ADDRESS = 0;
@@ -48,7 +49,7 @@ I2C::I2C() :
 	{
 		std::string  ex("Failed to open bus (" + I2C_FILENAME + "): ");
 		ex += strerror(errno);
-		throw ex;
+		throw std::runtime_error(ex);
 	}
 
 	close(i2cFile);

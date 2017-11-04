@@ -17,14 +17,27 @@ endif()
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin-${RGBCLOCK_PLATFORM})
 set (SYSROOT ${CMAKE_CURRENT_SOURCE_DIR}/sysroot-${RGBCLOCK_PLATFORM})
-#message(STATUS "Sysroot: " ${SYSROOT})
+message(STATUS "Sysroot: " ${SYSROOT})
 set(BUILD_STATIC_LIBS ON)
 
-list(INSERT CMAKE_MODULE_PATH 0 "./libraries/gflags")
-message(STATUS "gflags: " ${gflags_DIR})
+#No glog testing
+set(BUILD_TESTING OFF)
+#install libraries in the sysroot directory (for eclipse)
+set(CMAKE_INSTALL_PREFIX ${SYSROOT})
 
-#Needed for the generation of the log include files
-find_package (glog 0.3.5 REQUIRED)
+#gflags settings
+set(GFLAGS_IS_SUBPROJECT TRUE)
+set(INSTALL_HEADERS TRUE)
+set(GFLAGS_INSTALL_STATIC_LIBS TRUE)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
+set(GFLAGS_INCLUDE_DIR "gflags")
+
+#for tinyxml2:
+SET(BUILD_SHARED_LIBS OFF)
+SET(BUILD_STATIC_LIBS ON)
+SET(BUILD_TESTS OFF)
+
+add_subdirectory (./libraries/gflags)
 add_subdirectory (./libraries/glog)
 add_subdirectory (./libraries/googletest)
 add_subdirectory (./libraries/tinyxml2)

@@ -7,7 +7,7 @@
 
 #include "AutoPowerOffTimer.h"
 #include "AutoPowerOffDeviceIf.h"
-#include <glog/logging.h>
+#include "glog/logging.h"
 #include <time.h>
 #include <pthread.h>
 
