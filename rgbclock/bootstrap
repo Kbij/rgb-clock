@@ -3,53 +3,79 @@ alias BEGINCOMMENT="if [ ]; then"
 alias ENDCOMMENT="fi"
 cwd=$(pwd)
 
+args=("$@")
+#echo arguments to the shell
+
+if [ -z ${args[0]+x} ]; then 
+         echo "Please specify one of the plaforms"; 
+         echo "arm";
+         echo "x86";
+         exit 1
+fi
+
+if [ "${args[0]}" == "arm" ]; then 
+         platform=arm
+fi
+if [ "${args[0]}" == "x86" ]; then 
+         platform=x86
+fi
+
+if [ "$platform" == "" ]; then
+         echo "Unknown platform: " ${args[0]}
+         exit 1
+fi
+echo "Building for platform: " $platform
+
+rm -r -f libraries
 mkdir -p libraries
-mkdir -p sysroot-x86
+mkdir -p sysroot-$platform
 git clone https://github.com/gflags/gflags.git ./libraries/gflags
 git clone https://github.com/google/glog.git ./libraries/glog
 git clone https://github.com/leethomason/tinyxml2.git ./libraries/tinyxml2
 git clone https://github.com/google/googletest.git ./libraries/googletest
 
+BEGINCOMMENT
 #Build and install gflags
 cd $cwd/libraries/gflags
-mkdir -p build
-cd build
+mkdir -p build-$platform
+cd build-$platform
 rm -r -f *
-cmake -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-x86/ ..
+cmake -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-$platform/ ..
 make 
 make install
 
 #Build and install glog
 cd $cwd/libraries/glog
-mkdir -p build
-cd build
+mkdir -p build-$platform
+cd build-$platform
 rm -r -f *
-cmake -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-x86/ -DBUILD_TESTING=OFF ..
+cmake -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-$platform/ -DBUILD_TESTING=OFF ..
 make 
 make install
 
 #Build and install googletest
 cd $cwd/libraries/googletest
-mkdir -p build
-cd build
+mkdir -p build-$platform
+cd build-$platform
 rm -r -f *
-cmake -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-x86/ ..
+cmake -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-$platform/ ..
 make 
 make install
 
 #Build and install tinyxml2
 cd $cwd/libraries/tinyxml2
-mkdir -p build
-cd build
+mkdir -p build-$platform
+cd build-$platform
 rm -r -f *
-cmake  -DBUILD_SHARED_LIBS:BOOL=OFF -DBUILD_STATIC_LIBS:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-x86/ ..
+cmake  -DBUILD_SHARED_LIBS:BOOL=OFF -DBUILD_STATIC_LIBS:BOOL=ON -DBUILD_TESTS:BOOL=OFF -DCMAKE_INSTALL_PREFIX=/home/koen/rgbclock/rgbclock/sysroot-$platform/ ..
 make 
 make install
 
+ENDCOMMENT
 
 cd $cwd
 
 
-cd build-x86
+cd build-$platform
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=toolchain-x86.cmake ..
 make
