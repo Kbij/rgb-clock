@@ -6,39 +6,40 @@ cwd=$(pwd)
 args=("$@")
 #echo arguments to the shell
 
-if [ -z ${args[0]+x} ]; then 
-         echo "Please specify one of the plaforms"; 
-         echo "arm";
-         echo "x86";
-         exit 1
-fi
 
-if [ "${args[0]}" == "arm" ]; then 
-         platform=arm
-fi
-if [ "${args[0]}" == "x86" ]; then 
-         platform=x86
-fi
-
-if [ "$platform" == "" ]; then
-         echo "Unknown platform: " ${args[0]}
-         exit 1
-fi
-echo "Building for platform: " $platform
 
 rm -r -f libraries
 mkdir -p libraries
-mkdir -p sysroot-$platform
+mkdir -p sysroot-x86
+mkdir -p sysroot-arm
+
 git clone https://github.com/gflags/gflags.git ./libraries/gflags
 git clone https://github.com/google/glog.git ./libraries/glog
 git clone https://github.com/leethomason/tinyxml2.git ./libraries/tinyxml2
 git clone https://github.com/google/googletest.git ./libraries/googletest
 
 cd $cwd/toolchain
-tar -xf rgbclock/toolchain/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
+tar -xf gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
 cd $cwd
 
 
-cd build-$platform
+cd build-x86
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=toolchain-x86.cmake ..
+make 
+make install
+
+#now rebuild again (will find gflags this time)
+cmake ..
 make
+
+
+cd build-arm
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=toolchain-arm.cmake ..
+make
+make install
+
+
+#now rebuild again (will find gflags this time)
+cmake ..
+make
+

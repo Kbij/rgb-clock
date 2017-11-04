@@ -24,6 +24,11 @@ set(BUILD_STATIC_LIBS ON)
 set(BUILD_TESTING OFF)
 #install libraries in the sysroot directory (for eclipse)
 set(CMAKE_INSTALL_PREFIX ${SYSROOT})
+#find gflags in this directory
+#set(GFLAGS_INCLUDE_DIR ${SYSROOT}/include)
+#set(gflags_DIR ${SYSROOT}/lib/cmake/gflags)
+#set(GFLAGS_ROOT_DIR ${SYSROOT})
+set(GFLAGS_LIBRARY ${SYSROOT}/lib)
 
 #gflags settings
 set(GFLAGS_IS_SUBPROJECT TRUE)
