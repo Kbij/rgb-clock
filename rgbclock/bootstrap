@@ -20,10 +20,9 @@ git clone https://github.com/google/googletest.git ./libraries/googletest
 
 cd $cwd/toolchain
 tar -xf gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
-cd $cwd
 
 
-cd build-x86
+cd $cwd/build-x86
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=toolchain-x86.cmake ..
 make 
 make install
@@ -33,7 +32,7 @@ cmake ..
 make
 
 
-cd build-arm
+cd $cwd/build-arm
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=toolchain-arm.cmake ..
 make
 make install
