@@ -69,6 +69,8 @@ enum class EditPos
 	posVol
 };
 
+std::string toString(App::ClockState clockState);
+
 class ClockDisplay : public RadioObserverIf, public Hardware::KeyboardObserverIf {
 public:
 	ClockDisplay(I2C &i2c, RTC &rtc, Keyboard& keyboard, App::AlarmManager &alarmManager, uint8_t hwrevision, const App::UnitConfig& unitConfig);

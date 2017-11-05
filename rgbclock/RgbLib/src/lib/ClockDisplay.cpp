@@ -48,6 +48,7 @@ const int THREAD_INTERVAL_MS = 250;
 
 namespace Hardware
 {
+
 ClockDisplay::ClockDisplay(I2C &i2c, RTC &rtc, Keyboard& keyboard, App::AlarmManager &alarmManager, uint8_t hwrevision, const App::UnitConfig& unitConfig) :
 	mRTC(rtc),
 	mLCDisplay(i2c, unitConfig.mLCD),
@@ -973,5 +974,16 @@ void ClockDisplay::refreshThread()
 			}
         }
     }
+}
+std::string toString(App::ClockState clockState)
+{
+	switch(clockState)
+	{
+		case App::ClockState::clkNormal: return "clkNormal";
+		case App::ClockState::clkAlarm: return "clkAlarm";
+		case App::ClockState::clkSnooze: return "clkSnooze";
+	}
+
+	return "unknown";
 }
 }
