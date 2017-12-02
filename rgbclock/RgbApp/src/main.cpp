@@ -94,6 +94,7 @@ void daemonize()
     /* Check if parent process id is set */
     if (getppid() == 1)
     {
+    	std::cout << "Already daemon" << std::endl;
         /* PPID exists, therefore we are already a daemon */
         return;
     }
