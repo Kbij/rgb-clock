@@ -171,11 +171,13 @@ int main (int argc, char* argv[])
 	usage += argv[0];
 	gflags::SetUsageMessage(usage);
 	gflags::ParseCommandLineFlags(&argc, &argv, true);
+	std::cout << "Starting, registering signals..." << std::endl;
 
 	registerSignals();
 
 	if (FLAGS_daemon)
 	{
+		std::cout << "Daemonize..." << std::endl;
 		daemonize();
 	}
 
@@ -334,6 +336,5 @@ int main (int argc, char* argv[])
 	}
 
 	return EXIT_SUCCESS;
-
 }
 
