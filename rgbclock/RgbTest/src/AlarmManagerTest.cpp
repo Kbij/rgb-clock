@@ -145,6 +145,15 @@ TEST(AlarmManager, ReadingWritingAlarms)
 //	std::system("rm alarms.xml");
 }
 
+TEST(AlarmManager, ReadOldFile)
+{
+	WatchDogStub watchdog;
+	SystemClockStub systemClock;
+	std::system("cp ../testfiles/alarms.xml .");
+	App::AlarmManager* manager = new App::AlarmManager("alarms.xml", {"Koen", "Heidi"}, watchdog, systemClock);
+	delete manager;
+}
+
 TEST(AlarmManager, ObserveOneTimeAlarmSmooth)
 {
 	std::system("rm alarms.xml");

@@ -184,25 +184,25 @@ void AlarmManager::loadAlarms()
 		{
 			Alarm alarmSettings;
 			tinyxml2::XMLElement* enabledElement = alarm->FirstChildElement("enabled");
-        	if ( enabledElement != nullptr )
+        	if ( enabledElement != nullptr && enabledElement->GetText() != nullptr )
         	{
         		alarmSettings.mEnabled = std::stoi(enabledElement->GetText());
         	}
 
         	tinyxml2::XMLElement *unitElement = alarm->FirstChildElement("unit");
-        	if ( unitElement != nullptr )
+        	if ( (unitElement != nullptr) && (unitElement->GetText() != nullptr) )
         	{
         		alarmSettings.mUnit = unitElement->GetText();// Do not throw when no text is filled in
         	}
 
         	tinyxml2::XMLElement *hourElement = alarm->FirstChildElement("hour");
-        	if ( hourElement != nullptr )
+        	if ( hourElement != nullptr && hourElement->GetText() != nullptr )
         	{
         		alarmSettings.mHour = std::stoi(hourElement->GetText());
         	}
 
         	tinyxml2::XMLElement *minutesElement = alarm->FirstChildElement("minutes");
-        	if ( minutesElement != nullptr )
+        	if ( minutesElement != nullptr && minutesElement->GetText() != nullptr )
         	{
         		alarmSettings.mMinutes = std::stoi(minutesElement->GetText());
         	}

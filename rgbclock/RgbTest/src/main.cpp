@@ -14,7 +14,7 @@ GTEST_API_ int main(int argc, char **argv)
 {
 	google::InitGoogleLogging("RgbClock Test");
 	testing::InitGoogleTest(&argc, argv);
-//	testing::GTEST_FLAG(filter) = "AlarmManager.ReadingWritingAlarms";
+	testing::GTEST_FLAG(filter) = "AlarmManager.*";
 
 	FLAGS_logtostderr=1;
 	//FLAGS_v = 3;
@@ -22,7 +22,7 @@ GTEST_API_ int main(int argc, char **argv)
     int result = RUN_ALL_TESTS();
 
 	google::ShutdownGoogleLogging();
-	google::ShutDownCommandLineFlags();
+	gflags::ShutDownCommandLineFlags();
 	return result;
 }
 

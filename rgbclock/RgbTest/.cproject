@@ -46,12 +46,12 @@
 								</option>
 								<option id="gnu.cpp.link.option.libs.1298098719" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="RgbLib"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="tinyxml2"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="gtest"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glog"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="gflags"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="pthread"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="rt"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="gtestd"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="gflags_nothreadsd"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glogd"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="tinyxml2d"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.148795940" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
