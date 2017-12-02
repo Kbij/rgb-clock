@@ -100,7 +100,7 @@ void daemonize()
 
     /* Fork*/
     pid = fork();
-
+    std::cout << "Forked !!" << std::endl;
     if (pid < 0)
     {
         /* Could not fork */
@@ -109,13 +109,14 @@ void daemonize()
 
     if (pid > 0)
     {
+    	std::cout << "Exit parent" << std::endl;
         /* Child created ok, so exit parent process */
         exit(EXIT_SUCCESS);
     }
 
     /* Get a new process group */
     sid = setsid();
-
+    std::cout << "This is the forked process" << std::endl;
     if (sid < 0)
     {
         exit(EXIT_FAILURE);
@@ -163,6 +164,7 @@ void daemonize()
 
     /* write pid to lockfile */
     write(pidFilehandle, str, strlen(str));
+    std::cout << "pid file wirtten" << std::endl;
 }
 
 int main (int argc, char* argv[])
