@@ -193,13 +193,14 @@ int main (int argc, char* argv[])
 
 		// Create the config object; load the XML file with the settings
 		App::Config config(FLAGS_configfile);
-    	i2c.registerAddresses(config);
-
 		if (!config.errorFree())
 		{
+			LOG(ERROR) << "Errors found in the config, exiting";
 			// No errorfree load; exit the application
 			return -1;
 		}
+
+    	i2c.registerAddresses(config);
 
 		std::map<std::string, std::unique_ptr<App::AlarmClock>> startedUnits;
 		std::map<std::string, std::unique_ptr<Hardware::Light>> startedLights;
