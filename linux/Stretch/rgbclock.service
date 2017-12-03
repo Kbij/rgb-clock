@@ -1,0 +1,11 @@
+[Unit]
+Description=RgbClock daemon
+
+[Service]
+Type=forking
+PIDFile=/var/run/rgbclock.pid
+ExecStart=/home/pi/RgbClock -daemon true -pidfile /var/run/rgbclock.pid  -log_dir /var/log -alarmfile=/home/pi/alarms.xml -configfile=/home/pi/settings.xml
+User=root
+
+[Install]
+WantedBy=multi-user.target
