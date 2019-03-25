@@ -85,8 +85,9 @@ void AlarmClock::keyboardPressed(const Hardware::KeyboardInfo& keyboardInfo)
 {
 	if ((mClockState == ClockState::clkAlarm) || (mClockState == ClockState::clkSnooze))
 	{
-		if (keyboardInfo.mKeyInfo[KEY_LEFT].mShortPressed)
+		if (keyboardInfo.mKeyInfo[KEY_LEFT].mShortPressed || keyboardInfo.mKeyInfo[KEY_LEFT].mLongPress)
 		{
+			LOG(INFO) << "Sending Alarm Off";
 			mAlarmManager.sendAlarmOff();
 		}
 
@@ -152,6 +153,7 @@ void AlarmClock::alarmSnooze()
 
 void AlarmClock::alarmOff()
 {
+	LOG(INFO) << "Alarm off received";
 	if ((mClockState == ClockState::clkAlarm) || (mClockState == ClockState::clkSnooze))
 	{
 		if (mClockState == ClockState::clkAlarm)
@@ -195,7 +197,6 @@ void AlarmClock::startAlarm(bool smooth)
 	{
 		mLight->pwrOn(smooth);
 	}
-
 }
 
 void AlarmClock::startAlarmMaintenanceThread()
