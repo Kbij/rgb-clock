@@ -24107,8 +24107,8 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <variantdefs>
 </variantdefs>
 <classes>
-<class number="0" name="default" width="0.254" drill="0">
-<clearance class="0" value="0.254"/>
+<class number="0" name="default" width="0.2032" drill="0">
+<clearance class="0" value="0.1524"/>
 </class>
 <class number="1" name="Normal Bcc" width="0.254" drill="0">
 <clearance class="1" value="0.254"/>
@@ -26440,7 +26440,7 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <junction x="151.13" y="52.07"/>
 </segment>
 </net>
-<net name="N$4" class="0">
+<net name="N$4" class="2">
 <segment>
 <pinref part="JP2" gate="A" pin="1"/>
 <pinref part="CON1" gate="A" pin="2"/>
@@ -26451,50 +26451,14 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 </sheet>
 </sheets>
 <errors>
-<approved hash="104,1,20.32,63.5,U3,VCCA,N$8,,,"/>
-<approved hash="104,1,20.32,60.96,U3,VCCB,+3V3,,,"/>
-<approved hash="104,1,-15.24,5.08,U4,VCC,+3V3,,,"/>
 <approved hash="104,1,269.24,99.06,U13,VDD,+3V3,,,"/>
 <approved hash="104,1,269.24,73.66,U13,VSS,N$57,,,"/>
-<approved hash="104,1,81.28,-78.74,U6,VCC,+3V3,,,"/>
-<approved hash="104,1,81.28,-81.28,U6,VBAT,N$16,,,"/>
-<approved hash="104,1,142.24,149.86,U8,IN,+5V,,,"/>
-<approved hash="104,1,10.16,154.94,U5,VIN,VCC,,,"/>
-<approved hash="202,1,10.16,144.78,U5,ON/~OFF,,,,"/>
-<approved hash="104,1,195.58,106.68,U9,VCC,+3V3,,,"/>
-<approved hash="104,1,195.58,71.12,U10,VCC,+3V3,,,"/>
-<approved hash="104,1,195.58,15.24,U11,VCC,+3V3,,,"/>
-<approved hash="104,1,195.58,-20.32,U12,VCC,+3V3,,,"/>
 <approved hash="104,1,292.1,30.48,IC1,VDD,+3V3,,,"/>
 <approved hash="104,1,292.1,-10.16,IC1,VSS,GND,,,"/>
-<approved hash="104,1,-17.78,-66.04,U2,VCC,+3V3,,,"/>
-<approved hash="104,1,157.48,60.96,U7,GND2,GND,,,"/>
-<approved hash="104,1,157.48,63.5,U7,GND1,GND,,,"/>
-<approved hash="104,1,157.48,78.74,U7,VD,+3V3,,,"/>
-<approved hash="104,1,157.48,81.28,U7,VA,+3V3,,,"/>
-<approved hash="208,1,33.02,68.58,+3V3,sup,,,,"/>
-<approved hash="208,1,-20.32,10.16,+3V3,sup,,,,"/>
 <approved hash="208,1,177.8,149.86,+3V3,out,,,,"/>
 <approved hash="208,1,185.42,160.02,+3V3,sup,,,,"/>
-<approved hash="208,1,71.12,-71.12,+3V3,sup,,,,"/>
-<approved hash="208,1,-35.56,48.26,+3V3,sup,,,,"/>
-<approved hash="208,1,-43.18,48.26,+3V3,sup,,,,"/>
 <approved hash="208,1,314.96,17.78,+3V3,sup,,,,"/>
-<approved hash="208,1,195.58,111.76,+3V3,sup,,,,"/>
-<approved hash="208,1,195.58,73.66,+3V3,sup,,,,"/>
-<approved hash="208,1,195.58,17.78,+3V3,sup,,,,"/>
-<approved hash="208,1,195.58,-17.78,+3V3,sup,,,,"/>
-<approved hash="208,1,261.62,116.84,+3V3,sup,,,,"/>
 <approved hash="208,1,297.18,33.02,+3V3,sup,,,,"/>
-<approved hash="208,1,167.64,109.22,+3V3,sup,,,,"/>
-<approved hash="208,1,180.34,-17.78,+3V3,sup,,,,"/>
-<approved hash="208,1,180.34,17.78,+3V3,sup,,,,"/>
-<approved hash="208,1,-12.7,-60.96,+3V3,sup,,,,"/>
-<approved hash="115,1,-78.2743,107.167,X1,,,,,"/>
-<approved hash="115,1,-54.9431,-68.1905,JP1,,,,,"/>
-<approved hash="115,1,446.888,15.4347,X6,,,,,"/>
-<approved hash="115,1,-65.8876,154.745,X5,,,,,"/>
-<approved hash="115,1,-63.5,49.3353,CON1,,,,,"/>
 </errors>
 </schematic>
 </drawing>
