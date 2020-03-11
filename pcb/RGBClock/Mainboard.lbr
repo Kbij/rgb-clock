@@ -14489,6 +14489,18 @@ type V526-0, grid 2.5 mm</description>
 <text x="-2.4" y="-2.45" size="1.016" layer="25">&gt;NAME</text>
 <smd name="EXP" x="0" y="0" dx="5.3" dy="5.3" layer="1" cream="no"/>
 </package>
+<package name="ABM8">
+<smd name="4" x="-1.65" y="0.8" dx="0.9" dy="0.65" layer="1"/>
+<smd name="3" x="1.65" y="0.8" dx="0.9" dy="0.65" layer="1"/>
+<smd name="2" x="1.65" y="-0.8" dx="0.9" dy="0.65" layer="1"/>
+<smd name="1" x="-1.65" y="-0.8" dx="0.9" dy="0.65" layer="1"/>
+<wire x1="-2.15" y1="1.25" x2="2.25" y2="1.25" width="0.127" layer="51"/>
+<wire x1="2.25" y1="1.25" x2="2.25" y2="-1.25" width="0.127" layer="51"/>
+<wire x1="2.25" y1="-1.25" x2="-2.2" y2="-1.25" width="0.127" layer="51"/>
+<wire x1="-2.2" y1="-1.25" x2="-2.2" y2="1.25" width="0.127" layer="51"/>
+<circle x="-2.45" y="1.05" radius="0.14141875" width="0.127" layer="51"/>
+<text x="-1.95" y="-2.3" size="0.8128" layer="51">&gt;NAME</text>
+</package>
 </packages>
 <symbols>
 <symbol name="BOURNS_BY_ELEMENT14_BATCH_1_IND">
@@ -15210,6 +15222,26 @@ type V526-0, grid 2.5 mm</description>
 <pin name="VCCB" x="-17.78" y="0" length="middle" direction="pwr"/>
 <text x="-5.3594" y="9.0678" size="2.0828" layer="95" ratio="10" rot="SR0">&gt;NAME</text>
 <text x="-4.3942" y="-18.3134" size="2.0828" layer="96" ratio="10" rot="SR0">&gt;VALUE</text>
+</symbol>
+<symbol name="ABM8-CRYSTAL">
+<wire x1="1.016" y1="0" x2="2.54" y2="0" width="0.1524" layer="94"/>
+<wire x1="-2.54" y1="0" x2="-1.016" y2="0" width="0.1524" layer="94"/>
+<wire x1="-0.381" y1="1.524" x2="-0.381" y2="-1.524" width="0.254" layer="94"/>
+<wire x1="-0.381" y1="-1.524" x2="0.381" y2="-1.524" width="0.254" layer="94"/>
+<wire x1="0.381" y1="-1.524" x2="0.381" y2="1.524" width="0.254" layer="94"/>
+<wire x1="0.381" y1="1.524" x2="-0.381" y2="1.524" width="0.254" layer="94"/>
+<wire x1="1.016" y1="1.778" x2="1.016" y2="-1.778" width="0.254" layer="94"/>
+<wire x1="-1.016" y1="1.778" x2="-1.016" y2="-1.778" width="0.254" layer="94"/>
+<pin name="1" x="-2.54" y="0" visible="off" length="point" direction="pas" swaplevel="1"/>
+<pin name="2" x="2.54" y="0" visible="off" length="point" direction="pas" swaplevel="1" rot="R180"/>
+<text x="5.08" y="1.016" size="1.778" layer="95">&gt;NAME</text>
+<text x="5.08" y="-2.54" size="1.778" layer="96">&gt;VALUE</text>
+<text x="-2.159" y="-1.143" size="0.8636" layer="93">1</text>
+<text x="1.524" y="-1.143" size="0.8636" layer="93">2</text>
+<pin name="GND2" x="0" y="-5.08" visible="off" length="short" rot="R90"/>
+<pin name="GND1" x="0" y="5.08" visible="off" length="short" rot="R270"/>
+<wire x1="-2.54" y1="2.54" x2="2.54" y2="2.54" width="0.254" layer="94" style="shortdash"/>
+<wire x1="-2.54" y1="-2.54" x2="2.54" y2="-2.54" width="0.254" layer="94" style="shortdash"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -22301,6 +22333,24 @@ oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
 <connect gate="A" pin="VMEM" pad="35"/>
 <connect gate="A" pin="XTALI" pad="15"/>
 <connect gate="A" pin="XTALO" pad="16"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="ABM8-CRYSTAL">
+<gates>
+<gate name="A" symbol="ABM8-CRYSTAL" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="ABM8">
+<connects>
+<connect gate="A" pin="1" pad="1"/>
+<connect gate="A" pin="2" pad="3"/>
+<connect gate="A" pin="GND1" pad="2"/>
+<connect gate="A" pin="GND2" pad="4"/>
 </connects>
 <technologies>
 <technology name=""/>
