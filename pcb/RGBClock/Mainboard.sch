@@ -11490,13 +11490,13 @@ Source: http://www.lumberg.com/Produkte/PDFs/1503_09.pdf</description>
 <smd name="EXP" x="0" y="0" dx="5.3" dy="5.3" layer="1" cream="no"/>
 </package>
 <package name="ABM8">
-<smd name="4" x="-1.65" y="0.8" dx="0.9" dy="0.65" layer="1"/>
-<smd name="3" x="1.65" y="0.8" dx="0.9" dy="0.65" layer="1"/>
-<smd name="2" x="1.65" y="-0.8" dx="0.9" dy="0.65" layer="1"/>
+<smd name="4" x="-1.65" y="0.85" dx="0.9" dy="0.65" layer="1"/>
+<smd name="3" x="0.45" y="0.85" dx="0.9" dy="0.65" layer="1"/>
+<smd name="2" x="0.45" y="-0.8" dx="0.9" dy="0.65" layer="1"/>
 <smd name="1" x="-1.65" y="-0.8" dx="0.9" dy="0.65" layer="1"/>
-<wire x1="-2.15" y1="1.25" x2="2.25" y2="1.25" width="0.127" layer="51"/>
-<wire x1="2.25" y1="1.25" x2="2.25" y2="-1.25" width="0.127" layer="51"/>
-<wire x1="2.25" y1="-1.25" x2="-2.2" y2="-1.25" width="0.127" layer="51"/>
+<wire x1="-2.15" y1="1.25" x2="1" y2="1.25" width="0.127" layer="51"/>
+<wire x1="1" y1="1.25" x2="1" y2="-1.25" width="0.127" layer="51"/>
+<wire x1="1" y1="-1.25" x2="-2.2" y2="-1.25" width="0.127" layer="51"/>
 <wire x1="-2.2" y1="-1.25" x2="-2.2" y2="1.25" width="0.127" layer="51"/>
 <circle x="-2.45" y="1.05" radius="0.14141875" width="0.127" layer="51"/>
 <text x="-1.95" y="-2.3" size="0.8128" layer="51">&gt;NAME</text>
@@ -23315,8 +23315,8 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <attribute name="VALUE" x="83.82" y="11.43" size="1.778" layer="96"/>
 </instance>
 <instance part="U$2" gate="A" x="86.36" y="25.4" smashed="yes">
-<attribute name="NAME" x="91.44" y="26.416" size="1.778" layer="95"/>
-<attribute name="VALUE" x="91.44" y="22.86" size="1.778" layer="96"/>
+<attribute name="NAME" x="73.66" y="26.416" size="1.778" layer="95"/>
+<attribute name="VALUE" x="58.42" y="22.86" size="1.778" layer="96"/>
 </instance>
 </instances>
 <busses>
