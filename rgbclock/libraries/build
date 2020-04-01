@@ -127,10 +127,10 @@ mkdir -p ./buildlibs/libtinyxml2-$platform
 cd ./buildlibs/libtinyxml2-$platform/
 if [ "$platform" == "arm" ]; then
 	cp ../../toolchain-arm.cmake .
-	cmake ../tinyxml2 -DCMAKE_TOOLCHAIN_FILE=toolchain-arm.cmake -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+	cmake ../tinyxml2 -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=toolchain-arm.cmake -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
 fi
 if [ "$platform" == "x86" ]; then
-	cmake ../tinyxml2 -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+	cmake ../tinyxml2 -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
 fi
 make
 make install
