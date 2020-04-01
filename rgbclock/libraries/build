@@ -1,0 +1,129 @@
+#!/bin/bash
+[ -z $BASH ] || shopt -s expand_aliases
+alias BEGINCOMMENT="if [ ]; then"
+alias ENDCOMMENT="fi"
+
+
+echo "Building RgbClock libraries"
+cwd=$(pwd)
+
+args=("$@")
+#echo arguments to the shell
+
+if [ -z ${args[0]+x} ]; then 
+	echo "Please specify one of the plaforms"; 
+	echo "arm";
+	echo "x86";
+	exit 1
+fi
+
+if [ "${args[0]}" == "arm" ]; then 
+	platform=arm
+fi
+if [ "${args[0]}" == "x86" ]; then 
+	platform=x86
+fi
+
+if [ "$platform" == "" ]; then
+	echo "Unknown platform: " ${args[0]}
+	exit 1
+fi
+echo "Building for platform: " $platform
+
+
+
+export PKG_CONFIG_PATH=$cwd/sysroot-$platform/lib/pkgconfig
+export LD_LIBRARY_PATH=$cwd/sysroot-$platform/lib
+mkdir -p ./sysroot-$platform
+mkdir -p ./buildlibs
+
+sysroot=`cd ./sysroot-$platform/; pwd`
+
+echo "Sysroot: " $sysroot
+
+
+export PATH=$cwd/../toolchain/gcc-linaro-6.3.1-2017.05-i686_arm-linux-gnueabihf/bin:$PATH
+echo "Path: " $PATH
+
+
+if [ "$platform" == "arm" ]; then
+	export CC=arm-linux-gnueabihf-gcc
+	export CXX=arm-linux-gnueabihf-g++
+	export AR=arm-linux-gnueabihf-ar
+	export AS=arm-linux-gnueabihf-as
+	export LD=arm-linux-gnueabihf-ld
+fi
+
+BEGINCOMMENT
+#Check for gflags
+if [ ! -f ./buildlibs/gflags/CMakeLists.txt ]; then
+	echo "Git Clone gflags"
+	git clone -b v2.2.2 --single-branch -c advice.detachedHead=false https://github.com/gflags/gflags.git ./buildlibs/gflags
+fi
+
+mkdir -p ./buildlibs/libgflags-$platform
+cd ./buildlibs/libgflags-$platform/
+if [ "$platform" == "arm" ]; then
+	cp ../../toolchain-arm.cmake .
+	cmake ../gflags -DCMAKE_CXX_FLAGS="-fPIC" -DCMAKE_TOOLCHAIN_FILE=toolchain-arm.cmake -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+fi
+if [ "$platform" == "x86" ]; then
+	cmake ../gflags -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+fi
+make
+make install
+cd $cwd
+
+
+
+#Check for glog
+if [ ! -f ./buildlibs/glog/CMakeLists.txt ]; then
+    echo "Git clone glog"
+	git clone -b v0.4.0 --single-branch -c advice.detachedHead=false https://github.com/google/glog.git ./buildlibs/glog
+fi
+
+mkdir -p ./buildlibs/libglog-$platform
+cd ./buildlibs/libglog-$platform/
+if [ "$platform" == "arm" ]; then
+	cp ../../toolchain-arm.cmake .
+	cmake ../glog -DCMAKE_CXX_FLAGS="-fPIC" -DBUILD_TESTING=false -DCMAKE_TOOLCHAIN_FILE=toolchain-arm.cmake -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+fi
+if [ "$platform" == "x86" ]; then
+	cmake ../glog -DBUILD_TESTING=false -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+fi
+make
+make install
+cd $cwd
+ENDCOMMENT
+
+
+#Check for gtest
+if [ ! -f ./buildlibs/gtest/googletest/CMakeLists.txt ]; then
+    echo "Git clone gtest"
+	git clone -b release-1.10.0 --single-branch -c advice.detachedHead=false https://github.com/google/googletest.git ./buildlibs/gtest
+fi
+
+mkdir -p ./buildlibs/libgtest-$platform
+cd ./buildlibs/libgtest-$platform/
+if [ "$platform" == "arm" ]; then
+	cp ../../toolchain-arm.cmake .
+	cmake ../gtest -DCMAKE_TOOLCHAIN_FILE=toolchain-arm.cmake -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+fi
+if [ "$platform" == "x86" ]; then
+	cmake ../gtest -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+fi
+make
+make install
+cd $cwd
+
+
+build
+tinyxml2
+
+
+
+
+
+
+
+
