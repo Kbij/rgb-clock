@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<alarms>
+    <alarm>
+        <enabled>1</enabled>
+        <unit></unit>
+        <hour>6</hour>
+        <minutes>50</minutes>
+        <onetime>0</onetime>
+        <days>0111110</days>
+        <volume>45</volume>
+    </alarm>
+    <alarm>
+        <enabled>0</enabled>
+        <unit>Heidi</unit>
+        <hour>8</hour>
+        <minutes>30</minutes>
+        <onetime>1</onetime>
+        <days>0110110</days>
+        <volume>45</volume>
+    </alarm>
+    <alarm>
+        <enabled>0</enabled>
+        <unit>Koen</unit>
+        <hour>6</hour>
+        <minutes>50</minutes>
+        <onetime>1</onetime>
+        <days>1011110</days>
+        <volume>35</volume>
+    </alarm>
+    <alarm>
+        <enabled>0</enabled>
+        <unit></unit>
+        <hour>8</hour>
+        <minutes>45</minutes>
+        <onetime>1</onetime>
+        <days>0000000</days>
+        <volume>35</volume>
+    </alarm>
+</alarms>

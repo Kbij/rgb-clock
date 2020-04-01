@@ -16,33 +16,19 @@ else()
 endif()
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin-${RGBCLOCK_PLATFORM})
-set (SYSROOT ${CMAKE_CURRENT_SOURCE_DIR}/sysroot-${RGBCLOCK_PLATFORM})
+set (SYSROOT ${CMAKE_CURRENT_SOURCE_DIR}/libraries/sysroot-${RGBCLOCK_PLATFORM})
 message(STATUS "Sysroot: " ${SYSROOT})
+link_directories(${SYSROOT}/lib)
+
 set(BUILD_STATIC_LIBS ON)
 
-#No glog testing
-set(BUILD_TESTING OFF)
-#install libraries in the sysroot directory (for eclipse)
-set(CMAKE_INSTALL_PREFIX ${SYSROOT})
-#find gflags in this directory
-set(GFLAGS_LIBRARY ${SYSROOT}/lib)
 
-#gflags settings
-set(GFLAGS_IS_SUBPROJECT TRUE)
-set(INSTALL_HEADERS TRUE)
-set(GFLAGS_INSTALL_STATIC_LIBS TRUE)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR})
-set(GFLAGS_INCLUDE_DIR "gflags")
 
-#for tinyxml2:
-SET(BUILD_SHARED_LIBS OFF)
-SET(BUILD_STATIC_LIBS ON)
-SET(BUILD_TESTS OFF)
+# Prevent overriding the parent project's compiler/linker
+# settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-add_subdirectory (./libraries/gflags)
-add_subdirectory (./libraries/glog)
-add_subdirectory (./libraries/googletest)
-add_subdirectory (./libraries/tinyxml2)
 
 add_subdirectory (./RgbLib)
 add_subdirectory (./RgbApp)
+add_subdirectory (./RgbTest)

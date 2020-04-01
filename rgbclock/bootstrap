@@ -6,39 +6,23 @@ cwd=$(pwd)
 args=("$@")
 #echo arguments to the shell
 
-
-
-rm -r -f libraries
-mkdir -p libraries
-mkdir -p sysroot-x86
-mkdir -p sysroot-arm
-
-git clone https://github.com/gflags/gflags.git ./libraries/gflags
-git clone https://github.com/google/glog.git ./libraries/glog
-git clone https://github.com/leethomason/tinyxml2.git ./libraries/tinyxml2
-git clone https://github.com/google/googletest.git ./libraries/googletest
-
 cd $cwd/toolchain
-tar -xf gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux.tar.xz
+wget https://releases.linaro.org/components/toolchain/binaries/6.3-2017.05/arm-linux-gnueabihf/gcc-linaro-6.3.1-2017.05-i686_arm-linux-gnueabihf.tar.xz
+tar -xf gcc-linaro-6.3.1-2017.05-i686_arm-linux-gnueabihf.tar.xz
+
+#Build libraries
+cd libraries
+./build arm
+./build x86
 
 
 cd $cwd/build-x86
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=toolchain-x86.cmake ..
 make 
-make install
-
-#now rebuild again (will find gflags this time)
-cmake ..
-make
-
 
 cd $cwd/build-arm
 cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=toolchain-arm.cmake ..
 make
-make install
 
 
-#now rebuild again (will find gflags this time)
-cmake ..
-make
 

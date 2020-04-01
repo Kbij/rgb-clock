@@ -54,7 +54,7 @@ if [ "$platform" == "arm" ]; then
 	export LD=arm-linux-gnueabihf-ld
 fi
 
-BEGINCOMMENT
+#BEGINCOMMENT
 #Check for gflags
 if [ ! -f ./buildlibs/gflags/CMakeLists.txt ]; then
 	echo "Git Clone gflags"
@@ -94,7 +94,7 @@ fi
 make
 make install
 cd $cwd
-ENDCOMMENT
+#ENDCOMMENT
 
 
 #Check for gtest
@@ -117,9 +117,24 @@ make install
 cd $cwd
 
 
-build
-tinyxml2
+#Check for tinyxml2
+if [ ! -f ./buildlibs/tinyxml2/CMakeLists.txt ]; then
+    echo "Git tinyxml2 gtest"
+	git clone -b 8.0.0 --single-branch -c advice.detachedHead=false https://github.com/leethomason/tinyxml2.git ./buildlibs/tinyxml2
+fi
 
+mkdir -p ./buildlibs/libtinyxml2-$platform
+cd ./buildlibs/libtinyxml2-$platform/
+if [ "$platform" == "arm" ]; then
+	cp ../../toolchain-arm.cmake .
+	cmake ../tinyxml2 -DCMAKE_TOOLCHAIN_FILE=toolchain-arm.cmake -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+fi
+if [ "$platform" == "x86" ]; then
+	cmake ../tinyxml2 -DCMAKE_INSTALL_PREFIX:PATH=$sysroot
+fi
+make
+make install
+cd $cwd
 
 
 
