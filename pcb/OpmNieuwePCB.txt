@@ -1,0 +1,7 @@
+Voedingen controleren !! (power)
+Jack: grotere boring
+Verkeerde diode in power input (polariteit diode)
+GPIO: GND en VCC allemaal doorverbinden
+1.8 ipv 1.5 v
+I2C Select
+kristal

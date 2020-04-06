@@ -23776,6 +23776,12 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <wire x1="261.62" y1="114.3" x2="261.62" y2="119.38" width="0.1524" layer="91"/>
 <junction x="261.62" y="114.3"/>
 </segment>
+<segment>
+<pinref part="U$6" gate="A" pin="SMODE"/>
+<pinref part="+3V9" gate="G$1" pin="+3V3"/>
+<wire x1="66.04" y1="76.2" x2="48.26" y2="76.2" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="76.2" x2="48.26" y2="81.28" width="0.1524" layer="91"/>
+</segment>
 </net>
 <net name="+5V" class="2">
 <segment>
@@ -24602,16 +24608,19 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 </segment>
 <segment>
 <wire x1="111.76" y1="99.06" x2="111.76" y2="101.6" width="0.1524" layer="91"/>
-<pinref part="C28" gate="G$1" pin="2"/>
 <wire x1="111.76" y1="101.6" x2="111.76" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="111.76" y1="106.68" x2="111.76" y2="107.95" width="0.1524" layer="91"/>
-<wire x1="116.84" y1="107.95" x2="111.76" y2="107.95" width="0.1524" layer="91"/>
 <pinref part="C29" gate="G$1" pin="2"/>
 <wire x1="116.84" y1="101.6" x2="111.76" y2="101.6" width="0.1524" layer="91"/>
 <junction x="111.76" y="101.6"/>
 <pinref part="P+6" gate="1" pin="+24V"/>
-<wire x1="111.76" y1="111.76" x2="111.76" y2="107.95" width="0.1524" layer="91"/>
+<wire x1="111.76" y1="111.76" x2="111.76" y2="109.22" width="0.1524" layer="91"/>
 <pinref part="U$6" gate="A" pin="VCORE"/>
+<pinref part="C28" gate="G$1" pin="2"/>
+<wire x1="111.76" y1="109.22" x2="111.76" y2="107.95" width="0.1524" layer="91"/>
+<wire x1="116.84" y1="107.95" x2="111.76" y2="107.95" width="0.1524" layer="91"/>
+<wire x1="111.76" y1="107.95" x2="111.76" y2="109.22" width="0.1524" layer="91"/>
+<junction x="111.76" y="109.22"/>
 </segment>
 </net>
 <net name="N$26" class="4">
@@ -24736,14 +24745,6 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <pinref part="JP2" gate="A" pin="1"/>
 <pinref part="CON1" gate="A" pin="2"/>
 <wire x1="-124.46" y1="71.12" x2="-124.46" y2="66.04" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$62" class="4">
-<segment>
-<pinref part="+3V9" gate="G$1" pin="+3V3"/>
-<wire x1="48.26" y1="81.28" x2="48.26" y2="76.2" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="76.2" x2="66.04" y2="76.2" width="0.1524" layer="91"/>
-<pinref part="U$6" gate="A" pin="SMODE"/>
 </segment>
 </net>
 <net name="N$2" class="0">
