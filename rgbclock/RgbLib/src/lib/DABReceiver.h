@@ -1,12 +1,11 @@
 /*
- * FMReceiver.h
- *
- *  Created on: May 15, 2013
- *      Author: koen
- */
+** RgbClock
+** File description:
+** DABReceiver
+*/
 
-#ifndef FMRECEIVER_H_
-#define FMRECEIVER_H_
+#ifndef DABRECEIVER_H_
+#define DABRECEIVER_H_
 
 #include "I2C.h"
 #include "RadioObserverIf.h"
@@ -23,7 +22,7 @@ namespace Hardware
 class Radio;
 class MainboardControl;
 
-enum class FMPowerState
+enum class DABPowerState
 {
 	Unknown,
 	PowerOn,
@@ -31,37 +30,22 @@ enum class FMPowerState
 
 };
 
-
-class FMReceiver {
+class DABReceiver
+{
 public:
-	FMReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl &mainboardControl);
-	virtual ~FMReceiver();
+	DABReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl &mainboardControl);
+	virtual ~DABReceiver();
 	friend Radio;
     bool powerOn();
-    bool tuneFrequency(double frequency);
 
 private:
 	void registerRadioObserver(RadioObserverIf *observer);
     void unRegisterRadioObserver(RadioObserverIf *observer);
 
-//    bool powerOn();
 	bool powerOff();
 
 	bool internalPowerOn();
 	bool internalPowerOff();
-
-	bool seekUp(int timeout);
-//	bool tuneFrequency(double frequency);
-	RDSInfo getRDSInfo();
-
-	void readRDSInfo();
-	bool setProperty(int property, int value);
-	bool getProperty(int property, int& value);
-	bool waitForCTS();
-	bool waitForSTC();
-	bool readCTS();
-	bool readSTC();
-	bool readRDSInt();
 
 	void startReadThread();
 	void stopReadThread();
@@ -74,15 +58,12 @@ private:
     Hardware::MainboardControl &mMainboardControl;
 	int mPowerCounter;
 	std::mutex mPowerMutex;
-	FMPowerState mPowerState;
-	RDSInfo mRDSInfo;
-	RDSInfo mReceivingRDSInfo;
-	std::recursive_mutex mReceiverMutex;
-	std::recursive_mutex mRdsInfoMutex;
+	DABPowerState mPowerState;
+    std::recursive_mutex mReceiverMutex;
     std::unique_ptr<std::thread> mReadThread;
     std::atomic_bool mReadThreadRunning;
     std::set<RadioObserverIf*> mRadioObservers;
     std::recursive_mutex mRadioObserversMutex;
 };
 }
-#endif /* FMRECEIVER_H_ */
+#endif /* !DABRECEIVER_H_ */

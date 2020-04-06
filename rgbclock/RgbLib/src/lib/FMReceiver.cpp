@@ -25,7 +25,7 @@ FMReceiver::FMReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl &ma
 		mMainboardControl(mainboardControl),
 		mPowerCounter(0),
 		mPowerMutex(),
-		mPowerState(PowerState::Unknown),
+		mPowerState(FMPowerState::Unknown),
 		mRDSInfo(),
 		mReceivingRDSInfo(),
 		mReceiverMutex(),
@@ -155,8 +155,8 @@ bool FMReceiver::internalPowerOff()
     std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
 	switch (mPowerState)
 	{
-		case PowerState::PowerOff : return true;
-		case PowerState::PowerOn :
+		case FMPowerState::PowerOff : return true;
+		case FMPowerState::PowerOn :
 			if (!waitForCTS())
 			{
 				return false;
