@@ -16,6 +16,8 @@
 #include <thread>
 #include <set>
 #include <memory>
+#include <vector>
+
 
 namespace Hardware
 {
@@ -30,10 +32,12 @@ enum class DABPowerState
 
 };
 
+
+
 class DABReceiver
 {
 public:
-	DABReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl &mainboardControl);
+	DABReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl* mainboardControl);
 	virtual ~DABReceiver();
 	friend Radio;
     bool powerOn();
@@ -42,10 +46,19 @@ private:
 	void registerRadioObserver(RadioObserverIf *observer);
     void unRegisterRadioObserver(RadioObserverIf *observer);
 
+    void init();
+
 	bool powerOff();
 
 	bool internalPowerOn();
 	bool internalPowerOff();
+
+	bool setProperty(int property, int value);
+	bool getProperty(int property, int& value);
+	bool waitForCTS();
+	bool readCTS();
+    std::vector<uint8_t> sendCommand(uint8_t command, uint8_t resultLength);
+    std::vector<uint8_t> sendCommand(uint8_t command, const std::vector<uint8_t>& param, uint8_t resultLength);
 
 	void startReadThread();
 	void stopReadThread();
@@ -55,7 +68,7 @@ private:
 
 	I2C &mI2C;
 	const uint8_t mAddress;
-    Hardware::MainboardControl &mMainboardControl;
+    Hardware::MainboardControl* mMainboardControl;
 	int mPowerCounter;
 	std::mutex mPowerMutex;
 	DABPowerState mPowerState;

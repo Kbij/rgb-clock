@@ -34,7 +34,7 @@ enum class FMPowerState
 
 class FMReceiver {
 public:
-	FMReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl &mainboardControl);
+	FMReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl* mainboardControl);
 	virtual ~FMReceiver();
 	friend Radio;
     bool powerOn();
@@ -71,7 +71,7 @@ private:
 
 	I2C &mI2C;
 	const uint8_t mAddress;
-    Hardware::MainboardControl &mMainboardControl;
+    Hardware::MainboardControl* mMainboardControl;
 	int mPowerCounter;
 	std::mutex mPowerMutex;
 	FMPowerState mPowerState;

@@ -19,7 +19,7 @@
 namespace Hardware
 {
 
-FMReceiver::FMReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl &mainboardControl) :
+FMReceiver::FMReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl* mainboardControl) :
 		mI2C(i2c),
 		mAddress(address),
 		mMainboardControl(mainboardControl),
@@ -35,11 +35,11 @@ FMReceiver::FMReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl &ma
 		mRadioObservers(),
 		mRadioObserversMutex()
 {
-	mMainboardControl.resetTuner();
+	if (mMainboardControl) mMainboardControl->resetTuner();
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
 	powerOff();
-	mMainboardControl.selectInput(InputSelection::RadioIn);
+	if (mMainboardControl) mMainboardControl->selectInput(InputSelection::RadioIn);
 
     std::lock_guard<std::mutex> lk_guard(mPowerMutex);
     mPowerCounter = 0;
