@@ -11,9 +11,13 @@
 
 namespace Hardware
 {
-    const uint8_t SI46XX_RD_REPLY = 0x00;
-    const uint8_t SI46XX_POWER_UP = 0x01;
-
+    const uint8_t SI468X_RD_REPLY = 0x00;
+    const uint8_t SI468X_POWER_UP = 0x01;
+    const uint8_t SI468X_HOST_LOAD = 0x04;
+    const uint8_t SI468X_BOOT = 0x07;
+    const uint8_t SI468X_GET_PART_INFO = 0x08;
+    const uint8_t SI468X_GET_SYS_STATE = 0x09;
+    const uint8_t SI468X_LOAD_INIT = 0x06;
 }
 
 #endif /* !DABRECEIVERDEF_H_ */

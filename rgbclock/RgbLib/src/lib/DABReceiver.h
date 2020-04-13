@@ -32,8 +32,6 @@ enum class DABPowerState
 
 };
 
-
-
 class DABReceiver
 {
 public:
@@ -47,6 +45,10 @@ private:
     void unRegisterRadioObserver(RadioObserverIf *observer);
 
     void init();
+	void readSysState();
+	void readStatus();
+	void readPartInfo();
+	void hostload(const std::string& fileName);
 
 	bool powerOff();
 
@@ -56,7 +58,6 @@ private:
 	bool setProperty(int property, int value);
 	bool getProperty(int property, int& value);
 	bool waitForCTS();
-	bool readCTS();
     std::vector<uint8_t> sendCommand(uint8_t command, uint8_t resultLength);
     std::vector<uint8_t> sendCommand(uint8_t command, const std::vector<uint8_t>& param, uint8_t resultLength);
 

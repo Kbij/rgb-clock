@@ -13,8 +13,4 @@ target_link_libraries (RgbTest pthread)
 target_link_libraries (RgbTest rt)
 target_link_libraries (RgbTest gtest)
 
-
-
-
-
-
+add_custom_command(TARGET RgbTest POST_BUILD COMMAND scp $<TARGET_FILE:RgbTest> pi@motioncam.lan:/home/pi )

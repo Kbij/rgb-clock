@@ -14,7 +14,7 @@ GTEST_API_ int main(int argc, char **argv)
 {
 	google::InitGoogleLogging("RgbClock Test");
 	testing::InitGoogleTest(&argc, argv);
-	testing::GTEST_FLAG(filter) = "AlarmManager.*";
+	google::ParseCommandLineFlags(&argc, &argv, true);
 
 	FLAGS_logtostderr=1;
 	//FLAGS_v = 3;

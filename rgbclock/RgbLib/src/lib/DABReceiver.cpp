@@ -6,16 +6,25 @@
 
 #include "DABReceiver.h"
 #include "DABReceiverDef.h"
+#include "DABCommands.h"
 #include "FMReceiver.h"
 #include "RadioObserverIf.h"
 #include "SI4735.h"
 #include "MainboardControl.h"
+#include "Utils.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <glog/stl_logging.h>
 #include <glog/logging.h>
 #include <algorithm>
 #include <pthread.h>
+#include <iomanip>
+
+namespace 
+{
+const int FIRMWARE_BLOCK_SIZE = 4096;
+}
 
 namespace Hardware
 {
@@ -42,12 +51,14 @@ DABReceiver::DABReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl* 
     mPowerCounter = 0;
 
 	mI2C.registerAddress(address, "DAB Receiver");
+	//readPartInfo();
+	init();
 }
 
 DABReceiver::~DABReceiver()
 {
-	powerOff();
-	LOG(INFO) << "DABReceiver destructor exit";
+	// powerOff();
+	// LOG(INFO) << "DABReceiver destructor exit";
 }
 
 void DABReceiver::registerRadioObserver(RadioObserverIf *observer)
@@ -72,6 +83,8 @@ void DABReceiver::unRegisterRadioObserver(RadioObserverIf *observer)
 
 void DABReceiver::init()
 {
+	readStatus();
+	readSysState();
     //See Page 154 in the manual
     std::vector<uint8_t> powerUpParams;
 	powerUpParams.push_back(0x00); // ARG1 CTSIEN is disabled
@@ -83,13 +96,13 @@ void DABReceiver::init()
 
     //19 200 000 hz = 0x0124F800
 	powerUpParams.push_back(0x00); // ARG4 XTAL
-	powerUpParams.push_back(0xF8); // ARG5 XTAL 
+	powerUpParams.push_back(0xF8); // ARG5 XTAL (ik 0xF8)
 	powerUpParams.push_back(0x24); // ARG6 XTAL
 	powerUpParams.push_back(0x01); // ARG7 XTAL 19.2MHz
 
-    //See Page 444 of programming manual
+    //See Page 444 of programming manual (ABM8 Xtal = 10pf)
     //CTUN = 2*(Cl-Clpar) -Cx -> 2*(10pf - 0) - 0= 20pf -> 0x28
-	powerUpParams.push_back(0x28); // ARG8 CTUN
+	powerUpParams.push_back(0x28); // ARG8 CTUN (ik: 0x28)
 
 	powerUpParams.push_back(0x00 | (1 << 4)); // ARG9
 	powerUpParams.push_back(0x00); // ARG10
@@ -97,17 +110,124 @@ void DABReceiver::init()
 	powerUpParams.push_back(0x00); // ARG12
 
     //See page 443
-	powerUpParams.push_back(0x12); // ARG13 IBIAS_RUN
+	powerUpParams.push_back(0x12); // ARG13 IBIAS_RUN (Ik: 0x12)
 	powerUpParams.push_back(0x00); // ARG14
 	powerUpParams.push_back(0x00); // ARG15    
 
-    sendCommand(SI46XX_POWER_UP, powerUpParams, 0);
+	VLOG(1) << "Writing POWER_UP";
+    sendCommand(SI468X_POWER_UP, powerUpParams, 0);
     if (!waitForCTS())
     {
         LOG(ERROR) << "Timeout waiting for CTS after PowerUp";
     }
 
+	readStatus();
+	//hostload("./firmware/testfirmware.txt");
+	hostload("./firmware/rom00_patch.016.bin");
+	std::this_thread::sleep_for( std::chrono::milliseconds(1000));
+	readStatus();
+	hostload("./firmware/dab_radio_4_0_5.bif");
+	readStatus();
 
+	std::this_thread::sleep_for( std::chrono::milliseconds(1000));
+
+    if (!waitForCTS())
+    {
+        LOG(ERROR) << "Timeout waiting for CTS before Boot";
+    }	
+
+	VLOG(1) << "Writing BOOT";
+    sendCommand(SI468X_BOOT, std::vector<uint8_t>({0x00}), 0);
+	std::this_thread::sleep_for( std::chrono::milliseconds(2000));
+    if (!waitForCTS())
+    {
+        LOG(ERROR) << "Timeout waiting for CTS after Boot";
+    }	
+	
+	readStatus();
+	readSysState();
+	readPartInfo();
+}
+
+void DABReceiver::readSysState()
+{
+    if (!waitForCTS())
+    {
+        LOG(ERROR) << "Timeout waiting for CTS before reading Sys State";
+		return;
+    }
+
+	auto sysStateRaw = sendCommand(SI468X_GET_SYS_STATE, std::vector<uint8_t> ({0x00}), 6);
+	LOG(INFO) << "Raw sys state: " << vectorToHexString(sysStateRaw, false);
+	SysState sysState(sysStateRaw);
+
+	LOG(INFO) << "System State: " << sysState.toString();
+}
+
+void DABReceiver::readStatus()
+{
+	auto status = sendCommand(SI468X_RD_REPLY,  23);
+	VLOG(3) << "Raw Status: " << vectorToHexString(status);
+	Status statusCmd(status);
+	LOG(INFO) << statusCmd.toString();
+}
+
+void DABReceiver::readPartInfo()
+{
+    if (!waitForCTS())
+    {
+        LOG(ERROR) << "Timeout waiting for CTS before reading PartInfo";
+		return;
+    }
+
+	auto partInfoRaw = sendCommand(SI468X_GET_PART_INFO, std::vector<uint8_t> ({0x00}), 23);
+	PartInfo partInfo(partInfoRaw);
+	LOG(INFO) << partInfo.toString();
+}
+
+void DABReceiver::hostload(const std::string& fileName)
+{
+	std::vector<uint8_t> firmware;
+	if (readFile(fileName,  firmware))
+	{
+		VLOG(1) << "Firmware size: " << firmware.size();
+
+		sendCommand(SI468X_LOAD_INIT, std::vector<uint8_t> ({0x00}), 0);
+		if (!waitForCTS())
+		{
+			LOG(ERROR) << "Timeout waiting for CTS after sending load init";
+			return;
+		}
+
+		int bytesSend = 0;
+		auto filePos = firmware.begin();
+		while(filePos != firmware.end())
+		{
+			int amountToSend = (firmware.end() - filePos) >= FIRMWARE_BLOCK_SIZE ? FIRMWARE_BLOCK_SIZE : firmware.end() - filePos;
+			std::vector<uint8_t> firmwareBlock(filePos, (filePos + amountToSend));
+			std::vector<uint8_t> hostLoadParams({0x00, 0x00, 0x00});
+
+			std::copy (firmwareBlock.begin(),firmwareBlock.end(),back_inserter(hostLoadParams));
+
+			VLOG(3) << "Sending bytes: " << firmwareBlock.size() << ", already send: " << bytesSend;
+			sendCommand(SI468X_HOST_LOAD, hostLoadParams, 4);
+			VLOG(3) << vectorToHexString(hostLoadParams, true);
+
+			bytesSend += firmwareBlock.size();
+
+
+			std::advance(filePos , amountToSend);
+
+			if (!waitForCTS())
+			{
+				LOG(ERROR) << "Timeout waiting for CTS after sending firmware block";
+				return;
+			}			
+		}
+		VLOG(1) << "Total bytes send: " << bytesSend;
+		
+		std::this_thread::sleep_for( std::chrono::milliseconds(50));		
+	}
 }
 
 bool DABReceiver::powerOn()
@@ -198,7 +318,10 @@ bool DABReceiver::waitForCTS()
 	while ((retries < MAX_RETRIES) && !cts)
 	{
 		std::this_thread::sleep_for( std::chrono::milliseconds(100));
-		cts = readCTS();
+
+		//We only want the first byte of the Status
+		Status status(sendCommand(SI468X_RD_REPLY, 1));
+		cts = status.CTS;
 		++retries;
 	}
 	if (retries >= MAX_RETRIES)
@@ -212,12 +335,6 @@ bool DABReceiver::waitForCTS()
 	}
 }
 
-bool DABReceiver::readCTS()
-{
-	std::vector<uint8_t> ctsReponse = sendCommand(SI46XX_RD_REPLY, 1); 
-	return ctsReponse[0] && 0x80;
-}
-
 std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, uint8_t resultLength)
 {
     return sendCommand(command, std::vector<uint8_t>({}), resultLength);
@@ -226,7 +343,10 @@ std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, uint8_t resultLen
 std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, const std::vector<uint8_t>& param, uint8_t resultLength)
 {
     std::vector<uint8_t> result(resultLength);
-    mI2C.readWriteData(mAddress, std::vector<uint8_t>({command}), result);
+	std::vector<uint8_t> fullCmd;
+	fullCmd.push_back(command);
+	fullCmd.insert(fullCmd.end(), param.begin(), param.end());
+    mI2C.readWriteData(mAddress, fullCmd, result);
     return result;
 }
 
