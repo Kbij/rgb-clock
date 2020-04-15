@@ -18,6 +18,8 @@ namespace Hardware
     const uint8_t SI468X_GET_PART_INFO = 0x08;
     const uint8_t SI468X_GET_SYS_STATE = 0x09;
     const uint8_t SI468X_LOAD_INIT = 0x06;
+    const uint8_t SI468X_DAB_TUNE_FREQ = 0xB0;
+    const uint8_t SI468X_DAB_GET_FREQ_LIST = 0xB9;
 }
 
 #endif /* !DABRECEIVERDEF_H_ */

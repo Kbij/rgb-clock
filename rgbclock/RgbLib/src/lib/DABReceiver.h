@@ -38,28 +38,34 @@ public:
 	DABReceiver(I2C &i2c, uint8_t address, Hardware::MainboardControl* mainboardControl);
 	virtual ~DABReceiver();
 	friend Radio;
+    
+	//Move init, temp to public
+	void init();	
+	void tuneFrequencyIndex(uint8_t index);
+	void getFrequencyList();
     bool powerOn();
 
 private:
 	void registerRadioObserver(RadioObserverIf *observer);
     void unRegisterRadioObserver(RadioObserverIf *observer);
 
-    void init();
+//    void init();
 	void readSysState();
-	void readStatus();
+//	void readStatus();
 	void readPartInfo();
 	void hostload(const std::string& fileName);
+	//void tuneFrequencyIndex(uint8_t index);
 
 	bool powerOff();
 
 	bool internalPowerOn();
 	bool internalPowerOff();
 
-	bool setProperty(int property, int value);
-	bool getProperty(int property, int& value);
-	bool waitForCTS();
-    std::vector<uint8_t> sendCommand(uint8_t command, uint8_t resultLength);
-    std::vector<uint8_t> sendCommand(uint8_t command, const std::vector<uint8_t>& param, uint8_t resultLength);
+	// bool setProperty(int property, int value);
+	// bool getProperty(int property, int& value);
+//	bool waitForCTS();
+    std::vector<uint8_t> sendCommand(uint8_t command, uint8_t resultLength, int timeForResponseMilliseconds);
+    std::vector<uint8_t> sendCommand(uint8_t command, const std::vector<uint8_t>& param, uint8_t resultLength, int timeForResponseMilliseconds);
 
 	void startReadThread();
 	void stopReadThread();

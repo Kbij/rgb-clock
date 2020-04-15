@@ -16,7 +16,7 @@ namespace Hardware
 class Status
 {
 public:
-    Status(const std::vector<uint8_t>& data): CTS(), ERR_CMD(), DACQ_INT(), DSRV_INT(), PUP_STATE(), mStatus0Complete() 
+    Status(const std::vector<uint8_t>& data): CTS(), ERR_CMD(), DACQ_INT(), DSRV_INT(), PUP_STATE(), CMDOFERR(), ERROR(), mStatus0Complete(), mResp4Complete() 
     {
         parse(data);
     }
@@ -58,6 +58,39 @@ public:
                 }
             }
         }
+
+        if (mResp4Complete)
+        {
+            if (ERR_CMD)
+            {
+                ss << ", Error: ";
+                switch(ERROR)
+                {
+                    case 0x01: ss << "unspecified"; break;
+                    case 0x02: ss << "reply overflow"; break;
+                    case 0x03: ss << "not available"; break;
+                    case 0x04: ss << "not supported"; break;
+                    case 0x05: ss << "bad frequency"; break;
+                    case 0x10: ss << "command not found"; break;
+                    case 0x11: ss << "bad arg1"; break;
+                    case 0x12: ss << "bad arg2"; break;
+                    case 0x13: ss << "bad arg3"; break;
+                    case 0x14: ss << "bad arg4"; break;
+                    case 0x15: ss << "bad arg5"; break;
+                    case 0x16: ss << "bad arg6"; break;
+                    case 0x17: ss << "bad arg7"; break;
+                    case 0x18: ss << "command busy"; break;
+                    case 0x19: ss << "at band limit"; break;
+                    case 0x20: ss << "bad NVM"; break;
+                    case 0x30: ss << "bad patch"; break;
+                    case 0x31: ss << "bad bootmode"; break;
+                    case 0x40: ss << "bad property"; break;
+                    case 0x50: ss << "not acquired"; break;
+                    case 0xff: ss << "APP not supported"; break;
+                    default: ss << "Unkown error: " << (int) ERROR;
+                }
+            }
+        }
         return ss.str();
     }
 
@@ -67,6 +100,7 @@ public:
     bool DSRV_INT;
     uint8_t PUP_STATE;
     bool CMDOFERR;
+    uint8_t ERROR;
 private:
     void parse(const std::vector<uint8_t>& data)
     {
@@ -85,11 +119,15 @@ private:
             CMDOFERR = (data[3] & 0x04) >> 3;
             mStatus3Complete = true;
         }
+        if (data.size() >= 4)
+        {
+            ERROR = data[4];
+            mResp4Complete = true;
+        }        
     } 
     bool mStatus0Complete; 
     bool mStatus3Complete; 
-
-
+    bool mResp4Complete;
 };
 
 class SysState
@@ -194,6 +232,47 @@ private:
             CHIPREV = data[4];
             ROMID = data[5];
             PART = (data[9] << 8) + data[8];
+        }
+    } 
+};
+
+class FrequencyList
+{
+public:
+    FrequencyList(const std::vector<uint8_t>& data): NUM_FREQS(), mFrequencies()
+    {
+        parse(data);
+    }
+    ~FrequencyList() {};
+
+    std::string toString()
+    {
+        std::stringstream ss;
+        ss << "Number of Frequencies: " << (int) NUM_FREQS << ", List: ";
+        int index = 1;
+        for(auto freq: mFrequencies)
+        {
+            ss << index << ":" << (double) freq/1000 << "MHz ";
+            ++index;
+        }
+        return ss.str();
+    }
+
+    uint8_t NUM_FREQS;
+    std::vector<int> mFrequencies;
+private:
+    void parse(const std::vector<uint8_t>& data)
+    {
+        if (data.size() >= 5)
+        {
+            NUM_FREQS = data[4];
+        }
+        int index = 8;
+        while ((index + 3) <= data.size())
+        {
+            int frequency = (data[index + 3] << 24) + (data[index + 2] << 16) + (data[index + 1] << 8) + data[index];
+            index += 4;
+            mFrequencies.push_back(frequency);
         }
     } 
 };
