@@ -25,7 +25,9 @@ namespace
 {
 const int FIRMWARE_BLOCK_SIZE = 4092;
 const uint8_t VRT_DAB_FREQUENCY = 41; //(12A)
-const int MAX_RETRIES = 20;
+const int MAX_RETRIES = 500;
+const uint8_t WAIT_CTS = 0x80;
+const uint8_t WAIT_CTS_STC = 0x81;
 }
 
 
@@ -87,6 +89,8 @@ void DABReceiver::unRegisterRadioObserver(RadioObserverIf *observer)
 
 void DABReceiver::init()
 {
+	std::this_thread::sleep_for( std::chrono::milliseconds(10));
+
     //See Page 154 in the manual
     std::vector<uint8_t> powerUpParams;
 	powerUpParams.push_back(0x00); // ARG1 CTSIEN is disabled
@@ -117,30 +121,35 @@ void DABReceiver::init()
 	powerUpParams.push_back(0x00); // ARG15    
 
 	VLOG(1) << "Writing POWER_UP";
-    sendCommand(SI468X_POWER_UP, powerUpParams, 0, 1);
+    sendCommand(SI468X_POWER_UP, powerUpParams, 0, WAIT_CTS, 10);
 	std::this_thread::sleep_for( std::chrono::milliseconds(10));
-	
+
 
 	hostload("./firmware/rom00_patch.016.bin");
 	std::this_thread::sleep_for( std::chrono::seconds(1));
+	hostload("./firmware/dab_radio.bin");
 
-	//hostload("./firmware/dab_radio_4_0_5.bif");
-	hostload("./firmware/dab_radio_5_0_5.bin");
-	//hostload("./firmware/fmhd_radio_4_0_12.bif");
 
 	std::this_thread::sleep_for( std::chrono::seconds(1));
 
 	VLOG(1) << "Writing BOOT";
-    sendCommand(SI468X_BOOT, std::vector<uint8_t>({0x00}), 0, 2000);
+    sendCommand(SI468X_BOOT, std::vector<uint8_t>({0x00}), 0, WAIT_CTS, 2000);
 	std::this_thread::sleep_for( std::chrono::seconds(2));
 	
 	readSysState();
 	readPartInfo();
+
+	// setProperty(SI468X_DAB_TUNE_FE_CFG, 0x0001); // front end switch closed
+	// setProperty(SI468X_DAB_TUNE_FE_VARM, 0x1710); // Front End Varactor configuration (Changed from '10' to 0x1710 to improve receiver sensitivity - Bjoern 27.11.14)
+	// setProperty(SI468X_DAB_TUNE_FE_VARB, 0x1711); // Front End Varactor configuration (Changed from '10' to 0x1711 to improve receiver sensitivity - Bjoern 27.11.14)	
+	// setProperty(SI468X_PIN_CONFIG_ENABLE, 0x0002); // enable I2S output (BUG!!! either DAC or I2S seems to work)
+	// setProperty(SI468X_DIGITAL_IO_OUTPUT_SELECT, 0x0000); // I2S Slave Mode
 }
 
 void DABReceiver::readSysState()
 {
-	auto sysStateRaw = sendCommand(SI468X_GET_SYS_STATE, std::vector<uint8_t> ({0x00}), 6, 1);
+	LOG(INFO) << "Reading System State";
+	auto sysStateRaw = sendCommand(SI468X_GET_SYS_STATE, std::vector<uint8_t> ({0x00}), 6, WAIT_CTS, 5);
 	LOG(INFO) << "Raw sys state: " << vectorToHexString(sysStateRaw, false);
 	SysState sysState(sysStateRaw);
 
@@ -157,7 +166,8 @@ void DABReceiver::readSysState()
 
 void DABReceiver::readPartInfo()
 {
-	auto partInfoRaw = sendCommand(SI468X_GET_PART_INFO, std::vector<uint8_t> ({0x00}), 23, 1);
+	LOG(INFO) << "Reading PartInfo";
+	auto partInfoRaw = sendCommand(SI468X_GET_PART_INFO, std::vector<uint8_t> ({0x00}), 23, WAIT_CTS, 1);
 	VLOG(1) << "Raw Status: " << vectorToHexString(partInfoRaw);
 	PartInfo partInfo(partInfoRaw);
 	LOG(INFO) << partInfo.toString();
@@ -170,7 +180,12 @@ void DABReceiver::hostload(const std::string& fileName)
 	{
 		VLOG(1) << "Firmware size: " << firmware.size();
 
-		sendCommand(SI468X_LOAD_INIT, std::vector<uint8_t> ({0x00}), 0, 5);
+		Status loadInitStatus(sendCommand(SI468X_LOAD_INIT, std::vector<uint8_t> ({0x00}), 0, WAIT_CTS, 1));
+		if (loadInitStatus.error())
+		{
+			LOG(ERROR) << "Load init resulted in a error: " << loadInitStatus.toString();
+		}
+		std::this_thread::sleep_for( std::chrono::milliseconds(50));
 
 		int bytesSend = 0;
 		auto filePos = firmware.begin();
@@ -182,10 +197,14 @@ void DABReceiver::hostload(const std::string& fileName)
 
 			std::copy (firmwareBlock.begin(),firmwareBlock.end(),back_inserter(hostLoadParams));
 
-			VLOG(3) << "Sending bytes: " << firmwareBlock.size() << ", already send: " << bytesSend;
-			VLOG(3) << vectorToHexString(hostLoadParams, true);
+			VLOG(30) << "Sending bytes: " << firmwareBlock.size() << ", already send: " << bytesSend;
+			VLOG(40) << vectorToHexString(hostLoadParams, true);
 
-			sendCommand(SI468X_HOST_LOAD, hostLoadParams, 4, 1);
+			Status hostLoadStatus(sendCommand(SI468X_HOST_LOAD, hostLoadParams, 0, WAIT_CTS));
+			if (hostLoadStatus.error())
+			{
+				LOG(ERROR) << "Host load resulted in a error: " << hostLoadStatus.toString();
+			}
 
 			bytesSend += firmwareBlock.size();
 
@@ -211,21 +230,28 @@ void DABReceiver::tuneFrequencyIndex(uint8_t index)
 	tuneFreqParam.push_back(0x00); //Auto Ant cap
 	tuneFreqParam.push_back(0x00);
 
-	auto tuneFreqResponse = sendCommand(SI468X_DAB_TUNE_FREQ, tuneFreqParam, 4, 500);
+	auto tuneFreqResponse = sendCommand(SI468X_DAB_TUNE_FREQ, tuneFreqParam, 4, WAIT_CTS_STC, 1000);
 	VLOG(1) << "Raw tuneFreqResponse: " << vectorToHexString(tuneFreqResponse);
 
+	std::this_thread::sleep_for( std::chrono::seconds(10));
 
-	std::this_thread::sleep_for( std::chrono::seconds(5));
-	readSysState();
+	LOG(INFO) << "Read Digirad Status";
+	std::vector<uint8_t> params;
+	params.push_back((1 << 3) | 1); // set digrad_ack and stc_ack;);
+	auto digiRadStatus = sendCommand(SI468X_DAB_DIGRAD_STATUS, params, 40, WAIT_CTS);
+	VLOG(1) << "Raw DigiRadStatus: " << vectorToHexString(digiRadStatus);
+	DabDigiradStatus radStatus(digiRadStatus);
+	LOG(INFO) << radStatus.toString();
 }
 
 void DABReceiver::getFrequencyList()
 {
-	auto freqListResponse = sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 5, 1);
+	LOG(INFO) << "Get Frequency list";
+	auto freqListResponse = sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 5, WAIT_CTS);
 	FrequencyList freqList(freqListResponse);
 	LOG(INFO) << "List: " << freqList.toString();
 
-	freqListResponse = sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 8 + (freqList.NUM_FREQS * 4), 1);
+	freqListResponse = sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 8 + (freqList.NUM_FREQS * 4), WAIT_CTS);
 	VLOG(1) << "Raw list Freq: " << vectorToHexString(freqListResponse);
 	FrequencyList fullFreqList(freqListResponse);
 	LOG(INFO) << "Full List: " << fullFreqList.toString();
@@ -289,101 +315,142 @@ bool DABReceiver::internalPowerOff()
 	return true;
 }
 
-// bool DABReceiver::setProperty(int property, int value)
-// {
-// 	if (!waitForCTS()) return false;  // Wait for Clear To Send
-
-// 	std::vector<uint8_t> setPropertyResponse(1);
-// 	uint8_t propH = property >> 8;
-// 	uint8_t propL = property & 0xFF;
-// 	uint8_t valueH = value >> 8;
-// 	uint8_t valueL = value & 0xFF;
-// 	mI2C.readWriteData(mAddress, std::vector<uint8_t>({SET_PROPERTY, 0x00, propH, propL, valueH, valueL}), setPropertyResponse);
-
-// 	return true;
-// }
-
-// bool DABReceiver::getProperty(int property, int& value)
-// {
-// 	if (!waitForCTS()) return false;  // Wait for Clear To Send
-
-// 	return true;
-// }
-
-// bool DABReceiver::waitForCTS()
-// {
-	
-
-// 	int retries = 0;
-// 	bool cts = false;
-// 	while ((retries < MAX_RETRIES) && !cts)
-// 	{
-// 		std::this_thread::sleep_for( std::chrono::milliseconds(100));
-
-// 		//We only want the first byte of the Status
-// 		Status status(sendCommand(SI468X_RD_REPLY, 1));
-// 		cts = status.CTS;
-// 		++retries;
-// 	}
-// 	if (retries >= MAX_RETRIES)
-// 	{
-// 		LOG(ERROR) << "Timeout waiting for CTS";
-// 		return false;
-// 	}
-// 	else
-// 	{
-// 		return true;
-// 	}
-// }
-
-std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, uint8_t resultLength, int timeForResponseMilliseconds)
+bool DABReceiver::setProperty(uint16_t property, uint16_t value)
 {
-    return sendCommand(command, std::vector<uint8_t>({}), resultLength, timeForResponseMilliseconds);
+	std::vector<uint8_t> setPropertyParams;
+	setPropertyParams.push_back(0x00);
+	setPropertyParams.push_back(property & 0xFF);
+	setPropertyParams.push_back((property >> 8) & 0xFF);
+	setPropertyParams.push_back(value & 0xFF);
+	setPropertyParams.push_back((value >> 8) & 0xFF);
+
+	sendCommand(SI468X_SET_PROPERTY, setPropertyParams, 0, WAIT_CTS);
+	return true;
 }
 
-std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, const std::vector<uint8_t>& param, uint8_t resultLength, int timeForResponseMilliseconds)
+std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, uint8_t resultLength, uint8_t waitMask, int timeForResponseMilliseconds)
 {
+    return sendCommand(command, std::vector<uint8_t>({}), resultLength, waitMask, timeForResponseMilliseconds);
+}
 
-/**
- * Code not correct, but working :-)
- * */
+std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, const std::vector<uint8_t>& param, uint8_t resultLength, uint8_t waitMask, int timeForResponseMilliseconds)
+{
+	VLOG(10) << "Sending command: " << (int) command << ", waitmask: 0x" << std::hex << (int) waitMask;
 
-	//First command; get only the status bytes
-    std::vector<uint8_t> cmdStatus(4); //(resultLength > 4 ? resultLength : 4);
 	std::vector<uint8_t> fullCmd;
 	fullCmd.push_back(command);
 	fullCmd.insert(fullCmd.end(), param.begin(), param.end());
 
-	int retries = 0;
-    mI2C.readWriteData(mAddress, fullCmd, cmdStatus);
+	//Write the command first
+    mI2C.writeData(mAddress, fullCmd);
+
 	if (timeForResponseMilliseconds > 0)
 	{
-		VLOG(1) << "Status: " << Status(cmdStatus).toString();
-		bool cts = cmdStatus[0] & 0x80;
-		while (!cts && (retries < MAX_RETRIES))
-		{
-			std::this_thread::sleep_for( std::chrono::milliseconds(timeForResponseMilliseconds));
-			std::vector<uint8_t> result(resultLength > 4 ? resultLength : 4);
-
-			//Read the status, and other reponse bytes
-			mI2C.readWriteData(mAddress, std::vector<uint8_t> ({SI468X_RD_REPLY}), result);
-			VLOG(1) << "Status: " << Status(result).toString();
-			cts = result[0] & 0x80;
-			if (cts)
-			{
-				return result;
-			}
-			++retries;
-		}
-		if (retries >= MAX_RETRIES)
-		{
-			LOG(INFO) << "Timeout waiting for command result. Command :" << (int) command;
-		}
+		VLOG(1) << "Sleep: " <<  timeForResponseMilliseconds << "ms" << " for command: " << (int) command;
+		std::this_thread::sleep_for( std::chrono::milliseconds(timeForResponseMilliseconds));
 	}
-	
-    return cmdStatus;
-}
 
+	std::vector<uint8_t> rawStatus(4);
+	int retries = 0;
+	while ((rawStatus[0] & waitMask) != waitMask && (retries < MAX_RETRIES))
+	{
+		std::this_thread::sleep_for( std::chrono::milliseconds(10));
+
+		mI2C.readWriteData(mAddress, std::vector<uint8_t> ({SI468X_RD_REPLY}), rawStatus);
+		Status status(rawStatus);
+		if (status.error())
+		{
+			LOG(ERROR) << "Command: " << commandToString(command) << ", Error status returned: " << status.toString();
+			std::vector<uint8_t> rawError(6);
+			mI2C.readWriteData(mAddress, std::vector<uint8_t> ({SI468X_RD_REPLY}), rawError);			
+			Status error(rawError);
+			LOG(ERROR) << "Full error: " << error.toString();
+			return rawStatus;
+		}
+		VLOG(10)  << "Waiting for waitmask: 0x" << std::hex << (int) waitMask << ", current status: " << std::hex << (int) (rawStatus[0] & waitMask) << ", retry count: " << std::dec << retries;
+		++retries;
+	}
+
+	if (retries < MAX_RETRIES)
+	{
+		if (resultLength > 0)
+		{
+			//Need to read the full command result
+			std::vector<uint8_t> cmdResult(resultLength);
+			mI2C.readWriteData(mAddress, std::vector<uint8_t> ({SI468X_RD_REPLY}), cmdResult);
+			return cmdResult;
+		}
+		else
+		{
+			return rawStatus;
+		}		
+	}
+	else
+	{
+		LOG(WARNING) << "Timeout for Command: " << (int) command;
+	}
+
+	return std::vector<uint8_t>();
+
+
+	// VLOG(10) << "Sending command: " << (int) command << ", waitmask: 0x" << std::hex << (int) waitMask;
+
+	// std::vector<uint8_t> cmdResult((resultLength > 0) ? resultLength : 1);
+	// std::vector<uint8_t> fullCmd;
+	// fullCmd.push_back(command);
+	// fullCmd.insert(fullCmd.end(), param.begin(), param.end());
+
+	// bool timeout = false;
+
+	// //Write the command first, and read only the first status byte (containing CTS)
+    // mI2C.readWriteData(mAddress, fullCmd, cmdResult);
+
+	// if ((cmdResult[0] & waitMask) != waitMask)
+	// {
+	// 	int retries = 0;
+	// 	while ((cmdResult[0] & waitMask) != waitMask && (retries < MAX_RETRIES))
+	// 	{
+	// 		int sleepTimeMilliseconds = (retries == 0 && timeForResponseMilliseconds > 0) ? timeForResponseMilliseconds : 10;
+	// 		VLOG(10) << "Sleeping for " << sleepTimeMilliseconds << " Ms";
+	// 		std::this_thread::sleep_for( std::chrono::milliseconds(sleepTimeMilliseconds));
+
+	// 		mI2C.readWriteData(mAddress, std::vector<uint8_t> ({SI468X_RD_REPLY}), cmdResult);
+	// 		VLOG(10)  << "Waiting for waitmask: 0x" << std::hex << (int) waitMask << ", current status: " << std::hex << (int) (cmdResult[0] & waitMask) << ", retry count: " << std::dec << retries;
+	// 		++retries;
+	// 	}
+	// 	timeout = retries >= MAX_RETRIES;
+	// }
+	// if (!timeout)
+	// {
+	// 	return cmdResult;
+	// }
+	// else
+	// {
+	// 	LOG(WARNING) << "Timeout for Command: " << (int) command;
+	// }
+
+	// return std::vector<uint8_t>();
+
+}
+std::string DABReceiver::commandToString(uint8_t command)
+{
+    switch(command)
+    {
+        case SI468X_RD_REPLY: return "RD_REPLY";
+        case SI468X_POWER_UP: return "POWER_UP";
+        case SI468X_HOST_LOAD: return "HOST_LOAD";
+        case SI468X_LOAD_INIT: return "LOAD_INIT";
+        case SI468X_BOOT: return "BOOT";
+        case SI468X_GET_PART_INFO: return "GET_PART_INFO";
+        case SI468X_GET_SYS_STATE: return "GET_SYS_STATE";
+        case SI468X_SET_PROPERTY: return "SET_PROPERTY";
+        case SI468X_GET_PROPERTY: return "GET_PROPERTY";
+        case SI468X_DAB_TUNE_FREQ: return "DAB_TUNE_FREQ";
+        case SI468X_DAB_DIGRAD_STATUS: return "DAB_DIGRAD_STATUS";
+        case SI468X_DAB_GET_FREQ_LIST: return "DAB_GET_FREQ_LIST";
+        default: return "Unknown";
+    }
+}
 void DABReceiver::startReadThread()
 {
 	mReadThreadRunning = true;
@@ -423,5 +490,23 @@ void DABReceiver::notifyObservers()
        // observer->radioRdsUpdate(mRDSInfo);
     }
 }
-
+// std::string commandToString(uint8_t command)
+// {
+//     switch(command)
+//     {
+//         case SI468X_RD_REPLY: return "RD_REPLY";
+//         case SI468X_POWER_UP: return "POWER_UP";
+//         case SI468X_HOST_LOAD: return "HOST_LOAD";
+//         case SI468X_LOAD_INIT: return "LOAD_INIT";
+//         case SI468X_BOOT: return "BOOT";
+//         case SI468X_GET_PART_INFO: return "GET_PART_INFO";
+//         case SI468X_GET_SYS_STATE: return "GET_SYS_STATE";
+//         case SI468X_SET_PROPERTY: return "SET_PROPERTY";
+//         case SI468X_GET_PROPERTY: return "GET_PROPERTY";
+//         case SI468X_DAB_TUNE_FREQ: return "DAB_TUNE_FREQ";
+//         case SI468X_DAB_DIGRAD_STATUS: return "DAB_DIGRAD_STATUS";
+//         case SI468X_DAB_GET_FREQ_LIST: return "DAB_GET_FREQ_LIST";
+//         default: return "Unknown";
+//     }
+// }
 }

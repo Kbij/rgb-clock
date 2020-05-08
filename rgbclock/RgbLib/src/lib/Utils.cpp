@@ -31,7 +31,7 @@ std::string vectorToHexString(const std::vector<uint8_t>& vector, bool tryString
 
 bool readFile(const std::string& fileName, std::vector<uint8_t>& contents)
 {
-   	std::ifstream ifStream(fileName);
+   	std::ifstream ifStream(fileName, std::ios::in | std::ios::binary);
 	if (ifStream.is_open())
 	{
 		std::vector<uint8_t> fileContents((std::istreambuf_iterator<char>(ifStream)),
@@ -40,7 +40,22 @@ bool readFile(const std::string& fileName, std::vector<uint8_t>& contents)
         
         VLOG(1)  << "File: " << fileName << ", filesize: " << contents.size();
         return true;
+
+        ifStream.close();
     }
     LOG(ERROR) << "Unable to read file: " << fileName;
     return false;
+}
+
+bool writeFile(const std::string& fileName, const std::vector<uint8_t>& contents)
+{
+   	std::ofstream ofStream(fileName, std::ios::out | std::ios::binary);
+	if (ofStream.is_open())
+	{
+        ofStream.write((const char*)contents.data(), contents.size());
+        ofStream.close();
+        return true;
+    }
+    LOG(ERROR) << "Unable to read file: " << fileName;
+    return false;    
 }

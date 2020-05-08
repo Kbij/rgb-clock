@@ -61,12 +61,13 @@ private:
 	bool internalPowerOn();
 	bool internalPowerOff();
 
-	// bool setProperty(int property, int value);
+	bool setProperty(uint16_t property, uint16_t value);
 	// bool getProperty(int property, int& value);
 //	bool waitForCTS();
-    std::vector<uint8_t> sendCommand(uint8_t command, uint8_t resultLength, int timeForResponseMilliseconds);
-    std::vector<uint8_t> sendCommand(uint8_t command, const std::vector<uint8_t>& param, uint8_t resultLength, int timeForResponseMilliseconds);
-
+    std::vector<uint8_t> sendCommand(uint8_t command, uint8_t resultLength, uint8_t waitMask, int timeForResponseMilliseconds = 0);
+    std::vector<uint8_t> sendCommand(uint8_t command, const std::vector<uint8_t>& param, uint8_t resultLength, uint8_t waitMask, int timeForResponseMilliseconds = 0);
+	std::string commandToString(uint8_t command);
+	
 	void startReadThread();
 	void stopReadThread();
 	void readThread();

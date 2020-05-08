@@ -33,7 +33,7 @@ TEST(DABReceiverTest, TuneFreq)
 {
     Hardware::I2C i2c;
 	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(i2c, 0x64, nullptr);
-	receiver->tuneFrequencyIndex(31);
+	receiver->tuneFrequencyIndex(30);
 
 	delete receiver;
 }
