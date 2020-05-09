@@ -23,6 +23,8 @@ namespace Hardware
     const uint8_t SI468X_DAB_TUNE_FREQ = 0xB0;
     const uint8_t SI468X_DAB_DIGRAD_STATUS = 0xB2;
     const uint8_t SI468X_DAB_GET_FREQ_LIST = 0xB9;
+    const uint8_t SI468X_GET_DIGITAL_SERVICE_DATA = 0x80;
+    const uint8_t SI468X_START_DIGITAL_SERVICE = 0x81;
 
 
     //Properties    

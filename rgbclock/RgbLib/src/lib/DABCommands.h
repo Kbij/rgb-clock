@@ -8,16 +8,20 @@
 #define DABCOMMANDS_H_
 
 #include "DABReceiverDef.h"
+#include "DABService.h"
+#include "Utils.h"
 #include <string>
 #include <vector>
 #include <sstream>
+#include <glog/stl_logging.h>
+#include <glog/logging.h>
 
 namespace Hardware
 {
 class Status
 {
 public:
-    Status(const std::vector<uint8_t>& data): CTS(), ERR_CMD(), DACQ_INT(), DSRV_INT(), STC_INT(), PUP_STATE(), CMDOFERR(), REPOFERR(), ERROR(), mStatus0Complete(), mResp4Complete() 
+    Status(const std::vector<uint8_t>& data): CTS(), ERR_CMD(), DACQ_INT(), DSRV_INT(), STC_INT(), PUP_STATE(), RFFE_ERR(), CMDOFERR(), REPOFERR(), ERROR(), mStatus0Complete(), mResp4Complete() 
     {
         parse(data);
     }
@@ -60,6 +64,7 @@ public:
                     break;
                 }
             }
+            ss << ", RF Error: " << std::boolalpha << RFFE_ERR;
         }
 
         if (mResp4Complete)
@@ -108,6 +113,7 @@ public:
     bool DSRV_INT;
     bool STC_INT;
     uint8_t PUP_STATE;
+    bool RFFE_ERR;
     bool CMDOFERR;
     bool REPOFERR;
     uint8_t ERROR;
@@ -127,6 +133,7 @@ private:
         if (data.size() >= 3)
         {
             PUP_STATE = data[3] >> 6;
+            RFFE_ERR = (data[3] & 0x20) >> 5;
             REPOFERR = (data[3] & 0x08) >> 3;
             CMDOFERR = (data[3] & 0x04) >> 2;
             mStatus3Complete = true;
@@ -355,6 +362,73 @@ private:
         if (data.size() > 0x1f) FREQ_OFFSET = (data[0x1f] << 24) + (data[0x1e] << 16) + (data[0x1d] << 8) + data[0x1c];
         if (data.size() > 0x23) FIC_BIT_CNT = (data[0x23] << 24) + (data[0x22] << 16) + (data[0x21] << 8) + data[0x20];
         if (data.size() > 0x27) FIC_ERR_CNT = (data[0x27] << 24) + (data[0x26] << 16) + (data[0x25] << 8) + data[0x24];
+    } 
+};
+
+class DabServiceList
+{
+public:
+    DabServiceList(const std::vector<uint8_t>& data): SIZE(), mFullParsed(), VERSION(), SERVICECOUNT(), mServices()
+    {
+        parse(data);
+    }
+    ~DabServiceList() {};
+
+    std::string toString()
+    {
+        std::stringstream ss;
+        ss << "DAB Service List:" << std::endl;
+        ss << "SIZE: " << (int) SIZE << std::endl;
+        if (mFullParsed)
+        {
+            ss << "VERSION: " << (int) VERSION << std::endl;
+            ss << "SERVICECOUNT: " << (int) SERVICECOUNT << std::endl;
+            for(const auto& service: mServices)
+            {
+                ss << "Service: " << service.Label << ", Id: " << service.ServiceId << ", Components: " << service.Components << std::endl;
+            }
+        }
+ 
+        return ss.str();
+    }
+
+    uint16_t SIZE;
+    bool mFullParsed;
+    uint16_t VERSION;
+    uint8_t SERVICECOUNT;
+    std::vector<DABService> mServices;
+private:
+    void parse(const std::vector<uint8_t>& data)
+    {
+        LOG(INFO) << "-->Text: " << std::endl << vectorToHexString(data, true, true);
+        LOG(INFO) << "-->Hex: " << std::endl << vectorToHexString(data, false,  true);
+        if (data.size() > 0x05) SIZE = (data[0x05] << 8) + data[0x04];
+        if (data.size() > SIZE)
+        {
+            mFullParsed = true;
+            VERSION = (data[0x07] << 8) + data[0x06];
+            SERVICECOUNT = data[0x08];
+            // size of one service with zero component: 24 byte
+	        // every component + 4 byte
+            size_t pos = 12;
+            while (pos < data.size())
+            {
+                DABService service;
+                service.ServiceId = (data[pos + 3] << 24) + (data[pos + 2] << 16) + (data[pos + 1] << 8) + data[pos];
+                int componentCount = data[pos + 5] & 0x0F;
+                service.Label = std::string(data.begin() + pos + 8, data.begin() + pos + 8 + 16);
+                for(int i = 0; i < componentCount; ++i)
+                {
+                    uint16_t componentId = (data[pos + 25] << 8) + data[pos + 24];
+                    service.Components.push_back(componentId);
+
+                    pos += 4;
+                }
+                pos += 24;
+                mServices.push_back(service);
+            }
+        }
+        
     } 
 };
 }

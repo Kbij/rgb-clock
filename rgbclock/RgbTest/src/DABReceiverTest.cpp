@@ -38,3 +38,21 @@ TEST(DABReceiverTest, TuneFreq)
 	delete receiver;
 }
 
+
+TEST(DABReceiverTest, GetServiceList)
+{
+    Hardware::I2C i2c;
+	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(i2c, 0x64, nullptr);
+	receiver->getServiceList();
+
+	delete receiver;
+}
+
+TEST(DABReceiverTest, StartService)
+{
+    Hardware::I2C i2c;
+	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(i2c, 0x64, nullptr);
+	receiver->startService(25348, 8);
+
+	delete receiver;
+}

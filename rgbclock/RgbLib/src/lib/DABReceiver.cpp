@@ -139,11 +139,11 @@ void DABReceiver::init()
 	readSysState();
 	readPartInfo();
 
-	// setProperty(SI468X_DAB_TUNE_FE_CFG, 0x0001); // front end switch closed
-	// setProperty(SI468X_DAB_TUNE_FE_VARM, 0x1710); // Front End Varactor configuration (Changed from '10' to 0x1710 to improve receiver sensitivity - Bjoern 27.11.14)
-	// setProperty(SI468X_DAB_TUNE_FE_VARB, 0x1711); // Front End Varactor configuration (Changed from '10' to 0x1711 to improve receiver sensitivity - Bjoern 27.11.14)	
-	// setProperty(SI468X_PIN_CONFIG_ENABLE, 0x0002); // enable I2S output (BUG!!! either DAC or I2S seems to work)
-	// setProperty(SI468X_DIGITAL_IO_OUTPUT_SELECT, 0x0000); // I2S Slave Mode
+//	setProperty(SI468X_DAB_TUNE_FE_CFG, 0x0001); // front end switch closed
+//	setProperty(SI468X_DAB_TUNE_FE_VARM, 0x1710); // Front End Varactor configuration (Changed from '10' to 0x1710 to improve receiver sensitivity - Bjoern 27.11.14)
+//	setProperty(SI468X_DAB_TUNE_FE_VARB, 0x1711); // Front End Varactor configuration (Changed from '10' to 0x1711 to improve receiver sensitivity - Bjoern 27.11.14)	
+//	setProperty(SI468X_PIN_CONFIG_ENABLE, 0x0002); // enable I2S output (BUG!!! either DAC or I2S seems to work)
+//	setProperty(SI468X_DIGITAL_IO_OUTPUT_SELECT, 0x0000); // I2S Slave Mode
 }
 
 void DABReceiver::readSysState()
@@ -232,6 +232,8 @@ void DABReceiver::tuneFrequencyIndex(uint8_t index)
 
 	auto tuneFreqResponse = sendCommand(SI468X_DAB_TUNE_FREQ, tuneFreqParam, 4, WAIT_CTS_STC, 1000);
 	VLOG(1) << "Raw tuneFreqResponse: " << vectorToHexString(tuneFreqResponse);
+	Status tuneFreqStatus(tuneFreqResponse);
+	LOG(INFO) << "Tune Frequency: " << tuneFreqStatus.toString();
 
 	std::this_thread::sleep_for( std::chrono::seconds(10));
 
@@ -255,6 +257,43 @@ void DABReceiver::getFrequencyList()
 	VLOG(1) << "Raw list Freq: " << vectorToHexString(freqListResponse);
 	FrequencyList fullFreqList(freqListResponse);
 	LOG(INFO) << "Full List: " << fullFreqList.toString();
+}
+
+void DABReceiver::getServiceList()
+{
+	LOG(INFO) << "Get Service list";
+	//First get the size
+	auto serviceListSize = sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x00}), 6, WAIT_CTS);
+	DabServiceList serviceSize(serviceListSize);
+	LOG(INFO) << "Services: " << serviceSize.toString();
+
+	auto serviceList = sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x00}), serviceSize.SIZE+6, WAIT_CTS);
+	VLOG(1) << "Raw: " << vectorToHexString(serviceList, true);
+	DabServiceList services(serviceList);
+	LOG(INFO) << "Services: " << services.toString();
+}
+
+void DABReceiver::startService(uint32_t serviceId, uint32_t componentId)
+{
+	LOG(INFO) << "Start Service: " << (int) serviceId << ", Component: " << (int) componentId;
+
+	std::vector<uint8_t> params;
+	params.push_back(0x00); //Audio service
+	params.push_back(0x00);
+	params.push_back(0x00);
+	params.push_back(serviceId & 0xFF);
+	params.push_back((serviceId >> 8) & 0xFF);
+	params.push_back((serviceId >> 16) & 0xFF);
+	params.push_back((serviceId >> 24) & 0xFF);
+	params.push_back(componentId & 0xFF);
+	params.push_back((componentId >> 8) & 0xFF);
+	params.push_back((componentId >> 16) & 0xFF);
+	params.push_back((componentId >> 24) & 0xFF);
+	VLOG(1) << "RawParams: " << vectorToHexString(params);
+	auto result = sendCommand(SI468X_START_DIGITAL_SERVICE, params, 4, WAIT_CTS);
+	Status status(result);
+	LOG(INFO) << "Result: " << status.toString();
+
 }
 
 bool DABReceiver::powerOn()
@@ -328,12 +367,12 @@ bool DABReceiver::setProperty(uint16_t property, uint16_t value)
 	return true;
 }
 
-std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, uint8_t resultLength, uint8_t waitMask, int timeForResponseMilliseconds)
+std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, int resultLength, uint8_t waitMask, int timeForResponseMilliseconds)
 {
     return sendCommand(command, std::vector<uint8_t>({}), resultLength, waitMask, timeForResponseMilliseconds);
 }
 
-std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, const std::vector<uint8_t>& param, uint8_t resultLength, uint8_t waitMask, int timeForResponseMilliseconds)
+std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, const std::vector<uint8_t>& param, int resultLength, uint8_t waitMask, int timeForResponseMilliseconds)
 {
 	VLOG(10) << "Sending command: " << (int) command << ", waitmask: 0x" << std::hex << (int) waitMask;
 

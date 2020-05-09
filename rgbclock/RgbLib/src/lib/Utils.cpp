@@ -11,21 +11,51 @@
 #include <glog/logging.h>
 #include <fstream>
 
-std::string vectorToHexString(const std::vector<uint8_t>& vector, bool tryString)
+std::string vectorToHexString(const std::vector<uint8_t>& vector, bool tryString, bool blockMode)
 {
 	std::ostringstream ss;
-	std::for_each( vector.cbegin(), vector.cend(), [&]( int c )
+    int pos = 0;
+
+    if (blockMode)
     {
-        if ((((c >= 32) && (c <= 126)) || c == 13 || c == 10) && tryString)
+        ss << "     ";
+        for(int i = 0; i < 16; ++i)
         {
-            ss << (char) c;
+            ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw( 2 ) << i << "|";
+        }
+        ss << std::endl << "=====================================================================================";
+    }
+
+    for(int pos = 0; pos < vector.size(); ++pos)
+    {
+        if (blockMode)
+        {
+            div_t divResult = div (pos, 16);
+            if (divResult.rem == 0)
+            {
+                ss << std::endl;
+                ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw( 2 ) << divResult.quot << "|";
+            }
+        }
+
+        uint8_t c = vector[pos];
+        if ((((c >= 32) && (c <= 126))) && tryString)
+        {
+            if (blockMode)
+            {
+                ss << "  " << c << "  ";
+            }
+            else
+            {
+                ss << (char) c;
+            }
         }
         else
         {
-            ss << "[0x" << std::hex << std::uppercase << std::setfill('0') << std::setw( 2 ) << c << "]";
+            ss << "0x" << std::hex << std::uppercase << std::setfill('0') << std::setw( 2 ) << (int) c << "|";
         }
-    });
-
+    }
+    
 	return ss.str();
 }
 
