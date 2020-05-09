@@ -29,6 +29,7 @@ Si4684::Si4684(I2C &i2c, uint8_t address, Hardware::MainboardControl* mainboardC
 	mAddress(address),
     mMainboardControl(mainboardControl)
 {
+	mI2C.registerAddress(address, "Si4684");	
 }
 
 Si4684::~Si4684()
@@ -117,6 +118,13 @@ bool Si4684::init(const Si4684Settings& settings)
 	
     auto sysState = readSysState();
     VLOG(1) << "System state after Init: " << sysState.toString();
+
+	DABPartInfo partInfo(sendCommand(SI468X_GET_PART_INFO, std::vector<uint8_t> ({0x00}), 23, WAIT_CTS, 1));
+	LOG(INFO) << "Si4684 Radio partinfo:" << partInfo.toString();
+
+	//Set output selection of the mainboard
+	if (mMainboardControl) mMainboardControl->selectInput(InputSelection::RadioIn);
+
     // If DAB is active
     return sysState.IMAGE == 2;
 }
@@ -134,7 +142,7 @@ DABFrequencyList Si4684::getFrequencyList()
 
 DABDigiradStatus Si4684::tuneFrequencyIndex(uint8_t index)
 {
-	LOG(INFO) << "Tune to frequency index: " << (int) index;
+	VLOG(1) << "Tune to frequency index: " << (int) index;
 
 	std::vector<uint8_t> tuneFreqParam;
 	tuneFreqParam.push_back(0x00); //Automatic Injection
@@ -151,7 +159,9 @@ DABDigiradStatus Si4684::tuneFrequencyIndex(uint8_t index)
         return DABDigiradStatus(std::vector<uint8_t>());
     }
 
-	LOG(INFO) << "Read Digirad Status";
+	std::this_thread::sleep_for( std::chrono::seconds(2));
+
+	VLOG(1) << "Read Digirad Status";
 	std::vector<uint8_t> params;
 	params.push_back((1 << 3) | 1); // set digrad_ack and stc_ack;);
 	DABDigiradStatus radStatus(sendCommand(SI468X_DAB_DIGRAD_STATUS, params, 40, WAIT_CTS));
@@ -161,7 +171,7 @@ DABDigiradStatus Si4684::tuneFrequencyIndex(uint8_t index)
 
 DABServiceList Si4684::getServices()
 {
-	LOG(INFO) << "Get Service list";
+	VLOG(1) << "Get Service list";
 	//Get the size first
 	DABServiceList serviceSize(sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x00}), 6, WAIT_CTS));
 
@@ -169,6 +179,29 @@ DABServiceList Si4684::getServices()
 	DABServiceList services(sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x00}), serviceSize.SIZE+6, WAIT_CTS));
 	VLOG(1) << "Services: " << services.toString();
     return services;
+}
+
+bool Si4684::startService(uint32_t serviceId, uint32_t componentId)
+{
+	VLOG(1) << "Start Service: " << (int) serviceId << ", Component: " << (int) componentId;
+
+	std::vector<uint8_t> params;
+	params.push_back(0x00); //Audio service
+	params.push_back(0x00);
+	params.push_back(0x00);
+	params.push_back(serviceId & 0xFF);
+	params.push_back((serviceId >> 8) & 0xFF);
+	params.push_back((serviceId >> 16) & 0xFF);
+	params.push_back((serviceId >> 24) & 0xFF);
+	params.push_back(componentId & 0xFF);
+	params.push_back((componentId >> 8) & 0xFF);
+	params.push_back((componentId >> 16) & 0xFF);
+	params.push_back((componentId >> 24) & 0xFF);
+
+	DABStatus status(sendCommand(SI468X_START_DIGITAL_SERVICE, params, 4, WAIT_CTS));
+	VLOG(1) << "Start service result: " << status.toString();
+
+	return !status.error();
 }
 
 bool Si4684::hostload(const std::string& fileName)
@@ -314,5 +347,18 @@ std::string Si4684::commandToString(uint8_t command)
         case SI468X_DAB_GET_FREQ_LIST: return "DAB_GET_FREQ_LIST";
         default: return "Unknown (" + std::to_string(command) + ")";
     }
+}
+
+bool Si4684::setProperty(uint16_t property, uint16_t value)
+{
+	std::vector<uint8_t> setPropertyParams;
+	setPropertyParams.push_back(0x00);
+	setPropertyParams.push_back(property & 0xFF);
+	setPropertyParams.push_back((property >> 8) & 0xFF);
+	setPropertyParams.push_back(value & 0xFF);
+	setPropertyParams.push_back((value >> 8) & 0xFF);
+
+	DABStatus status(sendCommand(SI468X_SET_PROPERTY, setPropertyParams, 0, WAIT_CTS));
+	return !status.error();
 }
 }

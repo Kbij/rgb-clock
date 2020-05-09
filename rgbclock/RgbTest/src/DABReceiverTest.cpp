@@ -6,6 +6,7 @@
 
 #include "lib/DABReceiver.h"
 #include "lib/MainboardControl.h"
+#include "lib/Si4684.h"
 #include "lib/I2C.h"
 #include "gtest/gtest.h"
 #include "glog/stl_logging.h"
@@ -15,44 +16,39 @@ TEST(DABReceiverTest, Init)
 {
     Hardware::I2C i2c;
 	Hardware::MainboardControl* mbControl = new Hardware::MainboardControl(i2c, 3, 0x20, false);
-	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(i2c, 0x64, mbControl);
-	receiver->init();
-	delete receiver;
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, mbControl);
+
+	EXPECT_TRUE(si4684->reset());
+
+    Hardware::Si4684Settings settings;
+    settings.BootFile = "./firmware/rom00_patch.016.bin";
+    settings.DABFile = "./firmware/dab_radio.bin";
+	EXPECT_TRUE(si4684->init(settings));
+
+	delete si4684;
 	delete mbControl;
 }
 
-TEST(DABReceiverTest, ListFreq)
+
+TEST(DABReceiverTest, Constructor)
 {
     Hardware::I2C i2c;
-	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(i2c, 0x64, nullptr);
-	receiver->getFrequencyList();
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
+
+	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684);
 	delete receiver;
+	delete si4684;
 }
 
-TEST(DABReceiverTest, TuneFreq)
+TEST(DABReceiverTest, ServiceScan)
 {
     Hardware::I2C i2c;
-	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(i2c, 0x64, nullptr);
-	receiver->tuneFrequencyIndex(30);
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
 
+	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684);
+
+	receiver->serviceScan();
+	
 	delete receiver;
-}
-
-
-TEST(DABReceiverTest, GetServiceList)
-{
-    Hardware::I2C i2c;
-	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(i2c, 0x64, nullptr);
-	receiver->getServiceList();
-
-	delete receiver;
-}
-
-TEST(DABReceiverTest, StartService)
-{
-    Hardware::I2C i2c;
-	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(i2c, 0x64, nullptr);
-	receiver->startService(25348, 8);
-
-	delete receiver;
+	delete si4684;
 }

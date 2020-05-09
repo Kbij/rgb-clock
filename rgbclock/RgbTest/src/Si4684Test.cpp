@@ -38,13 +38,44 @@ TEST(Si4684, Init)
 	delete si4684;
 }
 
-TEST(Si4684, GetFrequencyList)
+TEST(Si4684, GetFreqList)
 {
     Hardware::I2C i2c;
 	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
     auto freqList = si4684->getFrequencyList();
 
 	EXPECT_EQ((size_t) 41, freqList.mFrequencies.size());
+
+	delete si4684;
+}
+
+TEST(Si4684, TuneFreq)
+{
+    Hardware::I2C i2c;
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
+    auto freqList = si4684->tuneFrequencyIndex(30);
+
+	EXPECT_EQ(223936, freqList.TUNE_FREQ);
+
+	delete si4684;
+}
+
+TEST(Si4684, GetServices)
+{
+    Hardware::I2C i2c;
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
+    auto services = si4684->getServices();
+
+	EXPECT_EQ((size_t) 13, services.mServices.size());
+
+	delete si4684;
+}
+
+TEST(Si4684, StartService)
+{
+    Hardware::I2C i2c;
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
+    EXPECT_TRUE(si4684->startService(25348, 8));
 
 	delete si4684;
 }

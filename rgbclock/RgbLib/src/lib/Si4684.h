@@ -37,6 +37,7 @@ public:
    	DABFrequencyList getFrequencyList();
 	DABDigiradStatus tuneFrequencyIndex(uint8_t index);
     DABServiceList getServices();
+	bool startService(uint32_t serviceId, uint32_t componentId);
 
 private:
 	bool hostload(const std::string& fileName);
@@ -46,7 +47,6 @@ private:
     std::vector<uint8_t> sendCommand(uint8_t command, const std::vector<uint8_t>& param, int resultLength, uint8_t waitMask, int timeForResponseMilliseconds = 0);
 	std::string commandToString(uint8_t command);
 	bool setProperty(uint16_t property, uint16_t value);
-
 
 	I2C &mI2C;
 	const uint8_t mAddress;
