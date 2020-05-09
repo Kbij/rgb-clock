@@ -12,6 +12,8 @@
 #include <string>
 #include <sstream>
 
+namespace Hardware
+{
 class DABSysState
 {
 public:
@@ -86,5 +88,6 @@ private:
         }
     } 
 };
+}
 
 #endif /* !DABSYSSTATE_H_ */

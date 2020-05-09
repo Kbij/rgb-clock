@@ -124,17 +124,51 @@ bool Si4684::init(const Si4684Settings& settings)
 DABFrequencyList Si4684::getFrequencyList()
 {
 	LOG(INFO) << "Get Frequency list";
-	auto freqListResponse = sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 5, WAIT_CTS);
-	DABFrequencyList freqList(freqListResponse);
+    //Get the size first
+	DABFrequencyList freqList(sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 5, WAIT_CTS));
 
-	freqListResponse = sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 8 + (freqList.NUM_FREQS * 4), WAIT_CTS);
-	DABFrequencyList fullFreqList(freqListResponse);
+    //Get the full list
+	DABFrequencyList fullFreqList(sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 8 + (freqList.NUM_FREQS * 4), WAIT_CTS));
     return fullFreqList;
 }
 
-void Si4684::tuneFrequencyIndex(uint8_t index)
+DABDigiradStatus Si4684::tuneFrequencyIndex(uint8_t index)
 {
+	LOG(INFO) << "Tune to frequency index: " << (int) index;
 
+	std::vector<uint8_t> tuneFreqParam;
+	tuneFreqParam.push_back(0x00); //Automatic Injection
+	tuneFreqParam.push_back(index);
+	tuneFreqParam.push_back(0x00);
+
+	tuneFreqParam.push_back(0x00); //Auto Ant cap
+	tuneFreqParam.push_back(0x00);
+
+	DABStatus tuneFreqStatus(sendCommand(SI468X_DAB_TUNE_FREQ, tuneFreqParam, 4, WAIT_CTS_STC, 1000));
+    if (tuneFreqStatus.error())
+    {
+        LOG(ERROR) << "Error tuning to frequency: " << tuneFreqStatus.toString();
+        return DABDigiradStatus(std::vector<uint8_t>());
+    }
+
+	LOG(INFO) << "Read Digirad Status";
+	std::vector<uint8_t> params;
+	params.push_back((1 << 3) | 1); // set digrad_ack and stc_ack;);
+	DABDigiradStatus radStatus(sendCommand(SI468X_DAB_DIGRAD_STATUS, params, 40, WAIT_CTS));
+	VLOG(1) << radStatus.toString();
+    return radStatus;
+}
+
+DABServiceList Si4684::getServices()
+{
+	LOG(INFO) << "Get Service list";
+	//Get the size first
+	DABServiceList serviceSize(sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x00}), 6, WAIT_CTS));
+
+    //Get the ful size
+	DABServiceList services(sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x00}), serviceSize.SIZE+6, WAIT_CTS));
+	VLOG(1) << "Services: " << services.toString();
+    return services;
 }
 
 bool Si4684::hostload(const std::string& fileName)

@@ -11,6 +11,8 @@
 #include <string>
 #include <sstream>
 
+namespace Hardware
+{
 class DABStatus
 {
 public:
@@ -141,4 +143,5 @@ private:
     bool mStatus3Complete; 
     bool mResp4Complete;
 };
+}
 #endif /* !STATUS_H_ */

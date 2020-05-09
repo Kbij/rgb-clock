@@ -11,5 +11,7 @@
 #include "DABFrequencyList.h"
 #include "DABStatus.h"
 #include "DABSysState.h"
+#include "DABDigiradStatus.h"
+#include "DABServiceList.h"
 
 #endif /* !DABCOMMANDS_H_ */

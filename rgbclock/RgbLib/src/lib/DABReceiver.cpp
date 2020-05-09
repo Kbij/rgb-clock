@@ -176,75 +176,75 @@ void DABReceiver::readPartInfo()
 
 void DABReceiver::hostload(const std::string& fileName)
 {
-	std::vector<uint8_t> firmware;
-	if (readFile(fileName,  firmware))
-	{
-		VLOG(1) << "Firmware size: " << firmware.size();
+	// std::vector<uint8_t> firmware;
+	// if (readFile(fileName,  firmware))
+	// {
+	// 	VLOG(1) << "Firmware size: " << firmware.size();
 
-		Status loadInitStatus(sendCommand(SI468X_LOAD_INIT, std::vector<uint8_t> ({0x00}), 0, WAIT_CTS, 1));
-		if (loadInitStatus.error())
-		{
-			LOG(ERROR) << "Load init resulted in a error: " << loadInitStatus.toString();
-		}
-		std::this_thread::sleep_for( std::chrono::milliseconds(50));
+	// 	Status loadInitStatus(sendCommand(SI468X_LOAD_INIT, std::vector<uint8_t> ({0x00}), 0, WAIT_CTS, 1));
+	// 	if (loadInitStatus.error())
+	// 	{
+	// 		LOG(ERROR) << "Load init resulted in a error: " << loadInitStatus.toString();
+	// 	}
+	// 	std::this_thread::sleep_for( std::chrono::milliseconds(50));
 
-		int bytesSend = 0;
-		auto filePos = firmware.begin();
-		while(filePos != firmware.end())
-		{
-			int amountToSend = (firmware.end() - filePos) >= FIRMWARE_BLOCK_SIZE ? FIRMWARE_BLOCK_SIZE : firmware.end() - filePos;
-			std::vector<uint8_t> firmwareBlock(filePos, (filePos + amountToSend));
-			std::vector<uint8_t> hostLoadParams({0x00, 0x00, 0x00});
+	// 	int bytesSend = 0;
+	// 	auto filePos = firmware.begin();
+	// 	while(filePos != firmware.end())
+	// 	{
+	// 		int amountToSend = (firmware.end() - filePos) >= FIRMWARE_BLOCK_SIZE ? FIRMWARE_BLOCK_SIZE : firmware.end() - filePos;
+	// 		std::vector<uint8_t> firmwareBlock(filePos, (filePos + amountToSend));
+	// 		std::vector<uint8_t> hostLoadParams({0x00, 0x00, 0x00});
 
-			std::copy (firmwareBlock.begin(),firmwareBlock.end(),back_inserter(hostLoadParams));
+	// 		std::copy (firmwareBlock.begin(),firmwareBlock.end(),back_inserter(hostLoadParams));
 
-			VLOG(30) << "Sending bytes: " << firmwareBlock.size() << ", already send: " << bytesSend;
-			VLOG(40) << vectorToHexString(hostLoadParams, true);
+	// 		VLOG(30) << "Sending bytes: " << firmwareBlock.size() << ", already send: " << bytesSend;
+	// 		VLOG(40) << vectorToHexString(hostLoadParams, true);
 
-			Status hostLoadStatus(sendCommand(SI468X_HOST_LOAD, hostLoadParams, 0, WAIT_CTS));
-			if (hostLoadStatus.error())
-			{
-				LOG(ERROR) << "Host load resulted in a error: " << hostLoadStatus.toString();
-			}
+	// 		Status hostLoadStatus(sendCommand(SI468X_HOST_LOAD, hostLoadParams, 0, WAIT_CTS));
+	// 		if (hostLoadStatus.error())
+	// 		{
+	// 			LOG(ERROR) << "Host load resulted in a error: " << hostLoadStatus.toString();
+	// 		}
 
-			bytesSend += firmwareBlock.size();
+	// 		bytesSend += firmwareBlock.size();
 
-			std::advance(filePos , amountToSend);
+	// 		std::advance(filePos , amountToSend);
 
-			std::this_thread::sleep_for( std::chrono::milliseconds(5));
-		}
-		VLOG(1) << "Total bytes send: " << bytesSend;
+	// 		std::this_thread::sleep_for( std::chrono::milliseconds(5));
+	// 	}
+	// 	VLOG(1) << "Total bytes send: " << bytesSend;
 		
-		std::this_thread::sleep_for( std::chrono::milliseconds(50));		
-	}
+	// 	std::this_thread::sleep_for( std::chrono::milliseconds(50));		
+	// }
 }
 
 void DABReceiver::tuneFrequencyIndex(uint8_t index)
 {
-	LOG(INFO) << "Tune to frequency index: " << (int) index;
+	// LOG(INFO) << "Tune to frequency index: " << (int) index;
 
-	std::vector<uint8_t> tuneFreqParam;
-	tuneFreqParam.push_back(0x00); //Automatic Injection
-	tuneFreqParam.push_back(index);
-	tuneFreqParam.push_back(0x00);
+	// std::vector<uint8_t> tuneFreqParam;
+	// tuneFreqParam.push_back(0x00); //Automatic Injection
+	// tuneFreqParam.push_back(index);
+	// tuneFreqParam.push_back(0x00);
 
-	tuneFreqParam.push_back(0x00); //Auto Ant cap
-	tuneFreqParam.push_back(0x00);
+	// tuneFreqParam.push_back(0x00); //Auto Ant cap
+	// tuneFreqParam.push_back(0x00);
 
-	auto tuneFreqResponse = sendCommand(SI468X_DAB_TUNE_FREQ, tuneFreqParam, 4, WAIT_CTS_STC, 1000);
-	VLOG(1) << "Raw tuneFreqResponse: " << vectorToHexString(tuneFreqResponse);
-	Status tuneFreqStatus(tuneFreqResponse);
-	LOG(INFO) << "Tune Frequency: " << tuneFreqStatus.toString();
+	// auto tuneFreqResponse = sendCommand(SI468X_DAB_TUNE_FREQ, tuneFreqParam, 4, WAIT_CTS_STC, 1000);
+	// VLOG(1) << "Raw tuneFreqResponse: " << vectorToHexString(tuneFreqResponse);
+	// Status tuneFreqStatus(tuneFreqResponse);
+	// LOG(INFO) << "Tune Frequency: " << tuneFreqStatus.toString();
 
-	std::this_thread::sleep_for( std::chrono::seconds(10));
+	// std::this_thread::sleep_for( std::chrono::seconds(10));
 
-	LOG(INFO) << "Read Digirad Status";
-	std::vector<uint8_t> params;
-	params.push_back((1 << 3) | 1); // set digrad_ack and stc_ack;);
-	auto digiRadStatus = sendCommand(SI468X_DAB_DIGRAD_STATUS, params, 40, WAIT_CTS);
-	VLOG(1) << "Raw DigiRadStatus: " << vectorToHexString(digiRadStatus);
-	DabDigiradStatus radStatus(digiRadStatus);
-	LOG(INFO) << radStatus.toString();
+	// LOG(INFO) << "Read Digirad Status";
+	// std::vector<uint8_t> params;
+	// params.push_back((1 << 3) | 1); // set digrad_ack and stc_ack;);
+	// auto digiRadStatus = sendCommand(SI468X_DAB_DIGRAD_STATUS, params, 40, WAIT_CTS);
+	// VLOG(1) << "Raw DigiRadStatus: " << vectorToHexString(digiRadStatus);
+	// DabDigiradStatus radStatus(digiRadStatus);
+	// LOG(INFO) << radStatus.toString();
 }
 
 void DABReceiver::getFrequencyList()
@@ -262,38 +262,38 @@ void DABReceiver::getFrequencyList()
 
 void DABReceiver::getServiceList()
 {
-	LOG(INFO) << "Get Service list";
-	//First get the size
-	auto serviceListSize = sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x00}), 6, WAIT_CTS);
-	DabServiceList serviceSize(serviceListSize);
-	LOG(INFO) << "Services: " << serviceSize.toString();
+	// LOG(INFO) << "Get Service list";
+	// //First get the size
+	// auto serviceListSize = sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x00}), 6, WAIT_CTS);
+	// DabServiceList serviceSize(serviceListSize);
+	// LOG(INFO) << "Services: " << serviceSize.toString();
 
-	auto serviceList = sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x00}), serviceSize.SIZE+6, WAIT_CTS);
-	VLOG(1) << "Raw: " << vectorToHexString(serviceList, true);
-	DabServiceList services(serviceList);
-	LOG(INFO) << "Services: " << services.toString();
+	// auto serviceList = sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x00}), serviceSize.SIZE+6, WAIT_CTS);
+	// VLOG(1) << "Raw: " << vectorToHexString(serviceList, true);
+	// DabServiceList services(serviceList);
+	// LOG(INFO) << "Services: " << services.toString();
 }
 
 void DABReceiver::startService(uint32_t serviceId, uint32_t componentId)
 {
-	LOG(INFO) << "Start Service: " << (int) serviceId << ", Component: " << (int) componentId;
+	// LOG(INFO) << "Start Service: " << (int) serviceId << ", Component: " << (int) componentId;
 
-	std::vector<uint8_t> params;
-	params.push_back(0x00); //Audio service
-	params.push_back(0x00);
-	params.push_back(0x00);
-	params.push_back(serviceId & 0xFF);
-	params.push_back((serviceId >> 8) & 0xFF);
-	params.push_back((serviceId >> 16) & 0xFF);
-	params.push_back((serviceId >> 24) & 0xFF);
-	params.push_back(componentId & 0xFF);
-	params.push_back((componentId >> 8) & 0xFF);
-	params.push_back((componentId >> 16) & 0xFF);
-	params.push_back((componentId >> 24) & 0xFF);
-	VLOG(1) << "RawParams: " << vectorToHexString(params);
-	auto result = sendCommand(SI468X_START_DIGITAL_SERVICE, params, 4, WAIT_CTS);
-	Status status(result);
-	LOG(INFO) << "Result: " << status.toString();
+	// std::vector<uint8_t> params;
+	// params.push_back(0x00); //Audio service
+	// params.push_back(0x00);
+	// params.push_back(0x00);
+	// params.push_back(serviceId & 0xFF);
+	// params.push_back((serviceId >> 8) & 0xFF);
+	// params.push_back((serviceId >> 16) & 0xFF);
+	// params.push_back((serviceId >> 24) & 0xFF);
+	// params.push_back(componentId & 0xFF);
+	// params.push_back((componentId >> 8) & 0xFF);
+	// params.push_back((componentId >> 16) & 0xFF);
+	// params.push_back((componentId >> 24) & 0xFF);
+	// VLOG(1) << "RawParams: " << vectorToHexString(params);
+	// auto result = sendCommand(SI468X_START_DIGITAL_SERVICE, params, 4, WAIT_CTS);
+	// Status status(result);
+	// LOG(INFO) << "Result: " << status.toString();
 
 }
 
@@ -375,101 +375,62 @@ std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, int resultLength,
 
 std::vector<uint8_t> DABReceiver::sendCommand(uint8_t command, const std::vector<uint8_t>& param, int resultLength, uint8_t waitMask, int timeForResponseMilliseconds)
 {
-	VLOG(10) << "Sending command: " << (int) command << ", waitmask: 0x" << std::hex << (int) waitMask;
-
-	std::vector<uint8_t> fullCmd;
-	fullCmd.push_back(command);
-	fullCmd.insert(fullCmd.end(), param.begin(), param.end());
-
-	//Write the command first
-    mI2C.writeData(mAddress, fullCmd);
-
-	if (timeForResponseMilliseconds > 0)
-	{
-		VLOG(1) << "Sleep: " <<  timeForResponseMilliseconds << "ms" << " for command: " << (int) command;
-		std::this_thread::sleep_for( std::chrono::milliseconds(timeForResponseMilliseconds));
-	}
-
-	std::vector<uint8_t> rawStatus(4);
-	int retries = 0;
-	while ((rawStatus[0] & waitMask) != waitMask && (retries < MAX_RETRIES))
-	{
-		std::this_thread::sleep_for( std::chrono::milliseconds(10));
-
-		mI2C.readWriteData(mAddress, std::vector<uint8_t> ({SI468X_RD_REPLY}), rawStatus);
-		Status status(rawStatus);
-		if (status.error())
-		{
-			LOG(ERROR) << "Command: " << commandToString(command) << ", Error status returned: " << status.toString();
-			std::vector<uint8_t> rawError(6);
-			mI2C.readWriteData(mAddress, std::vector<uint8_t> ({SI468X_RD_REPLY}), rawError);			
-			Status error(rawError);
-			LOG(ERROR) << "Full error: " << error.toString();
-			return rawStatus;
-		}
-		VLOG(10)  << "Waiting for waitmask: 0x" << std::hex << (int) waitMask << ", current status: " << std::hex << (int) (rawStatus[0] & waitMask) << ", retry count: " << std::dec << retries;
-		++retries;
-	}
-
-	if (retries < MAX_RETRIES)
-	{
-		if (resultLength > 0)
-		{
-			//Need to read the full command result
-			std::vector<uint8_t> cmdResult(resultLength);
-			mI2C.readWriteData(mAddress, std::vector<uint8_t> ({SI468X_RD_REPLY}), cmdResult);
-			return cmdResult;
-		}
-		else
-		{
-			return rawStatus;
-		}		
-	}
-	else
-	{
-		LOG(WARNING) << "Timeout for Command: " << (int) command;
-	}
-
-	return std::vector<uint8_t>();
-
-
 	// VLOG(10) << "Sending command: " << (int) command << ", waitmask: 0x" << std::hex << (int) waitMask;
 
-	// std::vector<uint8_t> cmdResult((resultLength > 0) ? resultLength : 1);
 	// std::vector<uint8_t> fullCmd;
 	// fullCmd.push_back(command);
 	// fullCmd.insert(fullCmd.end(), param.begin(), param.end());
 
-	// bool timeout = false;
+	// //Write the command first
+    // mI2C.writeData(mAddress, fullCmd);
 
-	// //Write the command first, and read only the first status byte (containing CTS)
-    // mI2C.readWriteData(mAddress, fullCmd, cmdResult);
-
-	// if ((cmdResult[0] & waitMask) != waitMask)
+	// if (timeForResponseMilliseconds > 0)
 	// {
-	// 	int retries = 0;
-	// 	while ((cmdResult[0] & waitMask) != waitMask && (retries < MAX_RETRIES))
-	// 	{
-	// 		int sleepTimeMilliseconds = (retries == 0 && timeForResponseMilliseconds > 0) ? timeForResponseMilliseconds : 10;
-	// 		VLOG(10) << "Sleeping for " << sleepTimeMilliseconds << " Ms";
-	// 		std::this_thread::sleep_for( std::chrono::milliseconds(sleepTimeMilliseconds));
-
-	// 		mI2C.readWriteData(mAddress, std::vector<uint8_t> ({SI468X_RD_REPLY}), cmdResult);
-	// 		VLOG(10)  << "Waiting for waitmask: 0x" << std::hex << (int) waitMask << ", current status: " << std::hex << (int) (cmdResult[0] & waitMask) << ", retry count: " << std::dec << retries;
-	// 		++retries;
-	// 	}
-	// 	timeout = retries >= MAX_RETRIES;
+	// 	VLOG(1) << "Sleep: " <<  timeForResponseMilliseconds << "ms" << " for command: " << (int) command;
+	// 	std::this_thread::sleep_for( std::chrono::milliseconds(timeForResponseMilliseconds));
 	// }
-	// if (!timeout)
+
+	// std::vector<uint8_t> rawStatus(4);
+	// int retries = 0;
+	// while ((rawStatus[0] & waitMask) != waitMask && (retries < MAX_RETRIES))
 	// {
-	// 	return cmdResult;
+	// 	std::this_thread::sleep_for( std::chrono::milliseconds(10));
+
+	// 	mI2C.readWriteData(mAddress, std::vector<uint8_t> ({SI468X_RD_REPLY}), rawStatus);
+	// 	Status status(rawStatus);
+	// 	if (status.error())
+	// 	{
+	// 		LOG(ERROR) << "Command: " << commandToString(command) << ", Error status returned: " << status.toString();
+	// 		std::vector<uint8_t> rawError(6);
+	// 		mI2C.readWriteData(mAddress, std::vector<uint8_t> ({SI468X_RD_REPLY}), rawError);			
+	// 		Status error(rawError);
+	// 		LOG(ERROR) << "Full error: " << error.toString();
+	// 		return rawStatus;
+	// 	}
+	// 	VLOG(10)  << "Waiting for waitmask: 0x" << std::hex << (int) waitMask << ", current status: " << std::hex << (int) (rawStatus[0] & waitMask) << ", retry count: " << std::dec << retries;
+	// 	++retries;
+	// }
+
+	// if (retries < MAX_RETRIES)
+	// {
+	// 	if (resultLength > 0)
+	// 	{
+	// 		//Need to read the full command result
+	// 		std::vector<uint8_t> cmdResult(resultLength);
+	// 		mI2C.readWriteData(mAddress, std::vector<uint8_t> ({SI468X_RD_REPLY}), cmdResult);
+	// 		return cmdResult;
+	// 	}
+	// 	else
+	// 	{
+	// 		return rawStatus;
+	// 	}		
 	// }
 	// else
 	// {
 	// 	LOG(WARNING) << "Timeout for Command: " << (int) command;
 	// }
 
-	// return std::vector<uint8_t>();
+	return std::vector<uint8_t>();
 
 }
 std::string DABReceiver::commandToString(uint8_t command)

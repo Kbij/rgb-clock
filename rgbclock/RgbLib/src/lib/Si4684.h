@@ -35,7 +35,8 @@ public:
 	bool init(const Si4684Settings& settings);
 
    	DABFrequencyList getFrequencyList();
-	void tuneFrequencyIndex(uint8_t index);
+	DABDigiradStatus tuneFrequencyIndex(uint8_t index);
+    DABServiceList getServices();
 
 private:
 	bool hostload(const std::string& fileName);
