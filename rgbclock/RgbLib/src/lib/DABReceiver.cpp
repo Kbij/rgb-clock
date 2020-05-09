@@ -5,8 +5,9 @@
 */
 
 #include "DABReceiver.h"
-#include "DABReceiverDef.h"
-#include "DABCommands.h"
+#include "Si4684Const.h"
+#include "lib/cmd/DABCommands.h"
+#include "lib/DABCommands.h"
 #include "FMReceiver.h"
 #include "RadioObserverIf.h"
 #include "SI4735.h"
@@ -248,15 +249,15 @@ void DABReceiver::tuneFrequencyIndex(uint8_t index)
 
 void DABReceiver::getFrequencyList()
 {
-	LOG(INFO) << "Get Frequency list";
-	auto freqListResponse = sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 5, WAIT_CTS);
-	FrequencyList freqList(freqListResponse);
-	LOG(INFO) << "List: " << freqList.toString();
+	// LOG(INFO) << "Get Frequency list";
+	// auto freqListResponse = sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 5, WAIT_CTS);
+	// FrequencyList freqList(freqListResponse);
+	// LOG(INFO) << "List: " << freqList.toString();
 
-	freqListResponse = sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 8 + (freqList.NUM_FREQS * 4), WAIT_CTS);
-	VLOG(1) << "Raw list Freq: " << vectorToHexString(freqListResponse);
-	FrequencyList fullFreqList(freqListResponse);
-	LOG(INFO) << "Full List: " << fullFreqList.toString();
+	// freqListResponse = sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 8 + (freqList.NUM_FREQS * 4), WAIT_CTS);
+	// VLOG(1) << "Raw list Freq: " << vectorToHexString(freqListResponse);
+	// FrequencyList fullFreqList(freqListResponse);
+	// LOG(INFO) << "Full List: " << fullFreqList.toString();
 }
 
 void DABReceiver::getServiceList()

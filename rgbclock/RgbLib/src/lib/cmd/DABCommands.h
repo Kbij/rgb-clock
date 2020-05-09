@@ -9,5 +9,7 @@
 #define DABCOMMANDS_H_
 
 #include "DABFrequencyList.h"
+#include "DABStatus.h"
+#include "DABSysState.h"
 
 #endif /* !DABCOMMANDS_H_ */

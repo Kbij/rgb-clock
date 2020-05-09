@@ -13,14 +13,14 @@
 
 namespace Hardware
 {
-class FrequencyList
+class DABFrequencyList
 {
 public:
-    FrequencyList(const std::vector<uint8_t>& data): NUM_FREQS(), mFrequencies()
+    DABFrequencyList(const std::vector<uint8_t>& data): NUM_FREQS(), mFrequencies()
     {
         parse(data);
     }
-    ~FrequencyList() {};
+    ~DABFrequencyList() {};
 
     std::string toString()
     {

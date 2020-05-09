@@ -20,6 +20,7 @@ class MainboardControl;
 
 struct Si4684Settings
 {
+    Si4684Settings(): BootFile(), DABFile() {};
     std::string BootFile;
     std::string DABFile;
 };
@@ -33,14 +34,16 @@ public:
     bool reset();
 	bool init(const Si4684Settings& settings);
 
-   	FrequencyList getFrequencyList();
+   	DABFrequencyList getFrequencyList();
 	void tuneFrequencyIndex(uint8_t index);
 
 private:
-	void hostload(const std::string& fileName);
+	bool hostload(const std::string& fileName);
+    DABSysState readSysState();
 
     std::vector<uint8_t> sendCommand(uint8_t command, int resultLength, uint8_t waitMask, int timeForResponseMilliseconds = 0);
     std::vector<uint8_t> sendCommand(uint8_t command, const std::vector<uint8_t>& param, int resultLength, uint8_t waitMask, int timeForResponseMilliseconds = 0);
+	std::string commandToString(uint8_t command);
 	bool setProperty(uint16_t property, uint16_t value);
 
 
