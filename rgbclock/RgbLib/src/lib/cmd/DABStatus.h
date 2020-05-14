@@ -16,7 +16,7 @@ namespace Hardware
 class DABStatus
 {
 public:
-    DABStatus(const std::vector<uint8_t>& data): CTS(), ERR_CMD(), DACQ_INT(), DSRV_INT(), STC_INT(), PUP_STATE(), RFFE_ERR(), CMDOFERR(), REPOFERR(), ERROR(), mStatus0Complete(), mResp4Complete() 
+    DABStatus(const std::vector<uint8_t>& data): CTS(), ERR_CMD(), DACQ_INT(), DSRV_INT(), STC_INT(), DFIC_INT(), DEVNT_INT(), DACF_INT(), PUP_STATE(), RFFE_ERR(), CMDOFERR(), REPOFERR(), ERROR(), mStatus0Complete(), mResp4Complete(), mPayload()
     {
         parse(data);
     }
@@ -31,6 +31,9 @@ public:
         ss << ", DACQ_INT: " << std::boolalpha << DACQ_INT;
         ss << ", STC_INT: " << std::boolalpha << STC_INT;
         ss << ", DSRV_INT: " << std::boolalpha << DSRV_INT;
+        ss << ", DFIC_INT: " << std::boolalpha << DFIC_INT;
+        ss << ", DEVNT_INT: " << std::boolalpha << DEVNT_INT;
+        ss << ", DACF_INT: " << std::boolalpha << DACF_INT;
         if (mStatus3Complete)
         {
             ss << ", CMDOFERR: " << std::boolalpha << CMDOFERR;
@@ -101,17 +104,24 @@ public:
     {
         return ERR_CMD || CMDOFERR || REPOFERR;
     }
-
+    bool interrupt()
+    {
+        return DACQ_INT || DSRV_INT || DFIC_INT || DEVNT_INT || DACF_INT;
+    }
     bool CTS;
     bool ERR_CMD;
     bool DACQ_INT;
     bool DSRV_INT;
     bool STC_INT;
+    bool DFIC_INT;
+    bool DEVNT_INT;
+    bool DACF_INT;
     uint8_t PUP_STATE;
     bool RFFE_ERR;
     bool CMDOFERR;
     bool REPOFERR;
     uint8_t ERROR;
+    std::vector<uint8_t> mPayload;
 private:
     void parse(const std::vector<uint8_t>& data)
     {
@@ -125,7 +135,13 @@ private:
 
             mStatus0Complete = true;
         }
-        if (data.size() >= 3)
+        if (data.size() > 1)
+        {
+            DFIC_INT = data[1] & 0x40;
+            DEVNT_INT = data[1] & 0x20;
+            DACF_INT = data[1] & 0x01;
+        }
+        if (data.size() > 3)
         {
             PUP_STATE = data[3] >> 6;
             RFFE_ERR = (data[3] & 0x20) >> 5;
@@ -133,11 +149,12 @@ private:
             CMDOFERR = (data[3] & 0x04) >> 2;
             mStatus3Complete = true;
         }
-        if (data.size() >= 4)
+        if (data.size() > 4)
         {
             ERROR = data[4];
             mResp4Complete = true;
-        }        
+        }
+        if (data.size() > 4) mPayload = std::vector<uint8_t>(data.begin() + 4, data.end());
     } 
     bool mStatus0Complete; 
     bool mStatus3Complete; 

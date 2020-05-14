@@ -34,10 +34,14 @@ public:
     bool reset();
 	bool init(const Si4684Settings& settings);
 
+	DABStatus getStatus();
    	DABFrequencyList getFrequencyList();
 	DABDigiradStatus tuneFrequencyIndex(uint8_t index);
     DABServiceList getServices();
 	bool startService(uint32_t serviceId, uint32_t componentId);
+	DigitalServiceData getServiceData();
+	void getEnsembleInfo();
+	void getServiceInfo();
 
 private:
 	bool hostload(const std::string& fileName);

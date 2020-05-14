@@ -16,7 +16,7 @@ namespace Hardware
 class DABDigiradStatus
 {
 public:
-    DABDigiradStatus(const std::vector<uint8_t>& data): RSSI(), SNR(), FIC_QUALITY(), CNR(), FIB_ERROR_COUNT(),
+    DABDigiradStatus(const std::vector<uint8_t>& data): VALID(), RSSI(), SNR(), FIC_QUALITY(), CNR(), FIB_ERROR_COUNT(),
         TUNE_FREQ(), TUNE_INDEX(), FFT_OFFSET(), READANTCAP(), CU_LEVEL(), FAST_DECT(), SAMPLE_RATE_OFFSET(), FREQ_OFFSET(), FIC_BIT_CNT(), FIC_ERR_CNT()
     {
         parse(data);
@@ -27,6 +27,7 @@ public:
     {
         std::stringstream ss;
         ss << "DAB Digirad Status:" << std::endl;
+        ss << "VALID: " << std::boolalpha << VALID << std::endl;
         ss << "RSSI: " << (int) RSSI << std::endl;
         ss << "SNR: " << (int) SNR << std::endl;
         ss << "FIC_QUALITY: " << (int) FIC_QUALITY << std::endl;
@@ -46,6 +47,7 @@ public:
         return ss.str();
     }
 
+    bool VALID;
     uint8_t RSSI;
     uint8_t SNR;
     uint8_t FIC_QUALITY;
@@ -64,6 +66,7 @@ public:
 private:
     void parse(const std::vector<uint8_t>& data)
     {
+        if (data.size() > 5) VALID = data[5] & 0x01;
         if (data.size() > 6) RSSI = data[6];
         if (data.size() > 7) SNR = data[7];
         if (data.size() > 8) FIC_QUALITY = data[8];

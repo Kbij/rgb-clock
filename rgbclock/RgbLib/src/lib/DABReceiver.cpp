@@ -19,6 +19,8 @@
 #include <glog/logging.h>
 //#include <algorithm>
 #include <pthread.h>
+#include <iostream>
+#include <ostream>
 //#include <iomanip>
 
 namespace Hardware
@@ -67,22 +69,36 @@ void DABReceiver::unRegisterRadioObserver(RadioObserverIf *observer)
 
 void DABReceiver::serviceScan()
 {
+	std::cout << "Scanning DAB Channels." << std::endl;
 	auto frequencyList = mSiChip->getFrequencyList();
+	std::cout << frequencyList.mFrequencies.size() << " Channels found." << std::endl;
+
 	for(int index = 0;index < frequencyList.mFrequencies.size() ; ++index)
 	{
 		auto tuneResponse = mSiChip->tuneFrequencyIndex(index);
-		if (tuneResponse.SNR > 0)
+		if (tuneResponse.VALID)
 		{
-			LOG(INFO) << "Frequency: " << (double) frequencyList.mFrequencies[index]/1000 << "Mhz, Info: " << std::endl << tuneResponse.toString();
+			std::cout << "Frequency: " << (double) frequencyList.mFrequencies[index]/1000 << " Mhz (index: " << index << "), RSSI: " << (int) tuneResponse.RSSI << std::endl;
 
 			auto serviceList = mSiChip->getServices();
-			LOG(INFO) << "Services: " << std::endl <<  serviceList.toString() << std::endl;
-			LOG(INFO) << std::endl << "==========================================================================";
+			std::cout  << "Services: " << std::endl;// <<  serviceList.toString() << std::endl;
+			for(const auto& service: serviceList.mServices)
+			{
+				std::cout << service.ServiceId << ": " << service.Label << " (Component(s): ";
+				for (const auto& component: service.Components)
+				{
+					std::cout << (int) component << " ";
+				}
+				std::cout << ")" << std::endl;
+
+			}
+			std::cout  <<"==========================================================================" << std::endl;
 		}
-		// else
-		// {
-		// 	LOG(WARNING) << "Frequency: " << (double)frequencyList.mFrequencies[index]/1000 << "Mhz SNR to low (" <<  (int) tuneResponse.SNR << ")";
-		// }
+		else
+		{
+			// std::cout << "Frequency: " << (double) frequencyList.mFrequencies[index]/1000 << " Mhz (index: " << index << "): Empty" << std::endl;
+			// std::cout  <<"==========================================================================" << std::endl;
+		}
 		
 	}
 }

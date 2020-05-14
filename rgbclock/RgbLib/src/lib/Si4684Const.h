@@ -23,8 +23,11 @@ namespace Hardware
     const uint8_t SI468X_DAB_TUNE_FREQ = 0xB0;
     const uint8_t SI468X_DAB_DIGRAD_STATUS = 0xB2;
     const uint8_t SI468X_DAB_GET_FREQ_LIST = 0xB9;
-    const uint8_t SI468X_GET_DIGITAL_SERVICE_DATA = 0x80;
+    const uint8_t SI468X_GET_DIGITAL_SERVICE_LIST = 0x80;
     const uint8_t SI468X_START_DIGITAL_SERVICE = 0x81;
+    const uint8_t SI468X_GET_DIGITAL_SERVICE_DATA = 0x84;
+    const uint8_t SI468X_DAB_GET_ENSEMBLE_INFO = 0xb4;
+    const uint8_t SI468X_DAB_GET_SERVICE_INFO = 0xc0;
 
 
     //Properties    
@@ -33,6 +36,7 @@ namespace Hardware
     const uint16_t SI468X_DIGITAL_IO_OUTPUT_SELECT = 0x0200;
     const uint16_t SI468X_DAB_TUNE_FE_VARM = 0x171;
     const uint16_t SI468X_DAB_TUNE_FE_VARB = 0x1711;
+    const uint16_t SI468X_DIGITAL_SERVICE_INT_SOURCE = 0x8100;
 }
 
 #endif /* !DABRECEIVERDEF_H_ */

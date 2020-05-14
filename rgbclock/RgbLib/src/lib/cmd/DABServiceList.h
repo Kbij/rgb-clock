@@ -10,7 +10,11 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <algorithm> 
+#include <cctype>
+#include <locale>
 #include <glog/stl_logging.h>
+
 
 namespace Hardware
 {
@@ -21,6 +25,26 @@ public:
     std::vector<uint16_t> Components;
     std::string Label;
 }; 
+
+// trim from start (in place)
+static inline void ltrim(std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+        return !std::isspace(ch);
+    }));
+}
+
+// trim from end (in place)
+static inline void rtrim(std::string &s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+
+// trim from both ends (in place)
+static inline void trim(std::string &s) {
+    ltrim(s);
+    rtrim(s);
+}
 
 class DABServiceList
 {
@@ -72,6 +96,7 @@ private:
                 service.ServiceId = (data[pos + 3] << 24) + (data[pos + 2] << 16) + (data[pos + 1] << 8) + data[pos];
                 int componentCount = data[pos + 5] & 0x0F;
                 service.Label = std::string(data.begin() + pos + 8, data.begin() + pos + 8 + 16);
+                trim(service.Label);
                 for(int i = 0; i < componentCount; ++i)
                 {
                     uint16_t componentId = (data[pos + 25] << 8) + data[pos + 24];

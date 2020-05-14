@@ -16,7 +16,7 @@
 namespace 
 {
 const int FIRMWARE_BLOCK_SIZE = 4092;
-const int MAX_RETRIES = 5;
+const int MAX_RETRIES = 500;
 const uint8_t WAIT_CTS = 0x80;
 const uint8_t WAIT_CTS_STC = 0x81;
 }
@@ -125,8 +125,17 @@ bool Si4684::init(const Si4684Settings& settings)
 	//Set output selection of the mainboard
 	if (mMainboardControl) mMainboardControl->selectInput(InputSelection::RadioIn);
 
+	//DSRVOVFLINT and DSRVPCKTINT
+	setProperty(SI468X_DIGITAL_SERVICE_INT_SOURCE, 0x03);
+
     // If DAB is active
     return sysState.IMAGE == 2;
+}
+
+DABStatus Si4684::getStatus()
+{
+	DABStatus status(sendCommand(SI468X_RD_REPLY, std::vector<uint8_t> ({0x00}), 4, WAIT_CTS));
+	return status;
 }
 
 DABFrequencyList Si4684::getFrequencyList()
@@ -136,7 +145,7 @@ DABFrequencyList Si4684::getFrequencyList()
 	DABFrequencyList freqList(sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 5, WAIT_CTS));
 
     //Get the full list
-	DABFrequencyList fullFreqList(sendCommand(SI468X_DAB_GET_FREQ_LIST, std::vector<uint8_t> ({0x00}), 8 + (freqList.NUM_FREQS * 4), WAIT_CTS));
+	DABFrequencyList fullFreqList(sendCommand(SI468X_RD_REPLY, std::vector<uint8_t> ({0x00}), 8 + (freqList.NUM_FREQS * 4), WAIT_CTS));
     return fullFreqList;
 }
 
@@ -173,10 +182,10 @@ DABServiceList Si4684::getServices()
 {
 	VLOG(1) << "Get Service list";
 	//Get the size first
-	DABServiceList serviceSize(sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x00}), 6, WAIT_CTS));
+	DABServiceList serviceSize(sendCommand(SI468X_GET_DIGITAL_SERVICE_LIST, std::vector<uint8_t> ({0x00}), 6, WAIT_CTS));
 
     //Get the ful size
-	DABServiceList services(sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x00}), serviceSize.SIZE+6, WAIT_CTS));
+	DABServiceList services(sendCommand(SI468X_RD_REPLY, std::vector<uint8_t> ({0x00}), serviceSize.SIZE+6, WAIT_CTS));
 	VLOG(1) << "Services: " << services.toString();
     return services;
 }
@@ -202,6 +211,30 @@ bool Si4684::startService(uint32_t serviceId, uint32_t componentId)
 	VLOG(1) << "Start service result: " << status.toString();
 
 	return !status.error();
+}
+
+DigitalServiceData Si4684::getServiceData()
+{
+	VLOG(1) << "Get Service Data";
+	DigitalServiceData serviceDataSize(sendCommand(SI468X_GET_DIGITAL_SERVICE_DATA, std::vector<uint8_t> ({0x01}), 20, WAIT_CTS));
+
+
+	DigitalServiceData serviceData(sendCommand(SI468X_RD_REPLY, std::vector<uint8_t> (), serviceDataSize.BYTE_COUNT + 24, WAIT_CTS));
+	return serviceData;
+}
+
+void Si4684::getEnsembleInfo()
+{
+	VLOG(1) << "Get Ensemble Info";
+	auto result = sendCommand(SI468X_DAB_GET_ENSEMBLE_INFO, std::vector<uint8_t> ({0x00}), 32, WAIT_CTS);
+	LOG(INFO) << "info: " << std::endl << vectorToHexString(result, true, true);
+}
+
+void Si4684::getServiceInfo()
+{
+	VLOG(1) << "Get Service Info";
+	auto result = sendCommand(SI468X_DAB_GET_SERVICE_INFO, std::vector<uint8_t> ({0x00}), 32, WAIT_CTS);
+	LOG(INFO) << "info: " << std::endl << vectorToHexString(result, true, true);
 }
 
 bool Si4684::hostload(const std::string& fileName)

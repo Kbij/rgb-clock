@@ -14,5 +14,6 @@
 #include "DABDigiradStatus.h"
 #include "DABServiceList.h"
 #include "DABPartInfo.h"
+#include "DABDigitalServiceData.h"
 
 #endif /* !DABCOMMANDS_H_ */

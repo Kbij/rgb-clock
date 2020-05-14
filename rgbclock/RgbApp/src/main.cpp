@@ -2,7 +2,8 @@
  * Raspberry Pi Ultimate Alarm Clock
  */
 #include "lib/I2C.h"
-#include "lib/FMReceiver.h"
+#include "lib/Si4684.h"
+#include "lib/DABReceiver.h"
 #include "lib/RTC.h"
 #include "lib/MainboardControl.h"
 #include "lib/IOExpander.h"
@@ -34,6 +35,7 @@ DEFINE_bool(i2cstatistics, false, "Print I2C statistics");
 DEFINE_bool(disablewatchdog, false, "Disable the watchdog");
 DEFINE_string(configfile,"settings.xml","XML file containing the addresses of all IC's");
 DEFINE_string(alarmfile,"alarms.xml","XML file containing the definition of alarms");
+DEFINE_bool(dabscan, false, "Perform DAB Scan");
 
 
 void signal_handler(int sig);
@@ -183,6 +185,35 @@ int main (int argc, char* argv[])
 		std::cout << "Daemonize..." << std::endl;
 		daemonize();
 	}
+	if (FLAGS_dabscan)
+	{
+		try
+		{
+			google::InitGoogleLogging("RGBClock");
+    		Hardware::I2C i2c;
+
+			// Create the config object; load the XML file with the settings
+			App::Config config(FLAGS_configfile);
+			if (!config.errorFree())
+			{
+				LOG(ERROR) << "Errors found in the config, exiting";
+				// No errorfree load; exit the application
+				return EXIT_FAILURE;
+			}
+			const App::SystemConfig& systemConfig = config.systemConfig();
+
+			Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
+			Hardware::Si4684 si4684(i2c, systemConfig.mRadio, &mainboardControl);
+			Hardware::DABReceiver dabReceiver(&si4684);
+			dabReceiver.serviceScan();
+		}
+		catch(const std::exception& ex)
+		{
+			std::cerr << "Exception performing DAB scan: " << ex.what() << std::endl;
+		}
+		
+		return EXIT_SUCCESS;
+	}
 
     try
     {
@@ -202,7 +233,7 @@ int main (int argc, char* argv[])
 		{
 			LOG(ERROR) << "Errors found in the config, exiting";
 			// No errorfree load; exit the application
-			return -1;
+			return EXIT_FAILURE;
 		}
 
     	i2c.registerAddresses(config);
@@ -220,7 +251,8 @@ int main (int argc, char* argv[])
 			i2c.writeByte(0x00, 0x06); // General Call Address, Send SWRST data byte 1):
 
 			Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
-			Hardware::FMReceiver fmReceiver(i2c, systemConfig.mRadio, &mainboardControl);
+			Hardware::Si4684 si4684(i2c, systemConfig.mRadio, &mainboardControl);
+			Hardware::DABReceiver dabReceiver(&si4684);
 			Hardware::SystemClock systemClock;
 			App::AlarmManager alarmManager(FLAGS_alarmfile, config.units(), mainboardControl, systemClock);
 
@@ -234,7 +266,7 @@ int main (int argc, char* argv[])
 						{
 							LOG(INFO) << "Creating clock unit: " << configUnit.first;
 							// Unit not found; create a unit
-							startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, rtc, fmReceiver, systemConfig, alarmManager, mainboardControl, configUnit.second));
+							startedUnits[configUnit.first] = std::unique_ptr<App::AlarmClock>(new App::AlarmClock(i2c, rtc, dabReceiver, systemConfig, alarmManager, mainboardControl, configUnit.second));
 						}
 
 						if (i2c.probeAddress(configUnit.second.mLight))
