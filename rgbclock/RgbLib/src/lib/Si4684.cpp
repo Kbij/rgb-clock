@@ -213,6 +213,51 @@ bool Si4684::startService(uint32_t serviceId, uint32_t componentId)
 	return !status.error();
 }
 
+bool Si4684::stopService(uint32_t serviceId, uint32_t componentId)
+{
+	VLOG(1) << "Stop Service: " << (int) serviceId << ", Component: " << (int) componentId;
+
+	std::vector<uint8_t> params;
+	params.push_back(0x00); //Audio service
+	params.push_back(0x00);
+	params.push_back(0x00);
+	params.push_back(serviceId & 0xFF);
+	params.push_back((serviceId >> 8) & 0xFF);
+	params.push_back((serviceId >> 16) & 0xFF);
+	params.push_back((serviceId >> 24) & 0xFF);
+	params.push_back(componentId & 0xFF);
+	params.push_back((componentId >> 8) & 0xFF);
+	params.push_back((componentId >> 16) & 0xFF);
+	params.push_back((componentId >> 24) & 0xFF);
+
+	DABStatus status(sendCommand(SI468X_STOP_DIGITAL_SERVICE, params, 4, WAIT_CTS));
+	VLOG(1) << "Stop service result: " << status.toString();
+
+	return !status.error();
+}
+DABComponentInfo Si4684::getComponentInfo(uint32_t serviceId, uint32_t componentId)
+{
+	VLOG(1) << "Get Component Info: " << (int) serviceId << ", Component: " << (int) componentId;
+
+	std::vector<uint8_t> params;
+	params.push_back(0x00);
+	params.push_back(0x00);
+	params.push_back(0x00);
+	params.push_back(serviceId & 0xFF);
+	params.push_back((serviceId >> 8) & 0xFF);
+	params.push_back((serviceId >> 16) & 0xFF);
+	params.push_back((serviceId >> 24) & 0xFF);
+	params.push_back(componentId & 0xFF);
+	params.push_back((componentId >> 8) & 0xFF);
+	params.push_back((componentId >> 16) & 0xFF);
+	params.push_back((componentId >> 24) & 0xFF);
+
+	DABComponentInfo info(sendCommand(SI468X_DAB_GET_COMPONENT_INFO, params, 37, WAIT_CTS));
+	VLOG(1) << "Start service result: " << info.toString();
+
+	return info;
+}
+
 DigitalServiceData Si4684::getServiceData()
 {
 	VLOG(1) << "Get Service Data";
@@ -235,6 +280,14 @@ void Si4684::getServiceInfo()
 	VLOG(1) << "Get Service Info";
 	auto result = sendCommand(SI468X_DAB_GET_SERVICE_INFO, std::vector<uint8_t> ({0x00}), 32, WAIT_CTS);
 	LOG(INFO) << "info: " << std::endl << vectorToHexString(result, true, true);
+}
+
+DABRssiInfo Si4684::getRssi()
+{
+	VLOG(1) << "Get Rssi Info";
+	auto result = DABRssiInfo(sendCommand(SI468X_TEST_GET_RSSI, std::vector<uint8_t> ({0x00}), 6, WAIT_CTS));
+	
+	return result;
 }
 
 bool Si4684::hostload(const std::string& fileName)

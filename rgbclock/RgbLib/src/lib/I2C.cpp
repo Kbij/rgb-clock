@@ -108,7 +108,7 @@ bool I2C::readWriteData(uint8_t address, const std::vector<uint8_t>& writeData, 
 
 bool I2C::readWriteDataWithRetry(uint8_t address, const std::vector<uint8_t>& writeData, std::vector<uint8_t>& readData, int retryCount)
 {
-
+	VLOG(30) << "readWrite address: " << (int) address;
 	int retry = -1;
 	bool result = false;
 	while (!result && (retry < retryCount))

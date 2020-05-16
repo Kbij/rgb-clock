@@ -204,7 +204,7 @@ int main (int argc, char* argv[])
 
 			Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
 			Hardware::Si4684 si4684(i2c, systemConfig.mRadio, &mainboardControl);
-			Hardware::DABReceiver dabReceiver(&si4684);
+			Hardware::DABReceiver dabReceiver(&si4684, 0, 0, 0);
 			dabReceiver.serviceScan();
 		}
 		catch(const std::exception& ex)
@@ -217,12 +217,13 @@ int main (int argc, char* argv[])
 
     try
     {
-    	Hardware::I2C i2c;
-        Hardware::RTC rtc(i2c, 0x68);
-
 		// Start the RTC clock first; need to have a valid date/time for logging
 		// Don't use any glog functions @constructor time of RTC
 		google::InitGoogleLogging("RGBClock");
+
+    	Hardware::I2C i2c;
+        Hardware::RTC rtc(i2c, 0x68);
+
 
 		LOG(INFO) << "Raspberry Pi Ultimate Alarm Clock";
 		LOG(INFO) << "=================================";
@@ -252,7 +253,14 @@ int main (int argc, char* argv[])
 
 			Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
 			Hardware::Si4684 si4684(i2c, systemConfig.mRadio, &mainboardControl);
-			Hardware::DABReceiver dabReceiver(&si4684);
+			si4684.reset();
+			std::this_thread::sleep_for( std::chrono::seconds(1));
+    		Hardware::Si4684Settings settings;
+    		settings.BootFile = "./firmware/rom00_patch.016.bin";
+    		settings.DABFile = "./firmware/dab_radio.bin";
+			si4684.init(settings);
+
+			Hardware::DABReceiver dabReceiver(&si4684, 30, 25348, 8);
 			Hardware::SystemClock systemClock;
 			App::AlarmManager alarmManager(FLAGS_alarmfile, config.units(), mainboardControl, systemClock);
 

@@ -81,6 +81,16 @@ TEST(Si4684, StartService)
 	delete si4684;
 }
 
+TEST(Si4684, GetComponentInfo)
+{
+    Hardware::I2C i2c;
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
+	auto info = si4684->getComponentInfo(25348, 8);
+    LOG(INFO) << "Service info: " << info.toString();
+
+	delete si4684;
+}
+
 TEST(Si4684, GetServiceData)
 {
     Hardware::I2C i2c;
@@ -128,7 +138,16 @@ TEST(Si4684, GetServiceInfo)
 //	DSRV_INT
 //	si4684->ge
 	si4684->getServiceInfo();
-    //LOG(INFO) << serviceData.toString();
+
+	delete si4684;
+}
+
+TEST(Si4684, GetRssi)
+{
+    Hardware::I2C i2c;
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
+	auto info = si4684->getRssi();
+    LOG(INFO) << "Rssi info: " << info.toString();
 
 	delete si4684;
 }

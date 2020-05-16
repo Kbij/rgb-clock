@@ -15,5 +15,8 @@
 #include "DABServiceList.h"
 #include "DABPartInfo.h"
 #include "DABDigitalServiceData.h"
+#include "DABComponentInfo.h"
+#include "DABRssiInfo.h"
 
 #endif /* !DABCOMMANDS_H_ */
+

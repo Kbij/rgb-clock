@@ -6,28 +6,24 @@
 
 #include "DABReceiver.h"
 #include "Si4684.h"
-// #include "Si4684Const.h"
-// #include "lib/cmd/DABCommands.h"
-// #include "lib/DABCommands.h"
-//#include "FMReceiver.h"
 #include "RadioObserverIf.h"
-//#include "Utils.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
 #include <glog/stl_logging.h>
 #include <glog/logging.h>
-//#include <algorithm>
 #include <pthread.h>
 #include <iostream>
 #include <ostream>
-//#include <iomanip>
 
 namespace Hardware
 {
 
-DABReceiver::DABReceiver(Si4684* siChip) :
+DABReceiver::DABReceiver(Si4684* siChip, uint8_t frequencyIndex, uint32_t serviceId, uint32_t componentId) :
 	mSiChip(siChip),
+	mFrequencyIndex(frequencyIndex),
+	mServiceId(serviceId),
+	mComponentId(componentId),
 	mPowerCounter(0),
 	mPowerMutex(),
 	mPowerState(DABPowerState::Unknown),
@@ -43,8 +39,8 @@ DABReceiver::DABReceiver(Si4684* siChip) :
 
 DABReceiver::~DABReceiver()
 {
-	// powerOff();
-	// LOG(INFO) << "DABReceiver destructor exit";
+	powerOff();
+	LOG(INFO) << "DABReceiver destructor exit";
 }
 
 void DABReceiver::registerRadioObserver(RadioObserverIf *observer)
@@ -181,16 +177,58 @@ void DABReceiver::stopReadThread()
         mReadThread.reset();
     }
 }
+
 void DABReceiver::readThread()
 {
 	pthread_setname_np(pthread_self(), "DAB Receiver");
+	mDABInfo.StationName = "Tune...";
+	mDABInfo.Info = "Set Frequency";
+	notifyObservers();
+	if (mSiChip)
+	{
+		auto tuneResult = mSiChip->tuneFrequencyIndex(mFrequencyIndex);
+		if (tuneResult.VALID)
+		{
+			mDABInfo.StationName = "Tune...";
+			mDABInfo.Info = "Search Service";
+			notifyObservers();
+			mSiChip->startService(mServiceId, mComponentId);
+		}
+	}
 
-    while (mReadThreadRunning == true)
+    while (mReadThreadRunning)
     {
-        // default sleep interval
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-        std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		if (mSiChip)
+		{
+			auto status = mSiChip->getStatus();
+			if (status.DSRV_INT)
+			{
+				auto serviceData = mSiChip->getServiceData();
+				
+				if (serviceData.mPayload.size() > 4)
+				{
+					std::lock_guard<std::recursive_mutex> lk_guard(mReceiverMutex);
+					if (serviceData.mPayload[0] == 0x00)
+					{
+						std::string text = std::string(serviceData.mPayload.begin() + 2, serviceData.mPayload.begin() + serviceData.BYTE_COUNT - 1);
+						mDABInfo.StationName = text;
+						VLOG(1) << "Station: " << text;
+						notifyObservers();
+					}
+					if (serviceData.mPayload[0] == 0x80)
+					{
+						std::string text = std::string(serviceData.mPayload.begin() + 2, serviceData.mPayload.begin() + serviceData.BYTE_COUNT - 1);
+						mDABInfo.Info = text;
+						VLOG(1) << "Info: " << text;
+						notifyObservers();
+					}	
+				}
+			}
+		}
     }
+
+	if (mSiChip) mSiChip->stopService(mServiceId, mComponentId);
 }
 
 void DABReceiver::notifyObservers()
@@ -198,26 +236,7 @@ void DABReceiver::notifyObservers()
 	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
     for (auto observer : mRadioObservers)
     {
-       // observer->radioRdsUpdate(mRDSInfo);
+		observer->radioDABUpdate(mDABInfo);
     }
 }
-// std::string commandToString(uint8_t command)
-// {
-//     switch(command)
-//     {
-//         case SI468X_RD_REPLY: return "RD_REPLY";
-//         case SI468X_POWER_UP: return "POWER_UP";
-//         case SI468X_HOST_LOAD: return "HOST_LOAD";
-//         case SI468X_LOAD_INIT: return "LOAD_INIT";
-//         case SI468X_BOOT: return "BOOT";
-//         case SI468X_GET_PART_INFO: return "GET_PART_INFO";
-//         case SI468X_GET_SYS_STATE: return "GET_SYS_STATE";
-//         case SI468X_SET_PROPERTY: return "SET_PROPERTY";
-//         case SI468X_GET_PROPERTY: return "GET_PROPERTY";
-//         case SI468X_DAB_TUNE_FREQ: return "DAB_TUNE_FREQ";
-//         case SI468X_DAB_DIGRAD_STATUS: return "DAB_DIGRAD_STATUS";
-//         case SI468X_DAB_GET_FREQ_LIST: return "DAB_GET_FREQ_LIST";
-//         default: return "Unknown";
-//     }
-// }
 }

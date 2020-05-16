@@ -6,7 +6,7 @@
  */
 
 #include "Radio.h"
-#include "FMReceiver.h"
+#include "DABReceiver.h"
 #include "I2C.h"
 #include <glog/logging.h>
 #include <iostream>
@@ -19,10 +19,10 @@ const int AUTO_OFF_MINUTES = 60;
 const int STARTUP_VOLUME = 30;
 const int SLOWUP_MINUTES = 5;
 
-Radio::Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver, double frequency):
+Radio::Radio(I2C &i2c, uint8_t amplifierAddress, DABReceiver &dabReceiver, double frequency):
 	mI2C(i2c),
 	mAplifierAddress(amplifierAddress),
-	mFMReceiver(fmReceiver),
+	mDabReceiver(dabReceiver),
 	mFrequency(frequency),
 	mMaskRegister(0),
 	mControlRegister(0),
@@ -117,10 +117,8 @@ void Radio::pwrOn(bool smooth, int volume)
 
 	LOG(INFO) << "Radio On";
 	registerFMReceiver();
-	if (mFMReceiver.powerOn())
-	{
-		mFMReceiver.tuneFrequency(mFrequency);
-	}
+
+	mDabReceiver.powerOn();
 
 	mState = RadioState::PwrOn;
 	mControlRegister = 0b00010000; // PowerUp
@@ -155,13 +153,12 @@ void Radio::pwrOff()
     mAutoPowerOffTimer.cancelAutoPowerOff();
     mUpDownTimer.cancelDimmer();
 
-
     mStoredVolume = mCurrentVolume;
 
 	mState = RadioState::PwrOff;
 	mControlRegister = 0b00010001; // Shutdown
 	writeRegisters();
-	mFMReceiver.powerOff();
+	mDabReceiver.powerOff();
 
 	unRegisterFMReceiver();
 }
@@ -187,25 +184,6 @@ void Radio::down(int step)
 		mCurrentVolume -= 1;
 		writeRegisters();
 	}
-}
-
-bool Radio::seekUp(int timeout)
-{
-    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
-
-	return mFMReceiver.seekUp(timeout);
-}
-
-bool Radio::tuneFrequency(double frequency)
-{
-    std::lock_guard<std::recursive_mutex> lk_guard(mRadioMutex);
-
-	return mFMReceiver.tuneFrequency(frequency);
-}
-
-RDSInfo Radio::getRDSInfo()
-{
-	return mFMReceiver.getRDSInfo();
 }
 
 void Radio::writeRegisters()
@@ -242,7 +220,7 @@ void Radio::registerFMReceiver()
 	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
     for (auto observer : mRadioObservers)
     {
-    	mFMReceiver.registerRadioObserver(observer);
+    	mDabReceiver.registerRadioObserver(observer);
     }
 }
 
@@ -251,7 +229,7 @@ void Radio::unRegisterFMReceiver()
 	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
     for (auto observer : mRadioObservers)
     {
-    	mFMReceiver.unRegisterRadioObserver(observer);
+    	mDabReceiver.unRegisterRadioObserver(observer);
     }
 }
 }

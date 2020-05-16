@@ -8,6 +8,7 @@
 #define DABRECEIVER_H_
 
 #include "RadioObserverIf.h"
+#include "DABInfo.h"
 #include <stdint.h>
 #include <mutex>
 #include <atomic>
@@ -32,19 +33,19 @@ enum class DABPowerState
 class DABReceiver
 {
 public:
-	DABReceiver(Si4684* siChip);
+	DABReceiver(Si4684* siChip, uint8_t frequencyIndex, uint32_t serviceId, uint32_t componentId);
 	virtual ~DABReceiver();
-	friend Radio;
 
 	void serviceScan();
     
     bool powerOn();
+	bool powerOff();
 
-private:
 	void registerRadioObserver(RadioObserverIf *observer);
     void unRegisterRadioObserver(RadioObserverIf *observer);
 
-	bool powerOff();
+private:
+
 
 	bool internalPowerOn();
 	bool internalPowerOff();
@@ -56,6 +57,9 @@ private:
 	void notifyObservers();
 
 	Si4684* mSiChip;
+	uint8_t mFrequencyIndex;
+	uint32_t mServiceId;
+	uint32_t mComponentId;
 	int mPowerCounter;
 	std::mutex mPowerMutex;
 	DABPowerState mPowerState;
@@ -63,6 +67,7 @@ private:
     std::unique_ptr<std::thread> mReadThread;
     std::atomic_bool mReadThreadRunning;
     std::set<RadioObserverIf*> mRadioObservers;
+	DABInfo mDABInfo;
     std::recursive_mutex mRadioObserversMutex;
 };
 }

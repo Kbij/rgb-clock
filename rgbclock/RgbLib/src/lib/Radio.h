@@ -25,14 +25,14 @@ namespace Hardware
 {
 
 
-class FMReceiver;
+class DABReceiver;
 class I2C;
 class ClockDisplay;
 
 class Radio : public Hardware::KeyboardObserverIf, public AutoPowerOffDeviceIf, public UpDownDeviceIf
 {
 public:
-	Radio(I2C &i2c, uint8_t amplifierAddress, FMReceiver &fmReceiver, double frequency);
+	Radio(I2C &i2c, uint8_t amplifierAddress, DABReceiver &dabReceiver, double frequency);
 	virtual ~Radio();
 
 	void registerRadioObserver(RadioObserverIf *observer);
@@ -44,10 +44,6 @@ public:
 	void up(int step);
 	void down(int step);
 
-	bool seekUp(int timeout);
-	bool tuneFrequency(double frequency);
-	RDSInfo getRDSInfo();
-
 	void keyboardPressed(const KeyboardInfo& keyboardInfo);
 
 private:
@@ -58,7 +54,7 @@ private:
 
 	I2C &mI2C;
 	const uint8_t mAplifierAddress;
-	FMReceiver &mFMReceiver;
+	DABReceiver &mDabReceiver;
 	const double mFrequency;
 	uint8_t mMaskRegister;
 	uint8_t mControlRegister;

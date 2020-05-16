@@ -78,7 +78,7 @@ public:
 
 	void signalClockState(App::ClockState state);
 
-    void radioRdsUpdate(RDSInfo rdsInfo);
+	void radioDABUpdate(DABInfo rdsInfo);
     void radioStateUpdate(RadioInfo radioInfo);
 
 	void keyboardPressed(const KeyboardInfo& keyboardInfo);

@@ -39,9 +39,12 @@ public:
 	DABDigiradStatus tuneFrequencyIndex(uint8_t index);
     DABServiceList getServices();
 	bool startService(uint32_t serviceId, uint32_t componentId);
+	bool stopService(uint32_t serviceId, uint32_t componentId);
+	DABComponentInfo getComponentInfo(uint32_t serviceId, uint32_t componentId);
 	DigitalServiceData getServiceData();
 	void getEnsembleInfo();
 	void getServiceInfo();
+	DABRssiInfo getRssi();
 
 private:
 	bool hostload(const std::string& fileName);

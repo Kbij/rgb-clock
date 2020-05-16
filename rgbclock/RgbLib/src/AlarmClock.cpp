@@ -7,7 +7,7 @@
 
 #include "AlarmClock.h"
 #include "lib/Light.h"
-#include "lib/FMReceiver.h"
+#include "lib/DABReceiver.h"
 #include "lib/MainboardControl.h"
 #include "AlarmManager.h"
 #include <glog/logging.h>
@@ -20,10 +20,10 @@ const int ALARM_TIME = 30 * 60; // Alarm time: 30 min
 
 namespace App {
 
-AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::RTC &rtc, Hardware::FMReceiver & fmReceiver, const SystemConfig &systemConfig, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig) :
+AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::RTC &rtc, Hardware::DABReceiver & dabReceiver, const SystemConfig &systemConfig, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig) :
 	mUnitConfig(unitConfig),
 	mKeyboard(i2c, unitConfig.mKeyboard, mainboardControl),
-	mRadio(i2c, unitConfig.mAmplifier, fmReceiver, systemConfig.mFrequency),
+	mRadio(i2c, unitConfig.mAmplifier, dabReceiver, systemConfig.mFrequency),
 	mAlarmManager(alarmManager),
 	mMainboardControl(mainboardControl),
 	mDisplay(i2c, rtc, mKeyboard, mAlarmManager, systemConfig.mHardwareRevision, unitConfig),

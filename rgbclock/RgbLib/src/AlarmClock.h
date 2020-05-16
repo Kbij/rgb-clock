@@ -14,6 +14,7 @@
 #include "lib/Radio.h"
 #include "lib/ClockDisplay.h"
 #include "lib/MainboardControl.h"
+
 #include "Config.h"
 
 #include <stdint.h>
@@ -33,7 +34,7 @@ class AlarmManager;
 
 class AlarmClock : public Hardware::KeyboardObserverIf, public App::AlarmObserverIf {
 public:
-	AlarmClock(Hardware::I2C &i2c, Hardware::RTC &rtc, Hardware::FMReceiver &fmReceiver, const SystemConfig &systemConfig, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig);
+	AlarmClock(Hardware::I2C &i2c, Hardware::RTC &rtc, Hardware::DABReceiver &DABReceiver, const SystemConfig &systemConfig, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig);
 	virtual ~AlarmClock();
 	// Prevent copy constructor
 	AlarmClock(const AlarmClock& source) = delete;

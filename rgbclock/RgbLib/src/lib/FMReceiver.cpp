@@ -537,7 +537,7 @@ void FMReceiver::notifyObservers()
 	std::lock_guard<std::recursive_mutex> lk_guard(mRadioObserversMutex);
     for (auto observer : mRadioObservers)
     {
-        observer->radioRdsUpdate(mRDSInfo);
+        //observer->radioRdsUpdate(mRDSInfo);
     }
 }
 

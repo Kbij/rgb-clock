@@ -140,10 +140,10 @@ void MainboardControl::mute(bool mute)
 
 void MainboardControl::resetTuner()
 {
-	if (mHwRevision == 1)
-	{
-		return;
-	}
+	// if (mHwRevision == 1)
+	// {
+	// 	return;
+	// }
 
 	LOG(INFO) << "Reset Tuner";
     std::lock_guard<std::recursive_mutex> lk_guard(mBusMutex);

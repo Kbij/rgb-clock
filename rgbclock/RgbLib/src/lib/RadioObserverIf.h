@@ -7,7 +7,7 @@
 
 #ifndef RADIOOBSERVERIF_H_
 #define RADIOOBSERVERIF_H_
-#include "RDSInfo.h"
+#include "DABInfo.h"
 
 namespace Hardware
 {
@@ -29,7 +29,7 @@ class RadioObserverIf
 public:
     virtual ~RadioObserverIf() {};
 
-    virtual void radioRdsUpdate(RDSInfo rdsInfo) = 0;
+    virtual void radioDABUpdate(DABInfo rdsInfo) = 0;
     virtual void radioStateUpdate(RadioInfo radioInfo) = 0;
 };
 }

@@ -96,30 +96,31 @@ void ClockDisplay::signalClockState(App::ClockState state)
 	mClockState = state;
 }
 
-void ClockDisplay::radioRdsUpdate(RDSInfo rdsInfo)
+void ClockDisplay::radioDABUpdate(DABInfo rdsInfo)
 {
     std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
-	if (mRDSStationName != rdsInfo.mStationName)
+	if (mRDSStationName != rdsInfo.StationName)
 	{
-		mRDSStationName = rdsInfo.mStationName;
+		mRDSStationName = rdsInfo.StationName;
 		mRDSStationName = mRDSStationName.substr(0, 7);
 		mRDSStationName.append(7 - mRDSStationName.size(), ' ');
 	}
 
-	if (mRDSText != rdsInfo.mText)
+	if (mRDSText != rdsInfo.Info)
 	{
-		mRDSText = rdsInfo.mText;
+		mRDSText = rdsInfo.Info;
 		mRDSTextPos = 0;
 	}
 
 	// Receive Max is 127
 	// Normalize to 50
-	mReceiveLevel = rdsInfo.mReceiveLevel;
-	if (mReceiveLevel > 50)
-	{
-		mReceiveLevel = 100;
-	}
-	mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 50 * 100);
+	// mReceiveLevel = rdsInfo.mReceiveLevel;
+	// if (mReceiveLevel > 50)
+	// {
+	// 	mReceiveLevel = 100;
+	// }
+	// mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 50 * 100);
+
 }
 
 void ClockDisplay::radioStateUpdate(RadioInfo radioInfo)

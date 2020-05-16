@@ -35,7 +35,7 @@ TEST(DABReceiverTest, Constructor)
     Hardware::I2C i2c;
 	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
 
-	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684);
+	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684, 30, 25348, 8);
 	delete receiver;
 	delete si4684;
 }
@@ -45,10 +45,25 @@ TEST(DABReceiverTest, ServiceScan)
     Hardware::I2C i2c;
 	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
 
-	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684);
+	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684, 30, 25348, 8);
 
 	receiver->serviceScan();
 	
+	delete receiver;
+	delete si4684;
+}
+
+TEST(DABReceiverTest, PowerOnOff)
+{
+    Hardware::I2C i2c;
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
+
+	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684, 30, 25348, 8);
+
+	receiver->powerOn();
+	std::this_thread::sleep_for( std::chrono::seconds(30));
+	receiver->powerOff();
+
 	delete receiver;
 	delete si4684;
 }
