@@ -31,6 +31,7 @@ namespace Hardware
     const uint8_t SI468X_DAB_GET_ENSEMBLE_INFO = 0xb4;
     const uint8_t SI468X_DAB_GET_SERVICE_INFO = 0xc0;
     const uint8_t SI468X_TEST_GET_RSSI = 0xE5;
+    const uint8_t SI468X_FLASH_ERASE_CHIP = 0xFF;
 
 
     //Properties    

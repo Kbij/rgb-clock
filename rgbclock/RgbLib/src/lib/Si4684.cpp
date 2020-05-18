@@ -89,8 +89,13 @@ bool Si4684::init(const Si4684Settings& settings)
 	powerUpParams.push_back(0x00); // ARG15    
 
 	VLOG(3) << "Writing POWER_UP";
-    sendCommand(SI468X_POWER_UP, powerUpParams, 0, WAIT_CTS, 10);
+    DABStatus powerUpStatus(sendCommand(SI468X_POWER_UP, powerUpParams, 0, WAIT_CTS, 10));
 	std::this_thread::sleep_for( std::chrono::milliseconds(10));
+	if (powerUpStatus.error())
+	{
+		LOG(ERROR) << "Si4684 Powerup failed";
+		return false;
+	}
 
     LOG(INFO) << "Loading Bootfile: " << settings.BootFile;
 	if (!hostload(settings.BootFile))
@@ -130,6 +135,60 @@ bool Si4684::init(const Si4684Settings& settings)
 
     // If DAB is active
     return sysState.IMAGE == 2;
+}
+
+bool Si4684::writeFlash(const Si4684Settings& settings)
+{
+    LOG(INFO) << "Init Si4684";
+
+    if (settings.BootFile.empty())
+    {
+        LOG(ERROR) << "Bootfile not specified !";
+        return false;
+    }
+    if (settings.DABFile.empty())
+    {
+        LOG(ERROR) << "DABfile not specified !";
+        return false;
+    }    
+
+    //See Page 154 in the manual
+    std::vector<uint8_t> powerUpParams;
+	powerUpParams.push_back(0x00); // ARG1 CTSIEN is disabled
+	powerUpParams.push_back((1 << 4) | (7 << 0)); // ARG2 CLK_MODE=0x1 TR_SIZE=0x7 (19.2Mhz X-Tal)
+
+    //See page 438 Programming Manual)
+    //ESR = 70 Ohm
+    powerUpParams.push_back(0x48); // ARG3 IBIAS=0x48 (Sdk: 0x28)
+
+    //19 200 000 hz = 0x0124F800
+	powerUpParams.push_back(0x00); // ARG4 XTAL
+	powerUpParams.push_back(0xF8); // ARG5 XTAL (ik 0xF8)
+	powerUpParams.push_back(0x24); // ARG6 XTAL
+	powerUpParams.push_back(0x01); // ARG7 XTAL 19.2MHz
+
+    //See Page 444 of programming manual (ABM8 Xtal = 10pf)
+    //CTUN = 2*(Cl-Clpar) -Cx -> 2*(10pf - 0) - 0= 20pf -> 0x28
+	powerUpParams.push_back(0x28); // ARG8 CTUN (ik: 0x28) (Sdk: 0x07)
+
+	powerUpParams.push_back(0x00 | (1 << 4)); // ARG9
+	powerUpParams.push_back(0x00); // ARG10
+	powerUpParams.push_back(0x00); // ARG11
+	powerUpParams.push_back(0x00); // ARG12
+
+    //See page 443
+	powerUpParams.push_back(0x18); // ARG13 IBIAS_RUN (Ik: 0x12)
+	powerUpParams.push_back(0x00); // ARG14
+	powerUpParams.push_back(0x00); // ARG15    
+
+	VLOG(3) << "Writing POWER_UP";
+    DABStatus powerUpStatus(sendCommand(SI468X_POWER_UP, powerUpParams, 0, WAIT_CTS, 10));
+	std::this_thread::sleep_for( std::chrono::milliseconds(10));
+	if (powerUpStatus.error())
+	{
+		LOG(ERROR) << "Si4684 Powerup failed";
+		return false;
+	}
 }
 
 DABStatus Si4684::getStatus()

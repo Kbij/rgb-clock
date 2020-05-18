@@ -151,3 +151,21 @@ TEST(Si4684, GetRssi)
 
 	delete si4684;
 }
+
+
+TEST(Si4684, Flash)
+{
+    Hardware::I2C i2c;
+	Hardware::MainboardControl* mbControl = new Hardware::MainboardControl(i2c, 3, 0x21, false);
+
+    Hardware::Si4684Settings settings;
+    settings.BootFile = "./firmware/rom00_patch.016.bin";
+    settings.DABFile = "./firmware/dab_radio.bin";
+
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, mbControl);
+	si4684->reset();
+	EXPECT_TRUE(si4684->writeFlash(settings));
+
+	delete si4684;
+	delete mbControl;
+}

@@ -198,7 +198,7 @@ void DABReceiver::readThread()
 
     while (mReadThreadRunning)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		if (mSiChip)
 		{
 			auto status = mSiChip->getStatus();
@@ -225,6 +225,9 @@ void DABReceiver::readThread()
 					}	
 				}
 			}
+
+			auto rssiInfo = mSiChip->getRssi();
+			mDABInfo.ReceiveLevel = rssiInfo.RSSI_HIGH > 64 ? 100 : rssiInfo.RSSI_HIGH * 100 / 64;
 		}
     }
 

@@ -246,7 +246,7 @@ void I2C::registerAddresses(const App::Config &config)
 
 	const App::SystemConfig& systemConfig = config.systemConfig();
 	registerAddress(systemConfig.mCentralIO, "CentralIO" );
-	registerAddress(systemConfig.mRadio , "FMTuner" );
+	registerAddress(systemConfig.mRadio , "DABTuner" );
 	registerAddress(systemConfig.mRtc, "RTC" );
 }
 

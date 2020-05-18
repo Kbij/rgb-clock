@@ -112,15 +112,9 @@ void ClockDisplay::radioDABUpdate(DABInfo rdsInfo)
 		mRDSTextPos = 0;
 	}
 
-	// Receive Max is 127
-	// Normalize to 50
-	// mReceiveLevel = rdsInfo.mReceiveLevel;
-	// if (mReceiveLevel > 50)
-	// {
-	// 	mReceiveLevel = 100;
-	// }
-	// mReceiveLevel = static_cast<int>(static_cast<double> (mReceiveLevel) / 50 * 100);
-
+	// Receive Max is 0..100
+	mReceiveLevel = rdsInfo.ReceiveLevel;
+	VLOG(1) << "mReceiveLevel:" << mReceiveLevel;
 }
 
 void ClockDisplay::radioStateUpdate(RadioInfo radioInfo)

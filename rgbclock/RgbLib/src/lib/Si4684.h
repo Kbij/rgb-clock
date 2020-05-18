@@ -33,6 +33,7 @@ public:
 
     bool reset();
 	bool init(const Si4684Settings& settings);
+	bool writeFlash(const Si4684Settings& settings);
 
 	DABStatus getStatus();
    	DABFrequencyList getFrequencyList();
