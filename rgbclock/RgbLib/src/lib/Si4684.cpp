@@ -546,18 +546,14 @@ bool Si4684::writeFlashImage(const std::string& fileName, uint32_t address)
 			int amountToSend = (firmware.end() - filePos) >= FIRMWARE_BLOCK_SIZE ? FIRMWARE_BLOCK_SIZE : firmware.end() - filePos;
 			std::vector<uint8_t> firmwareBlock(filePos, (filePos + amountToSend));
 
-			auto crc = crc32<IEEE8023_CRC32_POLYNOMIAL>(/*0xFFFFFFFF*/ 0, firmwareBlock.begin(), firmwareBlock.end());
+			auto crc = crc32<IEEE8023_CRC32_POLYNOMIAL>(0xFFFFFFFF, firmwareBlock.begin(), firmwareBlock.end());
 			VLOG(3) << "CRC32: 0x" << std::hex << crc;
 
-			std::vector<uint8_t> writeFlashParams({0xF0, 0x0C, 0xED});
-			// writeFlashParams.push_back(crc & 0xFF);
-			// writeFlashParams.push_back((crc >> 8) & 0xFF);
-			// writeFlashParams.push_back((crc >> 16) & 0xFF);
-			// writeFlashParams.push_back((crc >> 24) & 0xFF);
-			writeFlashParams.push_back(0x00);
-			writeFlashParams.push_back(0x00);
-			writeFlashParams.push_back(0x00);
-			writeFlashParams.push_back(0x00);
+			std::vector<uint8_t> writeFlashParams({FLASH_WRITE_BLOCK_READBACK_VERIFY, 0x0C, 0xED});
+			writeFlashParams.push_back(crc & 0xFF);
+			writeFlashParams.push_back((crc >> 8) & 0xFF);
+			writeFlashParams.push_back((crc >> 16) & 0xFF);
+			writeFlashParams.push_back((crc >> 24) & 0xFF);
 
 			writeFlashParams.push_back(currentAddress & 0xFF);
 			writeFlashParams.push_back((currentAddress >> 8) & 0xFF);
@@ -588,13 +584,10 @@ bool Si4684::writeFlashImage(const std::string& fileName, uint32_t address)
 			bytesSend += firmwareBlock.size();
 
 			std::advance(filePos , amountToSend);
-
-			std::this_thread::sleep_for( std::chrono::milliseconds(5));
 		}
 
 		VLOG(1) << "Total bytes written: " << bytesSend;
 		
-		std::this_thread::sleep_for( std::chrono::milliseconds(50));
         return true;	
 	}
     else
