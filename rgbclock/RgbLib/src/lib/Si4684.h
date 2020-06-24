@@ -14,15 +14,18 @@
 #include <set>
 #include <stdint.h>
 
+
 namespace Hardware
 {
 class MainboardControl;
 
 struct Si4684Settings
 {
-    Si4684Settings(): BootFile(), DABFile() {};
+    Si4684Settings(): MiniPatch(), BootFile(), DABFile(), LoadFromFlash(false) {};
+	std::string MiniPatch;
     std::string BootFile;
     std::string DABFile;
+	bool LoadFromFlash;
 };
 
 class Si4684
@@ -34,6 +37,7 @@ public:
     bool reset();
 	bool init(const Si4684Settings& settings);
 	bool writeFlash(const Si4684Settings& settings);
+	bool writeFlash2(const Si4684Settings& settings);
 
 	DABStatus getStatus();
    	DABFrequencyList getFrequencyList();
@@ -48,13 +52,16 @@ public:
 	DABRssiInfo getRssi();
 
 private:
-	bool hostload(const std::string& fileName);
+	bool hostLoad(const std::string& fileName);
+	bool flashLoad(uint32_t address);
+	bool writeFlashImage(const std::string& fileName, uint32_t address);
     DABSysState readSysState();
 
     std::vector<uint8_t> sendCommand(uint8_t command, int resultLength, uint8_t waitMask, int timeForResponseMilliseconds = 0);
     std::vector<uint8_t> sendCommand(uint8_t command, const std::vector<uint8_t>& param, int resultLength, uint8_t waitMask, int timeForResponseMilliseconds = 0);
 	std::string commandToString(uint8_t command);
 	bool setProperty(uint16_t property, uint16_t value);
+	bool flashSetProperty(uint16_t property, uint16_t value);
 
 	I2C &mI2C;
 	const uint8_t mAddress;

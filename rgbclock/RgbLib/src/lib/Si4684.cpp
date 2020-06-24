@@ -7,6 +7,7 @@
 
 #include "Si4684.h"
 #include "Si4684Const.h"
+#include "Crc32.hpp"
 #include "cmd/DABCommands.h"
 #include "lib/MainboardControl.h"
 #include "lib/Utils.h"
@@ -15,10 +16,12 @@
 
 namespace 
 {
-const int FIRMWARE_BLOCK_SIZE = 4092;
+const int FIRMWARE_BLOCK_SIZE = 4084;
 const int MAX_RETRIES = 500;
 const uint8_t WAIT_CTS = 0x80;
 const uint8_t WAIT_CTS_STC = 0x81;
+const uint32_t BOOT_IMAGE_ADDRESS = 0x00002000;
+const uint32_t DAB_IMDAGE_ADDRESS = 0x00006000;
 }
 
 
@@ -48,16 +51,19 @@ bool Si4684::init(const Si4684Settings& settings)
 {
     LOG(INFO) << "Init Si4684";
 
-    if (settings.BootFile.empty())
-    {
-        LOG(ERROR) << "Bootfile not specified !";
-        return false;
-    }
-    if (settings.DABFile.empty())
-    {
-        LOG(ERROR) << "DABfile not specified !";
-        return false;
-    }    
+	if (!settings.LoadFromFlash)
+	{
+		if (settings.BootFile.empty())
+		{
+			LOG(ERROR) << "Bootfile not specified !";
+			return false;
+		}
+		if (settings.DABFile.empty())
+		{
+			LOG(ERROR) << "DABfile not specified !";
+			return false;
+		}
+	}    
 
     //See Page 154 in the manual
     std::vector<uint8_t> powerUpParams;
@@ -97,19 +103,49 @@ bool Si4684::init(const Si4684Settings& settings)
 		return false;
 	}
 
-    LOG(INFO) << "Loading Bootfile: " << settings.BootFile;
-	if (!hostload(settings.BootFile))
-    {
-        LOG(ERROR) << "Error loading Boot";
-        return false;
-    }
+	if (settings.LoadFromFlash)
+	{
+		LOG(INFO) << "Loading Mini Patch: " << settings.MiniPatch;
+		if (!hostLoad(settings.MiniPatch))
+		{
+			LOG(ERROR) << "Error loading Mini Patch";
+			return false;
+		}		
 
-    LOG(INFO) << "Loading DAB file: " << settings.DABFile;
-	if(!hostload(settings.DABFile))
-    {
-        LOG(ERROR) << "Error laoding DAB file";
-        return false;
-    }
+		//Recommended wait = 4ms
+		std::this_thread::sleep_for( std::chrono::milliseconds(10));
+
+		LOG(INFO) << "Loading Boot from Flash";
+		if (!flashLoad(BOOT_IMAGE_ADDRESS))
+		{
+			LOG(ERROR) << "Error loading Boot Image";
+			return false;
+		}
+
+		LOG(INFO) << "Loading DAB from Flash";
+		if (!flashLoad(DAB_IMDAGE_ADDRESS))
+		{
+			LOG(ERROR) << "Error laoding DAB Image";
+			return false;
+		}
+	}
+	else
+	{
+		LOG(INFO) << "Loading Bootfile: " << settings.BootFile;
+		if (!hostLoad(settings.BootFile))
+		{
+			LOG(ERROR) << "Error loading Boot";
+			return false;
+		}
+
+		LOG(INFO) << "Loading DAB file: " << settings.DABFile;
+		if(!hostLoad(settings.DABFile))
+		{
+			LOG(ERROR) << "Error laoding DAB file";
+			return false;
+		}
+	}
+
 
 	std::this_thread::sleep_for( std::chrono::seconds(1));
 
@@ -146,11 +182,6 @@ bool Si4684::writeFlash(const Si4684Settings& settings)
         LOG(ERROR) << "Bootfile not specified !";
         return false;
     }
-    if (settings.DABFile.empty())
-    {
-        LOG(ERROR) << "DABfile not specified !";
-        return false;
-    }    
 
     //See Page 154 in the manual
     std::vector<uint8_t> powerUpParams;
@@ -189,6 +220,68 @@ bool Si4684::writeFlash(const Si4684Settings& settings)
 		LOG(ERROR) << "Si4684 Powerup failed";
 		return false;
 	}
+
+    LOG(INFO) << "Loading Mini Patch: " << settings.MiniPatch;
+	if (!hostLoad(settings.MiniPatch))
+    {
+        LOG(ERROR) << "Error loading Mini Patch";
+        return false;
+    }
+
+    auto sysState2 = readSysState();
+    VLOG(1) << "System state after Init: " << sysState2.toString();
+
+//	 VLOG(1) << "Write Flash properties";
+//	 flashSetProperty(PROP_FLASH_SPI_SPI_MODE, 0); 
+	// flashSetProperty(PROP_FLASH_SPI_CLOCK_FREQ_KHZ, 100); 
+	// // flashSetProperty(PROP_HIGH_SPEED_READ_MAX_FREQ_MHZ, 0x00FF); // Set flash high speed read speed to 127MHz	
+
+	
+	VLOG(1) << "Erase Flash";
+    std::vector<uint8_t> flashEraseParams;
+	flashEraseParams.push_back(0xFF); // Full chip
+	flashEraseParams.push_back(0xDE);
+	flashEraseParams.push_back(0xC0);
+
+    DABStatus flashEraseStatus(sendCommand(SI468X_FLASH_LOAD, flashEraseParams, 0, WAIT_CTS, 10));	
+	if (flashEraseStatus.error())
+	{
+		LOG(ERROR) << "Error erasing Flash: " << flashEraseStatus.toString();
+		return false;
+	}
+	
+	VLOG(1) << "Write bootfile " << settings.BootFile << " to flash.";
+	if (!writeFlashImage(settings.BootFile, BOOT_IMAGE_ADDRESS))
+	{
+		LOG(ERROR) << "Error writing Boot to flash";
+		return false;
+	}
+
+	VLOG(1) << "Write DAB image " << settings.BootFile << " to flash.";
+	if (!writeFlashImage(settings.DABFile, DAB_IMDAGE_ADDRESS))
+	{
+		LOG(ERROR) << "Error writing Boot to flash";
+		return false;
+	}	
+}
+
+bool Si4684::writeFlash2(const Si4684Settings& settings)
+{
+	// VLOG(1) << "Write Flash properties";
+	// //flashSetProperty(PROP_FLASH_SPI_CLOCK_FREQ_KHZ, 0x9C40); // Set flash speed to 40MHz
+	// //flashSetProperty(PROP_HIGH_SPEED_READ_MAX_FREQ_MHZ, 0x00FF); // Set flash high speed read speed to 127MHz	
+
+	// VLOG(1) << "Erase Flash";
+    // std::vector<uint8_t> flashEraseParams;
+	// flashEraseParams.push_back(0xFF); // Full chip
+	// flashEraseParams.push_back(0xDE);
+	// flashEraseParams.push_back(0xC0);
+
+    // DABStatus flashEraseStatus(sendCommand(SI468X_FLASH_LOAD, flashEraseParams, 0, WAIT_CTS, 1000));	
+
+	
+
+	return true;
 }
 
 DABStatus Si4684::getStatus()
@@ -349,7 +442,7 @@ DABRssiInfo Si4684::getRssi()
 	return result;
 }
 
-bool Si4684::hostload(const std::string& fileName)
+bool Si4684::hostLoad(const std::string& fileName)
 {
 	std::vector<uint8_t> firmware;
 	if (readFile(fileName,  firmware))
@@ -401,6 +494,114 @@ bool Si4684::hostload(const std::string& fileName)
         return false;
     }
     
+}
+
+bool Si4684::flashLoad(uint32_t address)
+{
+	VLOG(1) << "Flash LOAD_INIT";
+	DABStatus loadInitStatus(sendCommand(SI468X_LOAD_INIT, std::vector<uint8_t> ({0x00}), 0, WAIT_CTS, 1));
+	if (loadInitStatus.error())
+	{
+		LOG(ERROR) << "Load init resulted in a error: " << loadInitStatus.toString();
+		return false;
+	}
+	std::this_thread::sleep_for( std::chrono::milliseconds(50));
+
+	LOG(INFO) << "Flash FLASH_LOAD IMG, address: 0x0" <<  std::hex << address;
+	std::vector<uint8_t> params;
+	params.push_back(0x00); //CMD
+	params.push_back(0x00); //PAD0
+	params.push_back(0x00); //PAD1
+	params.push_back(address & 0xFF);
+	params.push_back((address >> 8) & 0xFF);
+	params.push_back((address >> 16) & 0xFF);
+	params.push_back((address >> 24) & 0xFF);
+	params.push_back(0x00);
+	params.push_back(0x00);
+	params.push_back(0x00);
+	params.push_back(0x00);
+
+	std::this_thread::sleep_for( std::chrono::milliseconds(3000));
+
+	DABStatus status(sendCommand(SI468X_FLASH_LOAD, params, 4, WAIT_CTS));
+	LOG(INFO) << "Flash load status: " << status.toString();
+
+	return !status.error();
+}
+
+bool Si4684::writeFlashImage(const std::string& fileName, uint32_t address)
+{
+	LOG(INFO) << "Writing file: " << fileName << " to flash. Address: 0x" << std::hex << address;
+	std::vector<uint8_t> firmware;
+	uint32_t currentAddress = address;
+	if (readFile(fileName,  firmware))
+	{
+		VLOG(1) << "Write firmware to flash, firmware size: " << firmware.size();
+
+
+		int bytesSend = 0;
+		auto filePos = firmware.begin();
+		while(filePos != firmware.end())
+		{
+			int amountToSend = (firmware.end() - filePos) >= FIRMWARE_BLOCK_SIZE ? FIRMWARE_BLOCK_SIZE : firmware.end() - filePos;
+			std::vector<uint8_t> firmwareBlock(filePos, (filePos + amountToSend));
+
+			auto crc = crc32<IEEE8023_CRC32_POLYNOMIAL>(/*0xFFFFFFFF*/ 0, firmwareBlock.begin(), firmwareBlock.end());
+			VLOG(3) << "CRC32: 0x" << std::hex << crc;
+
+			std::vector<uint8_t> writeFlashParams({0xF0, 0x0C, 0xED});
+			// writeFlashParams.push_back(crc & 0xFF);
+			// writeFlashParams.push_back((crc >> 8) & 0xFF);
+			// writeFlashParams.push_back((crc >> 16) & 0xFF);
+			// writeFlashParams.push_back((crc >> 24) & 0xFF);
+			writeFlashParams.push_back(0x00);
+			writeFlashParams.push_back(0x00);
+			writeFlashParams.push_back(0x00);
+			writeFlashParams.push_back(0x00);
+
+			writeFlashParams.push_back(currentAddress & 0xFF);
+			writeFlashParams.push_back((currentAddress >> 8) & 0xFF);
+			writeFlashParams.push_back((currentAddress >> 16) & 0xFF);
+			writeFlashParams.push_back((currentAddress >> 24) & 0xFF);
+
+			uint32_t blockSize = firmwareBlock.size();
+			writeFlashParams.push_back(blockSize & 0xFF);
+			writeFlashParams.push_back((blockSize >> 8) & 0xFF);
+			writeFlashParams.push_back((blockSize >> 16) & 0xFF);
+			writeFlashParams.push_back((blockSize >> 24) & 0xFF);
+
+			currentAddress += blockSize;
+			VLOG(10) << "Current Address: 0x" << std::hex << currentAddress << ", size: " << blockSize;
+
+			std::copy (firmwareBlock.begin(),firmwareBlock.end(),back_inserter(writeFlashParams));
+
+			VLOG(30) << "Sending bytes: " << firmwareBlock.size() << ", already send: " << bytesSend;
+			VLOG(40) << vectorToHexString(writeFlashParams, true);
+
+			DABStatus flashWriteStatus(sendCommand(SI468X_FLASH_LOAD, writeFlashParams, 0, WAIT_CTS, 50));
+			if (flashWriteStatus.error())
+			{
+				LOG(ERROR) << "Flash write resulted in a error: " << flashWriteStatus.toString();
+                return false;
+			}
+
+			bytesSend += firmwareBlock.size();
+
+			std::advance(filePos , amountToSend);
+
+			std::this_thread::sleep_for( std::chrono::milliseconds(5));
+		}
+
+		VLOG(1) << "Total bytes written: " << bytesSend;
+		
+		std::this_thread::sleep_for( std::chrono::milliseconds(50));
+        return true;	
+	}
+    else
+    {
+        LOG(ERROR) << "Error reading file: " << fileName;
+        return false;
+    }
 }
 
 DABSysState Si4684::readSysState()
@@ -481,6 +682,7 @@ std::string Si4684::commandToString(uint8_t command)
         case SI468X_RD_REPLY: return "RD_REPLY";
         case SI468X_POWER_UP: return "POWER_UP";
         case SI468X_HOST_LOAD: return "HOST_LOAD";
+		case SI468X_FLASH_LOAD: return "FLASH_LOAD";
         case SI468X_LOAD_INIT: return "LOAD_INIT";
         case SI468X_BOOT: return "BOOT";
         case SI468X_GET_PART_INFO: return "GET_PART_INFO";
@@ -504,6 +706,21 @@ bool Si4684::setProperty(uint16_t property, uint16_t value)
 	setPropertyParams.push_back((value >> 8) & 0xFF);
 
 	DABStatus status(sendCommand(SI468X_SET_PROPERTY, setPropertyParams, 0, WAIT_CTS));
+	return !status.error();
+}
+
+bool Si4684::flashSetProperty(uint16_t property, uint16_t value)
+{
+	std::vector<uint8_t> setPropertyParams;
+	setPropertyParams.push_back(0x10);
+	setPropertyParams.push_back(0x00);
+	setPropertyParams.push_back(0x00);
+	setPropertyParams.push_back(property & 0xFF);
+	setPropertyParams.push_back((property >> 8) & 0xFF);
+	setPropertyParams.push_back(value & 0xFF);
+	setPropertyParams.push_back((value >> 8) & 0xFF);
+
+	DABStatus status(sendCommand(SI468X_FLASH_LOAD, setPropertyParams, 0, WAIT_CTS));
 	return !status.error();
 }
 }

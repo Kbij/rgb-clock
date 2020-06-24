@@ -12,14 +12,36 @@
 #include "glog/stl_logging.h"
 #include "glog/logging.h"
 
+namespace
+{
+const uint8_t EXP_ADDR = 0x20;
+const uint8_t SI468_ADDR = 0x64;
+}
 
 TEST(Si4684, Reset)
 {
     Hardware::I2C i2c;
-	Hardware::MainboardControl* mbControl = new Hardware::MainboardControl(i2c, 3, 0x21, false);
+	Hardware::MainboardControl* mbControl = new Hardware::MainboardControl(i2c, 3, EXP_ADDR, false);
 	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, mbControl);
 
 	EXPECT_TRUE(si4684->reset());
+
+	delete si4684;
+	delete mbControl;
+}
+
+TEST(Si4684, InitReset)
+{
+    Hardware::Si4684Settings settings;
+    settings.BootFile = "./firmware/rom00_patch.016.bin";
+    settings.DABFile = "./firmware/dab_radio.bin";
+
+    Hardware::I2C i2c;
+	Hardware::MainboardControl* mbControl = new Hardware::MainboardControl(i2c, 3, EXP_ADDR, false);
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, mbControl);
+
+	EXPECT_TRUE(si4684->reset());
+	EXPECT_TRUE(si4684->init(settings));
 
 	delete si4684;
 	delete mbControl;
@@ -156,16 +178,54 @@ TEST(Si4684, GetRssi)
 TEST(Si4684, Flash)
 {
     Hardware::I2C i2c;
-	Hardware::MainboardControl* mbControl = new Hardware::MainboardControl(i2c, 3, 0x21, false);
+	Hardware::MainboardControl* mbControl = new Hardware::MainboardControl(i2c, 3, EXP_ADDR, false);
 
     Hardware::Si4684Settings settings;
-    settings.BootFile = "./firmware/rom00_patch.016.bin";
+
+	//Need the minipatch file for writing to flash
+	settings.MiniPatch = "./firmware/rom00_patch_mini.bin";
+
+	//Need to write these two files to the flash
+	settings.BootFile = "./firmware/rom00_patch.016.bin";
     settings.DABFile = "./firmware/dab_radio.bin";
 
-	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, mbControl);
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, SI468_ADDR, mbControl);
 	si4684->reset();
 	EXPECT_TRUE(si4684->writeFlash(settings));
 
 	delete si4684;
 	delete mbControl;
 }
+
+TEST(Si4684, FlashNoReset)
+{
+    Hardware::I2C i2c;
+
+
+    Hardware::Si4684Settings settings;
+    settings.BootFile = "./firmware/rom00_patch.016.bin";
+    settings.DABFile = "./firmware/dab_radio.bin";
+
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, SI468_ADDR, nullptr);
+	EXPECT_TRUE(si4684->writeFlash2(settings));
+
+	delete si4684;
+}
+
+TEST(Si4684, ResetInitFromFlash)
+{
+    Hardware::I2C i2c;
+	Hardware::MainboardControl* mbControl = new Hardware::MainboardControl(i2c, 3, EXP_ADDR, false);
+	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, SI468_ADDR, mbControl);
+
+	EXPECT_TRUE(si4684->reset());
+    Hardware::Si4684Settings settings;
+    settings.MiniPatch = "./firmware/rom00_patch_mini.bin";
+	settings.LoadFromFlash = true;
+
+	EXPECT_TRUE(si4684->init(settings));
+
+	delete si4684;
+	delete mbControl;
+}
+

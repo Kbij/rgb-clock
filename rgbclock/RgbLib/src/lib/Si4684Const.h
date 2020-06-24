@@ -14,6 +14,7 @@ namespace Hardware
     const uint8_t SI468X_RD_REPLY = 0x00;
     const uint8_t SI468X_POWER_UP = 0x01;
     const uint8_t SI468X_HOST_LOAD = 0x04;
+    const uint8_t SI468X_FLASH_LOAD = 0x05;
     const uint8_t SI468X_LOAD_INIT = 0x06;
     const uint8_t SI468X_BOOT = 0x07;
     const uint8_t SI468X_GET_PART_INFO = 0x08;
@@ -31,7 +32,7 @@ namespace Hardware
     const uint8_t SI468X_DAB_GET_ENSEMBLE_INFO = 0xb4;
     const uint8_t SI468X_DAB_GET_SERVICE_INFO = 0xc0;
     const uint8_t SI468X_TEST_GET_RSSI = 0xE5;
-    const uint8_t SI468X_FLASH_ERASE_CHIP = 0xFF;
+    
 
 
     //Properties    
@@ -41,6 +42,10 @@ namespace Hardware
     const uint16_t SI468X_DAB_TUNE_FE_VARM = 0x171;
     const uint16_t SI468X_DAB_TUNE_FE_VARB = 0x1711;
     const uint16_t SI468X_DIGITAL_SERVICE_INT_SOURCE = 0x8100;
+
+    const uint16_t PROP_FLASH_SPI_CLOCK_FREQ_KHZ = 0x0001;
+    const uint16_t PROP_FLASH_SPI_SPI_MODE = 0x0002;
+    const uint16_t PROP_HIGH_SPEED_READ_MAX_FREQ_MHZ = 0x0103;
 }
 
 #endif /* !DABRECEIVERDEF_H_ */
