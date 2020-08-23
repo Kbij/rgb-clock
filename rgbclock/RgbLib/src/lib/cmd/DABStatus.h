@@ -38,6 +38,7 @@ public:
         {
             ss << ", CMDOFERR: " << std::boolalpha << CMDOFERR;
             ss << ", REPOFERR: " << std::boolalpha << REPOFERR;
+            ss << ", NON RECOVERABLE ERROR: " << std::boolalpha << ERRNR;
             ss << ", PUP_STATE: ";
             switch(PUP_STATE)
             {
@@ -102,7 +103,7 @@ public:
 
     bool error()
     {
-        return ERR_CMD || CMDOFERR || REPOFERR;
+        return ERR_CMD || CMDOFERR || REPOFERR || ERRNR;
     }
     bool interrupt()
     {
@@ -120,6 +121,7 @@ public:
     bool RFFE_ERR;
     bool CMDOFERR;
     bool REPOFERR;
+    bool ERRNR;
     uint8_t ERROR;
     std::vector<uint8_t> mPayload;
 private:
@@ -147,6 +149,7 @@ private:
             RFFE_ERR = (data[3] & 0x20) >> 5;
             REPOFERR = (data[3] & 0x08) >> 3;
             CMDOFERR = (data[3] & 0x04) >> 2;
+            ERRNR = data[3] & 0x01;
             mStatus3Complete = true;
         }
         if (data.size() > 4)

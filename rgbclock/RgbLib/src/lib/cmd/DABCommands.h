@@ -17,6 +17,7 @@
 #include "DABDigitalServiceData.h"
 #include "DABComponentInfo.h"
 #include "DABRssiInfo.h"
+#include "DABReadProperty.h"
 
 #endif /* !DABCOMMANDS_H_ */
 

@@ -46,9 +46,10 @@ namespace Hardware
     const uint16_t PROP_FLASH_SPI_CLOCK_FREQ_KHZ = 0x0001;
     const uint16_t PROP_FLASH_SPI_SPI_MODE = 0x0002;
     const uint16_t PROP_HIGH_SPEED_READ_MAX_FREQ_MHZ = 0x0103;
-
+    const uint16_t PROP_WRITE_ERASE_SECTOR_CMD = 0x0202;
     //Flash Write
     const uint8_t FLASH_WRITE_BLOCK_READBACK_VERIFY = 0xF1;
+    
 }
 
 #endif /* !DABRECEIVERDEF_H_ */
