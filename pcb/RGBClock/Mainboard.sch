@@ -13367,10 +13367,10 @@ oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
 <devices>
 <device name="" package="ABM8">
 <connects>
-<connect gate="A" pin="1" pad="1"/>
-<connect gate="A" pin="2" pad="3"/>
-<connect gate="A" pin="GND1" pad="2"/>
-<connect gate="A" pin="GND2" pad="4"/>
+<connect gate="A" pin="1" pad="2"/>
+<connect gate="A" pin="2" pad="4"/>
+<connect gate="A" pin="GND1" pad="1"/>
+<connect gate="A" pin="GND2" pad="3"/>
 </connects>
 <technologies>
 <technology name=""/>
