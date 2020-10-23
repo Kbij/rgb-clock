@@ -15361,6 +15361,24 @@ Source: http://www.semiconductors.philips.com/acrobat_download/datasheets/74HC_H
 <wire x1="12.7" y1="-15.24" x2="-12.7" y2="-15.24" width="0.254" layer="94"/>
 <wire x1="-12.7" y1="-15.24" x2="-12.7" y2="10.16" width="0.254" layer="94"/>
 </symbol>
+<symbol name="TXS0104E">
+<pin name="A4" x="-12.7" y="-12.7" length="middle"/>
+<pin name="A3" x="-12.7" y="-7.62" length="middle"/>
+<pin name="A2" x="-12.7" y="-2.54" length="middle"/>
+<pin name="A1" x="-12.7" y="2.54" length="middle"/>
+<pin name="OE" x="-12.7" y="7.62" length="middle"/>
+<pin name="VCCA" x="-12.7" y="12.7" length="middle"/>
+<pin name="B4" x="17.78" y="-12.7" length="middle" rot="R180"/>
+<pin name="B3" x="17.78" y="-7.62" length="middle" rot="R180"/>
+<pin name="B2" x="17.78" y="-2.54" length="middle" rot="R180"/>
+<pin name="B1" x="17.78" y="2.54" length="middle" rot="R180"/>
+<pin name="VCCB" x="17.78" y="12.7" length="middle" rot="R180"/>
+<wire x1="-7.62" y1="15.24" x2="-7.62" y2="-15.24" width="0.254" layer="94"/>
+<wire x1="-7.62" y1="-15.24" x2="12.7" y2="-15.24" width="0.254" layer="94"/>
+<wire x1="12.7" y1="-15.24" x2="12.7" y2="15.24" width="0.254" layer="94"/>
+<wire x1="12.7" y1="15.24" x2="-7.62" y2="15.24" width="0.254" layer="94"/>
+<pin name="GND" x="2.54" y="-20.32" length="middle" rot="R90"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="BOURNS_BY_ELEMENT14_BATCH_1_SRR1240-680M" prefix="L">
@@ -22557,6 +22575,32 @@ oeiwcsnts1.omron.com/.. D20G6K0100.pdf</description>
 <connect gate="G$1" pin="SO/SOI1" pad="2"/>
 <connect gate="G$1" pin="VCC" pad="8"/>
 <connect gate="G$1" pin="WP#/SIO2" pad="3"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="TXS0104E">
+<gates>
+<gate name="G$1" symbol="TXS0104E" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="TEXAS_SOP65P640X120-14N">
+<connects>
+<connect gate="G$1" pin="A1" pad="2"/>
+<connect gate="G$1" pin="A2" pad="3"/>
+<connect gate="G$1" pin="A3" pad="4"/>
+<connect gate="G$1" pin="A4" pad="5"/>
+<connect gate="G$1" pin="B1" pad="13"/>
+<connect gate="G$1" pin="B2" pad="12"/>
+<connect gate="G$1" pin="B3" pad="11"/>
+<connect gate="G$1" pin="B4" pad="10"/>
+<connect gate="G$1" pin="GND" pad="7"/>
+<connect gate="G$1" pin="OE" pad="8"/>
+<connect gate="G$1" pin="VCCA" pad="1"/>
+<connect gate="G$1" pin="VCCB" pad="14"/>
 </connects>
 <technologies>
 <technology name=""/>
