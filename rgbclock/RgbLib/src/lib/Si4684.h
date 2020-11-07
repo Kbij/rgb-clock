@@ -8,7 +8,7 @@
 #ifndef SI4684_H_
 #define SI4684_H_
 
-#include "I2C.h"
+#include "SPI.h"
 #include "lib/cmd/DABCommands.h"
 #include <thread>
 #include <set>
@@ -31,7 +31,7 @@ struct Si4684Settings
 class Si4684
 {
 public:    
-	Si4684(I2C &i2c, uint8_t address, Hardware::MainboardControl* mainboardControl);
+	Si4684(SPI &spi, Hardware::MainboardControl* mainboardControl);
 	virtual ~Si4684();
 
     bool reset();
@@ -54,6 +54,7 @@ public:
 private:
 	bool hostLoad(const std::string& fileName);
 	bool flashLoad(uint32_t address);
+	bool flashLoad(uint32_t address, uint32_t crc, uint32_t size);
 	bool writeFlashImage(const std::string& fileName, uint32_t address);
     DABSysState readSysState();
 
@@ -62,9 +63,9 @@ private:
 	std::string commandToString(uint8_t command);
 	bool setProperty(uint16_t property, uint16_t value);
 	bool flashSetProperty(uint16_t property, uint16_t value);
+	DABReadProperty flashGetProperty(uint16_t property);
 
-	I2C &mI2C;
-	const uint8_t mAddress;
+	SPI &mSPI;
     Hardware::MainboardControl* mMainboardControl;
 };
 }

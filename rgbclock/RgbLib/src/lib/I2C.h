@@ -36,7 +36,8 @@ struct StatData {
 	int mMaxBytesPerSecond;
 };
 
-class I2C {
+class I2C
+{
 public:
 	I2C();
 	virtual ~I2C();
