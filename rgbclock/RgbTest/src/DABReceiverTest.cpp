@@ -12,58 +12,58 @@
 #include "glog/stl_logging.h"
 #include "glog/logging.h"
 
-TEST(DABReceiverTest, Init)
-{
-    Hardware::I2C i2c;
-	Hardware::MainboardControl* mbControl = new Hardware::MainboardControl(i2c, 3, 0x20, false);
-	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, mbControl);
+// TEST(DABReceiverTest, Init)
+// {
+//     Hardware::I2C i2c;
+// 	Hardware::MainboardControl* mbControl = new Hardware::MainboardControl(i2c, 3, 0x20, false);
+// 	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, mbControl);
 
-	EXPECT_TRUE(si4684->reset());
+// 	EXPECT_TRUE(si4684->reset());
 
-    Hardware::Si4684Settings settings;
-    settings.BootFile = "./firmware/rom00_patch.016.bin";
-    settings.DABFile = "./firmware/dab_radio.bin";
-	EXPECT_TRUE(si4684->init(settings));
+//     Hardware::Si4684Settings settings;
+//     settings.BootFile = "./firmware/rom00_patch.016.bin";
+//     settings.DABFile = "./firmware/dab_radio.bin";
+// 	EXPECT_TRUE(si4684->init(settings));
 
-	delete si4684;
-	delete mbControl;
-}
+// 	delete si4684;
+// 	delete mbControl;
+// }
 
 
-TEST(DABReceiverTest, Constructor)
-{
-    Hardware::I2C i2c;
-	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
+// TEST(DABReceiverTest, Constructor)
+// {
+//     Hardware::I2C i2c;
+// 	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
 
-	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684, 30, 25348, 8);
-	delete receiver;
-	delete si4684;
-}
+// 	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684, 30, 25348, 8);
+// 	delete receiver;
+// 	delete si4684;
+// }
 
-TEST(DABReceiverTest, ServiceScan)
-{
-    Hardware::I2C i2c;
-	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
+// TEST(DABReceiverTest, ServiceScan)
+// {
+//     Hardware::I2C i2c;
+// 	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
 
-	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684, 30, 25348, 8);
+// 	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684, 30, 25348, 8);
 
-	receiver->serviceScan();
+// 	receiver->serviceScan();
 	
-	delete receiver;
-	delete si4684;
-}
+// 	delete receiver;
+// 	delete si4684;
+// }
 
-TEST(DABReceiverTest, PowerOnOff)
-{
-    Hardware::I2C i2c;
-	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
+// TEST(DABReceiverTest, PowerOnOff)
+// {
+//     Hardware::I2C i2c;
+// 	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
 
-	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684, 30, 25348, 8);
+// 	Hardware::DABReceiver* receiver = new Hardware::DABReceiver(si4684, 30, 25348, 8);
 
-	receiver->powerOn();
-	std::this_thread::sleep_for( std::chrono::seconds(30));
-	receiver->powerOff();
+// 	receiver->powerOn();
+// 	std::this_thread::sleep_for( std::chrono::seconds(30));
+// 	receiver->powerOff();
 
-	delete receiver;
-	delete si4684;
-}
+// 	delete receiver;
+// 	delete si4684;
+// }

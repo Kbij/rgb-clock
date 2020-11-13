@@ -14,14 +14,16 @@
 #include <thread>
 #include <glog/logging.h>
 
+// https://lang-ship.com/reference/Arduino/libraries/DABShield/_d_a_b_shield_8cpp_source.html
+// https://github.com/elmo2k3/dabpi_ctl
 namespace 
 {
-const int FIRMWARE_BLOCK_SIZE = 4084;
+const int FIRMWARE_BLOCK_SIZE = 2 * 1024; // (4k is to big for ioctl)
 const int MAX_RETRIES = 500;
 const uint8_t WAIT_CTS = 0x80;
 const uint8_t WAIT_CTS_STC = 0x81;
 const uint32_t BOOT_IMAGE_ADDRESS = 0x00002000;
-const uint32_t DAB_IMDAGE_ADDRESS = 0x00006000;
+const uint32_t DAB_IMDAGE_ADDRESS = 0x00086000;
 }
 
 
@@ -63,45 +65,7 @@ bool Si4684::init(const Si4684Settings& settings)
 		}
 	}    
 
-    //See Page 154 in the manual
-    std::vector<uint8_t> powerUpParams;
-	powerUpParams.push_back(0x00); // ARG1 CTSIEN is disabled
-	powerUpParams.push_back((1 << 4) | (7 << 0)); // ARG2 CLK_MODE=0x1 TR_SIZE=0x7 (19.2Mhz X-Tal)
-
-    //See page 438 Programming Manual)
-    //ESR = 70 Ohm
-    powerUpParams.push_back(0x28); // ARG3 IBIAS=0x48 (Sdk: 0x28)
-
-    //19 200 000 hz = 0x0124F800
-	powerUpParams.push_back(0x00); // ARG4 XTAL
-	powerUpParams.push_back(0xF8); // ARG5 XTAL (ik 0xF8)
-	powerUpParams.push_back(0x24); // ARG6 XTAL
-	powerUpParams.push_back(0x01); // ARG7 XTAL 19.2MHz
-
-    //See Page 444 of programming manual (ABM8 Xtal = 10pf)
-    //CTUN = 2*(Cl-Clpar) -Cx -> 2*(10pf - 0) - 0= 20pf -> 0x28
-	powerUpParams.push_back(0x28); // ARG8 CTUN (ik: 0x28) (Sdk: 0x07)
-
-	powerUpParams.push_back(0x00 | (1 << 4)); // ARG9
-	powerUpParams.push_back(0x00); // ARG10
-	powerUpParams.push_back(0x00); // ARG11
-	powerUpParams.push_back(0x00); // ARG12
-
-    //See page 443
-	powerUpParams.push_back(0x12); // ARG13 IBIAS_RUN (Ik: 0x12)
-	powerUpParams.push_back(0x00); // ARG14
-	powerUpParams.push_back(0x00); // ARG15    
-
-
-	VLOG(3) << "Writing POWER_UP";
-    DABStatus powerUpStatus(sendCommand(SI468X_POWER_UP, powerUpParams, 0, WAIT_CTS, 100));
-	if (powerUpStatus.error())
-	{
-		LOG(ERROR) << "Si4684 Powerup failed";
-		return false;
-	}
-
-//	return true;
+	if (!powerUp()) return false;
 
 	if (settings.LoadFromFlash)
 	{
@@ -119,12 +83,15 @@ bool Si4684::init(const Si4684Settings& settings)
 
 	//	flashSetProperty(PROP_FLASH_SPI_CLOCK_FREQ_KHZ, 100); 
 	//	flashSetProperty(PROP_HIGH_SPEED_READ_MAX_FREQ_MHZ, 0x0001); // Set flash high speed read speed to 127MHz	
+		//flashSetProperty(0x0001, 100);
 
+		flashSetProperty(PROP_FLASH_HIGH_SPEED_READ_MAX_FREQ_MHZ, 1);
 		//Recommended wait = 4ms
 		std::this_thread::sleep_for( std::chrono::milliseconds(10));
 
 		LOG(INFO) << "Loading Boot from Flash";
-		if (!flashLoad(BOOT_IMAGE_ADDRESS, 0xE523ED8B, 5796))
+		//if (!flashLoad(BOOT_IMAGE_ADDRESS, 0x296E0CF1, 5796))
+		if (!flashLoad(BOOT_IMAGE_ADDRESS))
 		{
 			LOG(ERROR) << "Error loading Boot Image";
 			return false;
@@ -134,7 +101,8 @@ bool Si4684::init(const Si4684Settings& settings)
 		// LOG(INFO) << "PROP_HIGH_SPEED_READ_MAX_FREQ_MHZ: " << propValue.toString();		
 
 		LOG(INFO) << "Loading DAB from Flash";
-		if (!flashLoad(DAB_IMDAGE_ADDRESS, 0x9E6FCCDB, 499356))
+		//if (!flashLoad(DAB_IMDAGE_ADDRESS, 0x8EE3CD43, 499356))
+		if (!flashLoad(DAB_IMDAGE_ADDRESS))
 		{
 			LOG(ERROR) << "Error laoding DAB Image";
 			return false;
@@ -193,50 +161,7 @@ bool Si4684::writeFlash(const Si4684Settings& settings)
         return false;
     }
 
-    //See Page 154 in the manual
-    std::vector<uint8_t> powerUpParams;
-	powerUpParams.push_back(0x00); // ARG1 CTSIEN is disabled
-	powerUpParams.push_back((1 << 4) | (7 << 0)); // ARG2 CLK_MODE=0x1 TR_SIZE=0x7 (19.2Mhz X-Tal)
-
-    //See page 438 Programming Manual)
-    //ESR = 70 Ohm
-    powerUpParams.push_back(0x48); // ARG3 IBIAS=0x48 (Sdk: 0x28)
-
-    //19 200 000 hz = 0x0124F800
-	powerUpParams.push_back(0x00); // ARG4 XTAL
-	powerUpParams.push_back(0xF8); // ARG5 XTAL (ik 0xF8)
-	powerUpParams.push_back(0x24); // ARG6 XTAL
-	powerUpParams.push_back(0x01); // ARG7 XTAL 19.2MHz
-
-    //See Page 444 of programming manual (ABM8 Xtal = 10pf)
-    //CTUN = 2*(Cl-Clpar) -Cx -> 2*(10pf - 0) - 0= 20pf -> 0x28
-	powerUpParams.push_back(0x28); // ARG8 CTUN (ik: 0x28) (Sdk: 0x07)
-
-	powerUpParams.push_back(0x00 | (1 << 4)); // ARG9
-	powerUpParams.push_back(0x00); // ARG10
-	powerUpParams.push_back(0x00); // ARG11
-	powerUpParams.push_back(0x00); // ARG12
-
-    //See page 443
-	powerUpParams.push_back(0x18); // ARG13 IBIAS_RUN (Ik: 0x12)
-	powerUpParams.push_back(0x00); // ARG14
-	powerUpParams.push_back(0x00); // ARG15    
-
-	VLOG(3) << "Writing POWER_UP";
-    DABStatus powerUpStatus(sendCommand(SI468X_POWER_UP, powerUpParams, 0, WAIT_CTS, 10));
-	std::this_thread::sleep_for( std::chrono::milliseconds(10));
-	if (powerUpStatus.error())
-	{
-		LOG(ERROR) << "Si4684 Powerup failed";
-		return false;
-	}
-
-    LOG(INFO) << "Loading Mini Patch: " << settings.MiniPatch;
-	if (!hostLoad(settings.MiniPatch))
-    {
-        LOG(ERROR) << "Error loading Mini Patch";
-        return false;
-    }
+	if (!powerUp()) return false;
 
 	if (settings.BootFile.empty())
 	{
@@ -250,21 +175,71 @@ bool Si4684::writeFlash(const Si4684Settings& settings)
 		return false;
 	}	
 
+    LOG(INFO) << "Loading BootFile: " << settings.BootFile;
+	if (!hostLoad(settings.BootFile))
+    {
+        LOG(ERROR) << "Error loading BootFile";
+        return false;
+    }
+
+	readFlashProperties();
+	flashSetProperty(PROP_FLASH_ERASE_CHIP_CMD, 0x60);
+	readFlashProperties();
+
     auto sysState2 = readSysState();
     VLOG(1) << "System state after Init: " << sysState2.toString();
 
 	VLOG(1) << "Erase Flash";
     std::vector<uint8_t> flashEraseParams;
 	flashEraseParams.push_back(0xFF); // Full chip
-	flashEraseParams.push_back(0xDE);
 	flashEraseParams.push_back(0xC0);
+	flashEraseParams.push_back(0xDE);
 
     DABStatus flashEraseStatus(sendCommand(SI468X_FLASH_LOAD, flashEraseParams, 0, WAIT_CTS, 10));	
 	if (flashEraseStatus.error())
 	{
-		LOG(ERROR) << "Error erasing Flash: " << flashEraseStatus.toString();
+		LOG(ERROR) << "Error Flash: " << flashEraseStatus.toString();
 		return false;
-	}
+	}	
+
+	// VLOG(1) << "Erase FlashSector";
+    // std::vector<uint8_t> flashEraseParams1;
+	// flashEraseParams1.push_back(0xFE); // Erase Sector
+	// flashEraseParams1.push_back(0xC0);
+	// flashEraseParams1.push_back(0xDE);	
+
+	// uint32_t sector1 = BOOT_IMAGE_ADDRESS;
+	// flashEraseParams1.push_back((sector1 >> 24) & 0xFF);
+	// flashEraseParams1.push_back((sector1 >> 16) & 0xFF);
+	// flashEraseParams1.push_back((sector1 >> 8) & 0xFF);
+	// flashEraseParams1.push_back(sector1 & 0xFF);	
+
+
+    // DABStatus flashEraseStatus1(sendCommand(SI468X_FLASH_LOAD, flashEraseParams1, 0, WAIT_CTS, 10));	
+	// if (flashEraseStatus1.error())
+	// {
+	// 	LOG(ERROR) << "Error erasing Sector 1: " << flashEraseStatus1.toString();
+	// 	return false;
+	// }
+
+    // std::vector<uint8_t> flashEraseParams2;
+	// flashEraseParams2.push_back(0xFE); // Erase Sector
+	// flashEraseParams2.push_back(0xC0);
+	// flashEraseParams2.push_back(0xDE);	
+
+	// uint32_t sector2 = BOOT_IMAGE_ADDRESS + (4 * 1024);
+	// flashEraseParams2.push_back((sector2 >> 24) & 0xFF);
+	// flashEraseParams2.push_back((sector2 >> 16) & 0xFF);
+	// flashEraseParams2.push_back((sector2 >> 8) & 0xFF);
+	// flashEraseParams2.push_back(sector2 & 0xFF);	
+
+
+    // DABStatus flashEraseStatus2(sendCommand(SI468X_FLASH_LOAD, flashEraseParams2, 0, WAIT_CTS, 10));	
+	// if (flashEraseStatus2.error())
+	// {
+	// 	LOG(ERROR) << "Error erasing Sector 2: " << flashEraseStatus2.toString();
+	// 	return false;
+	// }	
 	
 	VLOG(1) << "Write bootfile " << settings.BootFile << " to flash.";
 	if (!writeFlashImage(settings.BootFile, BOOT_IMAGE_ADDRESS))
@@ -273,7 +248,7 @@ bool Si4684::writeFlash(const Si4684Settings& settings)
 		return false;
 	}
 
-	VLOG(1) << "Write DAB image " << settings.BootFile << " to flash.";
+	VLOG(1) << "Write DAB image " << settings.DABFile << " to flash.";
 	if (!writeFlashImage(settings.DABFile, DAB_IMDAGE_ADDRESS))
 	{
 		LOG(ERROR) << "Error writing Boot to flash";
@@ -458,6 +433,48 @@ DABRssiInfo Si4684::getRssi()
 	return result;
 }
 
+bool Si4684::powerUp()
+{
+    //See Page 154 in the manual
+    std::vector<uint8_t> powerUpParams;
+	powerUpParams.push_back(0x00); // ARG1 CTSIEN is disabled
+	powerUpParams.push_back((1 << 4) | (7 << 0)); // ARG2 CLK_MODE=0x1 TR_SIZE=0x7 (19.2Mhz X-Tal)
+
+    //See page 438 Programming Manual)
+    //ESR = 70 Ohm
+    powerUpParams.push_back(0x28); // ARG3 IBIAS=0x48 (Sdk: 0x28)
+
+    //19 200 000 hz = 0x0124F800
+	powerUpParams.push_back(0x00); // ARG4 XTAL
+	powerUpParams.push_back(0xF8); // ARG5 XTAL (ik 0xF8)
+	powerUpParams.push_back(0x24); // ARG6 XTAL
+	powerUpParams.push_back(0x01); // ARG7 XTAL 19.2MHz
+
+    //See Page 444 of programming manual (ABM8 Xtal = 10pf)
+    //CTUN = 2*(Cl-Clpar) -Cx -> 2*(10pf - 0) - 0= 20pf -> 0x28
+	powerUpParams.push_back(0x28); // ARG8 CTUN (ik: 0x28) (Sdk: 0x07)
+
+	powerUpParams.push_back(0x00 | (1 << 4)); // ARG9
+	powerUpParams.push_back(0x00); // ARG10
+	powerUpParams.push_back(0x00); // ARG11
+	powerUpParams.push_back(0x00); // ARG12
+
+    //See page 443
+	powerUpParams.push_back(0x12); // ARG13 IBIAS_RUN (Ik: 0x12)
+	powerUpParams.push_back(0x00); // ARG14
+	powerUpParams.push_back(0x00); // ARG15    
+
+
+	VLOG(3) << "Writing POWER_UP";
+    DABStatus powerUpStatus(sendCommand(SI468X_POWER_UP, powerUpParams, 0, WAIT_CTS, 100));
+	if (powerUpStatus.error())
+	{
+		LOG(ERROR) << "Si4684 Powerup failed";
+		return false;
+	}
+	return true;
+}
+
 bool Si4684::hostLoad(const std::string& fileName)
 {
 	std::vector<uint8_t> firmware;
@@ -520,7 +537,7 @@ bool Si4684::flashLoad(uint32_t address)
 		LOG(ERROR) << "Load init resulted in a error: " << loadInitStatus.toString();
 		return false;
 	}
-	std::this_thread::sleep_for( std::chrono::milliseconds(50));
+	std::this_thread::sleep_for( std::chrono::milliseconds(10));
 
 	LOG(INFO) << "Flash FLASH_LOAD IMG, address: 0x0" <<  std::hex << address;
 	std::vector<uint8_t> params;
@@ -557,24 +574,28 @@ bool Si4684::flashLoad(uint32_t address, uint32_t crc, uint32_t size)
 
 	LOG(INFO) << "Flash FLASH_LOAD IMG (Witch CRC Check), address: 0x0" <<  std::hex << address << ", crc: 0x" <<  std::uppercase << std::hex << crc << ", size: " << std::dec << size;
 	std::vector<uint8_t> params;
-	params.push_back(0x01); //CMD (0x01: With CRC Check)
+	params.push_back(0x00); //CMD (0x00: without CRC, 0x01: With CRC Check)
 	params.push_back(0x00); //PAD0
 	params.push_back(0x00); //PAD1
 
-	params.push_back(crc & 0xFF);
-	params.push_back((crc >> 8) & 0xFF);
-	params.push_back((crc >> 16) & 0xFF);
-	params.push_back((crc >> 24) & 0xFF);
+	// params.push_back((crc >> 24) & 0xFF);
+	// params.push_back((crc >> 16) & 0xFF);
+	// params.push_back((crc >> 8) & 0xFF);
+	// params.push_back(crc & 0xFF);
 
 	params.push_back(address & 0xFF);
 	params.push_back((address >> 8) & 0xFF);
 	params.push_back((address >> 16) & 0xFF);
 	params.push_back((address >> 24) & 0xFF);
 
-	params.push_back(size & 0xFF);
-	params.push_back((size >> 8) & 0xFF);
-	params.push_back((size >> 16) & 0xFF);
-	params.push_back((size >> 24) & 0xFF);
+	// params.push_back((size >> 24) & 0xFF);
+	// params.push_back((size >> 16) & 0xFF);
+	// params.push_back((size >> 8) & 0xFF);
+	// params.push_back(size & 0xFF);
+	params.push_back(0x00);
+	params.push_back(0x00);
+	params.push_back(0x00);
+	params.push_back(0x00);
 
 	//std::this_thread::sleep_for( std::chrono::milliseconds(3000));
 
@@ -594,7 +615,7 @@ bool Si4684::writeFlashImage(const std::string& fileName, uint32_t address)
 	if (readFile(fileName,  firmware))
 	{
 		LOG(INFO) << "Firmware size: " << firmware.size();
-		auto fileCrc = crc32<IEEE8023_CRC32_POLYNOMIAL>(/*0xFFFFFFFF*/0, firmware.begin(), firmware.end());
+		auto fileCrc = crc32<IEEE8023_CRC32_POLYNOMIAL>(0xFFFFFFFF, firmware.begin(), firmware.end());
 		LOG(INFO) << "File CRC: 0x" << std::uppercase << std::hex << fileCrc;
 
 		int bytesSend = 0;
@@ -604,26 +625,34 @@ bool Si4684::writeFlashImage(const std::string& fileName, uint32_t address)
 			int amountToSend = (firmware.end() - filePos) >= FIRMWARE_BLOCK_SIZE ? FIRMWARE_BLOCK_SIZE : firmware.end() - filePos;
 			std::vector<uint8_t> firmwareBlock(filePos, (filePos + amountToSend));
 
-			auto blockCrc = crc32<IEEE8023_CRC32_POLYNOMIAL>(/*0xFFFFFFFF*/ 0, firmwareBlock.begin(), firmwareBlock.end());
+			auto blockCrc = crc32<IEEE8023_CRC32_POLYNOMIAL>(0xFFFFFFFF, firmwareBlock.begin(), firmwareBlock.end());
 			
 			VLOG(3) << "CRC32: 0x" << std::hex << blockCrc;
 
-			std::vector<uint8_t> writeFlashParams({FLASH_WRITE_BLOCK_READBACK_VERIFY, 0x0C, 0xED});
-			writeFlashParams.push_back(blockCrc & 0xFF);
-			writeFlashParams.push_back((blockCrc >> 8) & 0xFF);
-			writeFlashParams.push_back((blockCrc >> 16) & 0xFF);
-			writeFlashParams.push_back((blockCrc >> 24) & 0xFF);
 
-			writeFlashParams.push_back(currentAddress & 0xFF);
-			writeFlashParams.push_back((currentAddress >> 8) & 0xFF);
-			writeFlashParams.push_back((currentAddress >> 16) & 0xFF);
+			// std::vector<uint8_t> writeFlashParams({FLASH_WRITE_BLOCK_READBACK_VERIFY, 0x0C, 0xED});
+			// writeFlashParams.push_back((blockCrc >> 24) & 0xFF);
+			// writeFlashParams.push_back((blockCrc >> 16) & 0xFF);
+			// writeFlashParams.push_back((blockCrc >> 8) & 0xFF);
+			// writeFlashParams.push_back(blockCrc & 0xFF);
+
+			std::vector<uint8_t> writeFlashParams({FLASH_WRITE_BLOCK, 0x0C, 0xED});
+			writeFlashParams.push_back(0x00);
+			writeFlashParams.push_back(0x00);
+			writeFlashParams.push_back(0x00);
+			writeFlashParams.push_back(0x00);
+
+
 			writeFlashParams.push_back((currentAddress >> 24) & 0xFF);
+			writeFlashParams.push_back((currentAddress >> 16) & 0xFF);
+			writeFlashParams.push_back((currentAddress >> 8) & 0xFF);
+			writeFlashParams.push_back(currentAddress & 0xFF);
 
 			uint32_t blockSize = firmwareBlock.size();
-			writeFlashParams.push_back(blockSize & 0xFF);
-			writeFlashParams.push_back((blockSize >> 8) & 0xFF);
-			writeFlashParams.push_back((blockSize >> 16) & 0xFF);
 			writeFlashParams.push_back((blockSize >> 24) & 0xFF);
+			writeFlashParams.push_back((blockSize >> 16) & 0xFF);
+			writeFlashParams.push_back((blockSize >> 8) & 0xFF);
+			writeFlashParams.push_back(blockSize & 0xFF);
 
 			currentAddress += blockSize;
 			VLOG(10) << "Current Address: 0x" << std::hex << currentAddress << ", size: " << blockSize;
@@ -662,6 +691,21 @@ DABSysState Si4684::readSysState()
     return sysState;
 }
 
+void Si4684::readFlashProperties()
+{
+	auto spiMode = flashGetProperty(PROP_FLASH_SPI_SPI_MODE);
+	LOG(INFO) << "Flash SPI Mode: " << spiMode.toString();
+
+	auto readCmd = flashGetProperty(PROP_FLASH_READ_CMD);
+	LOG(INFO) << "Flash read cmd: " << readCmd.toString();
+
+	auto writeCmd = flashGetProperty(PROP_FLASH_WRITE_CMD);
+	LOG(INFO) << "Flash write cmd: " << writeCmd.toString();
+
+	auto eraseChip = flashGetProperty(PROP_FLASH_ERASE_CHIP_CMD);
+	LOG(INFO) << "Flash erase chip cmd: " << eraseChip.toString();
+}
+
 std::vector<uint8_t> Si4684::sendCommand(uint8_t command, int resultLength, uint8_t waitMask, int timeForResponseMilliseconds)
 {
     return sendCommand(command, std::vector<uint8_t>({}), resultLength, waitMask, timeForResponseMilliseconds);
@@ -680,7 +724,7 @@ std::vector<uint8_t> Si4684::sendCommand(uint8_t command, const std::vector<uint
 
 	if (timeForResponseMilliseconds > 0)
 	{
-		VLOG(1) << "Sleep: " <<  timeForResponseMilliseconds << "ms" << " for command: " << commandToString(command);
+		VLOG(10) << "Sleep: " <<  timeForResponseMilliseconds << "ms" << " for command: " << commandToString(command);
 		std::this_thread::sleep_for( std::chrono::milliseconds(timeForResponseMilliseconds));
 	}
 
@@ -784,7 +828,7 @@ DABReadProperty Si4684::flashGetProperty(uint16_t property)
 	getPropertyParams.push_back((property >> 8) & 0xFF);
 
 	auto resultData = sendCommand(SI468X_FLASH_LOAD, getPropertyParams, 32, WAIT_CTS);
-	LOG(INFO) << "Raw Data: " << std::endl << vectorToHexString(resultData, false, true);
+//	LOG(INFO) << "Raw Data: " << std::endl << vectorToHexString(resultData, false, true);
 	DABReadProperty result(resultData, property);	
 	return result;
 }

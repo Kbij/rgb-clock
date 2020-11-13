@@ -51,12 +51,15 @@ public:
 	void getServiceInfo();
 	DABRssiInfo getRssi();
 
+	
 private:
+	bool powerUp();
 	bool hostLoad(const std::string& fileName);
 	bool flashLoad(uint32_t address);
 	bool flashLoad(uint32_t address, uint32_t crc, uint32_t size);
 	bool writeFlashImage(const std::string& fileName, uint32_t address);
     DABSysState readSysState();
+	void readFlashProperties();
 
     std::vector<uint8_t> sendCommand(uint8_t command, int resultLength, uint8_t waitMask, int timeForResponseMilliseconds = 0);
     std::vector<uint8_t> sendCommand(uint8_t command, const std::vector<uint8_t>& param, int resultLength, uint8_t waitMask, int timeForResponseMilliseconds = 0);

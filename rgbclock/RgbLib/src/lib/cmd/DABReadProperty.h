@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <iomanip>
 
 namespace Hardware
 {
@@ -25,7 +26,7 @@ public:
     std::string toString()
     {
         std::stringstream ss;
-        ss << "Read Property: 0x" << std::hex << ID << ", Value: " << std::hex << VALUE;
+        ss << "Read Property: 0x" << std::hex << std::uppercase << std::setfill('0') << std::setw( 4 ) << ID << ", Value: 0x" << std::hex << std::uppercase << std::setfill('0') << std::setw( 4 ) <<  VALUE;
         return ss.str();
     }
 
