@@ -76,16 +76,6 @@ bool Si4684::init(const Si4684Settings& settings)
 			return false;
 		}		
 
-		// auto propValue = flashGetProperty(PROP_WRITE_ERASE_SECTOR_CMD);
-		// LOG(INFO) << "PROP_WRITE_ERASE_SECTOR_CMD: " << propValue.toString();
-
-	//	return true;
-
-	//	flashSetProperty(PROP_FLASH_SPI_CLOCK_FREQ_KHZ, 100); 
-	//	flashSetProperty(PROP_HIGH_SPEED_READ_MAX_FREQ_MHZ, 0x0001); // Set flash high speed read speed to 127MHz	
-		//flashSetProperty(0x0001, 100);
-
-		flashSetProperty(PROP_FLASH_HIGH_SPEED_READ_MAX_FREQ_MHZ, 1);
 		//Recommended wait = 4ms
 		std::this_thread::sleep_for( std::chrono::milliseconds(10));
 
@@ -96,9 +86,6 @@ bool Si4684::init(const Si4684Settings& settings)
 			LOG(ERROR) << "Error loading Boot Image";
 			return false;
 		}
-
-		// auto propValue = flashGetProperty(PROP_HIGH_SPEED_READ_MAX_FREQ_MHZ);
-		// LOG(INFO) << "PROP_HIGH_SPEED_READ_MAX_FREQ_MHZ: " << propValue.toString();		
 
 		LOG(INFO) << "Loading DAB from Flash";
 		//if (!flashLoad(DAB_IMDAGE_ADDRESS, 0x8EE3CD43, 499356))
@@ -201,45 +188,6 @@ bool Si4684::writeFlash(const Si4684Settings& settings)
 		LOG(ERROR) << "Error Flash: " << flashEraseStatus.toString();
 		return false;
 	}	
-
-	// VLOG(1) << "Erase FlashSector";
-    // std::vector<uint8_t> flashEraseParams1;
-	// flashEraseParams1.push_back(0xFE); // Erase Sector
-	// flashEraseParams1.push_back(0xC0);
-	// flashEraseParams1.push_back(0xDE);	
-
-	// uint32_t sector1 = BOOT_IMAGE_ADDRESS;
-	// flashEraseParams1.push_back((sector1 >> 24) & 0xFF);
-	// flashEraseParams1.push_back((sector1 >> 16) & 0xFF);
-	// flashEraseParams1.push_back((sector1 >> 8) & 0xFF);
-	// flashEraseParams1.push_back(sector1 & 0xFF);	
-
-
-    // DABStatus flashEraseStatus1(sendCommand(SI468X_FLASH_LOAD, flashEraseParams1, 0, WAIT_CTS, 10));	
-	// if (flashEraseStatus1.error())
-	// {
-	// 	LOG(ERROR) << "Error erasing Sector 1: " << flashEraseStatus1.toString();
-	// 	return false;
-	// }
-
-    // std::vector<uint8_t> flashEraseParams2;
-	// flashEraseParams2.push_back(0xFE); // Erase Sector
-	// flashEraseParams2.push_back(0xC0);
-	// flashEraseParams2.push_back(0xDE);	
-
-	// uint32_t sector2 = BOOT_IMAGE_ADDRESS + (4 * 1024);
-	// flashEraseParams2.push_back((sector2 >> 24) & 0xFF);
-	// flashEraseParams2.push_back((sector2 >> 16) & 0xFF);
-	// flashEraseParams2.push_back((sector2 >> 8) & 0xFF);
-	// flashEraseParams2.push_back(sector2 & 0xFF);	
-
-
-    // DABStatus flashEraseStatus2(sendCommand(SI468X_FLASH_LOAD, flashEraseParams2, 0, WAIT_CTS, 10));	
-	// if (flashEraseStatus2.error())
-	// {
-	// 	LOG(ERROR) << "Error erasing Sector 2: " << flashEraseStatus2.toString();
-	// 	return false;
-	// }	
 	
 	VLOG(1) << "Write bootfile " << settings.BootFile << " to flash.";
 	if (!writeFlashImage(settings.BootFile, BOOT_IMAGE_ADDRESS))
@@ -254,25 +202,6 @@ bool Si4684::writeFlash(const Si4684Settings& settings)
 		LOG(ERROR) << "Error writing Boot to flash";
 		return false;
 	}	
-}
-
-bool Si4684::writeFlash2(const Si4684Settings& settings)
-{
-	// VLOG(1) << "Write Flash properties";
-	// //flashSetProperty(PROP_FLASH_SPI_CLOCK_FREQ_KHZ, 0x9C40); // Set flash speed to 40MHz
-	// //flashSetProperty(PROP_HIGH_SPEED_READ_MAX_FREQ_MHZ, 0x00FF); // Set flash high speed read speed to 127MHz	
-
-	// VLOG(1) << "Erase Flash";
-    // std::vector<uint8_t> flashEraseParams;
-	// flashEraseParams.push_back(0xFF); // Full chip
-	// flashEraseParams.push_back(0xDE);
-	// flashEraseParams.push_back(0xC0);
-
-    // DABStatus flashEraseStatus(sendCommand(SI468X_FLASH_LOAD, flashEraseParams, 0, WAIT_CTS, 1000));	
-
-	
-
-	return true;
 }
 
 DABStatus Si4684::getStatus()
@@ -378,6 +307,7 @@ bool Si4684::stopService(uint32_t serviceId, uint32_t componentId)
 
 	return !status.error();
 }
+
 DABComponentInfo Si4684::getComponentInfo(uint32_t serviceId, uint32_t componentId)
 {
 	VLOG(1) << "Get Component Info: " << (int) serviceId << ", Component: " << (int) componentId;
@@ -828,7 +758,6 @@ DABReadProperty Si4684::flashGetProperty(uint16_t property)
 	getPropertyParams.push_back((property >> 8) & 0xFF);
 
 	auto resultData = sendCommand(SI468X_FLASH_LOAD, getPropertyParams, 32, WAIT_CTS);
-//	LOG(INFO) << "Raw Data: " << std::endl << vectorToHexString(resultData, false, true);
 	DABReadProperty result(resultData, property);	
 	return result;
 }

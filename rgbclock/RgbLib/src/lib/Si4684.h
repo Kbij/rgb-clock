@@ -37,7 +37,6 @@ public:
     bool reset();
 	bool init(const Si4684Settings& settings);
 	bool writeFlash(const Si4684Settings& settings);
-	bool writeFlash2(const Si4684Settings& settings);
 
 	DABStatus getStatus();
    	DABFrequencyList getFrequencyList();
@@ -51,7 +50,6 @@ public:
 	void getServiceInfo();
 	DABRssiInfo getRssi();
 
-	
 private:
 	bool powerUp();
 	bool hostLoad(const std::string& fileName);
