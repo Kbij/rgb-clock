@@ -7,6 +7,7 @@
 
 #include "I2C.h"
 #include "Config.h"
+#include "Utils.h"
 #include "glog/logging.h"
 #include "gflags/gflags.h"
 #include <linux/i2c-dev.h>
@@ -135,20 +136,8 @@ bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writ
 		LOG(ERROR) << "Writing data with 0 size (address: " << (int) address << ", " << mAddressStatistics[address].mName << ")";
 		return false;
 	}
-	std::ostringstream writeLogStream;
-	writeLogStream << std::hex << std::setfill('0') << std::setw(2);
-	bool writeFirst = true;
-	for (auto byte: writeData)
-	{
-		if (!writeFirst)
-		{
-			writeLogStream << ", ";
-		}
-		writeFirst = false;
 
-		writeLogStream << " 0x" << (int) byte;
-	}
-	LOG_IF(INFO, (address == FLAGS_logI2CAddress) || (FLAGS_logI2CAddress == ALL_ADDRESS)) << "Writing I2C (address: " << (int) address << ", " << mAddressStatistics[address].mName << "): Data:" << writeLogStream.str() << ";";
+	LOG_IF(INFO, (address == FLAGS_logI2CAddress) || (FLAGS_logI2CAddress == ALL_ADDRESS)) << "Writing I2C (address: " << (int) address << ", " << mAddressStatistics[address].mName << "): Data:\n" << vectorToHexString(writeData, false, true);
 
 #ifndef HOSTBUILD
 	int i2cFile;
@@ -197,21 +186,8 @@ bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writ
 			return false;
 		}
 
-		std::ostringstream writeLogStream;
-		writeLogStream << std::hex << std::setfill('0') << std::setw(2);
 
-		bool readFirst = true;
-		for (auto byte: readData)
-		{
-			if (!readFirst)
-			{
-				writeLogStream << ", ";
-			}
-			readFirst = false;
-
-			writeLogStream << " 0x" << (int) byte;
-		}
-		LOG_IF(INFO, (address == FLAGS_logI2CAddress) || (FLAGS_logI2CAddress == ALL_ADDRESS)) << "Data read (address: " << (int) address << ", " << mAddressStatistics[address].mName << "):" << writeLogStream.str() << ";";
+		LOG_IF(INFO, (address == FLAGS_logI2CAddress) || (FLAGS_logI2CAddress == ALL_ADDRESS)) << "Data read (address: " << (int) address << ", " << mAddressStatistics[address].mName << "): \n" << vectorToHexString(readData, false, true);
 	}
 
 	close(i2cFile);

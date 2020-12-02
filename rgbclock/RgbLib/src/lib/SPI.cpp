@@ -6,6 +6,7 @@
 */
 
 #include "SPI.h"
+#include "Utils.h"
 #include <exception>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -18,7 +19,7 @@
 
 namespace
 {
-uint32_t SPEED = 5000000;
+uint32_t SPEED = 500000;
 }
 
 namespace Hardware
@@ -27,22 +28,17 @@ SPI::SPI(const std::string& deviceName):
 	mDeviceName(deviceName),
 	mDeviceHandle()
 {
-	if (openDevice())
-	{
-		closeDevice();
-	}
-	else
-	{
-		LOG(ERROR) << "Failed to open device: " << deviceName;
-	}
+	openDevice();
 }
 
 SPI::~SPI()
 {
+	closeDevice();
 }
 
 bool SPI::openDevice()
 {
+	LOG(INFO) << "Open SPI device: " << mDeviceName;
 	// Open port for reading and writing
 	if ((mDeviceHandle = open(mDeviceName.c_str(), O_RDWR)) < 0)
 	{
@@ -115,6 +111,7 @@ bool SPI::openDevice()
 
 void SPI::closeDevice()
 {
+	LOG(INFO) << "Closing SPI device: " << mDeviceName;
 	close(mDeviceHandle);
 }
 
@@ -127,47 +124,48 @@ bool SPI::writeData(const std::vector<uint8_t>& data)
 bool SPI::readWriteData(const std::vector<uint8_t>& writeData, std::vector<uint8_t>& readData)
 {
 	VLOG(3) << "SPI write bytes: " << writeData.size() << ", read bytes: " << readData.size();
+	VLOG(30) << "SPI Write data:\n" << vectorToHexString(writeData, false, true);
 	bool result = false;
-	if (openDevice())
+
+	//Only read, or write/read
+	int commandCount = readData.size() == 0 ? 1 : 2;
+	VLOG(3) << "SPI Command count: " << commandCount;
+
+	//Read and write command
+	struct spi_ioc_transfer xfer[commandCount];
+	memset(&xfer[0], 0, sizeof(xfer[0]));
+	if (commandCount > 1) memset(&xfer[1], 0, sizeof(xfer[1]));
+
+	//Fill the write command
+	xfer[0].tx_buf = (long long unsigned int) writeData.data();
+	xfer[0].len = writeData.size();
+	xfer[0].speed_hz = SPEED;
+	xfer[0].cs_change = 0; //Keep CS
+	xfer[0].bits_per_word = 8;
+	xfer[0].delay_usecs = 0;
+
+	if (commandCount > 1)
 	{
-		//Only read, or write/read
-		int commandCount = readData.size() == 0 ? 1 : 2;
+		//Fill the read command
+		xfer[1].rx_buf = (long long unsigned int) readData.data();
+		xfer[1].len = readData.size();
+		xfer[1].speed_hz = SPEED;
+		xfer[1].cs_change = 0; //Keep CS
+		xfer[1].bits_per_word = 8;
+		xfer[1].delay_usecs = 0;
+	}
 
-		//Read and write command
-		struct spi_ioc_transfer xfer[commandCount];
-		memset(&xfer[0], 0, sizeof(xfer[0]));
-		if (commandCount > 1) memset(&xfer[1], 0, sizeof(xfer[1]));
-
-		//Fill the write command
-		xfer[0].tx_buf = (long long unsigned int) writeData.data();
-		xfer[0].len = writeData.size();
-		xfer[0].speed_hz = SPEED;
-		xfer[0].cs_change = 0; //Keep CS
-		xfer[0].bits_per_word = 8;
-
-		if (commandCount > 1)
-		{
-			//Fill the read command
-			xfer[1].rx_buf = (long long unsigned int) readData.data();
-			xfer[1].len = readData.size();
-			xfer[1].speed_hz = SPEED;
-			xfer[1].cs_change = 0; //Keep CS
-			xfer[1].bits_per_word = 8;
-		}
-
-		auto res = ioctl(mDeviceHandle, SPI_IOC_MESSAGE(commandCount), xfer);
-		if (res < 0)
-		{
-			LOG(ERROR) << "ioctl error: " << strerror(errno);
-			result = false;
-		}
-		else
-		{
-			VLOG(3) << "SPI ioctl result: " << (int) res;
-			result = true;
-		}
-
-		closeDevice();
+	auto res = ioctl(mDeviceHandle, SPI_IOC_MESSAGE(commandCount), xfer);
+	if (res < 0)
+	{
+		LOG(ERROR) << "ioctl error: " << strerror(errno);
+		result = false;
+	}
+	else
+	{
+		VLOG(3) << "SPI ioctl result: " << (int) res;
+		VLOG(30) << "SPI Data read:\n" << vectorToHexString(readData, false, true);
+		result = true;
 	}
 
 	return result;

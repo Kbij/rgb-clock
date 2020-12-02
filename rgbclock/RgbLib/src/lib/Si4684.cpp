@@ -94,6 +94,7 @@ bool Si4684::init(const Si4684Settings& settings)
 			LOG(ERROR) << "Error laoding DAB Image";
 			return false;
 		}
+
 	}
 	else
 	{
@@ -104,12 +105,18 @@ bool Si4684::init(const Si4684Settings& settings)
 			return false;
 		}
 
+		auto bootImageStatus = getStatus();
+		VLOG(1) << "Status after boot file: " << bootImageStatus.toString();
+
 		LOG(INFO) << "Loading DAB file: " << settings.DABFile;
 		if(!hostLoad(settings.DABFile))
 		{
 			LOG(ERROR) << "Error laoding DAB file";
 			return false;
 		}
+
+		auto dabImageStatus = getStatus();
+		VLOG(1) << "Status after DAB file: " << dabImageStatus.toString();
 	}
 
 	std::this_thread::sleep_for( std::chrono::seconds(1));
@@ -208,6 +215,12 @@ DABStatus Si4684::getStatus()
 {
 	DABStatus status(sendCommand(SI468X_RD_REPLY, std::vector<uint8_t> ({0x00}), 4, WAIT_CTS));
 	return status;
+}
+
+DABFunctionInfo Si4684::getFunctionInfo()
+{
+	DABFunctionInfo info(sendCommand(SI468X_GET_FUNC_INFO, std::vector<uint8_t> ({}), 12, WAIT_CTS));
+	return info;
 }
 
 DABFrequencyList Si4684::getFrequencyList()
@@ -643,7 +656,7 @@ std::vector<uint8_t> Si4684::sendCommand(uint8_t command, int resultLength, uint
 
 std::vector<uint8_t> Si4684::sendCommand(uint8_t command, const std::vector<uint8_t>& param, int resultLength, uint8_t waitMask, int timeForResponseMilliseconds)
 {
-	VLOG(10) << "Sending command: " << (int) command << ", waitmask: 0x" << std::hex << (int) waitMask << ", expected result length: " << resultLength << ", wait time: " << timeForResponseMilliseconds << "ms" ;
+	VLOG(10) << "Sending command: " << (int) command << ", waitmask: 0x" << std::hex << (int) waitMask << ", expected result length: " << (int) resultLength << ", wait time: " << timeForResponseMilliseconds << "ms" ;
 
 	std::vector<uint8_t> fullCmd;
 	fullCmd.push_back(command);
@@ -665,6 +678,7 @@ std::vector<uint8_t> Si4684::sendCommand(uint8_t command, const std::vector<uint
 		std::this_thread::sleep_for( std::chrono::milliseconds(10));
 
 		mSPI.readWriteData(std::vector<uint8_t> ({SI468X_RD_REPLY}), rawStatus);
+		VLOG(3) << "Status:\n" << vectorToHexString(rawStatus, false, true);
 		DABStatus status(rawStatus);
 		if (status.error())
 		{
@@ -717,7 +731,8 @@ std::string Si4684::commandToString(uint8_t command)
         case SI468X_GET_PROPERTY: return "GET_PROPERTY";
         case SI468X_DAB_TUNE_FREQ: return "DAB_TUNE_FREQ";
         case SI468X_DAB_DIGRAD_STATUS: return "DAB_DIGRAD_STATUS";
-        case SI468X_DAB_GET_FREQ_LIST: return "DAB_GET_FREQ_LIST";
+        case SI468X_DAB_GET_FREQ_LIST: return "GET_FREQ_LIST";
+		case SI468X_GET_FUNC_INFO: return "DAB_GET_FUNC_INFO";
         default: return "Unknown (" + std::to_string(command) + ")";
     }
 }

@@ -39,6 +39,7 @@ public:
 	bool writeFlash(const Si4684Settings& settings);
 
 	DABStatus getStatus();
+	DABFunctionInfo getFunctionInfo();
    	DABFrequencyList getFrequencyList();
 	DABDigiradStatus tuneFrequencyIndex(uint8_t index);
     DABServiceList getServices();

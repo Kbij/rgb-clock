@@ -16,7 +16,7 @@ namespace Hardware
 class DABStatus
 {
 public:
-    DABStatus(const std::vector<uint8_t>& data): CTS(), ERR_CMD(), DACQ_INT(), DSRV_INT(), STC_INT(), DFIC_INT(), DEVNT_INT(), DACF_INT(), PUP_STATE(), RFFE_ERR(), CMDOFERR(), REPOFERR(), ERROR(), mStatus0Complete(), mResp4Complete(), mPayload()
+    DABStatus(const std::vector<uint8_t>& data): CTS(), ERR_CMD(), DACQ_INT(), DSRV_INT(), STC_INT(), DFIC_INT(), DEVNT_INT(), DACF_INT(), PUP_STATE(), RFFE_ERR(), CMDOFERR(), REPOFERR(), ERROR(), mStatus0Complete(), mResp4Complete()
     {
         parse(data);
     }
@@ -123,7 +123,6 @@ public:
     bool REPOFERR;
     bool ERRNR;
     uint8_t ERROR;
-    std::vector<uint8_t> mPayload;
 private:
     void parse(const std::vector<uint8_t>& data)
     {
@@ -152,12 +151,12 @@ private:
             ERRNR = data[3] & 0x01;
             mStatus3Complete = true;
         }
-        if (data.size() > 4)
+        //Byte is only available (and valid) when ERR_CMD bit is set
+        if ((data.size() > 4) && ERR_CMD)
         {
             ERROR = data[4];
             mResp4Complete = true;
         }
-        if (data.size() > 4) mPayload = std::vector<uint8_t>(data.begin() + 4, data.end());
     } 
     bool mStatus0Complete; 
     bool mStatus3Complete; 

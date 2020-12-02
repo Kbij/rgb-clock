@@ -60,29 +60,29 @@ MainboardControl::MainboardControl(I2C &i2c, uint8_t hwrevision, uint8_t address
 		mWatchdogThread(nullptr),
 		mWatchdogThreadRunning(false)
 {
-	if (!enableWatchdog)
-	{
-		LOG(INFO) << "Watchdog is disabled";
-	}
-	init();
-    startWatchdogThread();
+	// if (!enableWatchdog)
+	// {
+	// 	LOG(INFO) << "Watchdog is disabled";
+	// }
+	 init();
+    // startWatchdogThread();
 }
 
 MainboardControl::~MainboardControl()
 {
-	if (mHwRevision > 1)
-	{
-		mIO.writeA(0); // release relais
-	}
-	stopWatchdogThread();
+	// if (mHwRevision > 1)
+	// {
+	// 	mIO.writeA(0); // release relais
+	// }
+	// stopWatchdogThread();
 
-	if (mWatchdogHandle > 0)
-	{
-		LOG(INFO) << "Disable watchdog";
-	    write(mWatchdogHandle, "V", 1);
+	// if (mWatchdogHandle > 0)
+	// {
+	// 	LOG(INFO) << "Disable watchdog";
+	//     write(mWatchdogHandle, "V", 1);
 
-        close(mWatchdogHandle);
-	}
+    //     close(mWatchdogHandle);
+	// }
 	LOG(INFO) << "MainboardControl destructor exit";
 }
 
@@ -208,7 +208,7 @@ void MainboardControl::init()
 	mMainBus[MUTE] = 0;
 	mMainBus[RADIO_IN] = 0;
 	mMainBus[AUX_IN] = 0;
-	mMainBus[RADIO_RST] = 0;
+	mMainBus[RADIO_RST] = 1;
 	mIO.writeB(mMainBus.to_ulong());
 
 	if (mWatchdogEnabled)

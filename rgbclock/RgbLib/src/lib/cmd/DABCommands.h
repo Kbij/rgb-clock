@@ -18,6 +18,7 @@
 #include "DABComponentInfo.h"
 #include "DABRssiInfo.h"
 #include "DABReadProperty.h"
+#include "DABFunctionInfo.h"
 
 #endif /* !DABCOMMANDS_H_ */
 

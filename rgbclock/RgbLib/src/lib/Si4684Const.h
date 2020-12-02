@@ -19,6 +19,7 @@ namespace Hardware
     const uint8_t SI468X_BOOT = 0x07;
     const uint8_t SI468X_GET_PART_INFO = 0x08;
     const uint8_t SI468X_GET_SYS_STATE = 0x09;
+    const uint8_t SI468X_GET_FUNC_INFO = 0x12;
     const uint8_t SI468X_SET_PROPERTY = 0x13;
     const uint8_t SI468X_GET_PROPERTY = 0x14;
     const uint8_t SI468X_DAB_TUNE_FREQ = 0xB0;

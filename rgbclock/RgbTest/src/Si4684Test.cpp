@@ -24,12 +24,11 @@ TEST(Si4684, Reset)
     Hardware::I2C i2c;
 	Hardware::SPI spi("/dev/spidev0.0");	
 	Hardware::MainboardControl* mbControl = new Hardware::MainboardControl(i2c, 3, EXP_ADDR, false);
-	mbControl->resetTuner();
-//	Hardware::Si4684* si4684 = new Hardware::Si4684(spi, mbControl);
+	Hardware::Si4684* si4684 = new Hardware::Si4684(spi, mbControl);
 
-//	EXPECT_TRUE(si4684->reset());
+	EXPECT_TRUE(si4684->reset());
 
-//	delete si4684;
+	delete si4684;
 	delete mbControl;
 }
 
@@ -37,8 +36,7 @@ TEST(Si4684, InitReset)
 {
     Hardware::Si4684Settings settings;
     settings.BootFile = "./firmware/rom00_patch.016.bin";
-    //settings.DABFile = "./firmware/dab_radio_5_0_5.bin";
-	settings.DABFile = "./firmware/dab_radio.bin";
+ 	settings.DABFile = "./firmware/dab_radio.bin";
 
     Hardware::I2C i2c;
     Hardware::SPI spi("/dev/spidev0.0");	
@@ -47,9 +45,6 @@ TEST(Si4684, InitReset)
 
 	EXPECT_TRUE(si4684->reset());
 	EXPECT_TRUE(si4684->init(settings));
-
-//
-//	std::this_thread::sleep_for( std::chrono::seconds(50));
 
 	delete si4684;
 	delete mbControl;
@@ -68,48 +63,61 @@ TEST(Si4684, InitReset)
 // 	delete si4684;
 // }
 
-// TEST(Si4684, GetFreqList)
-// {
-//     Hardware::I2C i2c;
-// 	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
-//     auto freqList = si4684->getFrequencyList();
+TEST(Si4684, GetFunctionInfo)
+{
+    Hardware::I2C i2c;
+    Hardware::SPI spi("/dev/spidev0.0");	
+	Hardware::Si4684* si4684 = new Hardware::Si4684(spi, nullptr);
+    auto info = si4684->getFunctionInfo();
 
-// 	EXPECT_EQ((size_t) 41, freqList.mFrequencies.size());
-// 	LOG(INFO) << freqList.toString();
+	LOG(INFO) << info.toString();
 
-// 	delete si4684;
-// }
+	delete si4684;
+}
 
-// TEST(Si4684, TuneFreq)
-// {
-//     Hardware::I2C i2c;
-// 	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
-//     auto freqList = si4684->tuneFrequencyIndex(30);
+TEST(Si4684, GetFreqList)
+{
+    Hardware::I2C i2c;
+    Hardware::SPI spi("/dev/spidev0.0");	
+	Hardware::Si4684* si4684 = new Hardware::Si4684(spi, nullptr);
+    auto freqList = si4684->getFrequencyList();
 
-// 	EXPECT_EQ(223936, freqList.TUNE_FREQ);
+	EXPECT_EQ((size_t) 41, freqList.mFrequencies.size());
+	LOG(INFO) << freqList.toString();
 
-// 	delete si4684;
-// }
+	delete si4684;
+}
 
-// TEST(Si4684, GetServices)
-// {
-//     Hardware::I2C i2c;
-// 	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
-//     auto services = si4684->getServices();
+TEST(Si4684, TuneFreq)
+{
+    Hardware::SPI spi("/dev/spidev0.0");	
+	Hardware::Si4684* si4684 = new Hardware::Si4684(spi, nullptr);
+    auto freqList = si4684->tuneFrequencyIndex(30);
 
-// 	EXPECT_EQ((size_t) 13, services.mServices.size());
-// 	LOG(INFO) << services.toString();
-// 	delete si4684;
-// }
+	EXPECT_EQ(223936, freqList.TUNE_FREQ);
 
-// TEST(Si4684, StartService)
-// {
-//     Hardware::I2C i2c;
-// 	Hardware::Si4684* si4684 = new Hardware::Si4684(i2c, 0x64, nullptr);
-//     EXPECT_TRUE(si4684->startService(25348, 8));
+	delete si4684;
+}
 
-// 	delete si4684;
-// }
+TEST(Si4684, GetServices)
+{
+    Hardware::SPI spi("/dev/spidev0.0");	
+	Hardware::Si4684* si4684 = new Hardware::Si4684(spi, nullptr);
+    auto services = si4684->getServices();
+
+	EXPECT_EQ((size_t) 13, services.mServices.size());
+	LOG(INFO) << services.toString();
+	delete si4684;
+}
+
+TEST(Si4684, StartService)
+{
+    Hardware::SPI spi("/dev/spidev0.0");	
+	Hardware::Si4684* si4684 = new Hardware::Si4684(spi, nullptr);
+    EXPECT_TRUE(si4684->startService(25348, 8));
+
+	delete si4684;
+}
 
 // TEST(Si4684, GetComponentInfo)
 // {
