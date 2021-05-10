@@ -50,6 +50,28 @@ TEST(Si4684, InitReset)
 	delete mbControl;
 }
 
+
+TEST(Si4684, StuBru)
+{
+    Hardware::Si4684Settings settings;
+    settings.BootFile = "./firmware/rom00_patch.016.bin";
+ 	settings.DABFile = "./firmware/dab_radio.bin";
+
+    Hardware::I2C i2c;
+    Hardware::SPI spi("/dev/spidev0.0");	
+	Hardware::MainboardControl* mbControl = new Hardware::MainboardControl(i2c, HARDWARE_REVISION, EXP_ADDR, false);
+	Hardware::Si4684* si4684 = new Hardware::Si4684(spi, mbControl);
+
+	EXPECT_TRUE(si4684->reset());
+	EXPECT_TRUE(si4684->init(settings));
+    auto freqIndex = si4684->tuneFrequencyIndex(30);
+
+    EXPECT_TRUE(si4684->startService(25348, 8));
+
+	delete si4684;
+	delete mbControl;
+}
+
 // TEST(Si4684, Init)
 // {
 //     Hardware::Si4684Settings settings;

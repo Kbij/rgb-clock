@@ -7,6 +7,7 @@
 #include "DABReceiver.h"
 #include "Si4684.h"
 #include "RadioObserverIf.h"
+#include "MainboardControl.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -19,8 +20,9 @@
 namespace Hardware
 {
 
-DABReceiver::DABReceiver(Si4684* siChip, uint8_t frequencyIndex, uint32_t serviceId, uint32_t componentId) :
+DABReceiver::DABReceiver(Si4684* siChip, Hardware::MainboardControl* mainboardControl, uint8_t frequencyIndex, uint32_t serviceId, uint32_t componentId) :
 	mSiChip(siChip),
+	mMainboardControl(mainboardControl),
 	mFrequencyIndex(frequencyIndex),
 	mServiceId(serviceId),
 	mComponentId(componentId),
@@ -34,6 +36,7 @@ DABReceiver::DABReceiver(Si4684* siChip, uint8_t frequencyIndex, uint32_t servic
 	mRadioObserversMutex()
 {
     std::lock_guard<std::mutex> lk_guard(mPowerMutex);
+	if (mMainboardControl) mMainboardControl->selectInput(InputSelection::RadioIn);
     mPowerCounter = 0;
 }
 
@@ -194,6 +197,11 @@ void DABReceiver::readThread()
 			notifyObservers();
 			mSiChip->startService(mServiceId, mComponentId);
 		}
+		else
+		{
+			LOG(ERROR) << "Tune frequency failed !!!";
+		}
+		
 	}
 
     while (mReadThreadRunning)

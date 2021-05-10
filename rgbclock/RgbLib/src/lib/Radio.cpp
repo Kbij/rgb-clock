@@ -18,6 +18,7 @@ namespace Hardware
 const int AUTO_OFF_MINUTES = 60;
 const int STARTUP_VOLUME = 30;
 const int SLOWUP_MINUTES = 5;
+const int SLOW_VOLUME_START_VOLUME = 5;
 
 Radio::Radio(I2C &i2c, uint8_t amplifierAddress, DABReceiver &dabReceiver, double frequency):
 	mI2C(i2c),
@@ -122,7 +123,7 @@ void Radio::pwrOn(bool smooth, int volume)
 
 	mState = RadioState::PwrOn;
 	mControlRegister = 0b00010000; // PowerUp
-	mCurrentVolume = 0;
+	mCurrentVolume = SLOW_VOLUME_START_VOLUME;
 	writeRegisters();
 
 	if (volume > 0)
@@ -170,7 +171,7 @@ void Radio::up(int step)
 	if (mCurrentVolume < 99)
 	{
 		mCurrentVolume += 1;
-		//LOG(INFO) << "Volume: " << (int) mVolume;
+		VLOG(1) << "Volume: " << (int) mCurrentVolume;
 		writeRegisters();
 	}
 }
@@ -182,6 +183,7 @@ void Radio::down(int step)
 	if (mCurrentVolume > 1)
 	{
 		mCurrentVolume -= 1;
+		VLOG(1) << "Volume: " << (int) mCurrentVolume;
 		writeRegisters();
 	}
 }

@@ -156,6 +156,8 @@ bool Si4684::writeFlash(const Si4684Settings& settings)
     }
 
 	if (!powerUp()) return false;
+	auto sysState1 = readSysState();
+	LOG(INFO) << "System state after PowerUp: " << sysState1.toString();
 
 	if (settings.BootFile.empty())
 	{
@@ -175,19 +177,28 @@ bool Si4684::writeFlash(const Si4684Settings& settings)
         LOG(ERROR) << "Error loading BootFile";
         return false;
     }
+	//Must wait a bit
+	std::this_thread::sleep_for( std::chrono::milliseconds(4));
 
-	readFlashProperties();
-	flashSetProperty(PROP_FLASH_ERASE_CHIP_CMD, 0x60);
-	readFlashProperties();
+	DABStatus loadInitStatus(sendCommand(SI468X_LOAD_INIT, std::vector<uint8_t> ({0x00}), 0, WAIT_CTS, 1));
+	if (loadInitStatus.error())
+	{
+		LOG(ERROR) << "Load init resulted in a error: " << loadInitStatus.toString();
+		return false;
+	}
 
-    auto sysState2 = readSysState();
-    VLOG(1) << "System state after Init: " << sysState2.toString();
+	//readFlashProperties();
+//	flashSetProperty(PROP_FLASH_ERASE_CHIP_CMD, 0x60);
+//	readFlashProperties();
+
+    // auto sysState2 = readSysState();
+    // VLOG(1) << "System state after Init: " << sysState2.toString();
 
 	VLOG(1) << "Erase Flash";
     std::vector<uint8_t> flashEraseParams;
 	flashEraseParams.push_back(0xFF); // Full chip
-	flashEraseParams.push_back(0xC0);
 	flashEraseParams.push_back(0xDE);
+	flashEraseParams.push_back(0xC0);
 
     DABStatus flashEraseStatus(sendCommand(SI468X_FLASH_LOAD, flashEraseParams, 0, WAIT_CTS, 10));	
 	if (flashEraseStatus.error())

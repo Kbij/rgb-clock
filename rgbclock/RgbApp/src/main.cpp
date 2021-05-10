@@ -36,6 +36,7 @@ DEFINE_bool(disablewatchdog, false, "Disable the watchdog");
 DEFINE_string(configfile,"settings.xml","XML file containing the addresses of all IC's");
 DEFINE_string(alarmfile,"alarms.xml","XML file containing the definition of alarms");
 DEFINE_bool(dabscan, false, "Perform DAB Scan");
+DEFINE_string(rootfolder, ".", "Root folder for DAB images");
 
 
 void signal_handler(int sig);
@@ -201,10 +202,10 @@ int main (int argc, char* argv[])
 				return EXIT_FAILURE;
 			}
 			const App::SystemConfig& systemConfig = config.systemConfig();
-
+			Hardware::SPI spi("/dev/spidev0.0");
 			Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
-			Hardware::Si4684 si4684(i2c, systemConfig.mRadio, &mainboardControl);
-			Hardware::DABReceiver dabReceiver(&si4684, 0, 0, 0);
+			Hardware::Si4684 si4684(spi, &mainboardControl);
+			Hardware::DABReceiver dabReceiver(&si4684, &mainboardControl, 0, 0, 0);
 			dabReceiver.serviceScan();
 		}
 		catch(const std::exception& ex)
@@ -223,7 +224,7 @@ int main (int argc, char* argv[])
 
     	Hardware::I2C i2c;
         Hardware::RTC rtc(i2c, 0x68);
-
+		Hardware::SPI spi("/dev/spidev0.0");
 
 		LOG(INFO) << "Raspberry Pi Ultimate Alarm Clock";
 		LOG(INFO) << "=================================";
@@ -252,15 +253,15 @@ int main (int argc, char* argv[])
 			i2c.writeByte(0x00, 0x06); // General Call Address, Send SWRST data byte 1):
 
 			Hardware::MainboardControl mainboardControl(i2c, systemConfig.mHardwareRevision, systemConfig.mCentralIO, !FLAGS_disablewatchdog);
-			Hardware::Si4684 si4684(i2c, systemConfig.mRadio, &mainboardControl);
+			Hardware::Si4684 si4684(spi, &mainboardControl);
 			si4684.reset();
 			std::this_thread::sleep_for( std::chrono::seconds(1));
     		Hardware::Si4684Settings settings;
-    		settings.BootFile = "./firmware/rom00_patch.016.bin";
-    		settings.DABFile = "./firmware/dab_radio.bin";
+			settings.BootFile = FLAGS_rootfolder + R"(/firmware/rom00_patch.016.bin)";
+ 			settings.DABFile = FLAGS_rootfolder + R"(/firmware/dab_radio.bin)";
 			si4684.init(settings);
 
-			Hardware::DABReceiver dabReceiver(&si4684, 30, 25348, 8);
+			Hardware::DABReceiver dabReceiver(&si4684, &mainboardControl, 30, 25348, 8);
 			Hardware::SystemClock systemClock;
 			App::AlarmManager alarmManager(FLAGS_alarmfile, config.units(), mainboardControl, systemClock);
 

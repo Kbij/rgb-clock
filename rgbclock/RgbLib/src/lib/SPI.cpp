@@ -14,6 +14,8 @@
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
 #include <glog/logging.h>
+#include <thread>
+#include <chrono>
 //https://raspberry-projects.com/pi/programming-in-c/spi/using-the-spi-interface
 //https://docs.huihoo.com/doxygen/linux/kernel/3.7/structspi__ioc__transfer.html
 
@@ -39,12 +41,22 @@ SPI::~SPI()
 bool SPI::openDevice()
 {
 	LOG(INFO) << "Open SPI device: " << mDeviceName;
-	// Open port for reading and writing
-	if ((mDeviceHandle = open(mDeviceName.c_str(), O_RDWR)) < 0)
+
+	mDeviceHandle = -1;
+	int retries = 0;
+	while (mDeviceHandle < 0 && retries < 5)
 	{
-		std::string  ex("Failed to open bus (" + mDeviceName + "): ");
-		ex += strerror(errno);
-		throw std::runtime_error(ex);
+		++retries;
+		if ((mDeviceHandle = open(mDeviceName.c_str(), O_RDWR)) < 0)
+		{
+			LOG(ERROR) << "Failed to open bus (" + mDeviceName + "): " << strerror(errno);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+	}
+
+	if (mDeviceHandle >= 0 )
+	{
+		LOG(INFO) << "SPI device open successfull";
 	}
 
 	uint8_t mode = SPI_MODE_0;

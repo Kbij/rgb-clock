@@ -13,7 +13,7 @@ target_link_libraries (RgbClock pthread)
 target_link_libraries (RgbClock rt)
 
 if("${RGBCLOCK_PLATFORM}" STREQUAL "arm")
-    add_custom_command(TARGET RgbClock POST_BUILD COMMAND scp $<TARGET_FILE:RgbClock> pi@musicbox.lan:/home/pi )
+    add_custom_command(TARGET RgbClock POST_BUILD COMMAND scp $<TARGET_FILE:RgbClock> pi@motioncam.lan:/home/pi )
 endif()    
 
 

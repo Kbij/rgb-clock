@@ -21,6 +21,7 @@ namespace Hardware
 {
 class Radio;
 class Si4684;
+class MainboardControl;
 
 enum class DABPowerState
 {
@@ -33,7 +34,7 @@ enum class DABPowerState
 class DABReceiver
 {
 public:
-	DABReceiver(Si4684* siChip, uint8_t frequencyIndex, uint32_t serviceId, uint32_t componentId);
+	DABReceiver(Si4684* siChip, Hardware::MainboardControl* mainboardControl, uint8_t frequencyIndex, uint32_t serviceId, uint32_t componentId);
 	virtual ~DABReceiver();
 
 	void serviceScan();
@@ -57,6 +58,7 @@ private:
 	void notifyObservers();
 
 	Si4684* mSiChip;
+	Hardware::MainboardControl* mMainboardControl;
 	uint8_t mFrequencyIndex;
 	uint32_t mServiceId;
 	uint32_t mComponentId;

@@ -60,29 +60,29 @@ MainboardControl::MainboardControl(I2C &i2c, uint8_t hwrevision, uint8_t address
 		mWatchdogThread(nullptr),
 		mWatchdogThreadRunning(false)
 {
-	// if (!enableWatchdog)
-	// {
-	// 	LOG(INFO) << "Watchdog is disabled";
-	// }
+	if (!enableWatchdog)
+	{
+		LOG(INFO) << "Watchdog is disabled";
+	}
 	 init();
-    // startWatchdogThread();
+     startWatchdogThread();
 }
 
 MainboardControl::~MainboardControl()
 {
-	// if (mHwRevision > 1)
-	// {
-	// 	mIO.writeA(0); // release relais
-	// }
-	// stopWatchdogThread();
+	if (mHwRevision > 1)
+	{
+		mIO.writeA(0); // release relais
+	}
+	stopWatchdogThread();
 
-	// if (mWatchdogHandle > 0)
-	// {
-	// 	LOG(INFO) << "Disable watchdog";
-	//     write(mWatchdogHandle, "V", 1);
+	if (mWatchdogHandle > 0)
+	{
+		LOG(INFO) << "Disable watchdog";
+	    write(mWatchdogHandle, "V", 1);
 
-    //     close(mWatchdogHandle);
-	// }
+        close(mWatchdogHandle);
+	}
 	LOG(INFO) << "MainboardControl destructor exit";
 }
 
@@ -140,11 +140,6 @@ void MainboardControl::mute(bool mute)
 
 void MainboardControl::resetTuner()
 {
-	// if (mHwRevision == 1)
-	// {
-	// 	return;
-	// }
-
 	LOG(INFO) << "Reset Tuner";
     std::lock_guard<std::recursive_mutex> lk_guard(mBusMutex);
 
