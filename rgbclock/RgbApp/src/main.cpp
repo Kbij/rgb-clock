@@ -261,7 +261,7 @@ int main (int argc, char* argv[])
  			settings.DABFile = FLAGS_rootfolder + R"(/firmware/dab_radio.bin)";
 			si4684.init(settings);
 
-			Hardware::DABReceiver dabReceiver(&si4684, &mainboardControl, 30, 25348, 8);
+			Hardware::DABReceiver dabReceiver(&si4684, &mainboardControl, systemConfig.mFrequencyId, systemConfig.mServiceId, systemConfig.mComponentId);
 			Hardware::SystemClock systemClock;
 			App::AlarmManager alarmManager(FLAGS_alarmfile, config.units(), mainboardControl, systemClock);
 

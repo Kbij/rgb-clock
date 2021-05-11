@@ -32,7 +32,7 @@ class ClockDisplay;
 class Radio : public Hardware::KeyboardObserverIf, public AutoPowerOffDeviceIf, public UpDownDeviceIf
 {
 public:
-	Radio(I2C &i2c, uint8_t amplifierAddress, DABReceiver &dabReceiver, double frequency);
+	Radio(I2C &i2c, uint8_t amplifierAddress, DABReceiver &dabReceiver);
 	virtual ~Radio();
 
 	void registerRadioObserver(RadioObserverIf *observer);
@@ -55,7 +55,6 @@ private:
 	I2C &mI2C;
 	const uint8_t mAplifierAddress;
 	DABReceiver &mDabReceiver;
-	const double mFrequency;
 	uint8_t mMaskRegister;
 	uint8_t mControlRegister;
 	uint8_t mCurrentVolume;

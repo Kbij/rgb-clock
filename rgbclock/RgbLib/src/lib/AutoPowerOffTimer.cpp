@@ -29,7 +29,7 @@ AutoPowerOffTimer::~AutoPowerOffTimer()
 
 void AutoPowerOffTimer::startAutoPowerOff(int minutes)
 {
-	LOG(INFO) << "Start PowerOff";
+	VLOG(1) << "Start PowerOff";
 	startAutoOffThread(minutes);
 }
 
@@ -63,7 +63,7 @@ void AutoPowerOffTimer::stopAutoOffThread()
 void AutoPowerOffTimer::autoOffThread(int minutes)
 {
 	pthread_setname_np(pthread_self(), "Auto PowerOff");
-	LOG(INFO) << "AutoPowerOff thread started";
+	VLOG(1) << "AutoPowerOff thread started";
 
 	int countDownSeconds = minutes * 60;
 	while (mAutoOffThreadRunning)
@@ -75,13 +75,13 @@ void AutoPowerOffTimer::autoOffThread(int minutes)
 		   if (mAutoOffThreadRunning)
 		   { // If still running
 			   mAutoOffThreadRunning = false;
-			   LOG(INFO) << "Auto PowerOff";
+			   VLOG(1) << "Auto PowerOff";
 			   mDevice.pwrOff();
 		   }
 	   }
 	}
 
-	LOG(INFO) << "AutoPowerOff thread stopped";
+	VLOG(1) << "AutoPowerOff thread stopped";
 }
 
 } /* namespace App */

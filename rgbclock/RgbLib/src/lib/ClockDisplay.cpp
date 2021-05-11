@@ -83,12 +83,9 @@ ClockDisplay::ClockDisplay(I2C &i2c, RTC &rtc, Keyboard& keyboard, App::AlarmMan
 
 ClockDisplay::~ClockDisplay()
 {
-	LOG(INFO) << "ClockDisplay destructor";
 	mKeyboard.unRegisterKeyboardObserver(this);
 	stopRefreshThread();
 	mLCDisplay.clearGraphicDisplay();
-
-	LOG(INFO) << "ClockDisplay destructor exit";
 }
 
 void ClockDisplay::signalClockState(App::ClockState state)
@@ -114,7 +111,7 @@ void ClockDisplay::radioDABUpdate(DABInfo rdsInfo)
 
 	// Receive Max is 0..100
 	mReceiveLevel = rdsInfo.ReceiveLevel;
-	VLOG(1) << "mReceiveLevel:" << mReceiveLevel;
+	VLOG(1) << "mReceiveLevel: " << mReceiveLevel;
 }
 
 void ClockDisplay::radioStateUpdate(RadioInfo radioInfo)

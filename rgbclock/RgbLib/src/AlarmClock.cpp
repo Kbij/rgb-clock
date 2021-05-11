@@ -23,7 +23,7 @@ namespace App {
 AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::RTC &rtc, Hardware::DABReceiver & dabReceiver, const SystemConfig &systemConfig, AlarmManager &alarmManager, Hardware::MainboardControl &mainboardControl, const UnitConfig& unitConfig) :
 	mUnitConfig(unitConfig),
 	mKeyboard(i2c, unitConfig.mKeyboard, mainboardControl),
-	mRadio(i2c, unitConfig.mAmplifier, dabReceiver, systemConfig.mFrequency),
+	mRadio(i2c, unitConfig.mAmplifier, dabReceiver),
 	mAlarmManager(alarmManager),
 	mMainboardControl(mainboardControl),
 	mDisplay(i2c, rtc, mKeyboard, mAlarmManager, systemConfig.mHardwareRevision, unitConfig),
@@ -33,7 +33,8 @@ AlarmClock::AlarmClock(Hardware::I2C &i2c, Hardware::RTC &rtc, Hardware::DABRece
 	mAlarmMaintenanceThread(nullptr),
 	mAlarmMaintenanceThreadRunning(false),
 	mAlarmCounter(0),
-	mAlarmVolume(0)
+	mAlarmVolume(0),
+	mAlarmOff()
 {
 	mDisplay.signalClockState(mClockState);
 	mKeyboard.registerKeyboardObserver(this);
@@ -105,6 +106,7 @@ void AlarmClock::alarmNotify(int volume, bool smooth)
 {
 	LOG(INFO) << "Received alarmNotify, smooth= " << smooth;
 	mAlarmVolume = volume;
+	mAlarmOff = false;
 	startAlarm(smooth);
 
 	startAlarmMaintenanceThread();
@@ -154,31 +156,7 @@ void AlarmClock::alarmSnooze()
 void AlarmClock::alarmOff()
 {
 	LOG(INFO) << "Alarm off received";
-	if ((mClockState == ClockState::clkAlarm) || (mClockState == ClockState::clkSnooze))
-	{
-		if (mClockState == ClockState::clkAlarm)
-		{
-			mRadio.pwrOff();
-		}
-
-		mClockState = ClockState::clkNormal;
-		mDisplay.signalClockState(mClockState);
-
-		stopAlarmMaintenanceThread();
-		std::lock_guard<std::recursive_mutex> lk_guard(mLightMutex);
-
-		if (mLight)
-		{
-			mLight->pwrOff();
-		}
-
-		mKeyboard.keyboardState(Hardware::KeyboardState::stNormal);
-	}
-	else
-	{
-		LOG(WARNING) << "AlarmOff, but ClockState is :" << Hardware::toString(mClockState);
-	}
-
+	mAlarmOff = true;
 }
 
 void AlarmClock::startAlarm(bool smooth)
@@ -228,17 +206,24 @@ void AlarmClock::alarmMaintenanceThread()
 
 	   while (mAlarmMaintenanceThreadRunning)
 	   {
-		   std::this_thread::sleep_for(std::chrono::seconds(1));
-		   mAlarmCounter++;
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+			mAlarmCounter++;
 
-		   switch(mClockState)
-		   {
-			   case ClockState::clkNormal:
-				   break;
-			   case ClockState::clkAlarm:
-			   {
-				   if (mAlarmCounter >= ALARM_TIME)
-				   {
+			//If Alarm needs to be turned off, but we are in snooze state, force state to alarm so it turns off
+			if (mAlarmOff && mClockState == ClockState::clkSnooze)
+			{
+				mClockState = ClockState::clkAlarm;
+			}
+
+			switch(mClockState)
+			{
+				case ClockState::clkNormal:
+					break;
+				case ClockState::clkAlarm:
+				{
+					if (mAlarmCounter >= ALARM_TIME || mAlarmOff)
+					{
+						mAlarmOff = false;
 						mClockState = ClockState::clkNormal;
 						mDisplay.signalClockState(mClockState);
 
@@ -252,20 +237,20 @@ void AlarmClock::alarmMaintenanceThread()
 							mLight->pwrOff();
 						}
 
-					   mAlarmMaintenanceThreadRunning = false;
-				   }
-				   break;
-			   }
-			   case ClockState::clkSnooze:
-			   {
-				   if (mAlarmCounter >= SNOOZE_TIME)
-				   {
-					   startAlarm(false);
-				   }
+						mAlarmMaintenanceThreadRunning = false;
+					}
+					break;
+				}
+				case ClockState::clkSnooze:
+				{
+					if (mAlarmCounter >= SNOOZE_TIME)
+					{
+						startAlarm(false);
+					}
 
-				   break;
-			   }
-		   }
+					break;
+				}
+			}
 	   }
 
 }

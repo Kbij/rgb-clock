@@ -148,6 +148,7 @@ void AlarmManager::sendAlarmSnooze()
 {
 	mSendAlarmSnooze = true;
 }
+
 void AlarmManager::sendAlarmOff()
 {
 	mSendAlarmOff = true;

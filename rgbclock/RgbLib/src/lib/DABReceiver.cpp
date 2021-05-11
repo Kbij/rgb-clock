@@ -195,14 +195,29 @@ void DABReceiver::readThread()
 			mDABInfo.StationName = "Tune...";
 			mDABInfo.Info = "Search Service";
 			notifyObservers();
-			mSiChip->startService(mServiceId, mComponentId);
+
+			if (mSiChip->startService(mServiceId, mComponentId))
+			{
+				//Clear he display after tune complete
+				mDABInfo.StationName = "";
+				mDABInfo.Info = "";
+			}
+			else
+			{
+				mDABInfo.StationName = "";
+				mDABInfo.Info = "Service not found";
+			}
 		}
 		else
 		{
 			LOG(ERROR) << "Tune frequency failed !!!";
+			mDABInfo.StationName = "";
+			mDABInfo.Info = "Tune frequency failed !";
 		}
-		
+
+		notifyObservers();	
 	}
+
 
     while (mReadThreadRunning)
     {

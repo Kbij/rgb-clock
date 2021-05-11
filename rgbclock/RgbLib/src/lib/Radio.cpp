@@ -20,11 +20,10 @@ const int STARTUP_VOLUME = 30;
 const int SLOWUP_MINUTES = 5;
 const int SLOW_VOLUME_START_VOLUME = 5;
 
-Radio::Radio(I2C &i2c, uint8_t amplifierAddress, DABReceiver &dabReceiver, double frequency):
+Radio::Radio(I2C &i2c, uint8_t amplifierAddress, DABReceiver &dabReceiver):
 	mI2C(i2c),
 	mAplifierAddress(amplifierAddress),
 	mDabReceiver(dabReceiver),
-	mFrequency(frequency),
 	mMaskRegister(0),
 	mControlRegister(0),
 	mCurrentVolume(STARTUP_VOLUME),

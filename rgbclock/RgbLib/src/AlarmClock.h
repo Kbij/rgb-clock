@@ -73,7 +73,7 @@ private:
     std::atomic_bool mAlarmMaintenanceThreadRunning;
     std::atomic_int mAlarmCounter;
     std::atomic_int mAlarmVolume;
-
+	std::atomic_int mAlarmOff;
 };
 
 } /* namespace App */

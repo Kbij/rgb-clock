@@ -27,9 +27,9 @@ Config::Config(const std::string& settingsFile):
 Config::~Config() {
 }
 
-//bool getAddress(ticpp::Iterator<ticpp::Element>& unit, const std::string& name, uint8_t& addressValue)
-bool getInteger(tinyxml2::XMLElement* element, const std::string& name, uint8_t& value)
+bool getInteger(tinyxml2::XMLElement* element, const std::string& name, int& value, int defaultVal)
 {
+	value = defaultVal;
 	tinyxml2::XMLElement *integerElement = element->FirstChildElement(name.c_str());
 	if ( integerElement != nullptr )
 	{
@@ -38,6 +38,15 @@ bool getInteger(tinyxml2::XMLElement* element, const std::string& name, uint8_t&
 		return true;
 	}
 	return false;
+}
+
+bool getByte(tinyxml2::XMLElement* element, const std::string& name, uint8_t& value)
+{
+	int intValue = 0;
+	bool result = getInteger(element, name, intValue, 0);
+	value = intValue;
+
+	return result;
 }
 
 bool getDouble(tinyxml2::XMLElement* element, const std::string& name, double& value, double defaultVal)
@@ -74,11 +83,13 @@ void Config::loadXML()
 			return;
 		}
 
-		getInteger(settings, "hw_revision", mSystemConfig.mHardwareRevision);
-		getInteger(settings, "rtc_addr", mSystemConfig.mRtc);
-		getInteger(settings, "radio_addr", mSystemConfig.mRadio);
-		getDouble(settings, "frequency", mSystemConfig.mFrequency, 94.5);  //StuBru :-)
-		getInteger(settings, "centralio_addr", mSystemConfig.mCentralIO);
+		getByte(settings, "hw_revision", mSystemConfig.mHardwareRevision);
+		getByte(settings, "rtc_addr", mSystemConfig.mRtc);
+		getByte(settings, "radio_addr", mSystemConfig.mRadio);
+		getInteger(settings, "frequency_id", mSystemConfig.mFrequencyId, 30);  //StuBru :-)
+		getInteger(settings, "service_id", mSystemConfig.mServiceId, 25348);  //StuBru :-)
+		getInteger(settings, "component_id", mSystemConfig.mComponentId, 8);  //StuBru :-)
+		getByte(settings, "centralio_addr", mSystemConfig.mCentralIO);
 		for (tinyxml2::XMLElement* unit = settings->FirstChildElement("clockunit"); unit != NULL; unit = unit->NextSiblingElement())
 		{
 			UnitConfig unitSettings;
@@ -88,14 +99,14 @@ void Config::loadXML()
 				unitSettings.mName = name;
 	        	LOG(INFO) << "Unit found: " << unitSettings.mName;
 
-	        	getInteger(unit, "light_addr", unitSettings.mLight);
-	        	getInteger(unit, "keyboard_addr", unitSettings.mKeyboard);
-	        	getInteger(unit, "amplifier_addr", unitSettings.mAmplifier);
-	        	getInteger(unit, "lcd_addr", unitSettings.mLCD);
-	        	getInteger(unit, "lightsensor_addr", unitSettings.mLightSensor);
+	        	getByte(unit, "light_addr", unitSettings.mLight);
+	        	getByte(unit, "keyboard_addr", unitSettings.mKeyboard);
+	        	getByte(unit, "amplifier_addr", unitSettings.mAmplifier);
+	        	getByte(unit, "lcd_addr", unitSettings.mLCD);
+	        	getByte(unit, "lightsensor_addr", unitSettings.mLightSensor);
 	        	if (mSystemConfig.mHardwareRevision > 1)
 	            {
-	        		getInteger(unit, "backlight_addr", unitSettings.mBackLight);
+	        		getByte(unit, "backlight_addr", unitSettings.mBackLight);
 	            }
 				mConfiguredUnits[unitSettings.mName] = unitSettings;
 			}
