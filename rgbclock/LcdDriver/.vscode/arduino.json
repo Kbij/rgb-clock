@@ -1,0 +1,7 @@
+{
+    "sketch": "LcdDriver.ino",
+    "board": "arduino:avr:uno",
+    "port": "COM6",
+    "programmer": "ArduinoISP"
+
+}
