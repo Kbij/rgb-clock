@@ -17,7 +17,7 @@ Font generated with:
 ./otf2bdf verdanab.ttf  -p 20 -l "48_58" -o verdana.bdf
 ./bdfconv -b 0 -o verdana.c -f 1 -n verdana  verdana.bdf
 */
-const uint8_t verdana[341] U8G2_FONT_SECTION("verdana") =
+const uint8_t verdana_noeffect[341] U8G2_FONT_SECTION("verdana") =
   "\13\0\4\4\5\5\4\1\6\22\25\1\0\25\0\25\0\0\0\0\0\1\70\60\31\260j\272\14\252b\343"
   "\302P\11C\313\364\317\26\61*\342\206\225BS\0\61\20\255r\232\12\226\63\224\207\365\37=\370\340\0"
   "\62\35\260nz\216\61j\343d\224\221\200F\215\226-j\264\250I\13\17\232\64\371\340\7\4\63 \260"

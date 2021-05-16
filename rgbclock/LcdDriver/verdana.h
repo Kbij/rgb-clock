@@ -3,7 +3,7 @@
 
 #include <U8g2lib.h>
 
-const uint8_t* verdana;
+const uint8_t* verdana_noeffect;
 
 
-#ebdif VERDANA_H
+#endif //VERDANA_H
