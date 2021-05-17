@@ -17,15 +17,16 @@ const uint8_t verdana_tf[341] U8G2_FONT_SECTION("verdana") =
   "\210!#\305\212\24+r\246P\63\225\253\334\24:R\254\204\61f&\14\31y\20\306\25CT\0\71"
   "#\261f\272\16\256j\363\304\214\221R\314\66+a\252\304\203 \37\31)[\326L\60C\215X\251C"
   "\7\0:\13\345\355\25\36\250\7\372@\1\0\0\0\4\377\377\0";
+
 bool commandReceived;
 bool commandProcessed;
-char receivedCommand[255];
+char receivedCommand[50];
 int receivedCommandLength;
 
 void setup()
 {
     commandReceived = false;
-    commandProcessed = false;
+    commandProcessed = true;
 
     u8g2.begin();
     //R/W pin
@@ -37,7 +38,7 @@ void setup()
     Wire.onReceive(receiveEvent);     // register event
     Wire.onRequest(requestEvent);
 
-    u8g2.clearBuffer();					      // clear the internal memory
+    u8g2.clearBuffer();				    // clear the internal memory
     u8g2.setFont(u8g2_font_6x10_tf);	// choose a suitable font
     u8g2.drawStr(1,15,"Waiting for I2C commands...");
     u8g2.sendBuffer();
@@ -47,164 +48,178 @@ void loop()
 {
     if (commandReceived)
     {
+        Serial.println("processing command");
+        if (receivedCommandLength > 0)
+        {
+            switch (receivedCommand[0])
+            {
+                case LCD_RESET:
+                {
+                    Serial.println("LCD_RESET");
+                    lcdReset();
+                    break;
+                }
+                case LCD_CLEAR_SCREEN:
+                {
+                    Serial.println("LCD_CLEAR_SCREEN");
+                    lcdClearScreen();
+                    break;
+                }
+                case LCD_CLEAR_REGION:
+                {
+                    Serial.println("LCD_CLEAR_REGION");
+                    if (receivedCommandLength >= 4)
+                    {
+                        int x1 = receivedCommand[1];
+                        int y1 = receivedCommand[2];
+                        int x2 = receivedCommand[3];
+                        int y2 = receivedCommand[4];
+
+                        lcdClearRegion(x1, y1, x2, y2);
+                    }
+                    break;
+                }
+                case LCD_WRITE_TEXT:
+                {
+                    Serial.println("LCD_WRITE_TEXT");
+                    if (receivedCommandLength > 5)
+                    {
+                        int size = receivedCommand[1];
+                        int x = receivedCommand[2];
+                        int y = receivedCommand[3];
+                        String text;
+                        int index = 4;
+                        while(index < receivedCommandLength)
+                        {
+                            text += receivedCommand[index++];
+                        }
+                        lcdWriteText(size, x, y, text);
+                    }
+                    break;
+                }
+                default:
+                {
+                    Serial.print("Unknown command received: ");
+                    Serial.println((int) receivedCommand[0]);
+                }
+            }
+        }
+
+        Serial.println("Command processed");
+        commandReceived = false;
         commandProcessed = true;
     }
-  /*
-    Serial.println("Printing Hello world");
-
-    u8g2.setFont(verdana);	// choose a suitable font
-    u8g2.drawStr(30, 22,"18:00");	// write something to the internal memory
-    // bijna ok: u8g2_font_courR08_tf
-    u8g2.setFont(u8g2_font_6x10_tf    );	// choose a suitable font
-    u8g2.drawStr(1,30,"Dit is een lange text ...");	// write something to the internal memory
-    u8g2.sendBuffer();					// transfer internal memory to the display
-    //u8g2.setFontMode(1);
-    for(int i = 0; i > -180;--i)
-    {
-        u8g2.setDrawColor(0);
-        u8g2.drawBox(0,22,160,10);
-        u8g2.setDrawColor(1);
-        u8g2.drawUTF8(1+i,30,"Dit is een lange text ...");	// write something to the internal memory
-        u8g2.sendBuffer();					// transfer internal memory to the display
-
-
-        delay(50);
-    }
-    Serial.println("Done ...");
-    delay(1000);
-    */
 }
 
 void receiveEvent(int bytesReceived)
 {
-  if (bytesReceived > 0)
-  {
-    uint8_t command = Wire.read();
-    switch (command)
+    int command = Wire.read();
+    if (command > 0)
     {
-      case LCD_RESET:
-      {
-        Serial.println("LCD_RESET");
-        lcdReset();
-        break;
-      }
-      case LCD_CLEAR_SCREEN:
-      {
-        Serial.println("LCD_CLEAR_SCREEN");
-        lcdClearScreen();
-        break;
-      }
-      case LCD_CLEAR_REGION:
-      {
-        Serial.println("LCD_CLEAR_REGION");
-        if (bytesReceived >= 4)
+        if (commandProcessed)
         {
-          int x1 = Wire.read();
-          int y1 = Wire.read();
-          int x2 = Wire.read();
-          int y2 = Wire.read();
+            commandProcessed = false;
 
-          lcdClearRegion(x1, y1, x2, y2);
+            Serial.println("Receive i2c");
+            receivedCommand[0] = command;
+            int index = 1;
+            while(Wire.available() > 0)
+            {
+                receivedCommand[index++] = Wire.read();
+            }
+
+            receivedCommandLength = index;
+            commandReceived = true;
         }
-
-        break;
-      }
-      case LCD_WRITE_TEXT:
-      {
-        Serial.println("LCD_WRITE_TEXT");
-        if (bytesReceived >= 5)
+        else
         {
-          int size = Wire.read();
-          int x = Wire.read();
-          int y = Wire.read();
-          String text;
-          int index = 0;
-          while(Wire.available() > 0)
-          {
-            text += (char) Wire.read(); // receive byte as a character
-          }
-          //text[index] = 0; //Close
-          lcdWriteText(size, x, y, text);
+            Serial.println("Previous command not processed !");
+            while(Wire.available() > 0)
+            {
+                //Read all, and ignore
+                Wire.read();
+            }
         }
-        break;
-      }
-      default:
-      {
-        Serial.print("Unknown command received: ");
-        Serial.println(command);
-      }
     }
-  }
+    else
+    {
+        while(Wire.available() > 0)
+        {
+            Wire.read();
+        }
+    }
 }
 
 void requestEvent()
 {
+    Serial.print("Request command processed: ");
+    Serial.println((uint8_t) commandProcessed, HEX);
     Wire.write((uint8_t) commandProcessed);
 }
 
 void lcdReset()
 {
-  u8g2.clearDisplay();
+    u8g2.clearDisplay();
 }
 
 void lcdClearScreen()
 {
-  u8g2.clearDisplay();
+    u8g2.clearDisplay();
 }
 
 void lcdClearRegion(int x1, int y1, int x2, int y2)
 {
-  int width = abs(x2-x1);
-  int height = abs(y2-y1);
-  u8g2.setDrawColor(0);
-  u8g2.drawBox(x1, y1, width, height);
+    int width = abs(x2-x1);
+    int height = abs(y2-y1);
+    u8g2.setDrawColor(0);
+    u8g2.drawBox(x1, y1, width, height);
 }
 
 void lcdWriteText(int size, int x, int y, String text)
 {
-  Serial.print("write text, x: ");
-  Serial.print(x);
-  Serial.print(", y: ");
-  Serial.print(y);
-  Serial.print(", ");
-  int fontHeight = 0;
+    Serial.print("write text, x: ");
+    Serial.print(x);
+    Serial.print(", y: ");
+    Serial.print(y);
+    Serial.print(", ");
+    int fontHeight = 0;
 
-  if (size == LCD_FONT_SMALL)
-  {
-    Serial.print("small, ");
-    u8g2.setFont(u8g2_font_6x10_tf);
-    fontHeight = 8;
-  }
-  else if (size == LCD_FONT_LARGE)
-  {
-    Serial.print("large, ");
-    u8g2.setFont(verdana_tf);
-    fontHeight = 22;
-  } else
-  {
-    Serial.print("small, ");
-    u8g2.setFont(u8g2_font_6x10_tf);
-    fontHeight = 8;
-  }
+    if (size == LCD_FONT_SMALL)
+    {
+        Serial.print("small, '");
+        u8g2.setFont(u8g2_font_6x10_tf);
+        fontHeight = 8;
+    }
+    else if (size == LCD_FONT_LARGE)
+    {
+        Serial.print("large, '");
+        u8g2.setFont(verdana_tf);
+        fontHeight = 22;
+    } else
+    {
+        Serial.print("small, '");
+        u8g2.setFont(u8g2_font_6x10_tf);
+        fontHeight = 8;
+    }
 
-  Serial.print(text);
-  Serial.println("'");
+    Serial.print(text);
+    Serial.println("'");
 
-  char charArray[255];
-  text.toCharArray(charArray, sizeof(charArray));
+    char charArray[50];
+    text.toCharArray(charArray, sizeof(charArray));
 
-  //Clear first
-  /*
-  int textWidth = u8g2.getStrWidth(charArray);
-  u8g2.setDrawColor(0);
-  u8g2.drawBox(x-1, y+1, textWidth+2, fontHeight+2);
-  */
+    //Clear first
+    /*
+    int textWidth = u8g2.getStrWidth(charArray);
+    u8g2.setDrawColor(0);
+    u8g2.drawBox(x-1, y+1, textWidth+2, fontHeight+2);
+    */
 
-  u8g2.setFontMode(0);
-  //Write text
-  u8g2.setDrawColor(1);
-  u8g2.drawUTF8(x, y, charArray);
-  u8g2.sendBuffer();
+    u8g2.setFontMode(0);
+    //Write text
+    u8g2.setDrawColor(1);
+    u8g2.drawUTF8(x, y, charArray);
+    u8g2.sendBuffer();
 }
 
 
