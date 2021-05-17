@@ -18,9 +18,10 @@ const uint8_t verdana_tf[341] U8G2_FONT_SECTION("verdana") =
   "#\261f\272\16\256j\363\304\214\221R\314\66+a\252\304\203 \37\31)[\326L\60C\215X\251C"
   "\7\0:\13\345\355\25\36\250\7\372@\1\0\0\0\4\377\377\0";
 
-bool commandReceived;
-bool commandProcessed;
-char receivedCommand[50];
+volatile bool commandReceived;
+volatile bool commandProcessed;
+volatile uint8_t receivedCommand;
+char receivedCommandData[50];
 int receivedCommandLength;
 
 void setup()
@@ -49,59 +50,57 @@ void loop()
     if (commandReceived)
     {
         Serial.println("processing command");
-        if (receivedCommandLength > 0)
-        {
-            switch (receivedCommand[0])
-            {
-                case LCD_RESET:
-                {
-                    Serial.println("LCD_RESET");
-                    lcdReset();
-                    break;
-                }
-                case LCD_CLEAR_SCREEN:
-                {
-                    Serial.println("LCD_CLEAR_SCREEN");
-                    lcdClearScreen();
-                    break;
-                }
-                case LCD_CLEAR_REGION:
-                {
-                    Serial.println("LCD_CLEAR_REGION");
-                    if (receivedCommandLength >= 4)
-                    {
-                        int x1 = receivedCommand[1];
-                        int y1 = receivedCommand[2];
-                        int x2 = receivedCommand[3];
-                        int y2 = receivedCommand[4];
 
-                        lcdClearRegion(x1, y1, x2, y2);
-                    }
-                    break;
-                }
-                case LCD_WRITE_TEXT:
+        switch (receivedCommand)
+        {
+            case LCD_RESET:
+            {
+                Serial.println("LCD_RESET");
+                lcdReset();
+                break;
+            }
+            case LCD_CLEAR_SCREEN:
+            {
+                Serial.println("LCD_CLEAR_SCREEN");
+                lcdClearScreen();
+                break;
+            }
+            case LCD_CLEAR_REGION:
+            {
+                Serial.println("LCD_CLEAR_REGION");
+                if (receivedCommandLength >= 4)
                 {
-                    Serial.println("LCD_WRITE_TEXT");
-                    if (receivedCommandLength > 5)
+                    int x1 = receivedCommandData[0];
+                    int y1 = receivedCommandData[1];
+                    int x2 = receivedCommandData[2];
+                    int y2 = receivedCommandData[3];
+
+                    lcdClearRegion(x1, y1, x2, y2);
+                }
+                break;
+            }
+            case LCD_WRITE_TEXT:
+            {
+                Serial.println("LCD_WRITE_TEXT");
+                if (receivedCommandLength >= 4)
+                {
+                    int size = receivedCommandData[0];
+                    int x = receivedCommandData[1];
+                    int y = receivedCommandData[2];
+                    String text;
+                    int index = 3;
+                    while(index < receivedCommandLength)
                     {
-                        int size = receivedCommand[1];
-                        int x = receivedCommand[2];
-                        int y = receivedCommand[3];
-                        String text;
-                        int index = 4;
-                        while(index < receivedCommandLength)
-                        {
-                            text += receivedCommand[index++];
-                        }
-                        lcdWriteText(size, x, y, text);
+                        text += receivedCommandData[index++];
                     }
-                    break;
+                    lcdWriteText(size, x, y, text);
                 }
-                default:
-                {
-                    Serial.print("Unknown command received: ");
-                    Serial.println((int) receivedCommand[0]);
-                }
+                break;
+            }
+            default:
+            {
+                Serial.print("Unknown command received: ");
+                Serial.println((int) receivedCommand);
             }
         }
 
@@ -113,47 +112,38 @@ void loop()
 
 void receiveEvent(int bytesReceived)
 {
-    int command = Wire.read();
-    if (command > 0)
+    if (bytesReceived > 0)
     {
         if (commandProcessed)
         {
-            commandProcessed = false;
-
-            Serial.println("Receive i2c");
-            receivedCommand[0] = command;
-            int index = 1;
-            while(Wire.available() > 0)
+            receivedCommand = Wire.read();
+            if (receivedCommand > 0)
             {
-                receivedCommand[index++] = Wire.read();
-            }
+                commandProcessed = false;
 
-            receivedCommandLength = index;
-            commandReceived = true;
+                int index = 0;
+                while(Wire.available() > 0)
+                {
+                    receivedCommandData[index++] = Wire.read();
+                }
+
+                receivedCommandLength = index;
+                commandReceived = true;
+            }
         }
         else
         {
-            Serial.println("Previous command not processed !");
+            //Command was not processed; read all data, and throw away
             while(Wire.available() > 0)
             {
-                //Read all, and ignore
                 Wire.read();
             }
-        }
-    }
-    else
-    {
-        while(Wire.available() > 0)
-        {
-            Wire.read();
         }
     }
 }
 
 void requestEvent()
 {
-    Serial.print("Request command processed: ");
-    Serial.println((uint8_t) commandProcessed, HEX);
     Wire.write((uint8_t) commandProcessed);
 }
 
