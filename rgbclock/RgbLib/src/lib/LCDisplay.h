@@ -7,8 +7,11 @@
 
 #ifndef LCDISPLAY_H_
 #define LCDISPLAY_H_
+
+#include "LCDisplayIf.h"
 #include "I2C.h"
 #include "IOExpander.h"
+#include "FontType.h"
 #include <stdint.h>
 #include <bitset>
 #include <string>
@@ -23,11 +26,6 @@ struct MyGraphicWord
 	std::bitset<16> mBits;
 	bool mChanged;
 };
-enum class FontType
-{
-	Verdana20,
-	Terminal8
-};
 
 struct FontInfo
 {
@@ -37,7 +35,8 @@ struct FontInfo
 	const std::vector<uint8_t>* mPointer;
 };
 
-class LCDisplay {
+class LCDisplay: public LCDisplayIf
+{
 public:
 	LCDisplay(I2C &i2c, uint8_t address);
 	virtual ~LCDisplay();

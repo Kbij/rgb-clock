@@ -35,6 +35,7 @@ namespace Hardware
 {
 class Keyboard;
 class RTC;
+class LCDisplayIf;
 
 enum class DisplayState
 {
@@ -106,7 +107,7 @@ private:
 
 
 	RTC& mRTC;
-	LCDisplay mLCDisplay;
+	LCDisplayIf* mLCDisplay;
 	LCDBacklight mBackLight;
 	Keyboard& mKeyboard;
 	App::AlarmManager& mAlarmManager;

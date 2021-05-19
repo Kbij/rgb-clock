@@ -11,6 +11,9 @@
 #include "Keyboard.h"
 #include "AlarmManager.h"
 #include "Config.h"
+#include "LCDisplayIf.h"
+#include "LCDisplay.h"
+#include "FastLCDisplay.h"
 #include <sstream>
 #include <glog/logging.h>
 #include <iostream>
@@ -51,7 +54,7 @@ namespace Hardware
 
 ClockDisplay::ClockDisplay(I2C &i2c, RTC &rtc, Keyboard& keyboard, App::AlarmManager &alarmManager, uint8_t hwrevision, const App::UnitConfig& unitConfig) :
 	mRTC(rtc),
-	mLCDisplay(i2c, unitConfig.mLCD),
+	mLCDisplay(),
 	mBackLight(i2c, hwrevision, unitConfig.mBackLight, unitConfig.mLightSensor),
 	mKeyboard(keyboard),
 	mAlarmManager(alarmManager),
@@ -75,8 +78,11 @@ ClockDisplay::ClockDisplay(I2C &i2c, RTC &rtc, Keyboard& keyboard, App::AlarmMan
 	mUpdateEditDisplay(false),
 	mEditAlarmsTimer(0)
 {
-	mLCDisplay.initGraphic();
-	mLCDisplay.clearGraphicDisplay();
+//	mLCDisplay = new LCDisplay(i2c, unitConfig.mLCD);
+	mLCDisplay = new FastLCDisplay(i2c, 0x04);
+
+	mLCDisplay->initGraphic();
+	mLCDisplay->clearGraphicDisplay();
 	mKeyboard.registerKeyboardObserver(this);
 	startRefreshThread();
 }
@@ -85,7 +91,8 @@ ClockDisplay::~ClockDisplay()
 {
 	mKeyboard.unRegisterKeyboardObserver(this);
 	stopRefreshThread();
-	mLCDisplay.clearGraphicDisplay();
+	mLCDisplay->clearGraphicDisplay();
+	delete mLCDisplay;
 }
 
 void ClockDisplay::signalClockState(App::ClockState state)
@@ -160,7 +167,7 @@ void ClockDisplay::keyboardPressed(const KeyboardInfo& keyboardInfo)
 					&& (mAlarmEditIndex < alarms->size()))
 				{
 					LOG(INFO) << "Confirm delete";
-					mLCDisplay.rectangle(0, 0, 163, 63, false, true);
+					mLCDisplay->rectangle(0, 0, 163, 63, false, true);
 					mEditState = EditState::edConfirmDelete;
 					mConfirmDelete = false;
 
@@ -181,7 +188,7 @@ void ClockDisplay::keyboardPressed(const KeyboardInfo& keyboardInfo)
 					mEditState = EditState::edEditAlarm;
 
 					// going from list alarm to edit individual alarm; clear screen
-					mLCDisplay.rectangle(0, 0, 163, 63, false, true);
+					mLCDisplay->rectangle(0, 0, 163, 63, false, true);
 
 					mUpdateEditDisplay = true;
 					return;
@@ -668,10 +675,10 @@ void ClockDisplay::updateEditDisplay()
 	{
 		if (mEditState == EditState::edListAlarms)
 		{
-			mLCDisplay.rectangle(0, 0, 163, 63, false, true);
+			mLCDisplay->rectangle(0, 0, 163, 63, false, true);
 			unsigned int alarmIndex = mAlarmEditIndex;
 			int line = 0;
-			mLCDisplay.writeGraphicText(0, 0, ">", FontType::Terminal8);
+			mLCDisplay->writeGraphicText(0, 0, ">", FontType::Terminal8);
 			while (alarmIndex < alarms->size() && (line < 3))
 			{
 				auto alarm = (*alarms)[alarmIndex];
@@ -679,23 +686,23 @@ void ClockDisplay::updateEditDisplay()
 				++line;
 				++alarmIndex;
 			}
-			mLCDisplay.writeGraphicText(POS_UNITNAME, line * LINESPACING, "Nieuw alarm                   ", FontType::Terminal8);
+			mLCDisplay->writeGraphicText(POS_UNITNAME, line * LINESPACING, "Nieuw alarm ", FontType::Terminal8);
 
 		}
 		if (mEditState == EditState::edConfirmDelete)
 		{
 			int carretPos = mConfirmDelete ? 34: 86;
-			mLCDisplay.writeGraphicText(20, 8, "Alarm verwijderen ?", FontType::Terminal8);
-			mLCDisplay.writeGraphicText(20, 16, "  Ja      Nee", FontType::Terminal8);
-			mLCDisplay.writeGraphicText(0, 24, "                                       ", FontType::Terminal8);
-			mLCDisplay.writeGraphicText(carretPos, 24, "^", FontType::Terminal8);
+			mLCDisplay->writeGraphicText(20, 8, "Alarm verwijderen ?", FontType::Terminal8);
+			mLCDisplay->writeGraphicText(20, 16, "  Ja      Nee", FontType::Terminal8);
+			mLCDisplay->writeGraphicText(0, 24, "                                       ", FontType::Terminal8);
+			mLCDisplay->writeGraphicText(carretPos, 24, "^", FontType::Terminal8);
 
 		}
 		if (mEditState == EditState::edEditAlarm)
 		{
 			auto alarm = (*alarms)[mAlarmEditIndex];
 			writeAlarm(0,alarm);
-			mLCDisplay.rectangle(0, 8, 163, 63, false, true);
+			mLCDisplay->rectangle(0, 8, 163, 63, false, true);
 
 			int carretPos = 0;
 			switch (mEditPos)
@@ -731,22 +738,22 @@ void ClockDisplay::updateEditDisplay()
 				case EditPos::posVol: carretPos = POS_VOLUME;
 					break;
 			}
-			mLCDisplay.writeGraphicText(carretPos, LINESPACING, "^", FontType::Terminal8);
+			mLCDisplay->writeGraphicText(carretPos, LINESPACING, "^", FontType::Terminal8);
 		}
 	}
 }
 
 void ClockDisplay::writeAlarm(int line, const App::Alarm& alarm)
 {
-	mLCDisplay.writeGraphicText(POS_ENABLE, line * LINESPACING, alarm.mEnabled ? "1":"0", FontType::Terminal8);
-	mLCDisplay.writeGraphicText(POS_UNITNAME, line * LINESPACING, alarm.mUnit == "" ? "     ": alarm.mUnit, FontType::Terminal8);
-	mLCDisplay.writeGraphicText(POS_HOUR_T, line * LINESPACING, std::to_string((int) alarm.mHour / 10), FontType::Terminal8);
-	mLCDisplay.writeGraphicText(POS_HOUR_E, line * LINESPACING, std::to_string(alarm.mHour % 10), FontType::Terminal8);
-	mLCDisplay.writeGraphicText(POS_MIN_T, line * LINESPACING, std::to_string((int) alarm.mMinutes / 10 ), FontType::Terminal8);
-	mLCDisplay.writeGraphicText(POS_MIN_E, line * LINESPACING, std::to_string(alarm.mMinutes % 10), FontType::Terminal8);
-	mLCDisplay.writeGraphicText(POS_TYPE, line * LINESPACING, alarm.typeString(), FontType::Terminal8);
-	mLCDisplay.writeGraphicText(POS_DAYS, line * LINESPACING, alarm.mAlarmType == App::AlarmType::Daily ? alarm.daysString() : "[       ]", FontType::Terminal8);
-	mLCDisplay.writeGraphicText(POS_VOLUME, line * LINESPACING, std::to_string(alarm.mVolume) + " ", FontType::Terminal8);
+	mLCDisplay->writeGraphicText(POS_ENABLE, line * LINESPACING, alarm.mEnabled ? "1":"0", FontType::Terminal8);
+	mLCDisplay->writeGraphicText(POS_UNITNAME, line * LINESPACING, alarm.mUnit == "" ? "     ": alarm.mUnit, FontType::Terminal8);
+	mLCDisplay->writeGraphicText(POS_HOUR_T, line * LINESPACING, std::to_string((int) alarm.mHour / 10), FontType::Terminal8);
+	mLCDisplay->writeGraphicText(POS_HOUR_E, line * LINESPACING, std::to_string(alarm.mHour % 10), FontType::Terminal8);
+	mLCDisplay->writeGraphicText(POS_MIN_T, line * LINESPACING, std::to_string((int) alarm.mMinutes / 10 ), FontType::Terminal8);
+	mLCDisplay->writeGraphicText(POS_MIN_E, line * LINESPACING, std::to_string(alarm.mMinutes % 10), FontType::Terminal8);
+	mLCDisplay->writeGraphicText(POS_TYPE, line * LINESPACING, alarm.typeString(), FontType::Terminal8);
+	mLCDisplay->writeGraphicText(POS_DAYS, line * LINESPACING, alarm.mAlarmType == App::AlarmType::Daily ? alarm.daysString() : "[       ]", FontType::Terminal8);
+	mLCDisplay->writeGraphicText(POS_VOLUME, line * LINESPACING, std::to_string(alarm.mVolume) + " ", FontType::Terminal8);
 
 }
 
@@ -756,7 +763,7 @@ void ClockDisplay::exitEditAlarms()
 	mAlarmManager.saveAlarms(mUnitName);
 	mDisplayState = DisplayState::stNormal;
 	mEditState = EditState::edListAlarms;
-	mLCDisplay.clearGraphicDisplay();
+	mLCDisplay->clearGraphicDisplay();
 	mForceRefresh = true;
 }
 
@@ -776,26 +783,26 @@ void ClockDisplay::drawVolume()
 	uint8_t length = mVolume * step;
 
 	// top part: clear
-	mLCDisplay.rectangle(158, top, 159, 31-length - 1, false, false);
+	mLCDisplay->rectangle(158, top, 159, 31-length - 1, false, false);
 	// bottom part: set
-	mLCDisplay.rectangle(158, 31-length, 159, 31, true, false);
+	mLCDisplay->rectangle(158, 31-length, 159, 31, true, false);
 }
 
 void ClockDisplay::eraseVolume()
 {
-	mLCDisplay.rectangle(158, 10, 159, 31, false, false);
+	mLCDisplay->rectangle(158, 10, 159, 31, false, false);
 }
 
 void ClockDisplay::drawSignal()
 {
 	std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
 
-	mLCDisplay.drawSignal(mReceiveLevel);
+	mLCDisplay->drawSignal(mReceiveLevel);
 }
 
 void ClockDisplay::eraseSignal()
 {
-	mLCDisplay.rectangle(156, 0, 159, 3, false, true);
+	mLCDisplay->rectangle(156, 0, 159, 3, false, true);
 }
 
 void ClockDisplay::drawRDS()
@@ -803,7 +810,7 @@ void ClockDisplay::drawRDS()
 	std::lock_guard<std::recursive_mutex> lk_guard(mRadioInfoMutex);
 
 
-	mLCDisplay.writeGraphicText(0, 14, mRDSStationName, FontType::Terminal8);
+	mLCDisplay->writeGraphicText(0, 14, mRDSStationName, FontType::Terminal8);
 	if (mRDSText.size() > 0)
 	{
 		std::string localRDSText = mRDSText.substr(mRDSTextPos, std::string::npos);
@@ -817,27 +824,27 @@ void ClockDisplay::drawRDS()
 			localRDSText.append(26 - localRDSText.size(), ' ');
 			mRDSTextPos = 0;
 		}
-		mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
+		mLCDisplay->writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
 	}
 	else
 	{
-		std::string localRDSText(26, ' ');
-		mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
+		std::string localRDSText(10, ' ');
+		mLCDisplay->writeGraphicText(0, 24, "", FontType::Terminal8);
 	}
 }
 
 void ClockDisplay::eraseRDS()
 {
 	std::string stationName(7, ' ');
-	mLCDisplay.writeGraphicText(0, 14, stationName, FontType::Terminal8);
+	mLCDisplay->writeGraphicText(0, 14, "   ", FontType::Terminal8);
 
 	std::string localRDSText(26, ' ');
-	mLCDisplay.writeGraphicText(0, 24, localRDSText, FontType::Terminal8);
+	mLCDisplay->writeGraphicText(0, 24, "  ", FontType::Terminal8);
 }
 
 void ClockDisplay::drawNTPState()
 {
-	mLCDisplay.drawNTPState(mRTC.isNTPSync());
+	mLCDisplay->drawNTPState(mRTC.isNTPSync());
 }
 
 void ClockDisplay::updateAlarmInfo()
@@ -849,24 +856,24 @@ void ClockDisplay::updateAlarmInfo()
 			std::string nextAlarm = mAlarmManager.nextAlarm(mUnitName);
 			if (nextAlarm != "")
 			{
-				mLCDisplay.writeGraphicText(0, 0, nextAlarm + " ", FontType::Terminal8);
+				mLCDisplay->writeGraphicText(0, 0, nextAlarm + " ", FontType::Terminal8);
 			}
 			else
 			{
 				// Erase
-				mLCDisplay.writeGraphicText(0, 0, "      ", FontType::Terminal8);
+				mLCDisplay->writeGraphicText(0, 0, "      ", FontType::Terminal8);
 			}
 
 			break;
 		}
 		case App::ClockState::clkAlarm:
 		{
-			mLCDisplay.writeGraphicText(0, 0, "Alarm  ", FontType::Terminal8);
+			mLCDisplay->writeGraphicText(0, 0, "Alarm  ", FontType::Terminal8);
 			break;
 		}
 		case App::ClockState::clkSnooze:
 		{
-			mLCDisplay.writeGraphicText(0, 0, "Snooze ", FontType::Terminal8);
+			mLCDisplay->writeGraphicText(0, 0, "Snooze ", FontType::Terminal8);
 			break;
 		}
 
@@ -918,14 +925,14 @@ void ClockDisplay::refreshThread()
     			hourStream.width(2);
     			hourStream.fill('0');
     			hourStream << timeInfo->tm_hour;
-    			mLCDisplay.writeGraphicText(44, 0, hourStream.str(), FontType::Verdana20);
-    			mLCDisplay.writeGraphicText(90, 0, ":", FontType::Verdana20);
+    			mLCDisplay->writeGraphicText(44, 0, hourStream.str(), FontType::Verdana20);
+    			mLCDisplay->writeGraphicText(90, 0, ":", FontType::Verdana20);
 
     			std::stringstream minStream;
     			minStream.width(2);
     			minStream.fill('0');
     			minStream << timeInfo->tm_min;
-    			mLCDisplay.writeGraphicText(104,0, minStream.str(), FontType::Verdana20);
+    			mLCDisplay->writeGraphicText(104,0, minStream.str(), FontType::Verdana20);
 
     		}
 
