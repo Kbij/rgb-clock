@@ -22051,6 +22051,7 @@ http://www.fairchildsemi.com/ds/LM/LM7805.pdf</description>
 <text x="-74.34" y="57" size="1.778" layer="95">SDA</text>
 <text x="-74.34" y="50" size="1.778" layer="95">SCL</text>
 <text x="-60.96" y="-99.06" size="1.778" layer="91">TXS0104E</text>
+<text x="83.82" y="-96.52" size="1.778" layer="91">SQW and VCC switched !!!</text>
 </plain>
 <instances>
 <instance part="U2" gate="A" x="-50.8" y="60.96" smashed="yes" rot="MR0">
@@ -24247,16 +24248,17 @@ http://www.fairchildsemi.com/ds/LM/LM7805.pdf</description>
 <pinref part="U$6" gate="A" pin="VMEM"/>
 </segment>
 </net>
-<net name="N$71" class="0">
+<net name="NVSCLK" class="0">
 <segment>
 <pinref part="U$13" gate="G$1" pin="SCK"/>
 <wire x1="25.4" y1="88.9" x2="60.96" y2="88.9" width="0.1524" layer="91"/>
 <wire x1="60.96" y1="88.9" x2="60.96" y2="83.82" width="0.1524" layer="91"/>
 <pinref part="U$6" gate="A" pin="NVSCLK"/>
 <wire x1="60.96" y1="83.82" x2="66.04" y2="83.82" width="0.1524" layer="91"/>
+<label x="45.72" y="88.9" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$73" class="0">
+<net name="NVSSB" class="0">
 <segment>
 <pinref part="U$13" gate="G$1" pin="CE"/>
 <wire x1="-10.16" y1="99.06" x2="-10.16" y2="111.76" width="0.1524" layer="91"/>
@@ -24268,9 +24270,10 @@ http://www.fairchildsemi.com/ds/LM/LM7805.pdf</description>
 <junction x="-10.16" y="99.06"/>
 <pinref part="R20" gate="G$1" pin="2"/>
 <wire x1="-33.02" y1="99.06" x2="-33.02" y2="101.6" width="0.1524" layer="91"/>
+<label x="45.72" y="109.22" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$74" class="0">
+<net name="NVMOSI" class="0">
 <segment>
 <pinref part="U$13" gate="G$1" pin="SI/SIO0"/>
 <wire x1="25.4" y1="83.82" x2="40.64" y2="83.82" width="0.1524" layer="91"/>
@@ -24280,9 +24283,10 @@ http://www.fairchildsemi.com/ds/LM/LM7805.pdf</description>
 <wire x1="43.18" y1="101.6" x2="83.82" y2="101.6" width="0.1524" layer="91"/>
 <pinref part="U$6" gate="A" pin="NVMOSI"/>
 <wire x1="83.82" y1="101.6" x2="83.82" y2="99.06" width="0.1524" layer="91"/>
+<label x="45.72" y="101.6" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$72" class="0">
+<net name="NVMISO" class="0">
 <segment>
 <pinref part="U$13" gate="G$1" pin="SO/SOI1"/>
 <wire x1="-10.16" y1="93.98" x2="-17.78" y2="93.98" width="0.1524" layer="91"/>
@@ -24290,6 +24294,7 @@ http://www.fairchildsemi.com/ds/LM/LM7805.pdf</description>
 <pinref part="U$6" gate="A" pin="NVMISO"/>
 <wire x1="-17.78" y1="114.3" x2="86.36" y2="114.3" width="0.1524" layer="91"/>
 <wire x1="86.36" y1="114.3" x2="86.36" y2="99.06" width="0.1524" layer="91"/>
+<label x="45.72" y="114.3" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$3" class="0">
