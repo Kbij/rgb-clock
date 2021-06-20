@@ -1,6 +1,6 @@
+#include <Arduino.h>
 #include <U8g2lib.h>
-#include <Wire.h>
-#include "verdana.h"
+#include "Wire.h"
 #include "Commands.h"
 
 U8G2_ST7920_192X32_F_6800 u8g2(U8G2_R0, 4, 5, 6, 7, 8, 9, 10, 11, /*enable=*/ 3, /*cs=*/ U8X8_PIN_NONE, /*dc=*/ 2, /*reset=*/ U8X8_PIN_NONE);
@@ -21,7 +21,8 @@ const uint8_t verdana_tf[341] U8G2_FONT_SECTION("verdana") =
 volatile bool commandReceived;
 volatile bool commandProcessed;
 volatile uint8_t receivedCommand;
-char receivedCommandData[50];
+const int MAX_DATA_SIZE = 25;
+uint8_t receivedCommandData[MAX_DATA_SIZE];
 int receivedCommandLength;
 
 void setup()
@@ -33,11 +34,14 @@ void setup()
     //R/W pin
     pinMode(12, OUTPUT);
     digitalWrite(12, LOW);
+    pinMode(13, OUTPUT);
 
     Serial.begin(115200);
+
     Wire.begin(4);                    // join i2c bus with address #4
     Wire.onReceive(receiveEvent);     // register event
     Wire.onRequest(requestEvent);
+    Wire.setTimeout( 100 );
 
     u8g2.clearBuffer();				    // clear the internal memory
     u8g2.setFont(u8g2_font_6x10_tf);	// choose a suitable font
@@ -82,18 +86,31 @@ void loop()
             case LCD_WRITE_TEXT:
             {
                 Serial.println("LCD_WRITE_TEXT");
-                if (receivedCommandLength >= 4)
+                if (receivedCommandLength >= 5)
                 {
-                    int size = receivedCommandData[0];
-                    int x = receivedCommandData[1];
-                    int y = receivedCommandData[2];
                     String text;
-                    int index = 3;
+                    int index = 4;
                     while(index < receivedCommandLength)
                     {
-                        text += receivedCommandData[index++];
+                        text += (char) receivedCommandData[index++];
                     }
-                    lcdWriteText(size, x, y, text);
+                    lcdWriteText(receivedCommandData[0],  receivedCommandData[1], receivedCommandData[2], receivedCommandData[3], text);
+                }
+                break;
+            }
+            case LCD_RECTANGLE:
+            {
+                Serial.println("LCD_RECTANGLE");
+                if (receivedCommandLength >= 5)
+                {
+                    int x1 = receivedCommandData[0];
+                    int y1 = receivedCommandData[1];
+                    int x2 = receivedCommandData[2];
+                    int y2 = receivedCommandData[3];
+                    int set = receivedCommandData[4];
+                    int fill = receivedCommandData[5];
+
+                    lcdRectangle(x1, y1, x2, y2, (bool) set, (bool) fill);
                 }
                 break;
             }
@@ -119,15 +136,22 @@ void receiveEvent(int bytesReceived)
             receivedCommand = Wire.read();
             if (receivedCommand > 0)
             {
-                commandProcessed = false;
-
                 int index = 0;
                 while(Wire.available() > 0)
                 {
-                    receivedCommandData[index++] = Wire.read();
+                    if (index < MAX_DATA_SIZE)
+                    {
+                        receivedCommandData[index] = (uint8_t) Wire.read();
+                        index++;
+                    }
+                    else
+                    {
+                        Wire.read();
+                    }
                 }
 
                 receivedCommandLength = index;
+                commandProcessed = false;
                 commandReceived = true;
             }
         }
@@ -163,9 +187,10 @@ void lcdClearRegion(int x1, int y1, int x2, int y2)
     int height = abs(y2-y1);
     u8g2.setDrawColor(0);
     u8g2.drawBox(x1, y1, width, height);
+    u8g2.sendBuffer();
 }
 
-void lcdWriteText(int size, int x, int y, String text)
+void lcdWriteText(int size, int x, int y, int clearLength, String text)
 {
     Serial.print("write text, x: ");
     Serial.print(x);
@@ -191,25 +216,50 @@ void lcdWriteText(int size, int x, int y, String text)
         u8g2.setFont(u8g2_font_6x10_tf);
         fontHeight = 8;
     }
+    Serial.print(", clearlength: ");
+    Serial.print(clearLength);
 
+    Serial.print("[");
     Serial.print(text);
-    Serial.println("'");
+    Serial.println("]");
 
-    char charArray[50];
+    char charArray[MAX_DATA_SIZE];
     text.toCharArray(charArray, sizeof(charArray));
 
-    //Clear first
-    /*
-    int textWidth = u8g2.getStrWidth(charArray);
+    //Clear first, when '0'; calculate with text to draw
+    if (clearLength == 0)
+    {
+        clearLength = u8g2.getStrWidth(charArray);
+    }
+
     u8g2.setDrawColor(0);
-    u8g2.drawBox(x-1, y+1, textWidth+2, fontHeight+2);
-    */
+    u8g2.drawBox(x - 1, y - 1, clearLength + 2, fontHeight + 2);
 
     u8g2.setFontMode(0);
     //Write text
     u8g2.setDrawColor(1);
-    u8g2.drawUTF8(x, y, charArray);
+    u8g2.drawUTF8(x, y + fontHeight, charArray);
     u8g2.sendBuffer();
 }
 
+void lcdRectangle(int x1, int y1, int x2, int  y2, bool set, bool fill)
+{
+    int width = abs(x2-x1);
+    int height = abs(y2-y1);
+    Serial.print("rectangle, x1: ");
+    Serial.print(x1);
+    Serial.print(", y1: ");
+    Serial.print(y1);
+    Serial.print(", width: ");
+    Serial.print(width);
+    Serial.print(", height: ");
+    Serial.print(height);
+    Serial.print(", fill: ");
+    Serial.println(fill);
+
+    //u8g2.setFontMode(0);
+    u8g2.setDrawColor(set ? 1 : 0);
+    u8g2.drawBox(x1, y1, width, height);
+    u8g2.sendBuffer();
+}
 
