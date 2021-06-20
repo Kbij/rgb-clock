@@ -47,7 +47,7 @@ public:
 	void clearGraphicDisplay();
 
 	void writeText(uint8_t pos, std::string text);
-	void writeGraphicText(uint8_t col, uint8_t row, std::string text, FontType font);
+	bool writeGraphicText(uint8_t col, uint8_t row, std::string text, FontType font);
 
 	void point(uint8_t x, uint8_t y, bool set);
 	void hLine(uint8_t col1, uint8_t col2, uint8_t row, bool set);

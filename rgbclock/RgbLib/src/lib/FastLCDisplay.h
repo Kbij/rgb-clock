@@ -24,14 +24,15 @@ public:
 	void initGraphic();
 	void clearGraphicDisplay();
 
-	void writeGraphicText(uint8_t col, uint8_t row, std::string text, FontType font);
+	bool writeGraphicText(uint8_t col, uint8_t row, std::string text, FontType font, int clearLength = 0);
 	void rectangle(uint8_t col1, uint8_t row1, uint8_t col2, uint8_t row2, bool set, bool fill);
 
 	void drawSignal(int8_t signal);
 	void drawNTPState(bool ntpSync);
 private:
     void init();
-    bool isReady();
+    bool waitForReady();
+	bool isReady();
     I2C &mI2c;
     const uint8_t mAddress;
 	std::mutex mDisplayMutex;

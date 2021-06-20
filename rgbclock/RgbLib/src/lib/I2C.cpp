@@ -166,7 +166,7 @@ bool I2C::readWriteDataNoRetry(uint8_t address, const std::vector<uint8_t>& writ
 		{
 			if (!mI2CWriteError[address]) // If first occurrence
 			{
-				LOG(ERROR) << "Failed writing data (address: " << (int) address << ", " << mAddressStatistics[address].mName << "): " << strerror(errno);
+				LOG(ERROR) << "Failed writing data, data size: " << writeData.size() << " (address: " << (int) address << ", " << mAddressStatistics[address].mName << "): " << strerror(errno);
 			}
 			mI2CWriteError[address] = true;
 

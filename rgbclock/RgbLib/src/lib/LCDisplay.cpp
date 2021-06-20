@@ -108,7 +108,7 @@ void LCDisplay::writeText(uint8_t pos, std::string text)
 	}
 }
 
-void LCDisplay::writeGraphicText(uint8_t col, uint8_t row, std::string text, FontType font)
+bool LCDisplay::writeGraphicText(uint8_t col, uint8_t row, std::string text, FontType font)
 {
     std::lock_guard<std::mutex> lk_guard(mDisplayMutex);
 
@@ -119,6 +119,7 @@ void LCDisplay::writeGraphicText(uint8_t col, uint8_t row, std::string text, Fon
 		myCol += mFontMap[font].mSpacing;
 	}
 	refreshDisplay();
+	return true;
 }
 
 void LCDisplay::point(uint8_t x, uint8_t y, bool set)
